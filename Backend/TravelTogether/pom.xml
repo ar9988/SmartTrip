@@ -8,10 +8,10 @@
 		<version>3.4.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.travel.planner</groupId>
-	<artifactId>trip-planner</artifactId>
+	<groupId>com.travel.together</groupId>
+	<artifactId>TravelTogether</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>trip-planner</name>
+	<name>TravelTogether</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
