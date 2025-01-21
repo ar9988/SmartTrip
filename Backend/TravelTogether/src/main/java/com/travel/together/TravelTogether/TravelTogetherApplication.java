@@ -1,13 +1,13 @@
-package com.travel.planner.trip_planner;
+package com.travel.together.TravelTogether;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TripPlannerApplication {
+public class TravelTogetherApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TripPlannerApplication.class, args);
+		SpringApplication.run(TravelTogetherApplication.class, args);
 	}
 
 }
