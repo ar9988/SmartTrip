@@ -1,4 +1,6 @@
 package com.neungi.moyeo.presentation.plan.viewmodel
 
-class PlanViewModel {
+import androidx.lifecycle.ViewModel
+
+class PlanViewModel : ViewModel(), PlanUiAction {
 }
