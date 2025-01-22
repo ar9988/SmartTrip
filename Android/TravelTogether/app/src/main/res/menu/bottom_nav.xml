@@ -4,13 +4,13 @@
     <item
         android:id="@+id/fragment_home"
         android:enabled="true"
-        android:icon="@drawable/home"
+        android:icon="@drawable/selector_home"
         android:title="" />
 
     <item
         android:id="@+id/fragment_plan"
         android:enabled="true"
-        android:icon="@drawable/home"
+        android:icon="@drawable/bnv_plan"
         android:title="" />
 
     <item
@@ -21,13 +21,13 @@
     <item
         android:id="@+id/fragment_album"
         android:enabled="true"
-        android:icon="@drawable/user"
+        android:icon="@drawable/selector_album"
         android:title="" />
 
     <item
         android:id="@+id/fragment_setting"
         android:enabled="true"
-        android:icon="@drawable/user"
+        android:icon="@drawable/bnv_setting"
         android:title="" />
 
 </menu>

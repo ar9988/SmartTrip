@@ -19,6 +19,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val naverClientId = project.findProperty("naver.client.id") as String?
+            ?: throw GradleException("naver.client.id is not defined in local.properties")
+
+        buildConfigField("String", "NAVER_CLIENT_ID", "\"$naverClientId\"")
     }
 
     buildTypes {
@@ -45,20 +50,23 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
     // UI
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
+    implementation("androidx.activity:activity-ktx:1.8.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // Naver Map
+    implementation("com.naver.maps:map-sdk:3.20.0")
 
     // Retrofit2
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

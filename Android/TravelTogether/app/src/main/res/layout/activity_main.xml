@@ -56,7 +56,17 @@
 
         </com.google.android.material.bottomappbar.BottomAppBar>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_order"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/description_fab_planner"
+            android:src="@drawable/ic_planner"
+            app:fabCustomSize="72dp"
+            app:layout_anchor="@id/bab_main"
+            app:layout_anchorGravity="center"
+            app:tint="@color/white" />
 
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

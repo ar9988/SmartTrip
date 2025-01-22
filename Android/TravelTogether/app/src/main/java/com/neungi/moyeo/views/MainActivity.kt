@@ -1,13 +1,10 @@
 package com.neungi.moyeo.views
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseActivity
 import com.neungi.moyeo.databinding.ActivityMainBinding
@@ -28,5 +25,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         binding.vm = viewModel
         binding.lifecycleOwner = this
 
+        setBottomNavigationBar()
+    }
+
+    private fun setBottomNavigationBar() {
+        navController = navHostFragment.navController
+        navController.setGraph(R.navigation.nav_graph_main)
+        with(binding.bnvMain) {
+            setupWithNavController(navController)
+            background = null
+            menu.getItem(1).isEnabled = false
+        }
+        binding.fabOrder.setOnClickListener {
+
+        }
     }
 }

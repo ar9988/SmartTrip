@@ -2,6 +2,7 @@ package com.neungi.moyeo
 
 import android.app.Application
 import android.content.Context
+import com.naver.maps.map.NaverMapSdk
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -16,6 +17,9 @@ class MoyeoApplication : Application() {
         super.onCreate()
 
         Timber.plant(Timber.DebugTree())
+
+        NaverMapSdk.getInstance(this).client =
+            NaverMapSdk.NaverCloudPlatformClient(BuildConfig.NAVER_CLIENT_ID)
     }
 
     companion object {
