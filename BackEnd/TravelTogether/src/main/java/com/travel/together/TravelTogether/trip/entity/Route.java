@@ -12,11 +12,11 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Route {
 
-    public Route(Integer id, Trip trip, Integer day, Integer order, Integer driveDuration, Integer transDuration, Schedule schedule) {
+    public Route(Integer id, Trip trip, Integer day, Integer order_num, Integer driveDuration, Integer transDuration, Schedule schedule) {
         this.id = id;
         this.trip = trip;
         this.day = day;
-        this.order = order;
+        this.order_num = order_num;
         this.driveDuration = driveDuration;
         this.transDuration = transDuration;
         this.schedule = schedule;
@@ -31,7 +31,7 @@ public class Route {
     private Trip trip;
 
     private Integer day;
-    private Integer order;
+    private Integer order_num;
 
     @Column(name = "drive_duration")
     private Integer driveDuration;

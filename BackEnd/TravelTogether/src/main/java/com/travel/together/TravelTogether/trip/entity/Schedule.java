@@ -11,11 +11,11 @@ import java.util.List;
 @Setter
 @Table(name = "schedule")
 public class Schedule {
-    public Schedule(Integer id, String placeName, Trip trip, Integer orderNum, Integer day, Double lat, Double lng, Integer type, List<Route> routes) {
+    public Schedule(Integer id, String placeName, Trip trip, Integer order_num, Integer day, Double lat, Double lng, Integer type, List<Route> routes) {
         this.id = id;
         this.placeName = placeName;
         this.trip = trip;
-        this.orderNum = orderNum;
+        this.order_num = order_num;
         this.day = day;
         this.lat = lat;
         this.lng = lng;
@@ -35,7 +35,7 @@ public class Schedule {
     private Trip trip;
 
     @Column(name = "order_num")
-    private Integer orderNum;
+    private Integer order_num;
 
     private Integer day;
     private Double lat;

@@ -32,6 +32,7 @@ public class Photo {
     @Column(length = 200, nullable = false)
     private String filePath;
 
+
     private float latitude;
     private float longitude;
 

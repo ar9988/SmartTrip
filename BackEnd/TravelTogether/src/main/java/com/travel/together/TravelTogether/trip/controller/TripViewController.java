@@ -11,28 +11,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/trips")
+@RequestMapping("/trips")
 //@RequiredArgsConstructor
 public class TripViewController {
     public TripViewController(TripViewService tripViewService) {
         this.tripViewService = tripViewService;
     }
-
     private final TripViewService tripViewService;
 
-    // 일정 전체조회
-//    @GetMapping("/{tripId}")
-//    public ResponseEntity<TripScheduleResponse> getAllSchedules(
-//            @PathVariable Long tripId) {
-//        TripScheduleResponse response = tripViewService.getAllSchedules(tripId);
-//        return ResponseEntity.ok(response);
-//    }
-//
-//    @GetMapping("/{userId}/{tripId}")
-//    public ResponseEntity<TripDetailResponse> getTripDetail(
-//            @PathVariable Long userId,
-//            @PathVariable Long tripId) {
-//        TripDetailResponse response = tripViewService.getTripDetail(userId, tripId);
-//        return ResponseEntity.ok(response);
-//    }
+//     일정 전체조회
+    @GetMapping("/trips/{userId}")
+    public ResponseEntity<TripScheduleResponse> getAllSchedules(
+            @PathVariable Long tripId) {
+        TripScheduleResponse response = tripViewService.getAllSchedules(tripId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{userId}/{tripId}")
+    public ResponseEntity<TripDetailResponse> getTripDetail(
+            @PathVariable Long userId,
+            @PathVariable Long tripId) {
+        TripDetailResponse response = tripViewService.getTripDetail(userId, tripId);
+        return ResponseEntity.ok(response);
+    }
 }
