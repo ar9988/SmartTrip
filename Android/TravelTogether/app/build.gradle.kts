@@ -92,6 +92,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    //Calendar
+    implementation("com.kizitonwose.calendar:view:2.4.1")
+
 }
 
 kapt {
