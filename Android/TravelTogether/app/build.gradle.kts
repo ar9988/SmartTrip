@@ -68,6 +68,9 @@ dependencies {
     // Naver Map
     implementation("com.naver.maps:map-sdk:3.20.0")
 
+    // Fused Location
+    implementation(libs.play.services.location)
+
     // Retrofit2
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
@@ -84,6 +87,13 @@ dependencies {
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
+
+    // Coil
+    implementation("io.coil-kt:coil:2.0.0-rc03")
+
+    // Glide
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    kapt("com.github.bumptech.glide:compiler:4.12.0")
 
     // Timber
     implementation("com.jakewharton.timber:timber:5.0.1")

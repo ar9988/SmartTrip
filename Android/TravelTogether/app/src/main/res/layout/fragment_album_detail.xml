@@ -7,14 +7,16 @@
 
         <variable
             name="vm"
-            type="com.neungi.moyeo.views.MainViewModel" />
+            type="com.neungi.moyeo.views.album.viewmodel.AlbumViewModel" />
 
     </data>
+
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".views.albumdetail.AlbumDetailFragment">
+        tools:context=".views.album.AlbumDetailFragment">
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map_fragment"
