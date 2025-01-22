@@ -1,6 +1,6 @@
-package com.travel.together.TravelTogether.global;
+package com.travel.together.TravelTogether.trip.dto;
 
-import com.travel.together.TravelTogether.trip.dto.Trip;
+import com.travel.together.TravelTogether.auth.dto.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

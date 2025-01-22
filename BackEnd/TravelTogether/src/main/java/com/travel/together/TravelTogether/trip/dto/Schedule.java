@@ -46,5 +46,5 @@ public class Schedule {
     private List<Route> routes;
 
     // Getters and Setters
-    
+
 }
