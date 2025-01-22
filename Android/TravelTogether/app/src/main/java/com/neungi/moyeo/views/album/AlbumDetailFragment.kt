@@ -269,9 +269,7 @@ class AlbumDetailFragment :
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
-            is AlbumUiEvent.PhotoUpload -> {
-
-            }
+            is AlbumUiEvent.PhotoUpload -> {}
         }
     }
 
