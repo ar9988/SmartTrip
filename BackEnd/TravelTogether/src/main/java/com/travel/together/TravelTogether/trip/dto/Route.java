@@ -1,6 +1,5 @@
-package com.travel.together.TravelTogether.global;
+package com.travel.together.TravelTogether.trip.dto;
 
-import com.travel.together.TravelTogether.trip.dto.Trip;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +11,17 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Route {
+
+    public Route(Long id, Trip trip, Integer day, Integer order, Integer driveDuration, Integer transDuration, Schedule schedule) {
+        this.id = id;
+        this.trip = trip;
+        this.day = day;
+        this.order = order;
+        this.driveDuration = driveDuration;
+        this.transDuration = transDuration;
+        this.schedule = schedule;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
