@@ -1,6 +1,5 @@
 package com.travel.together.TravelTogether.trip.dto;
 
-import com.travel.together.TravelTogether.global.Schedule;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

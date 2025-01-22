@@ -1,6 +1,6 @@
 package com.travel.together.TravelTogether.trip.service;
 
-import com.travel.together.TravelTogether.global.Schedule;
+import com.travel.together.TravelTogether.trip.dto.Schedule;
 import com.travel.together.TravelTogether.global.TripMember;
 import com.travel.together.TravelTogether.trip.dto.Trip;
 import com.travel.together.TravelTogether.trip.dto.TripDetailResponse;
