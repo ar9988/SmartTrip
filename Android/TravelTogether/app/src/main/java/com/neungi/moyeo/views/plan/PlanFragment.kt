@@ -2,6 +2,7 @@ package com.neungi.moyeo.views.plan
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class PlanFragment: BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
-    private val viewModel: TripViewModel by viewModels()
+    private val viewModel: TripViewModel by activityViewModels()
 //    private lateinit var tripAdapter: TripAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

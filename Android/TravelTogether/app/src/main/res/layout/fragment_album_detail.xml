@@ -11,23 +11,154 @@
 
     </data>
 
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/fragment_album_detail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".views.album.AlbumDetailFragment">
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/map_fragment"
-            android:name="com.naver.maps.map.MapFragment"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                app:collapsedTitleGravity="start"
+                app:collapsedTitleTextAppearance="@style/CollapsedToolbarTitle"
+                app:contentScrim="@android:color/transparent"
+                app:expandedTitleGravity="center_vertical"
+                app:expandedTitleTextAppearance="@style/ExpandedToolbarTitle"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.neungi.moyeo.util.TouchableWrapper
+                        android:id="@+id/touchable_wrapper"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:nestedScrollingEnabled="false"
+                        app:layout_constraintBottom_toTopOf="@id/tv_title_album_detail"
+                        app:layout_constraintDimensionRatio="1:1.2"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <androidx.fragment.app.FragmentContainerView
+                            android:id="@+id/map_fragment"
+                            android:name="com.naver.maps.map.MapFragment"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                    </com.neungi.moyeo.util.TouchableWrapper>
+
+                    <TextView
+                        android:id="@+id/tv_title_album_detail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="16dp"
+                        android:text="@string/title_album_detail"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/neutral_100"
+                        android:textSize="24sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/iv_upload_album_detail"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/touchable_wrapper" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_upload_album_detail"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_temp_upload"
+                        app:layout_constraintBottom_toBottomOf="@id/tv_title_album_detail"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tv_title_album_detail" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <Toolbar
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize" />
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_start_album_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="16dp" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_top_album_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_begin="16dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_place_album_detail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintBottom_toTopOf="@id/rv_photo_album_detail"
+                    app:layout_constraintEnd_toStartOf="@id/gl_end_album_detail"
+                    app:layout_constraintStart_toEndOf="@id/gl_start_album_detail"
+                    app:layout_constraintTop_toBottomOf="@id/gl_top_album_detail"
+                    tools:listitem="@layout/list_place_album_detail" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_photo_album_detail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    android:paddingBottom="16dp"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    app:layout_constraintEnd_toStartOf="@id/gl_end_album_detail"
+                    app:layout_constraintStart_toEndOf="@id/gl_start_album_detail"
+                    app:layout_constraintTop_toBottomOf="@id/rv_place_album_detail"
+                    app:spanCount="2"
+                    tools:listitem="@layout/list_photo_album_detail" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_end_album_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="16dp" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_bottom_album_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_end="16dp" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>
