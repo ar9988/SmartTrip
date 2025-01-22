@@ -1,11 +1,15 @@
 package com.travel.together.TravelTogether.trip.service;
 
+import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
+import com.travel.together.TravelTogether.trip.repository.TripMemberRepository;
+import com.travel.together.TravelTogether.trip.repository.TripRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 //@Transactional(readOnly = true)
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class TripViewService {
 //    public TripViewService(TripRepository tripRepository, ScheduleRepository scheduleRepository, TripMemberRepository tripMemberRepository) {
 //        this.tripRepository = tripRepository;
