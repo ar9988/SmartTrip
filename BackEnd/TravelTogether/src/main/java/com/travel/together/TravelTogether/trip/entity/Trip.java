@@ -1,6 +1,6 @@
 package com.travel.together.TravelTogether.trip.entity;
 
-import com.travel.together.TravelTogether.auth.dto.User;
+import com.travel.together.TravelTogether.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class Trip {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)

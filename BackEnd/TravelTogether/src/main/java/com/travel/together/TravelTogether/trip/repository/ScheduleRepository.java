@@ -1,6 +1,6 @@
 package com.travel.together.TravelTogether.trip.repository;
 
-import com.travel.together.TravelTogether.trip.dto.Schedule;
+import com.travel.together.TravelTogether.trip.entity.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

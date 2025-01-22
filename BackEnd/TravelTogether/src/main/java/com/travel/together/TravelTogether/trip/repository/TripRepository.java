@@ -1,6 +1,6 @@
 package com.travel.together.TravelTogether.trip.repository;
 
-import com.travel.together.TravelTogether.trip.dto.Trip;
+import com.travel.together.TravelTogether.trip.entity.Trip;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

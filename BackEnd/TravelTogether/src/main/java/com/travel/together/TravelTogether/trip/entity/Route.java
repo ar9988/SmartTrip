@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Route {
 
-    public Route(Long id, Trip trip, Integer day, Integer order, Integer driveDuration, Integer transDuration, Schedule schedule) {
+    public Route(Integer id, Trip trip, Integer day, Integer order, Integer driveDuration, Integer transDuration, Schedule schedule) {
         this.id = id;
         this.trip = trip;
         this.day = day;
@@ -24,7 +24,7 @@ public class Route {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "trip_id")
