@@ -1,4 +1,4 @@
-package com.travel.together.TravelTogether.trip.dto;
+package com.travel.together.TravelTogether.trip.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.travel.together.TravelTogether.trip.dto;
+package com.travel.together.TravelTogether.trip.entity;
 
 import com.travel.together.TravelTogether.auth.dto.User;
 import jakarta.persistence.*;

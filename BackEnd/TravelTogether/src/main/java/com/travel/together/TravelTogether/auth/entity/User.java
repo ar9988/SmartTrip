@@ -1,8 +1,8 @@
-package com.travel.together.TravelTogether.auth.dto;
+package com.travel.together.TravelTogether.auth.entity;
 
 import com.travel.together.TravelTogether.album.entity.Photo;
-import com.travel.together.TravelTogether.trip.dto.Trip;
-import com.travel.together.TravelTogether.trip.dto.TripMember;
+import com.travel.together.TravelTogether.trip.entity.Trip;
+import com.travel.together.TravelTogether.trip.entity.TripMember;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
