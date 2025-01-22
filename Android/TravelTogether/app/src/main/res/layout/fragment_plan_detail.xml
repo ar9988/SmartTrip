@@ -6,7 +6,7 @@
     <data>
         <variable
             name="vm"
-            type="com.neungi.moyeo.views.plan.ScheduleV iewModel" />
+            type="com.neungi.moyeo.views.plan.ScheduleViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
