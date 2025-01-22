@@ -17,7 +17,7 @@
         android:id="@+id/cl_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="@color/neutral_white"
         android:fitsSystemWindows="true"
         tools:context=".presentation.views.main.MainActivity">
 
@@ -65,7 +65,7 @@
             app:fabCustomSize="72dp"
             app:layout_anchor="@id/bab_main"
             app:layout_anchorGravity="center"
-            app:tint="@color/white" />
+            app:tint="@color/neutral_white" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

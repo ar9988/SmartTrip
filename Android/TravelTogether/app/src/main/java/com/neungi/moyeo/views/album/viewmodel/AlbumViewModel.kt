@@ -2,6 +2,10 @@ package com.neungi.moyeo.views.album.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.naver.maps.geometry.LatLng
+import com.neungi.domain.usecase.GetAlbumsUseCase
+import com.neungi.domain.usecase.GetCommentsUseCase
+import com.neungi.domain.usecase.GetPhotoLocationsUseCase
+import com.neungi.domain.usecase.GetPhotosUseCase
 import com.neungi.moyeo.util.MarkerData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -12,7 +16,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AlbumViewModel @Inject constructor(
-
+    private val getAlbumsUseCase: GetAlbumsUseCase,
+    private val getCommentsUseCase: GetCommentsUseCase,
+    private val getPhotoLocationsUseCase: GetPhotoLocationsUseCase,
+    private val getPhotosUseCase: GetPhotosUseCase
 ) : ViewModel() {
 
     private val _albumUiState = MutableStateFlow<AlbumUiState>(AlbumUiState())

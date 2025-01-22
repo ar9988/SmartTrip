@@ -45,7 +45,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 @AndroidEntryPoint
 class AlbumDetailFragment :
@@ -173,10 +172,8 @@ class AlbumDetailFragment :
                 viewModel.markers.value,
                 markerBuilder
             ) {
-                Timber.d("Clusterer build completed!")
                 val newMarkers = mutableListOf<List<MarkerData>>()
                 tags.forEachIndexed { index, tag ->
-                    Timber.d("Clustered $index : $tag")
                     val newLocations = mutableListOf<MarkerData>()
                     tag.split(",").forEach { id ->
                         newLocations.add(viewModel.markers.value[id.toInt() - 1])

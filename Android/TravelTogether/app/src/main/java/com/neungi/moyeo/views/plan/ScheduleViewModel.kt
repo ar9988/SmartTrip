@@ -38,5 +38,5 @@ class ScheduleViewModel @Inject constructor(
 
 class Schedule {
 
-    val id: Any = 1
+    val id: Int = 1
 }

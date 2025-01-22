@@ -5,11 +5,11 @@
     android:background="@drawable/ic_marker_red">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:layout_gravity="center_horizontal"
         android:id="@+id/image_cluster"
-        android:padding="4dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:padding="4dp"
         android:scaleType="centerCrop" />
 
 </FrameLayout>
