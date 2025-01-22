@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    List<Schedule> findByTripIdOrderByDayAscOrderAsc(Long tripId);
+//    List<Schedule> findByTripIdOrderByDayAscOrderAsc(Long tripId);
 }

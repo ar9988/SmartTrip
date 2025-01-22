@@ -1,5 +1,6 @@
 package com.travel.together.TravelTogether.album.entity;
 
+import com.travel.together.TravelTogether.trip.dto.Trip;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
