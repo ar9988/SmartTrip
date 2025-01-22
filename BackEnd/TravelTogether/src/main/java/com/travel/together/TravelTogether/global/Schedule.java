@@ -1,6 +1,9 @@
 package com.travel.together.TravelTogether.global;
 
+import com.travel.together.TravelTogether.trip.dto.Trip;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "schedule")
