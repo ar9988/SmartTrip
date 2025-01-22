@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @Table(name = "schedule")
 public class Schedule {
-    public Schedule(Long id, String placeName, Trip trip, Integer orderNum, Integer day, Double lat, Double lng, Integer type, List<Route> routes) {
+    public Schedule(Integer id, String placeName, Trip trip, Integer orderNum, Integer day, Double lat, Double lng, Integer type, List<Route> routes) {
         this.id = id;
         this.placeName = placeName;
         this.trip = trip;
@@ -25,7 +25,7 @@ public class Schedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "place_name", length = 20)
     private String placeName;

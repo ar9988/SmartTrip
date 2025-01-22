@@ -1,6 +1,7 @@
 package com.travel.together.TravelTogether.trip.repository;
 
-import com.travel.together.TravelTogether.trip.dto.TripMember;
+
+import com.travel.together.TravelTogether.trip.entity.TripMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
