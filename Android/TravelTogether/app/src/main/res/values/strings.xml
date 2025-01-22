@@ -6,5 +6,15 @@
     <string name="description_fab_planner">AI 여행 일정 플래너</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <!-- Plan -->
+    <string name="title_my_travel_schedule">나의 여행일정</string>
+    <string name="description_travel_add_button">여행 추가 버튼</string>
+    <string name="description_plan_image">여행 대표 이미지</string>
+    <string name="description_plan_edit_button">일정 수정 버튼</string>
+    <string name="description_plan_delete_button">일정 삭제 버튼</string>
+    <string name="title_dialog_edit_trip">일정 정보 수정</string>
+    <string name="description_dialog_close">여행 수정 다이어로그 닫기 버튼</string>
+    <string name="text_trip_title">일정 이름</string>
+    <string name="text_trip_start_date">여행 시작 날짜</string>
+    <string name="text_trip_end_date">여행 종료 날짜</string>
 </resources>
