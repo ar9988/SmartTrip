@@ -4,13 +4,23 @@ import com.travel.together.TravelTogether.album.entity.Photo;
 import com.travel.together.TravelTogether.trip.entity.Trip;
 import com.travel.together.TravelTogether.trip.entity.TripMember;
 import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
 @Table(name = "user")
-public class User {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -42,86 +52,47 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Photo> photos;
 
-    // Getters and Setters
-
-
-    public Integer getId() {
-        return id;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptyList(); // 권한 설정 가능
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
+    @Override
+    public String getPassword() {
         return passwordHash;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    @Override
+    public String getUsername() {
+        return email;
     }
 
-    public String getNickname() {
-        return nickname;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public String getProfile() {
-        return profile;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
     }
 
-    public void setProfile(String profile) {
-        this.profile = profile;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<Trip> getCreatedTrips() {
-        return createdTrips;
-    }
-
-    public void setCreatedTrips(List<Trip> createdTrips) {
-        this.createdTrips = createdTrips;
-    }
-
-    public List<TripMember> getTripMemberships() {
-        return tripMemberships;
-    }
-
-    public void setTripMemberships(List<TripMember> tripMemberships) {
-        this.tripMemberships = tripMemberships;
-    }
-
-    public List<Photo> getPhotos() {
-        return photos;
-    }
-
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
