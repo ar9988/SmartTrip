@@ -13,19 +13,19 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>TravelTogether</name>
 	<description>Demo project for Spring Boot</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+<!--	<url/>-->
+<!--	<licenses>-->
+<!--		<license/>-->
+<!--	</licenses>-->
+<!--	<developers>-->
+<!--		<developer/>-->
+<!--	</developers>-->
+<!--	<scm>-->
+<!--		<connection/>-->
+<!--		<developerConnection/>-->
+<!--		<tag/>-->
+<!--		<url/>-->
+<!--	</scm>-->
 	<properties>
 		<java.version>23</java.version>
 	</properties>
@@ -83,18 +83,6 @@
 			<version>8.0.28</version>
 		</dependency>
 
-		<!-- Test -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<scope>runtime</scope>
-		</dependency>
 
 
 		<dependency>
@@ -108,18 +96,7 @@
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
 
-<!--	lombok 플러그인 추가-->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -127,12 +104,12 @@
 			<scope>provided</scope>
 		</dependency>
 
-
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>

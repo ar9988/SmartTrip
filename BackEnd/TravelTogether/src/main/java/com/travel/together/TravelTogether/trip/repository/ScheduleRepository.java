@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-//    List<Schedule> findByTripIdOrderByDayAscOrderAsc(Long tripId);
+public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
+    List<Schedule> findByTripIdOrderByDayAscOrderNumAsc(Integer tripId);
 }

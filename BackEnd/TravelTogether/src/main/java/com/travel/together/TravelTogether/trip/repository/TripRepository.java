@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TripRepository extends JpaRepository<Trip, Long> {
+public interface TripRepository extends JpaRepository<Trip, Integer> {
     @Query("SELECT t FROM Trip t JOIN FETCH t.creator WHERE t.id = :tripId")
-    Optional<Trip> findByIdWithCreator(@Param("tripId") Long tripId);
+    Optional<Trip> findByIdWithCreator(@Param("tripId") Integer tripId);
 
-    List<Trip> findByCreatorIdOrderByCreatedAtDesc(Long creatorId);
+    List<Trip> findByCreatorIdOrderByCreatedAtDesc(Integer creatorId);
 }

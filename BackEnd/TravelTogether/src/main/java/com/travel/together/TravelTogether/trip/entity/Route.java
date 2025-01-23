@@ -42,4 +42,61 @@ public class Route {
     @ManyToOne
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Trip getTrip() {
+        return trip;
+    }
+
+    public void setTrip(Trip trip) {
+        this.trip = trip;
+    }
+
+    public Integer getDay() {
+        return day;
+    }
+
+    public void setDay(Integer day) {
+        this.day = day;
+    }
+
+    public Integer getOrder_num() {
+        return order_num;
+    }
+
+    public void setOrder_num(Integer order_num) {
+        this.order_num = order_num;
+    }
+
+    public Integer getDriveDuration() {
+        return driveDuration;
+    }
+
+    public void setDriveDuration(Integer driveDuration) {
+        this.driveDuration = driveDuration;
+    }
+
+    public Integer getTransDuration() {
+        return transDuration;
+    }
+
+    public void setTransDuration(Integer transDuration) {
+        this.transDuration = transDuration;
+    }
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
 }

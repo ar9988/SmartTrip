@@ -2,7 +2,6 @@ package com.travel.together.TravelTogether.trip.dto;
 
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.entity.Trip;
-import com.travel.together.TravelTogether.trip.entity.TripMember;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,14 +13,12 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor
-public class TripDetailResponse {
+public class TripScheduleResponse_Backup {
     private Integer tripId;
     private String title;
-    private String creatorName;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private List<ScheduleDto> schedules;
-    private List<MemberDto> members;
 
     public Integer getTripId() {
         return tripId;
@@ -37,14 +34,6 @@ public class TripDetailResponse {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public void setCreatorName(String creatorName) {
-        this.creatorName = creatorName;
     }
 
     public LocalDateTime getStartDate() {
@@ -69,14 +58,6 @@ public class TripDetailResponse {
 
     public void setSchedules(List<ScheduleDto> schedules) {
         this.schedules = schedules;
-    }
-
-    public List<MemberDto> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<MemberDto> members) {
-        this.members = members;
     }
 
     @Getter @Setter
@@ -147,43 +128,10 @@ public class TripDetailResponse {
         }
     }
 
-    @Getter @Setter
-    @NoArgsConstructor
-    public static class MemberDto {
-        private Integer userId;
-        private String nickname;
-        private boolean isOwner;
-
-        public Integer getUserId() {
-            return userId;
-        }
-
-        public void setUserId(Integer userId) {
-            this.userId = userId;
-        }
-
-        public String getNickname() {
-            return nickname;
-        }
-
-        public void setNickname(String nickname) {
-            this.nickname = nickname;
-        }
-
-        public boolean isOwner() {
-            return isOwner;
-        }
-
-        public void setOwner(boolean owner) {
-            isOwner = owner;
-        }
-    }
-
-    public static TripDetailResponse from(Trip trip, List<Schedule> schedules, List<TripMember> members) {
-        TripDetailResponse response = new TripDetailResponse();
+    public static TripScheduleResponse_Backup from(Trip trip, List<Schedule> schedules) {
+        TripScheduleResponse_Backup response = new TripScheduleResponse_Backup();
         response.setTripId(trip.getId());
         response.setTitle(trip.getTitle());
-        response.setCreatorName(trip.getCreator().getNickname());
         response.setStartDate(trip.getStartDate());
         response.setEndDate(trip.getEndDate());
 
@@ -201,18 +149,8 @@ public class TripDetailResponse {
                 })
                 .collect(Collectors.toList());
 
-        List<MemberDto> memberDtos = members.stream()
-                .map(member -> {
-                    MemberDto dto = new MemberDto();
-                    dto.setUserId(member.getUser().getId());
-                    dto.setNickname(member.getUser().getNickname());
-                    dto.setOwner(member.getIsOwner());
-                    return dto;
-                })
-                .collect(Collectors.toList());
-
         response.setSchedules(scheduleDtos);
-        response.setMembers(memberDtos);
         return response;
     }
+
 }
