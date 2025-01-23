@@ -1,71 +1,74 @@
--- 1. User 데이터
-INSERT INTO user (email, password_hash, nickname, profile, created_at, updated_at) VALUES
-('kim@example.com', 'hash1234abcd', '부산킴', '부산 여행 매니아입니다', '2025-01-01 10:00:00', '2025-01-01 10:00:00'),
-('lee@example.com', 'hash5678efgh', '여행러', '맛집 탐방이 취미에요', '2025-01-05 14:30:00', '2025-01-05 14:30:00'),
-('park@example.com', 'hash9012ijkl', '맛집헌터', '전국 맛집 리뷰어', '2025-01-10 09:15:00', '2025-01-10 09:15:00'),
-('choi@example.com', 'hash3456mnop', '포토그래퍼초이', '여행 사진 전문가', '2025-01-15 16:45:00', '2025-01-15 16:45:00'),
-('hong@example.com', 'hash7890qrst', '부산러버', '부산 현지 가이드입니다', '2025-01-20 11:20:00', '2025-01-20 11:20:00');
+-- Users
+INSERT INTO User (id, email, password_hash, nickname, profile, created_at, updated_at) VALUES
+(1, 'kim@email.com', 'hash1', '김여행러', '여행 좋아하는 직장인', '2024-01-01', '2024-01-01'),
+(2, 'lee@email.com', 'hash2', '이배낭', '배낭여행 전문가', '2024-01-01', '2024-01-01'),
+(3, 'park@email.com', 'hash3', '박포토', '사진작가', '2024-01-01', '2024-01-01'),
+(4, 'choi@email.com', 'hash4', '최맛집', '맛집탐방러', '2024-01-01', '2024-01-01'),
+(5, 'jung@email.com', 'hash5', '정로드', '국내여행전문', '2024-01-01', '2024-01-01'),
+(6, 'hong@email.com', 'hash6', '홍스케줄', '여행플래너', '2024-01-01', '2024-01-01');
 
--- 2. Trip 데이터
-INSERT INTO trip (creator_id, title, start_date, end_date, created_at, updated_at) VALUES
-(1, '부산 2박 3일 여행', '2025-02-01 10:00:00', '2025-02-03 18:00:00', '2025-01-22 14:30:00', '2025-01-22 14:30:00');
+-- Trips
+INSERT INTO Trip (id, creator_id, title, start_date, end_date, created_at, updated_at) VALUES
+(1, 1, '부산 해운대 여행', '2024-02-01', '2024-02-03', '2024-01-15', '2024-01-15'),
+(2, 1, '제주 여행', '2024-03-01', '2024-03-04', '2024-02-01', '2024-02-01');
 
--- 3. Schedule 데이터
-INSERT INTO schedule (place_name, trip_id, order_num, day, lat, lng, type) VALUES
-('부산역', 1, 1, 1, 35.1150, 129.0420, 1),
-('자갈치시장', 1, 2, 1, 35.0967, 129.0305, 2),
-('용두산공원', 1, 3, 1, 35.1002, 129.0327, 2),
-('광안리해수욕장', 1, 4, 1, 35.1533, 129.1187, 2),
-('서면숙소', 1, 5, 1, 35.1581, 129.0584, 3),
-('해운대해수욕장', 1, 1, 2, 35.1586, 129.1603, 2),
-('동백섬', 1, 2, 2, 35.1530, 129.1530, 2),
-('센텀시티', 1, 3, 2, 35.1689, 129.1312, 2),
-('마린시티', 1, 4, 2, 35.1566, 129.1457, 2),
-('서면숙소', 1, 5, 2, 35.1581, 129.0584, 3),
-('감천문화마을', 1, 1, 3, 35.0947, 129.0102, 2),
-('태종대', 1, 2, 3, 35.0513, 129.0873, 2),
-('부산역', 1, 3, 3, 35.1150, 129.0420, 1);
+-- Days
+INSERT INTO Day (id, trip_id, start_time, order_num) VALUES
+(1, 1, '2024-02-01 09:00:00', 1),
+(2, 1, '2024-02-02 09:00:00', 2),
+(3, 1, '2024-02-03 09:00:00', 3),
+(4, 2, '2024-03-01 09:00:00', 1),
+(5, 2, '2024-03-02 09:00:00', 2),
+(6, 2, '2024-03-03 09:00:00', 3),
+(7, 2, '2024-03-04 09:00:00', 4);
 
--- 4. Route 데이터
-INSERT INTO route (trip_id, day, order_num, drive_duration, trans_duration) VALUES
-(1, 1, 1, 0, 0),
-(1, 1, 2, 15, 25),
-(1, 1, 3, 10, 15),
-(1, 1, 4, 30, 45),
-(1, 1, 5, 20, 30),
-(1, 2, 1, 25, 40),
-(1, 2, 2, 10, 15),
-(1, 2, 3, 15, 20),
-(1, 2, 4, 10, 15),
-(1, 2, 5, 25, 40),
-(1, 3, 1, 30, 45),
-(1, 3, 2, 35, 50),
-(1, 3, 3, 25, 40);
+-- Schedules
+INSERT INTO Schedule (id, day_id, place_name, trip_id, order_num, lat, lng, type) VALUES
+(1, 1, '해운대해수욕장', 1, 1, 35.1586, 129.1604, 1),
+(2, 1, '광안리해수욕장', 1, 2, 35.1531, 129.1182, 1),
+(3, 2, '감천문화마을', 1, 1, 35.0970, 129.0107, 1),
+(4, 4, '제주공항', 2, 1, 33.5067, 126.4930, 1),
+(5, 4, '성산일출봉', 2, 2, 33.4587, 126.9426, 1),
+(6, 5, '한라산', 2, 1, 33.3616, 126.5292, 1);
 
--- 5. TripMember 데이터
-INSERT INTO trip_member (trip_id, user_id, is_owner) VALUES
-(1, 1, true),
-(1, 2, false),
-(1, 3, false);
+-- Routes
+INSERT INTO Route (id, trip_id, day_id, order_num, drive_duration, trans_duration) VALUES
+(1, 1, 1, 1, 30, 45),
+(2, 1, 2, 1, 25, 40),
+(3, 2, 4, 1, 60, 90),
+(4, 2, 5, 1, 45, 70);
 
--- 6. PhotoAlbum 데이터
-INSERT INTO photo_album (trip_id, image_url) VALUES
-(1, 'https://storage.example.com/busan-trip-album-1');
+-- TripMembers
+INSERT INTO trip_member (id, trip_id, user_id, is_owner) VALUES
+(1, 1, 1, true),
+(2, 1, 2, false),
+(3, 1, 4, false),
+(4, 2, 3, true),
+(5, 2, 1, false),
+(6, 2, 5, false),
+(7, 2, 6, false);
 
--- 7. PhotoPlace 데이터
-INSERT INTO photo_place (album_id, name) VALUES
-(1, '지역1'),
-(1, '지역2'),
-(1, '지역3');
+-- PhotoAlbums
+INSERT INTO photo_album (id, trip_id, image_url) VALUES
+(1, 1, 'busan_album.jpg'),
+(2, 2, 'jeju_album.jpg');
 
--- 8. Photo 데이터
-INSERT INTO photo (album_id, photo_place_id, user_id, file_path, latitude, longitude, taken_at, uploaded_at) VALUES
-(1, 1, 1, '/photos/2025/02/01/beach1.jpg', 35.1586, 129.1603, '2025-02-01 14:30:00', '2025-02-01 14:35:00'),
-(1, 2, 2, '/photos/2025/02/01/bridge1.jpg', 35.1533, 129.1187, '2025-02-01 19:00:00', '2025-02-01 19:05:00'),
-(1, 3, 3, '/photos/2025/02/03/cliff1.jpg', 35.0513, 129.0873, '2025-02-03 11:00:00', '2025-02-03 11:10:00');
+-- PhotoPlaces
+INSERT INTO photo_place (id, album_id, name) VALUES
+(1, 1, '해운대'),
+(2, 1, '광안리'),
+(3, 2, '성산일출봉'),
+(4, 2, '한라산');
 
--- 9. Comment 데이터
-INSERT INTO comment (photo_id, author_id, content, created_at, updated_at) VALUES
-(1, 2, '해운대 뷰가 진짜 끝내주네요! 다음에 꼭 가보고 싶어요', '2025-02-01 15:00:00', '2025-02-01 15:00:00'),
-(1, 3, '날씨도 좋고 완벽한 사진이에요~', '2025-02-01 15:30:00', '2025-02-01 15:30:00'),
-(2, 1, '야경이 정말 예쁘네요! 인생샷 건지셨어요', '2025-02-01 20:00:00', '2025-02-01 20:00:00');
+-- Photos
+INSERT INTO Photo (id, album_id, photo_place_id, user_id, file_path, latitude, longitude, taken_at, uploaded_at) VALUES
+(1, 1, 1, 1, 'haeundae1.jpg', 35.1586, 129.1604, '2024-02-01 13:00:00', '2024-02-01 20:00:00'),
+(2, 1, 2, 2, 'gwangalli1.jpg', 35.1531, 129.1182, '2024-02-01 18:00:00', '2024-02-01 21:00:00'),
+(3, 2, 3, 3, 'seongsan1.jpg', 33.4587, 126.9426, '2024-03-01 06:00:00', '2024-03-01 10:00:00'),
+(4, 2, 4, 5, 'hallasan1.jpg', 33.3616, 126.5292, '2024-03-02 12:00:00', '2024-03-02 18:00:00');
+
+-- Comments
+INSERT INTO Comment (id, photo_id, author_id, content, created_at, updated_at) VALUES
+(1, 1, 2, '해운대 날씨가 정말 좋네요!', '2024-02-01 21:00:00', '2024-02-01 21:00:00'),
+(2, 3, 5, '일출이 너무 아름다워요', '2024-03-01 11:00:00', '2024-03-01 11:00:00'),
+(3, 4, 6, '등산하느라 고생많으셨어요', '2024-03-02 19:00:00', '2024-03-02 19:00:00');

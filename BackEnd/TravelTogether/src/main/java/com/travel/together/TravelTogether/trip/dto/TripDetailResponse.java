@@ -192,7 +192,6 @@ public class TripDetailResponse {
                     ScheduleDto dto = new ScheduleDto();
                     dto.setId(schedule.getId());
                     dto.setPlaceName(schedule.getPlaceName());
-                    dto.setDay(schedule.getDay());
                     dto.setOrder(schedule.getOrderNum());
                     dto.setLat(schedule.getLat());
                     dto.setLng(schedule.getLng());

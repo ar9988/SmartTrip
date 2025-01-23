@@ -135,21 +135,21 @@ public class TripScheduleResponse_Backup {
         response.setStartDate(trip.getStartDate());
         response.setEndDate(trip.getEndDate());
 
-        List<ScheduleDto> scheduleDtos = schedules.stream()
-                .map(schedule -> {
-                    ScheduleDto dto = new ScheduleDto();
-                    dto.setId(schedule.getId());
-                    dto.setPlaceName(schedule.getPlaceName());
-                    dto.setDay(schedule.getDay());
-                    dto.setOrder(schedule.getOrderNum());
-                    dto.setLat(schedule.getLat());
-                    dto.setLng(schedule.getLng());
-                    dto.setType(schedule.getType());
-                    return dto;
-                })
-                .collect(Collectors.toList());
-
-        response.setSchedules(scheduleDtos);
+//        List<ScheduleDto> scheduleDtos = schedules.stream()
+//                .map(schedule -> {
+//                    ScheduleDto dto = new ScheduleDto();
+//                    dto.setId(schedule.getId());
+//                    dto.setPlaceName(schedule.getPlaceName());
+//                    dto.setDay(schedule.getDay());
+//                    dto.setOrder(schedule.getOrderNum());
+//                    dto.setLat(schedule.getLat());
+//                    dto.setLng(schedule.getLng());
+//                    dto.setType(schedule.getType());
+//                    return dto;
+//                })
+//                .collect(Collectors.toList());
+//
+//        response.setSchedules(scheduleDtos);
         return response;
     }
 

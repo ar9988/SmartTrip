@@ -13,44 +13,47 @@ import java.util.List;
 public class Schedule {
     public Schedule() {
     }
-    public Schedule(Integer id, String placeName, Trip trip, Integer orderNum, Integer day, Double lat, Double lng, Integer type, List<Route> routes) {
+
+    public Schedule(Integer id, Day day, Trip trip, String placeName, Integer orderNum, Double lat, Double lng, Integer type) {
         this.id = id;
-        this.placeName = placeName;
-        this.trip = trip;
-        this.orderNum = orderNum;
         this.day = day;
+        this.trip = trip;
+        this.placeName = placeName;
+        this.orderNum = orderNum;
         this.lat = lat;
         this.lng = lng;
         this.type = type;
-        this.routes = routes;
-
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "place_name", length = 20)
-    private String placeName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "day_id", nullable = false)
+    private Day day;
 
-    @ManyToOne
-    @JoinColumn(name = "trip_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
-    @Column(name = "order_num")
+    @Column(name = "place_name", nullable = false, length = 20)
+    private String placeName;
+
+    @Column(name = "orderNum", nullable = false)
     private Integer orderNum;
 
-    private Integer day;
+    @Column(nullable = false)
     private Double lat;
+
+    @Column(nullable = false)
     private Double lng;
+
+    @Column(nullable = false)
     private Integer type;
 
-    @OneToMany(mappedBy = "schedule")
-    private List<Route> routes;
 
     // Getters and Setters
-
-
     public Integer getId() {
         return id;
     }
@@ -59,12 +62,12 @@ public class Schedule {
         this.id = id;
     }
 
-    public String getPlaceName() {
-        return placeName;
+    public Day getDay() {
+        return day;
     }
 
-    public void setPlaceName(String placeName) {
-        this.placeName = placeName;
+    public void setDay(Day day) {
+        this.day = day;
     }
 
     public Trip getTrip() {
@@ -75,20 +78,20 @@ public class Schedule {
         this.trip = trip;
     }
 
+    public String getPlaceName() {
+        return placeName;
+    }
+
+    public void setPlaceName(String placeName) {
+        this.placeName = placeName;
+    }
+
     public Integer getOrderNum() {
         return orderNum;
     }
 
     public void setOrderNum(Integer orderNum) {
         this.orderNum = orderNum;
-    }
-
-    public Integer getDay() {
-        return day;
-    }
-
-    public void setDay(Integer day) {
-        this.day = day;
     }
 
     public Double getLat() {
@@ -113,13 +116,5 @@ public class Schedule {
 
     public void setType(Integer type) {
         this.type = type;
-    }
-
-    public List<Route> getRoutes() {
-        return routes;
-    }
-
-    public void setRoutes(List<Route> routes) {
-        this.routes = routes;
     }
 }
