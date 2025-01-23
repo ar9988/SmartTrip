@@ -12,12 +12,12 @@ import java.util.Map;
 
 @Repository
 public interface TripMemberRepository extends JpaRepository<TripMember, Integer> {
-//    List<TripMember> findByTripId(Integer tripId);
-//    boolean existsByTripIdAndUserId(Integer tripId, Integer userId);
 
-    @Query("SELECT new map(t.id as tripId, COUNT(tm) as count) FROM TripMember tm RIGHT JOIN tm.trip t WHERE t.id IN :tripIds GROUP BY t.id")
-    Map<Integer, Long> countByTripIdIn(@Param("tripIds") List<Integer> tripIds);
-
-    boolean existsByTripIdAndUserId(Integer tripId, Integer userId);
+    @Query(value =
+            "SELECT trip_id, COUNT(*) as member_count " +
+                    "FROM trip_member " +
+                    "GROUP BY trip_id",
+            nativeQuery = true)
+    List<Object[]> countMembersByTripId();
     List<TripMember> findByTripId(Integer tripId);
 }

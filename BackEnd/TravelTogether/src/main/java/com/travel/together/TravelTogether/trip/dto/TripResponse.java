@@ -1,5 +1,6 @@
 package com.travel.together.TravelTogether.trip.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.travel.together.TravelTogether.trip.entity.Trip;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,18 +17,32 @@ import java.util.stream.Collectors;
 public class TripResponse {
     private List<TripDto> trips;
 
+    public List<TripDto> getTrips() {
+        return trips;
+    }
+
+    public void setTrips(List<TripDto> trips) {
+        this.trips = trips;
+    }
+
     @Getter
     @Setter
     @NoArgsConstructor
     public static class TripDto {
         private Integer tripId;
         private String title;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime startDate;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime endDate;
-        private String thumbnail = "";
-        private Integer memberCount = 0;
-        private Boolean status = true;
+        private String thumbnail;
+        private Integer memberCount;
+        private Boolean status;
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime createdAt;
+
+
+        //getter and setter
 
         public Integer getTripId() {
             return tripId;
@@ -94,22 +109,11 @@ public class TripResponse {
         }
     }
 
-    public List<TripDto> getTrips() {
-        return trips;
-    }
-
-    public void setTrips(List<TripDto> trips) {
-        this.trips = trips;
-    }
-
     public static TripResponse from(
             List<Trip> trips,
             Function<Trip, Integer> memberCounter,
-            Function<Trip, String> thumbnailFinder,
-            Function<Trip, Boolean> statusChecker)
-
-
-    {
+            Function<Trip, String> thumbnailGetter,
+            Function<Trip, Boolean> statusChecker) {
 
         List<TripDto> tripDtos = trips.stream()
                 .map(trip -> {
@@ -118,7 +122,7 @@ public class TripResponse {
                     dto.setTitle(trip.getTitle());
                     dto.setStartDate(trip.getStartDate());
                     dto.setEndDate(trip.getEndDate());
-                    dto.setThumbnail(thumbnailFinder.apply(trip));
+                    dto.setThumbnail(thumbnailGetter.apply(trip));
                     dto.setMemberCount(memberCounter.apply(trip));
                     dto.setStatus(statusChecker.apply(trip));
                     dto.setCreatedAt(trip.getCreatedAt());
@@ -129,4 +133,5 @@ public class TripResponse {
         TripResponse response = new TripResponse();
         response.setTrips(tripDtos);
         return response;
-    }}
+    }
+}
