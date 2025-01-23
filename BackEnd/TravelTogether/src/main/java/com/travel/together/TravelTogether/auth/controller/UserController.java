@@ -1,0 +1,45 @@
+package com.travel.together.TravelTogether.auth.controller;
+
+import com.travel.together.TravelTogether.auth.dto.UserRequestDto;
+import com.travel.together.TravelTogether.auth.dto.LoginRequestDto;
+import com.travel.together.TravelTogether.auth.dto.TokenResponseDto;
+import com.travel.together.TravelTogether.auth.dto.UserResponseDto;
+import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/v1/auth")
+@RequiredArgsConstructor
+public class UserController {
+    private final UserService userService;
+
+    //회원가입 처리
+    @PostMapping("/register")
+    public ResponseEntity<UserResponseDto> registerUser(@RequestBody UserRequestDto userRequestDto) {
+        User user = userService.registerUser(userRequestDto);
+        UserResponseDto responseDto = UserResponseDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .profile(user.getProfile())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    //Login
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponseDto> loginUser(@RequestBody LoginRequestDto loginRequestDto) {
+        String token = userService.loginUser(loginRequestDto.getEmail(), loginRequestDto.getPasswordHash());
+        return ResponseEntity.ok(TokenResponseDto.builder()
+                .token("Bearer " + token)
+                .build());
+    }
+
+}
