@@ -105,6 +105,18 @@
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-websocket</artifactId>
+			<version>6.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-messaging</artifactId>
+			<version>6.2.1</version>
+		</dependency>
+
 		<!-- STOMP 메시징을 위한 의존성 (권장) -->
 		<dependency>
 			<groupId>org.webjars</groupId>
