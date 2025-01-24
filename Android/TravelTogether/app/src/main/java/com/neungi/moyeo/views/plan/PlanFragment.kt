@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanBinding
+import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripUiEvent
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     private val viewModel: TripViewModel by activityViewModels()
+    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
     private lateinit var tripAdapter: TripAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,8 +48,8 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         tripAdapter = TripAdapter(
             onItemClick = { tripId ->
                 println("click $tripId")
-                val action = PlanFragmentDirections.actionPlanToPlanDetail(tripId)
-                findNavController().navigateSafely(actionId = R.id.action_plan_to_planDetail, args = action.arguments)
+                scheduleViewModel.tripId = tripId
+                findNavController().navigateSafely(R.id.action_plan_to_planDetail)
             },
             onDeleteClick = { tripId ->
                 // 삭제 처리 로직

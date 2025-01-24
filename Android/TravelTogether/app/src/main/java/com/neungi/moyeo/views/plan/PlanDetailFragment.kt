@@ -41,8 +41,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         sectionedAdapter = SectionedAdapter(
             onItemClick = { scheduleId ->
                 println("click $scheduleId")
-                val action = PlanFragmentDirections.actionPlanToPlanDetail(tripId)
-                findNavController().navigateSafely(actionId = R.id.action_plan_to_planDetail, args = action.arguments)
+                findNavController().navigateSafely(R.id.action_plan_to_planDetail)
             },
             onDeleteClick = { scheduleId ->
                 // 삭제 처리 로직

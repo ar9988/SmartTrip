@@ -23,7 +23,7 @@ class ScheduleViewModel @Inject constructor(
     private val _scheduleData = MutableStateFlow<List<ScheduleData>>(emptyList())
     val scheduleData = _scheduleData.asStateFlow()
     val serverUrl = "ws://192.168.100.203:9987/ws"
-
+    var tripId = 0
     val client = OkHttpClient()
     val request = Request.Builder().url(serverUrl).build()
     val webSocket = client.newWebSocket(request,object :WebSocketListener(){
