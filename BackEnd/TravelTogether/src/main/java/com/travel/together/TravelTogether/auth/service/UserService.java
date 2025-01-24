@@ -1,12 +1,16 @@
 package com.travel.together.TravelTogether.auth.service;
 
 import com.travel.together.TravelTogether.auth.dto.UserRequestDto;
+import com.travel.together.TravelTogether.auth.dto.UserResponseDto;
 import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import com.travel.together.TravelTogether.auth.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,5 +52,37 @@ public class UserService {
         //JWT 토큰 생성
         return jwtTokenProvider.generateToken(user.getEmail());
 
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    }
+
+    public UserResponseDto getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return convertToResponseDto(user);
+    }
+
+
+    private UserResponseDto convertToResponseDto(User user) {
+        return UserResponseDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .profile(user.getProfile())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .createdTrips(user.getCreatedTrips().stream()
+                        .map(trip -> trip.getTitle()) // Trip의 이름 추출
+                        .collect(Collectors.toList()))
+                .tripMemberships(user.getTripMemberships().stream()
+                        .map(tripMember -> tripMember.getTrip().getTitle()) // Trip 이름 추출
+                        .collect(Collectors.toList()))
+//                .photos(user.getPhotos().stream()
+//                        .map(photo -> photo.getUrl()) // Photo URL 추출
+//                        .collect(Collectors.toList()))
+                .build();
     }
 }
