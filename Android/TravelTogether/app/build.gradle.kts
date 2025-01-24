@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
+
     kotlin("plugin.serialization") version "1.5.0"
 }
 
@@ -108,6 +109,9 @@ dependencies {
 
     //Calendar
     implementation("com.kizitonwose.calendar:view:2.4.1")
+
+    //Websocket
+
 
 }
 

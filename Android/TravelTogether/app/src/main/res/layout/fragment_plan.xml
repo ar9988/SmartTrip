@@ -7,7 +7,7 @@
 
         <variable
             name="vm"
-            type="com.neungi.moyeo.views.plan.TripViewModel" />
+            type="com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -18,14 +18,20 @@
         android:name="com.neungi.moyeo.views.plan.PlanFragment"
         android:label="Plan"
         tools:layout="@layout/fragment_plan">
-
+        <action
+            android:id="@+id/action_plan_to_planDetail"
+            app:destination="@id/fragment_plan_detail" />
     </fragment>
 
     <fragment
         android:id="@+id/fragment_plan_detail"
         android:name="com.neungi.moyeo.views.plan.PlanDetailFragment"
         android:label="Plan Detail"
-        tools:layout="@layout/fragment_plan_detail" />
+        tools:layout="@layout/fragment_plan_detail">
+        <argument
+            android:name="tripId"
+            app:argType="integer"/>
+    </fragment>
 
     <fragment
         android:id="@+id/selectPeriodFragment"
@@ -40,7 +46,6 @@
         android:name="com.neungi.moyeo.views.album.AlbumDetailFragment"
         android:label="Album Detail"
         tools:layout="@layout/fragment_album_detail">
-
     </fragment>
 
     <fragment
@@ -48,7 +53,6 @@
         android:name="com.neungi.moyeo.views.setting.SettingFragment"
         android:label="Setting"
         tools:layout="@layout/fragment_setting">
-
     </fragment>
 
 </navigation>
