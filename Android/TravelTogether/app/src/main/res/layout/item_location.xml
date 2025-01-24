@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <TextView
+        android:id="@+id/tv_local_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="28sp"
+        android:paddingStart="32dp"
+        android:paddingVertical="12dp"
+        android:textColor="@drawable/selector_local_text"
+        android:focusable="true"
+        android:clickable="true"
+        />
+
+</layout>

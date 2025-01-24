@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_main"
-    app:startDestination="@id/fragment_album_detail">
+    app:startDestination="@id/fragment_select_period">
 
     <fragment
         android:id="@+id/fragment_home"
@@ -34,11 +34,14 @@
     </fragment>
 
     <fragment
-        android:id="@+id/selectPeriodFragment"
-        android:name="com.neungi.moyeo.views.aiplanning.selectduration.SelectPeriodFragment"
-        android:label="SelectPeriodFragment"
+        android:id="@+id/fragment_select_period"
+        android:name="com.neungi.moyeo.views.aiplanning.SelectPeriodFragment"
+        android:label="fragment_select_period"
         tools:layout="@layout/fragment_select_period">
 
+        <action
+            android:id="@+id/action_fragment_select_period_to_fragment_ai_select_local"
+            app:destination="@id/fragment_ai_select_local" />
     </fragment>
 
     <fragment
@@ -53,6 +56,14 @@
         android:name="com.neungi.moyeo.views.setting.SettingFragment"
         android:label="Setting"
         tools:layout="@layout/fragment_setting">
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_ai_select_local"
+        android:name="com.neungi.moyeo.views.aiplanning.AiSelectLocalFragment"
+        android:label="AiSelectLocal"
+        tools:layout="@layout/fragment_ai_select_local">
+
     </fragment>
 
 </navigation>
