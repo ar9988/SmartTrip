@@ -19,5 +19,12 @@
 
     <!-- Album -->
     <string name="title_album_detail">추억 앨범</string>
+    <string name="description_fab">일정 추가 버튼</string>
+    <string name="description_car_image">차 이미지</string>
+    <string name="description_transit">대중교통 이미지</string>
+    <string name="description_back_btn">뒤로가기 이미지 버튼</string>
+    <string name="description_btn_add_person">사람 추가 버튼</string>
+    <string name="description_switch">이동 수단 선택 스위치</string>
+    <string name="description_schedule_icon">일정 아이콘</string>
 
 </resources>

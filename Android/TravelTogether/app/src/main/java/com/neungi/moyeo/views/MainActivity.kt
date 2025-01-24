@@ -11,8 +11,8 @@ import com.neungi.moyeo.databinding.ActivityMainBinding
 import com.neungi.moyeo.views.aiplanning.AIPlanningViewModel
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
-import com.neungi.moyeo.views.plan.ScheduleViewModel
-import com.neungi.moyeo.views.plan.TripViewModel
+import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
+import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import com.neungi.moyeo.views.setting.viewmodel.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 

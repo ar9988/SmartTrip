@@ -3,14 +3,13 @@ package com.neungi.moyeo.views.plan
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanBinding
+import com.neungi.moyeo.views.plan.tripviewmodel.TripUiEvent
+import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PlanFragment: BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
@@ -43,6 +42,13 @@ class PlanFragment: BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
         // 예시로 trips 로드
 //        viewModel.loadTripData()
+    }
+    private fun handleUiEvent(event: TripUiEvent) {
+        when (event) {
+            is TripUiEvent -> {
+
+            }
+        }
     }
     private fun setupRecyclerView() {
         binding.recyclerViewTrips.layoutManager = LinearLayoutManager(context)

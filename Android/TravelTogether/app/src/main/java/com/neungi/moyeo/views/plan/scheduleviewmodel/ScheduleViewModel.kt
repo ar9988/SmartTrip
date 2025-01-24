@@ -1,0 +1,32 @@
+package com.neungi.moyeo.views.plan.scheduleviewmodel
+
+import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class ScheduleViewModel @Inject constructor(
+
+) : ViewModel() {
+//    private val _schedules : MutableStateFlow<List<Schedule>> = MutableStateFlow(emptyList())
+//    val schedules: StateFlow<List<Schedule>> = _schedules
+//
+//    fun updateschedules(newschedules: List<Schedule>) {
+//        _schedules.value = newschedules
+//    }
+//
+//    fun addSchedule(newSchedule: Schedule) {
+//        // 기존 리스트에 새로운 Schedule을 추가하고 새로운 리스트로 설정
+//        _schedules.value = _schedules.value + newSchedule
+//    }
+//
+//    fun removeSchedule(ScheduleId: Int) {
+//        _schedules.value = _schedules.value.filter { it.id != ScheduleId }
+//    }
+
+//    fun loadScheduleData() {
+//        viewModelScope.launch {
+//            updateschedules(exampleschedules)  // 리스트 업데이트
+//        }
+//    }
+}
