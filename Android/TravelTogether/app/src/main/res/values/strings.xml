@@ -27,5 +27,12 @@
     <string name="text_photo_add">추가하기</string>
     <string name="message_select_picture_permission">사진을 업로드하려면 권한이 필요합니다.</string>
     <string name="message_select_picture">사진을 선택해주세요!</string>
+    <string name="description_fab">일정 추가 버튼</string>
+    <string name="description_car_image">차 이미지</string>
+    <string name="description_transit">대중교통 이미지</string>
+    <string name="description_back_btn">뒤로가기 이미지 버튼</string>
+    <string name="description_btn_add_person">사람 추가 버튼</string>
+    <string name="description_switch">이동 수단 선택 스위치</string>
+    <string name="description_schedule_icon">일정 아이콘</string>
 
 </resources>

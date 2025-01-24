@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
+
     kotlin("plugin.serialization") version "1.5.0"
 }
 
@@ -89,6 +90,7 @@ dependencies {
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
+    implementation(libs.androidx.lifecycle.livedata.ktx)
     kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     // Coil
@@ -108,6 +110,9 @@ dependencies {
 
     //Calendar
     implementation("com.kizitonwose.calendar:view:2.4.1")
+
+    //Websocket
+
 
 }
 

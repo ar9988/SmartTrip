@@ -12,10 +12,13 @@
 
     <!-- ETC -->
     <color name="red">#FFFF0000</color>
+    <color name="blue">#FF3B82F6</color>
 
     <!-- Main -->
     <color name="colorPrimary">#FF8CCCFF</color>
     <color name="colorSecondary">#FFDFF1FF</color>
-    <color name="blue">#FF90D0FE</color>
+    <color name="colorPrimary2">#FF90D0FE</color>
 
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
 </resources>

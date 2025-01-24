@@ -8,11 +8,11 @@ import androidx.navigation.ui.setupWithNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseActivity
 import com.neungi.moyeo.databinding.ActivityMainBinding
-import com.neungi.moyeo.views.aiplanning.AIPlanningViewModel
+import com.neungi.moyeo.views.aiplanning.viwmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
-import com.neungi.moyeo.views.plan.ScheduleViewModel
-import com.neungi.moyeo.views.plan.TripViewModel
+import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
+import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import com.neungi.moyeo.views.setting.viewmodel.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -46,7 +46,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         with(binding.bnvMain) {
             setupWithNavController(navController)
             background = null
-            menu.getItem(1).isEnabled = false
+//            menu.getItem(1).isEnabled = false
         }
         binding.fabOrder.setOnClickListener {
 

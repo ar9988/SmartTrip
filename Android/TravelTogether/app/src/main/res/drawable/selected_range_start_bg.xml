@@ -3,7 +3,7 @@
     <!-- 오른쪽 연결부분 -->
     <item android:right="0dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/colorPrimary"/>
+            <solid android:color="@color/colorSecondary"/>
             <corners
                 android:topLeftRadius="32dp"
                 android:bottomLeftRadius="32dp"/>
