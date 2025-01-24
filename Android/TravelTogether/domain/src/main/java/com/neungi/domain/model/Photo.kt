@@ -6,8 +6,8 @@ data class Photo(
     val photoPlace: String,
     val userId: String,
     val filePath: String,
-    val latitude: Float,
-    val longitude: Float,
+    val latitude: Double,
+    val longitude: Double,
     val takenAt: String,
     val uploadedAt: String
 )

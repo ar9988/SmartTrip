@@ -6,7 +6,7 @@
 
         <variable
             name="photo"
-            type="com.neungi.domain.model.Photo" />
+            type="com.neungi.moyeo.views.album.viewmodel.PhotoUploadUiState.UploadedPhoto" />
 
         <variable
             name="vm"
@@ -43,7 +43,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:urlPhotoImage="@{photo.filePath}" />
+                    app:uriPhotoImage="@{photo.photoUri}" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

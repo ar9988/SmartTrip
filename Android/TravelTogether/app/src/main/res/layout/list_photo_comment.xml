@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="comment"
+            type="com.neungi.domain.model.Comment" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_start_photo_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_top_photo_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_profile_photo_comment"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@id/tv_content_photo_comment"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toEndOf="@id/gl_start_photo_comment"
+            app:layout_constraintTop_toTopOf="@id/tv_nickname_photo_comment"
+            app:urlPhotoImage="@{comment.content}" />
+
+        <TextView
+            android:id="@+id/tv_nickname_photo_comment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{comment.author}"
+            android:textAlignment="viewStart"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_title"
+            app:layout_constraintBottom_toTopOf="@id/tv_content_photo_comment"
+            app:layout_constraintStart_toEndOf="@id/iv_profile_photo_comment"
+            app:layout_constraintTop_toBottomOf="@id/gl_top_photo_comment" />
+
+        <TextView
+            android:id="@+id/tv_date_photo_comment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{comment.createdAt}"
+            android:textAlignment="viewStart"
+            android:textColor="@color/neutral_70"
+            android:textSize="@dimen/font_size_medium"
+            app:layout_constraintBottom_toBottomOf="@id/tv_nickname_photo_comment"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_photo_comment"
+            app:layout_constraintStart_toEndOf="@id/tv_nickname_photo_comment"
+            app:layout_constraintTop_toTopOf="@id/tv_nickname_photo_comment" />
+
+        <TextView
+            android:id="@+id/tv_content_photo_comment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_small"
+            android:text="@{comment.content}"
+            android:textAlignment="viewStart"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_medium"
+            app:layout_constraintBottom_toTopOf="@id/gl_bottom_photo_comment"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_photo_comment"
+            app:layout_constraintStart_toEndOf="@id/iv_profile_photo_comment"
+            app:layout_constraintTop_toBottomOf="@id/tv_nickname_photo_comment" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_end_photo_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_bottom_photo_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
