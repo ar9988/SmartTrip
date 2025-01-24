@@ -20,4 +20,6 @@ public interface TripMemberRepository extends JpaRepository<TripMember, Integer>
             nativeQuery = true)
     List<Object[]> countMembersByTripId();
     List<TripMember> findByTripId(Integer tripId);
+    boolean existsByTripIdAndUserId(Integer tripId, Integer userId);
+
 }

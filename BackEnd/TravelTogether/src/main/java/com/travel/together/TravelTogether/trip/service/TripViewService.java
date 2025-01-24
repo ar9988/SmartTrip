@@ -1,19 +1,19 @@
 package com.travel.together.TravelTogether.trip.service;
 
+import com.travel.together.TravelTogether.trip.dto.DayDto;
 import com.travel.together.TravelTogether.trip.dto.TripDetailResponse;
 import com.travel.together.TravelTogether.trip.dto.TripResponse;
-import com.travel.together.TravelTogether.trip.entity.Schedule;
-import com.travel.together.TravelTogether.trip.entity.Trip;
-import com.travel.together.TravelTogether.trip.entity.TripMember;
+import com.travel.together.TravelTogether.trip.entity.*;
 import com.travel.together.TravelTogether.trip.exception.TripNotFoundException;
 import com.travel.together.TravelTogether.trip.exception.UnauthorizedException;
-import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
-import com.travel.together.TravelTogether.trip.repository.TripMemberRepository;
-import com.travel.together.TravelTogether.trip.repository.TripRepository;
+import com.travel.together.TravelTogether.trip.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
 
+import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -24,17 +24,25 @@ import java.util.stream.Collectors;
 //@Transactional(readOnly = true)
 //@RequiredArgsConstructor
 public class TripViewService {
-    public TripViewService(TripRepository tripRepository, ScheduleRepository scheduleRepository, TripMemberRepository tripMemberRepository) {
+    public TripViewService(TripRepository tripRepository, ScheduleRepository scheduleRepository, TripMemberRepository tripMemberRepository, DayRepository dayRepository, RouteRepository routeRepository) {
         this.tripRepository = tripRepository;
         this.scheduleRepository = scheduleRepository;
         this.tripMemberRepository = tripMemberRepository;
+        this.dayRepository = dayRepository;
+        this.routeRepository = routeRepository;
     }
+
     @Autowired
     private final TripRepository tripRepository;
     @Autowired
     private final ScheduleRepository scheduleRepository;
     @Autowired
     private final TripMemberRepository tripMemberRepository;
+    @Autowired
+    private final DayRepository dayRepository;
+    @Autowired
+    private final RouteRepository routeRepository;
+
 
 
     // 전체 여행 조회
@@ -60,19 +68,29 @@ public class TripViewService {
     }
 
     // 상세 조회
-    public TripDetailResponse getTripDetail(Integer userId, Integer tripId) {
+    public TripDetailResponse getTripDetail(Integer userId,Integer tripId) {
         Trip trip = tripRepository.findById(tripId)
-                .orElseThrow(() -> new TripNotFoundException("여행을 찾을 수 없습니다."));
-//
-//        if (!tripMemberRepository.existsByTripIdAndUserId(tripId, userId)) {
-//            throw new UnauthorizedException("여행 참여자가 아닙니다.");
-//        }
+                .orElseThrow(() -> new EntityNotFoundException("Trip not found"));
 
-        List<Schedule> schedules = scheduleRepository.findByTripIdOrderByDayAscOrderNumAsc(tripId);
+        // 권한 체크: creator이거나 tripMember인 경우만 조회 가능
+        if (!trip.getCreator().getId().equals(userId) &&
+                !tripMemberRepository.existsByTripIdAndUserId(tripId, userId)) {
+            throw new AccessDeniedException("권한이 없습니다.");
+        }
+
+
         List<TripMember> members = tripMemberRepository.findByTripId(tripId);
+        List<Day> days = dayRepository.findByTripId(tripId);
 
-        return TripDetailResponse.from(trip, schedules, members);
+        List<DayDto> dayDtos = days.stream()
+                .map(day -> {
+                    List<Schedule> schedules = scheduleRepository.findByDayId(day.getId());
+                    List<Route> routes = routeRepository.findByDayId(day.getId());
+                    return new DayDto(day, schedules, routes);
+                })
+                .collect(Collectors.toList());
+
+        return new TripDetailResponse(trip, members, dayDtos);
     }
-
 
 }
