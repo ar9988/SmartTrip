@@ -1,25 +1,24 @@
 package com.travel.together.TravelTogether.auth.jwt;
 
+import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.helper.UserHelper;
+import com.travel.together.TravelTogether.auth.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsService userDetailsService;
+    private final UserHelper userHelper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -35,14 +34,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String email = jwtTokenProvider.getEmailFromToken(token);
 
             // 사용자 정보 로드
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            User user = userHelper.findUserByEmail(email);
 
             // 인증 토큰 생성
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userDetails,
+                            user,
                             null,
-                            userDetails.getAuthorities()
+                            user.getAuthorities()
                     );
 
             // 보안 컨텍스트에 인증 정보 저장
