@@ -46,7 +46,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         with(binding.bnvMain) {
             setupWithNavController(navController)
             background = null
-            menu.getItem(1).isEnabled = false
+//            menu.getItem(1).isEnabled = false
         }
         binding.fabOrder.setOnClickListener {
 

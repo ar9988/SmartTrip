@@ -7,6 +7,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class SectionedAdapter(
+    private val onItemClick: (Int) -> Unit,
+    private val onDeleteClick: (Int) -> Unit,
+    private val onEditClick: (Int) -> Unit,
     private val sections: MutableList<Section>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -53,7 +56,7 @@ class SectionedAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = listItems[position]) {
             is ListItem.SectionHeader -> (holder as SectionHeaderViewHolder).bind(item.title)
-            is ListItem.Item -> (holder as ItemViewHolder).bind(item.name)
+            is ListItem.Item -> (holder as ItemViewHolder).bind(item.name.toString())
         }
 
     }
@@ -75,12 +78,12 @@ class SectionedAdapter(
                 currentSections[it.title] = mutableListOf()
             } else if (it is ListItem.Item) {
                 val currentSection = listItems[it.sectionIndex] as ListItem.SectionHeader
-                currentSections[currentSection.title]?.add(it.name)
+                currentSections[currentSection.title]?.add(it.name.toString())
             }
         }
 
         currentSections.forEach { (title, items) ->
-            sections.add(Section(title, items))
+//            sections.add(Section(title, items))
         }
         buildListItems()
         notifyDataSetChanged()
@@ -100,14 +103,3 @@ class SectionedAdapter(
         }
     }
 }
-
-data class Section(
-    val title: String,
-    val items: MutableList<String>
-)
-
-sealed class ListItem {
-    data class SectionHeader(val title: String) : ListItem()
-    data class Item(val name: String, val sectionIndex: Int) : ListItem()
-}
-

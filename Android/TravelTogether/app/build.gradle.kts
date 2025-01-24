@@ -4,6 +4,8 @@ plugins {
     id("kotlin-kapt")
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
+    id("androidx.navigation.safeargs.kotlin")
+
     kotlin("plugin.serialization") version "1.5.0"
 }
 
@@ -108,6 +110,12 @@ dependencies {
 
     //Calendar
     implementation("com.kizitonwose.calendar:view:2.4.1")
+
+    //Websocket
+
+    implementation("org.hildan.krossbow:krossbow-stomp-core:8.2.0")
+    implementation("org.hildan.krossbow:krossbow-websocket-okhttp:8.2.0")
+    implementation("org.hildan.krossbow:krossbow-stomp-moshi:8.2.0")
 
 }
 
