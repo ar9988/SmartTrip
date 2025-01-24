@@ -113,9 +113,6 @@ dependencies {
 
     //Websocket
 
-    implementation("org.hildan.krossbow:krossbow-stomp-core:8.2.0")
-    implementation("org.hildan.krossbow:krossbow-websocket-okhttp:8.2.0")
-    implementation("org.hildan.krossbow:krossbow-stomp-moshi:8.2.0")
 
 }
 

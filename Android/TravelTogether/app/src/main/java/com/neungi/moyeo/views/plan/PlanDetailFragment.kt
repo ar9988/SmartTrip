@@ -10,6 +10,7 @@ import com.naver.maps.map.NaverMap
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
+import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -32,7 +33,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         setupRecyclerView()
         lifecycleScope.launch {
             viewModel.scheduleData.collect {
-                sectionedAdapter.submitList(it)
+//                sectionedAdapter.submitList(it)
             }
         }
     }
@@ -52,8 +53,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 println("Edit schedule with ID: $scheduleId")
             },
             mutableListOf(
-                Section("1일차", mutableListOf("Item 1", "Item 2", "Item 3")),
-                Section("2일차", mutableListOf("Item 4", "Item 5")
+                Section("1일차", mutableListOf(ScheduleData(4,"일정5 ","17시","19시","식당","30분"),ScheduleData(4,"일정5 ","17시","19시","식당","30분"))),
+                Section("2일차", mutableListOf(ScheduleData(4,"일정5 ","17시","19시","식당","30분"),ScheduleData(4,"일정5 ","17시","19시","식당","30분"),ScheduleData(4,"일정5 ","17시","19시","식당","30분"))
                 ))
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
