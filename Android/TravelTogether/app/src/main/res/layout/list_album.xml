@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="photoAlbum"
+            type="com.neungi.domain.model.PhotoAlbum" />
+
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.album.viewmodel.AlbumViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="@dimen/dp_medium"
+            android:onClick="@{() -> vm.onClickAlbum(photoAlbum)}"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1.25"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:backgroundAlbumImage="@{photoAlbum.imageUrl}">
+
+                <TextView
+                    android:id="@+id/tv_title_list_album"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dp_small"
+                    android:fontFamily="@font/pretendardbold"
+                    android:text="@{photoAlbum.title}"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/neutral_white"
+                    android:textSize="@dimen/font_size_medium"
+                    app:layout_constraintBottom_toTopOf="@id/tv_start_date_list_album"
+                    app:layout_constraintStart_toStartOf="@id/tv_start_date_list_album" />
+
+                <TextView
+                    android:id="@+id/tv_start_date_list_album"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_medium"
+                    android:layout_marginBottom="@dimen/dp_medium"
+                    android:fontFamily="@font/pretendardregular"
+                    android:text="@{photoAlbum.startDate}"
+                    android:textColor="@color/neutral_50"
+                    android:textSize="@dimen/font_size_small"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_date_list_album"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_smaller"
+                    android:fontFamily="@font/pretendardregular"
+                    android:text="@string/text_range_center"
+                    android:textColor="@color/neutral_50"
+                    android:textSize="@dimen/font_size_small"
+                    app:layout_constraintBottom_toBottomOf="@id/tv_start_date_list_album"
+                    app:layout_constraintStart_toEndOf="@id/tv_start_date_list_album"
+                    app:layout_constraintTop_toTopOf="@id/tv_start_date_list_album" />
+
+                <TextView
+                    android:id="@+id/tv_end_date_list_album"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_smaller"
+                    android:fontFamily="@font/pretendardregular"
+                    android:text="@{photoAlbum.endDate}"
+                    android:textColor="@color/neutral_50"
+                    android:textSize="@dimen/font_size_small"
+                    app:layout_constraintBottom_toBottomOf="@id/tv_start_date_list_album"
+                    app:layout_constraintStart_toEndOf="@id/tv_date_list_album"
+                    app:layout_constraintTop_toTopOf="@id/tv_start_date_list_album" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
@@ -39,18 +40,23 @@ import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAlbumDetailBinding
 import com.neungi.moyeo.util.MarkerData
 import com.neungi.moyeo.util.Permissions
+import com.neungi.moyeo.views.MainViewModel
+import com.neungi.moyeo.views.album.adapter.PhotoAdapter
+import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 @AndroidEntryPoint
 class AlbumDetailFragment :
     BaseFragment<FragmentAlbumDetailBinding>(R.layout.fragment_album_detail), OnMapReadyCallback {
 
     private val viewModel: AlbumViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationSource: FusedLocationSource
@@ -64,8 +70,15 @@ class AlbumDetailFragment :
         binding.vm = viewModel
 
         initFusedLocationClient()
+        initRecyclerView()
 
         collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mainViewModel.setBnvState(false)
     }
 
     @Deprecated("Deprecated in Java")
@@ -168,20 +181,25 @@ class AlbumDetailFragment :
     private fun initClusterer() {
         markerBuilder = Clusterer.ComplexBuilder<MarkerData>()
         lifecycleScope.launch {
+            tags.clear()
             val newClusterer = makeMarker(
                 viewModel.markers.value,
                 markerBuilder
             ) {
                 val newMarkers = mutableListOf<List<MarkerData>>()
-                tags.forEachIndexed { index, tag ->
+                tags.forEach { tag ->
                     val newLocations = mutableListOf<MarkerData>()
                     tag.split(",").forEach { id ->
                         newLocations.add(viewModel.markers.value[id.toInt() - 1])
                     }
                     calculateRepresentativeCoordinate(newLocations)
                     newMarkers.add(newLocations)
+                    Timber.d("Tag: $tag")
                 }
                 addClusterMarkers(newMarkers)
+
+                viewModel.initPhotoPlaces(tags)
+                initPlaceRecyclerView()
                 clusterer.map = null
             }
 
@@ -229,8 +247,8 @@ class AlbumDetailFragment :
     }
 
     private fun calculateRepresentativeCoordinate(cluster: List<MarkerData>): LatLng {
-        val averageLatitude = cluster.map { it.latitude }.average()
-        val averageLongitude = cluster.map { it.longitude }.average()
+        val averageLatitude = cluster.map { it.photo.latitude }.average()
+        val averageLongitude = cluster.map { it.photo.longitude }.average()
         return LatLng(averageLatitude, averageLongitude)
     }
 
@@ -246,7 +264,7 @@ class AlbumDetailFragment :
             )
             val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
             val firstPhotoIndex = cluster.first().id - 1
-            val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].profile
+            val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].photo.filePath
             Glide.with(requireContext())
                 .asBitmap()
                 .apply(RequestOptions.circleCropTransform())
@@ -267,11 +285,27 @@ class AlbumDetailFragment :
         }
     }
 
+    private fun initRecyclerView() {
+        binding.photoAdapter = PhotoAdapter(viewModel)
+        binding.rvPhotoAlbumDetail.setHasFixedSize(true)
+    }
+
+    private fun initPlaceRecyclerView() {
+        binding.photoPlaceAdapter = PhotoPlaceAdapter(viewModel)
+        binding.rvPlaceAlbumDetail.setHasFixedSize(false)
+    }
+
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
             is AlbumUiEvent.PhotoUpload -> {
-                
+                findNavController().navigateSafely(R.id.action_album_detail_to_photo_upload)
             }
+
+            is AlbumUiEvent.SelectPlace -> {
+                binding.rvPlaceAlbumDetail.requestLayout()
+            }
+
+            else -> {}
         }
     }
 

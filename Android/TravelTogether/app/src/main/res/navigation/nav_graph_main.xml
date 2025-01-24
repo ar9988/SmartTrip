@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_main"
-    app:startDestination="@id/fragment_select_period">
+    app:startDestination="@id/fragment_album">
 
     <fragment
         android:id="@+id/fragment_home"
@@ -45,10 +45,35 @@
     </fragment>
 
     <fragment
+        android:id="@+id/fragment_album"
+        android:name="com.neungi.moyeo.views.album.AlbumFragment"
+        android:label="@string/label_album"
+        tools:layout="@layout/fragment_album">
+
+        <action
+            android:id="@+id/action_album_to_album_Detail"
+            app:destination="@id/fragment_album_detail" />
+
+    </fragment>
+
+    <fragment
         android:id="@+id/fragment_album_detail"
         android:name="com.neungi.moyeo.views.album.AlbumDetailFragment"
-        android:label="Album Detail"
+        android:label="@string/label_album_detail"
         tools:layout="@layout/fragment_album_detail">
+
+        <action
+            android:id="@+id/action_album_detail_to_photo_upload"
+            app:destination="@id/fragment_photo_upload" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_photo_upload"
+        android:name="com.neungi.moyeo.views.album.PhotoUploadFragment"
+        android:label="Photo Upload"
+        tools:layout="@layout/fragment_photo_upload">
+
     </fragment>
 
     <fragment

@@ -13,7 +13,10 @@ object AlbumsMapper {
                 PhotoAlbum(
                     id = albumEntity.id.toString(),
                     tripId = albumEntity.tripId.toString(),
-                    imageUrl = albumEntity.repImage
+                    title = "",
+                    imageUrl = albumEntity.repImage,
+                    startDate = "",
+                    endDate = ""
                 )
             )
         }

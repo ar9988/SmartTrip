@@ -12,10 +12,10 @@ data class PhotoEntity(
     val url: String,
 
     @Json(name = "latitude")
-    val latitude: Float,
+    val latitude: Double,
 
     @Json(name = "longitude")
-    val longitude: Float,
+    val longitude: Double,
 
     @Json(name = "created_at")
     val createdAt: String

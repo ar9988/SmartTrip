@@ -3,11 +3,16 @@
     <style name="Base.Theme.TravelTogether" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+
     </style>
 
     <style name="Theme.TravelTogether" parent="Base.Theme.TravelTogether" />
 
     <style name="CollapsedToolbarTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+
+        <item name="android:fontFamily">@font/pretendardsemibold</item>
 
         <item name="android:textSize">24sp</item>
 
@@ -17,9 +22,19 @@
 
     <style name="ExpandedToolbarTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
 
+        <item name="android:fontFamily">@font/pretendardregular</item>
+
         <item name="android:textSize">24sp</item>
 
         <item name="android:textColor">@color/neutral_100</item>
+
+    </style>
+
+    <style name="AppTheme.Toolbar" parent="Widget.AppCompat.Toolbar">
+
+        <item name="android:background">@android:color/transparent</item>
+
+        <item name="elevation">0dp</item>
 
     </style>
 

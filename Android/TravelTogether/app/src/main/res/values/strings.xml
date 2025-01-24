@@ -18,7 +18,15 @@
     <string name="text_trip_end_date">여행 종료 날짜</string>
 
     <!-- Album -->
-    <string name="title_album_detail">추억 앨범</string>
+    <string name="label_album">Album</string>
+    <string name="label_album_detail">Album Detail</string>
+    <string name="title_album">추억 앨범</string>
+    <string name="title_photo_comment">추억 나누기</string>
+    <string name="title_photo_upload">업로드</string>
+    <string name="text_range_center">~</string>
+    <string name="text_photo_add">추가하기</string>
+    <string name="message_select_picture_permission">사진을 업로드하려면 권한이 필요합니다.</string>
+    <string name="message_select_picture">사진을 선택해주세요!</string>
     <string name="description_fab">일정 추가 버튼</string>
     <string name="description_car_image">차 이미지</string>
     <string name="description_transit">대중교통 이미지</string>
