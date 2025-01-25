@@ -14,7 +14,9 @@ import coil.load
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.google.android.material.textfield.TextInputLayout
 import com.neungi.moyeo.R
+import com.neungi.moyeo.views.auth.viewmodel.AuthUiState
 
 /*** ImageView***/
 @BindingAdapter("app:urlPhotoImage")
@@ -56,6 +58,47 @@ fun ConstraintLayout.bindBackgroundAlbumImage(url: String) {
 
             }
         })
+}
+
+/*** TextInputLayout ***/
+@BindingAdapter("app:validateEmail")
+fun TextInputLayout.bindValidateEmail(authUiState: AuthUiState) {
+    when (authUiState.loginEmailValidState) {
+        InputValidState.VALID -> {
+            helperText = ""
+            error = ""
+        }
+
+        InputValidState.BLANK -> {
+            error = "이메일을 입력해주세요."
+        }
+
+        InputValidState.NONE -> {
+            error = "올바른 이메일 형식이 아닙니다."
+        }
+
+        else -> {}
+    }
+}
+
+@BindingAdapter("app:validatePassword")
+fun TextInputLayout.bindValidatePassword(authUiState: AuthUiState) {
+    when (authUiState.loginPasswordValidState) {
+        InputValidState.VALID -> {
+            helperText = ""
+            error = ""
+        }
+
+        InputValidState.BLANK -> {
+            error = "비밀번호를 입력해주세요."
+        }
+
+        InputValidState.NONE -> {
+            error = "영문, 숫자, 특수문자 포함 8~16자로 입력해주세요."
+        }
+
+        else -> {}
+    }
 }
 
 /*** CardView ***/
