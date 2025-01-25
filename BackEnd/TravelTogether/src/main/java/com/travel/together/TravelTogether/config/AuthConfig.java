@@ -32,6 +32,8 @@ public class AuthConfig {
 //                .csrf(csrf -> csrf.disable())
 //                .authorizeHttpRequests(authorize -> authorize
 //                        .requestMatchers("/api/auth/**").permitAll()
+//                        .requestMatchers("/ws/**", "/topic/**", "/app/**").permitAll()  // WebSocket 경로
+//                        .requestMatchers("/api/auth/**").permitAll()  // 인증 관련 경로
 //                        .anyRequest().authenticated()
 //                )
 //                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
