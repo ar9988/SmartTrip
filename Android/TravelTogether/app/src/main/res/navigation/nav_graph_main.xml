@@ -30,7 +30,7 @@
         tools:layout="@layout/fragment_plan_detail">
         <argument
             android:name="tripId"
-            app:argType="integer"/>
+            app:argType="integer" />
     </fragment>
 
     <fragment
@@ -80,8 +80,7 @@
         android:id="@+id/fragment_setting"
         android:name="com.neungi.moyeo.views.setting.SettingFragment"
         android:label="Setting"
-        tools:layout="@layout/fragment_setting">
-    </fragment>
+        tools:layout="@layout/fragment_setting"></fragment>
 
     <fragment
         android:id="@+id/fragment_ai_select_local"
@@ -96,6 +95,18 @@
         android:name="com.neungi.moyeo.views.auth.LoginFragment"
         android:label="@string/label_login"
         tools:layout="@layout/fragment_login">
+
+        <action
+            android:id="@+id/action_login_to_join"
+            app:destination="@id/fragment_join" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_join"
+        android:name="com.neungi.moyeo.views.auth.JoinFragment"
+        android:label="@string/label_join"
+        tools:layout="@layout/fragment_join">
 
     </fragment>
 
