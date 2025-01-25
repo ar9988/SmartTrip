@@ -7,4 +7,8 @@ sealed class AuthUiEvent {
     data object LoginFail : AuthUiEvent()
 
     data object GoToJoin : AuthUiEvent()
+
+    data object JoinSuccess : AuthUiEvent()
+
+    data object JoinFail : AuthUiEvent()
 }
