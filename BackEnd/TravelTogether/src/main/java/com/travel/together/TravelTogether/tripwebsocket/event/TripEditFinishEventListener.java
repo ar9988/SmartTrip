@@ -43,11 +43,11 @@ public class TripEditFinishEventListener {
             // 편집 내역 순서대로 처리
             for (EditRequest edit : edits) {
                 if ("DAY".equals(edit.getOperation().getType())) {
-                   // TODO: DAY 순서 업데이트하는 로직..
+                   // TODO: DAY 순서 업데이트하는 로직..안해도될것같음
                    // updateDayOrder(edit);
                 } else if ("SCHEDULE".equals(edit.getOperation().getType())) {
                    // TODO: 스케쥴 순서 업데이트하는로직이라서 꼭해야함....
-                    // updateScheduleOrder(edit);
+                     updateScheduleOrder(edit);
                 }
 
                 log.info("Successfully processed {} edits for tripId: {}", edits.size(), tripId);
