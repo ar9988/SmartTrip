@@ -16,6 +16,8 @@ public class EditResponse {
     private Long timestamp;
     private Integer version;
 
+
+
     @Getter
     @Setter
     @NoArgsConstructor

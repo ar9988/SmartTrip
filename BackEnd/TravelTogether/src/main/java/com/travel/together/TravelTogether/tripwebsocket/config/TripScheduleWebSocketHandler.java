@@ -1,8 +1,16 @@
 package com.travel.together.TravelTogether.tripwebsocket.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
+import com.travel.together.TravelTogether.tripwebsocket.dto.EditResponse;
+import com.travel.together.TravelTogether.tripwebsocket.dto.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.event.TripEditFinishEvent;
 import io.jsonwebtoken.io.IOException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -15,7 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
+    private final ApplicationEventPublisher eventPublisher;
+    private final TripEditCache editCache;  // 추가
+    private final ObjectMapper objectMapper; // JSON 파싱을 위해 추가
+
 
     // tripId를 키로 하고, 해당 여행의 접속자들의 세션을 값으로 가지는 Map
     private final Map<String, Set<WebSocketSession>> tripSessions = new ConcurrentHashMap<>();
@@ -52,8 +65,18 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             if (tripId == null) {
                 return;
             }
+            // 메시지를 EditRequest 객체로 변환
+            EditRequest editRequest = objectMapper.readValue(message.getPayload(), EditRequest.class);
 
-            // 같은 trip의 다른 모든 세션에게 메시지 브로드캐스트
+            // 편집 내용을 캐시에 저장
+            editCache.addEdit(tripId, editRequest);
+
+            // 송신자에게 즉시 "SUCCESS" 메시지 전송(테스트용)
+            session.sendMessage(new TextMessage("SUCCESS"));
+
+
+
+            // 다른 세션들에게 메시지 브로드캐스트 (기존 코드)
             Set<WebSocketSession> tripSessionSet = tripSessions.get(tripId);
             if (tripSessionSet != null) {
                 for (WebSocketSession tripSession : tripSessionSet) {
@@ -62,8 +85,15 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     }
                 }
             }
-        } catch (IOException | java.io.IOException e) {
-            log.error("Error handling message", e);
+
+            } catch (IOException e) {
+                log.error("Error handling message", e);
+            } catch (JsonMappingException e) {
+                throw new RuntimeException(e);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
