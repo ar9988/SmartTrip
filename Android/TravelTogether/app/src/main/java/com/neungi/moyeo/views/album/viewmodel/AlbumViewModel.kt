@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -175,30 +177,222 @@ class AlbumViewModel @Inject constructor(
 
     private fun initTempAlbums() {
         val newAlbums = mutableListOf<PhotoAlbum>()
-        newAlbums.add(PhotoAlbum("1", "1", "18제주팟", "https://cdn.hkbs.co.kr/news/photo/202405/755302_490954_5034.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("2", "2", "19제주팟", "https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/3fuW/image/oKAZIY6tS8e4z_7r4oOgDS-BPgU.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "20제주팟", "https://img.freepik.com/free-photo/tourist-with-map-sunny-sky-background_23-2147828103.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "21제주팟", "https://content.skyscnr.com/m/26448d8c5b60885d/original/eyeem_141769102-jpg.jpg?resize=1224%3Aauto", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "22제주팟", "https://img.modetour.com/eagle/photoimg/33769/bfile/636529163406869782.png?resize=y&resize_w=603&resize_h=360&w_h_fill=y", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "23제주팟", "https://cdn.informaticsview.com/news/photo/202410/647_2527_2618.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "24제주팟", "https://dimg.donga.com/wps/NEWS/IMAGE/2019/01/02/93531867.2.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "25제주팟", "https://cdn.drtour.com/MainDrtour/item/2025/1/67e09f44-6c78-4c0f-91aa-87b0fdf66f18.jpg", "25.01.17", "25.01.20"))
+        newAlbums.add(
+            PhotoAlbum(
+                "1",
+                "1",
+                "18제주팟",
+                "https://cdn.hkbs.co.kr/news/photo/202405/755302_490954_5034.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "2",
+                "2",
+                "19제주팟",
+                "https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/3fuW/image/oKAZIY6tS8e4z_7r4oOgDS-BPgU.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "20제주팟",
+                "https://img.freepik.com/free-photo/tourist-with-map-sunny-sky-background_23-2147828103.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "21제주팟",
+                "https://content.skyscnr.com/m/26448d8c5b60885d/original/eyeem_141769102-jpg.jpg?resize=1224%3Aauto",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "22제주팟",
+                "https://img.modetour.com/eagle/photoimg/33769/bfile/636529163406869782.png?resize=y&resize_w=603&resize_h=360&w_h_fill=y",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "23제주팟",
+                "https://cdn.informaticsview.com/news/photo/202410/647_2527_2618.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "24제주팟",
+                "https://dimg.donga.com/wps/NEWS/IMAGE/2019/01/02/93531867.2.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "25제주팟",
+                "https://cdn.drtour.com/MainDrtour/item/2025/1/67e09f44-6c78-4c0f-91aa-87b0fdf66f18.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
         _photoAlbums.value = newAlbums
     }
 
     private fun initTempPhotos() {
         val newPhotos = mutableListOf<Photo>()
         _selectedPhotoAlbum.value?.let { album ->
-            newPhotos.add(Photo("1", album.id, "장소1", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.106647982205345, 128.4179970752263, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("2", album.id, "장소2", "김싸피","https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10671844993927, 128.4185147185645, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("3", album.id, "장소3", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10597868662755, 128.41782402493536, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("4", album.id, "장소4", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.1048985483351, 128.42000332554514, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("5", album.id, "장소5", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10459269177041, 128.4191982908834, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("6", album.id, "장소6", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10386391426613, 128.41986255304064, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("7", album.id, "장소7", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10665000270314, 128.42276664905924, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("8", album.id, "장소8", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10642775378698, 128.42175210127704, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("9", album.id, "장소9", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10674602946057, 128.42226866187877, "25.01.17 12:00", ""))
-            newPhotos.add(Photo("10", album.id, "장소10", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10722862269554, 128.42336564725466, "25.01.17 12:00", ""))
+            newPhotos.add(
+                Photo(
+                    "1",
+                    album.id,
+                    "장소1",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.106647982205345,
+                    128.4179970752263,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "2",
+                    album.id,
+                    "장소2",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.10671844993927,
+                    128.4185147185645,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "3",
+                    album.id,
+                    "장소3",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.10597868662755,
+                    128.41782402493536,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "4",
+                    album.id,
+                    "장소4",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.1048985483351,
+                    128.42000332554514,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "5",
+                    album.id,
+                    "장소5",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.10459269177041,
+                    128.4191982908834,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "6",
+                    album.id,
+                    "장소6",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.10386391426613,
+                    128.41986255304064,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "7",
+                    album.id,
+                    "장소7",
+                    "김싸피",
+                    "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083",
+                    36.10665000270314,
+                    128.42276664905924,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "8",
+                    album.id,
+                    "장소8",
+                    "김싸피",
+                    "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083",
+                    36.10642775378698,
+                    128.42175210127704,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "9",
+                    album.id,
+                    "장소9",
+                    "김싸피",
+                    "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083",
+                    36.10674602946057,
+                    128.42226866187877,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "10",
+                    album.id,
+                    "장소10",
+                    "김싸피",
+                    "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083",
+                    36.10722862269554,
+                    128.42336564725466,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
         }
         _photos.value = newPhotos
         _selectedPhotos.value = _photos.value
@@ -224,17 +418,27 @@ class AlbumViewModel @Inject constructor(
         val projection = arrayOf(
             MediaStore.Images.Media._ID,
             MediaStore.Images.Media.DISPLAY_NAME,
-            MediaStore.Images.Media.DATE_TAKEN,
-            MediaStore.Images.Media.DATE_ADDED
+            MediaStore.Images.Media.DATE_TAKEN
         )
-        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+
+        val selection =
+            "${MediaStore.Images.Media.DATE_TAKEN} >= ? AND ${MediaStore.Images.Media.DATE_TAKEN} <= ?"
+        val startDate = _selectedPhotoAlbum.value?.startDate ?: "1970-01-01"
+        val endDate = _selectedPhotoAlbum.value?.endDate ?: "1970-01-01"
+        val filterStartDate: Long =
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(startDate)?.time ?: 0L
+        val filterEndDate: Long = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            .parse(endDate)?.time ?: Long.MAX_VALUE
+        Timber.d("Start: $filterStartDate, End: $filterEndDate")
+        val selectionArgs = arrayOf(filterStartDate.toString(), filterEndDate.toString())
+        val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
         val queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
         val query = application.contentResolver.query(
             queryUri,
             projection,
-            null,
-            null,
+            selection,
+            selectionArgs,
             sortOrder
         )
 
@@ -246,6 +450,8 @@ class AlbumViewModel @Inject constructor(
                 val id = cursor.getLong(idColumn)
                 val uri = ContentUris.withAppendedId(queryUri, id)
                 val dateTaken = cursor.getLong(dateTakenColumn)
+
+                Timber.d("Taken: $dateTaken")
 
                 imageList.add(PhotoUploadUiState.UploadedPhoto(uri, dateTaken))
             }
