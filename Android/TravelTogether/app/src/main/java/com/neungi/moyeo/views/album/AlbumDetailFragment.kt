@@ -9,10 +9,13 @@ import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -22,6 +25,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.tabs.TabLayoutMediator
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraUpdate
@@ -43,6 +47,7 @@ import com.neungi.moyeo.util.Permissions
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.album.adapter.PhotoAdapter
 import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter
+import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter.Companion.START_POSITION
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,7 +75,6 @@ class AlbumDetailFragment :
         binding.vm = viewModel
 
         initFusedLocationClient()
-        initRecyclerView()
 
         collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
     }
@@ -199,7 +203,7 @@ class AlbumDetailFragment :
                     addClusterMarkers(newMarkers)
 
                     viewModel.initPhotoPlaces(tags)
-                    initPlaceRecyclerView()
+                    initTabLayout()
                     clusterer.map = null
                 }
 
@@ -286,24 +290,30 @@ class AlbumDetailFragment :
         }
     }
 
-    private fun initRecyclerView() {
-        binding.photoAdapter = PhotoAdapter(viewModel)
-        binding.rvPhotoAlbumDetail.setHasFixedSize(true)
-    }
-
-    private fun initPlaceRecyclerView() {
-        binding.photoPlaceAdapter = PhotoPlaceAdapter(viewModel)
-        binding.rvPlaceAlbumDetail.setHasFixedSize(false)
+    private fun initTabLayout() {
+        binding.photoPlaceAdapter = PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
+        with(binding.vpAlbumDetail) {
+            adapter = PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
+            setCurrentItem(START_POSITION, true)
+        }
+        TabLayoutMediator(binding.tlAlbumDetail, binding.vpAlbumDetail) { tab, position ->
+            tab.text = viewModel.photoPlaces.value[position].name
+        }.attach()
+        for (i in 0 until resources.getStringArray(R.array.local_big).size) {
+            val tabs = binding.tlAlbumDetail.getChildAt(0) as ViewGroup
+            for (tab in tabs.children) {
+                val lp = tab.layoutParams as LinearLayout.LayoutParams
+                lp.marginEnd = 16
+                tab.layoutParams = lp
+                binding.tlAlbumDetail.requestLayout()
+            }
+        }
     }
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
             is AlbumUiEvent.PhotoUpload -> {
                 findNavController().navigateSafely(R.id.action_album_detail_to_photo_upload)
-            }
-
-            is AlbumUiEvent.SelectPlace -> {
-                binding.rvPlaceAlbumDetail.requestLayout()
             }
 
             is AlbumUiEvent.SelectPhoto -> {
