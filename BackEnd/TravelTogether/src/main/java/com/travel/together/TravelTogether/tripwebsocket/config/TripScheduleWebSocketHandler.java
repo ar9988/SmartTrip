@@ -17,6 +17,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,14 +75,20 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             // 송신자에게 즉시 "SUCCESS" 메시지 전송(테스트용)
             session.sendMessage(new TextMessage("SUCCESS"));
 
+            // EditResponse클래스의 팩토리 메서드 사용(일단 버전 관리는 생략)
+            EditResponse response = EditResponse.createSuccess(editRequest, 1);
+            String jsonResponse = objectMapper.writeValueAsString(response);
+            System.out.println("Sending response: " + jsonResponse); // 디버깅용
 
 
-            // 다른 세션들에게 메시지 브로드캐스트 (기존 코드)
+            // 다른 세션들에게 메시지 브로드캐스트
             Set<WebSocketSession> tripSessionSet = tripSessions.get(tripId);
             if (tripSessionSet != null) {
                 for (WebSocketSession tripSession : tripSessionSet) {
-                    if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
-                        tripSession.sendMessage(message);
+//                    if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
+//                        tripSession.sendMessage(message);
+                    if (tripSession.isOpen()) {
+                        tripSession.sendMessage(new TextMessage(jsonResponse));
                     }
                 }
             }
