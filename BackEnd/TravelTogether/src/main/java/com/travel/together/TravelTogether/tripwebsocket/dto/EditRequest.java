@@ -1,5 +1,6 @@
 package com.travel.together.TravelTogether.tripwebsocket.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,28 +13,21 @@ public class EditRequest {
     private String operationId;
     private Integer tripId;
     private Operation operation;
-    private Long timestamp;
+    private String timestamp;
 
     @Getter
     @Setter
     @NoArgsConstructor
     public static class Operation {
         private String type;  // SCHEDULE, DAY
-        private String action;  // CREATE, UPDATE, DELETE, REORDER
-        private Integer schedule_id;
-        private OperationData data;
+        private String action;  // MOVE
+        private Integer schedule_id;  // type이 SCHEDULE일 때
+        private Integer day_id;       // type이 DAY일 때
+        private Integer fromPosition;
+        private Integer toPosition;
     }
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class OperationData {
-        private String place_name;
-        private Integer orderNum;
-        private Float lat;
-        private Float lng;
-        private Integer type;
-        private String start_time;
-    }
 }
+
+
 

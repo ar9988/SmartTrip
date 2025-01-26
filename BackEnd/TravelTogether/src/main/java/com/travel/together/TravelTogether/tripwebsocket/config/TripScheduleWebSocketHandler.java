@@ -1,5 +1,6 @@
 package com.travel.together.TravelTogether.tripwebsocket.config;
 
+import com.travel.together.TravelTogether.tripwebsocket.event.TripEditFinishEvent;
 import io.jsonwebtoken.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,8 +21,11 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     private final Map<String, Set<WebSocketSession>> tripSessions = new ConcurrentHashMap<>();
 
     // 세션 ID를 키로 하고, tripId를 값으로 가지는 Map (세션이 어느 여행에 속해있는지 추적)
+    // "session123" -> "trip456", 하나의 trip에 여러 session이 매핑됨
     private final Map<String, String> sessionTripMapping = new ConcurrentHashMap<>();
 
+
+    // 웹소켓 연결 관리
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         // URL에서 tripId 파라미터 추출
@@ -40,6 +44,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    //실시간 편집 동기화
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
@@ -62,6 +67,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    // 연결 해제 및 감지 처리
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String tripId = sessionTripMapping.remove(session.getId());
@@ -74,6 +80,14 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 // 마지막 사용자가 나갔는지 확인
                 if (tripSessionSet.isEmpty()) {
                     tripSessions.remove(tripId);
+
+                    // 이벤트 발행
+                    // String -> Integer 변환은 이벤트 발행 직전에만 수행
+                    Integer tripIdInt = Integer.parseInt(tripId);
+                    eventPublisher.publishEvent(new TripEditFinishEvent(tripIdInt));
+//                    eventPublisher.publishEvent(new TripEditFinishEvent(tripId));
+
+
                     // TODO: 경로 계산 트리거
                     log.info("Last user disconnected from trip: {}. Triggering route calculation.", tripId);
                 }
