@@ -31,6 +31,9 @@ class PhotoUploadAdapter(
         fun bind(photo: PhotoUploadUiState.UploadedPhoto, viewModel: AlbumViewModel) {
             binding.photo = photo
             binding.vm = viewModel
+            binding.mcvPhotoUploaded.setOnClickListener {
+                viewModel.deleteUploadPhoto(layoutPosition)
+            }
         }
     }
 
