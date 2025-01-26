@@ -10,6 +10,7 @@ import com.neungi.moyeo.databinding.ListPhotoAlbumDetailBinding
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 
 class PhotoAdapter(
+    private val photos: List<Photo>,
     private val viewModel: AlbumViewModel
 ) : ListAdapter<Photo, PhotoAdapter.PhotoViewHolder>(diffUtil) {
 
@@ -29,8 +30,10 @@ class PhotoAdapter(
         )
 
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
-        holder.bind(currentList[position], viewModel)
+        holder.bind(photos[position], viewModel)
     }
+
+    override fun getItemCount(): Int = photos.size
 
     companion object {
 
