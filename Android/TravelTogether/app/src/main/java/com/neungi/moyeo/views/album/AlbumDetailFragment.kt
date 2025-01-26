@@ -37,6 +37,7 @@ import com.naver.maps.map.clustering.ClusterMarkerInfo
 import com.naver.maps.map.clustering.Clusterer
 import com.naver.maps.map.clustering.DefaultClusterMarkerUpdater
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import com.neungi.moyeo.R
@@ -55,6 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 @AndroidEntryPoint
 class AlbumDetailFragment :
@@ -230,6 +232,8 @@ class AlbumDetailFragment :
                     override fun updateClusterMarker(info: ClusterMarkerInfo, marker: Marker) {
 
                         tags.add(info.tag.toString())
+
+
                         markerManager.releaseMarker(info, marker)
 
                         processedMarkers += info.size
@@ -259,34 +263,49 @@ class AlbumDetailFragment :
 
     @SuppressLint("InflateParams")
     private fun addClusterMarkers(clusterGroups: List<List<MarkerData>>) {
-        clusterGroups.forEach { cluster ->
+
+        val placeName = viewModel.selectedPhotoPlace.value?.name ?: "전체"
+        clusterGroups.forEachIndexed { index, cluster ->
             val representativeCoordinate = calculateRepresentativeCoordinate(cluster)
 
-            val marker = Marker()
-            marker.position = representativeCoordinate
-            val customView = LayoutInflater.from(requireContext()).inflate(
-                R.layout.marker_cluster_icon, null
-            )
-            val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
-            val firstPhotoIndex = cluster.first().id - 1
-            val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].photo.filePath
-            Glide.with(requireContext())
-                .asBitmap()
-                .apply(RequestOptions.circleCropTransform())
-                .circleCrop()
-                .override(144, 144)
-                .load(firstPhotoUrl)
-                .into(object : CustomTarget<Bitmap>() {
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                        imageView.setImageBitmap(resource)
-                        marker.icon = OverlayImage.fromView(customView)
-                    }
+            if ((placeName == "전체") || ((placeName != "전체") && (placeName == viewModel.photoPlaces.value[index + 1].name))) {
+                val marker = Marker()
+                marker.position = representativeCoordinate
+                val customView = LayoutInflater.from(requireContext()).inflate(
+                    R.layout.marker_cluster_icon, null
+                )
+                val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
+                val firstPhotoIndex = cluster.first().id - 1
+                val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].photo.filePath
+                Glide.with(requireContext())
+                    .asBitmap()
+                    .apply(RequestOptions.circleCropTransform())
+                    .circleCrop()
+                    .override(144, 144)
+                    .load(firstPhotoUrl)
+                    .into(object : CustomTarget<Bitmap>() {
+                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                            imageView.setImageBitmap(resource)
+                            marker.icon = OverlayImage.fromView(customView)
+                        }
 
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                        imageView.setImageDrawable(placeholder)
+                        override fun onLoadCleared(placeholder: Drawable?) {
+                            imageView.setImageDrawable(placeholder)
+                        }
+                    })
+                marker.onClickListener = Overlay.OnClickListener {
+                    var placeIndex = 0
+                    viewModel.photoPlaces.value.forEachIndexed { index2, place ->
+                        if (place.name == viewModel.photoPlaces.value[index + 1].name) {
+                            viewModel.setPhotoPlace(index2)
+                            placeIndex = index2
+                        }
                     }
-                })
-            marker.map = naverMap
+                    binding.vpAlbumDetail.setCurrentItem(placeIndex, true)
+                    true
+                }
+                marker.map = naverMap
+            }
         }
     }
 

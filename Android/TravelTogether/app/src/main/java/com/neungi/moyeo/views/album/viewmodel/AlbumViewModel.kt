@@ -268,6 +268,10 @@ class AlbumViewModel @Inject constructor(
         _photoPlaces.value = newPhotoPlaces
     }
 
+    fun setPhotoPlace(index: Int) {
+        _selectedPhotoPlace.value = _photoPlaces.value[index]
+    }
+
     fun validPhotoComment(comment: CharSequence) {
         when (comment.isBlank()) {
             true -> _albumUiState.update { it.copy(commentValidState = InputValidState.NONE) }
