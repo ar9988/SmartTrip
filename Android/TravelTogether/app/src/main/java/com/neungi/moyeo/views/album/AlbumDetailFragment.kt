@@ -47,9 +47,9 @@ import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 @AndroidEntryPoint
 class AlbumDetailFragment :
@@ -181,30 +181,31 @@ class AlbumDetailFragment :
     private fun initClusterer() {
         markerBuilder = Clusterer.ComplexBuilder<MarkerData>()
         lifecycleScope.launch {
-            tags.clear()
-            val newClusterer = makeMarker(
-                viewModel.markers.value,
-                markerBuilder
-            ) {
-                val newMarkers = mutableListOf<List<MarkerData>>()
-                tags.forEach { tag ->
-                    val newLocations = mutableListOf<MarkerData>()
-                    tag.split(",").forEach { id ->
-                        newLocations.add(viewModel.markers.value[id.toInt() - 1])
+            viewModel.markers.collectLatest { markers ->
+                tags.clear()
+                val newClusterer = makeMarker(
+                    markers,
+                    markerBuilder
+                ) {
+                    val newMarkers = mutableListOf<List<MarkerData>>()
+                    tags.forEach { tag ->
+                        val newLocations = mutableListOf<MarkerData>()
+                        tag.split(",").forEach { id ->
+                            newLocations.add(markers[id.toInt() - 1])
+                        }
+                        calculateRepresentativeCoordinate(newLocations)
+                        newMarkers.add(newLocations)
                     }
-                    calculateRepresentativeCoordinate(newLocations)
-                    newMarkers.add(newLocations)
-                    Timber.d("Tag: $tag")
+                    addClusterMarkers(newMarkers)
+
+                    viewModel.initPhotoPlaces(tags)
+                    initPlaceRecyclerView()
+                    clusterer.map = null
                 }
-                addClusterMarkers(newMarkers)
 
-                viewModel.initPhotoPlaces(tags)
-                initPlaceRecyclerView()
-                clusterer.map = null
+                clusterer = newClusterer
+                clusterer.map = naverMap
             }
-
-            clusterer = newClusterer
-            clusterer.map = naverMap
         }
     }
 
@@ -303,6 +304,10 @@ class AlbumDetailFragment :
 
             is AlbumUiEvent.SelectPlace -> {
                 binding.rvPlaceAlbumDetail.requestLayout()
+            }
+
+            is AlbumUiEvent.SelectPhoto -> {
+                findNavController().navigateSafely(R.id.action_album_detail_to_photo_detail)
             }
 
             else -> {}

@@ -27,9 +27,11 @@ import com.neungi.moyeo.views.auth.viewmodel.AuthUiState
 @BindingAdapter("app:urlPhotoImage")
 fun ImageView.bindUrlPhotoImage(url: String?) {
     if (url != null) {
-        load(url)
+        load(url) {
+            error(R.drawable.ic_profile)
+        }
     } else {
-        this.setImageResource(R.drawable.bnv_setting)
+        this.setImageResource(R.drawable.ic_profile)
     }
     scaleType = ImageView.ScaleType.CENTER_CROP
 }
@@ -37,9 +39,11 @@ fun ImageView.bindUrlPhotoImage(url: String?) {
 @BindingAdapter("app:uriPhotoImage")
 fun ImageView.bindUriPhotoImage(uri: Uri?) {
     if (uri != null) {
-        load(uri)
+        load(uri) {
+            error(R.drawable.ic_profile)
+        }
     } else {
-        this.setImageResource(R.drawable.bnv_setting)
+        this.setImageResource(R.drawable.ic_profile)
     }
     scaleType = ImageView.ScaleType.CENTER_CROP
 }

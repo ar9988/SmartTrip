@@ -6,6 +6,10 @@ sealed class AlbumUiEvent {
 
     data object SelectPlace : AlbumUiEvent()
 
+    data object SelectPhoto : AlbumUiEvent()
+
+    data object BackToAlbumDetail : AlbumUiEvent()
+
     data object PhotoUpload : AlbumUiEvent()
 
     data object GoToStorage : AlbumUiEvent()
