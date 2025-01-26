@@ -16,6 +16,7 @@ import com.neungi.domain.usecase.GetCommentsUseCase
 import com.neungi.domain.usecase.GetPhotoLocationsUseCase
 import com.neungi.domain.usecase.GetPhotosUseCase
 import com.neungi.moyeo.util.EmptyState
+import com.neungi.moyeo.util.InputValidState
 import com.neungi.moyeo.util.MarkerData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -73,6 +74,9 @@ class AlbumViewModel @Inject constructor(
 
     private val _selectedPhotoComments = MutableStateFlow<List<Comment>>(emptyList())
     val selectedPhotoComments = _selectedPhotoComments.asStateFlow()
+
+    private val _commentInput = MutableStateFlow<String>("")
+    val commentInput = _commentInput
 
     private val _uploadPhotos = MutableStateFlow<List<PhotoUploadUiState>>(emptyList())
     val uploadPhotos = _uploadPhotos.asStateFlow()
@@ -138,6 +142,19 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
+    override fun onClickPhoto(photo: Photo) {
+        viewModelScope.launch {
+            _selectedPhoto.value = photo
+            _albumUiEvent.emit(AlbumUiEvent.SelectPhoto)
+        }
+    }
+
+    override fun onClickBackToAlbumDetail() {
+        viewModelScope.launch {
+            _albumUiEvent.emit(AlbumUiEvent.BackToAlbumDetail)
+        }
+    }
+
     override fun onClickPhotoUpload() {
         viewModelScope.launch {
             _albumUiEvent.emit(AlbumUiEvent.PhotoUpload)
@@ -172,16 +189,16 @@ class AlbumViewModel @Inject constructor(
     private fun initTempPhotos() {
         val newPhotos = mutableListOf<Photo>()
         _selectedPhotoAlbum.value?.let { album ->
-            newPhotos.add(Photo("1", album.id, "장소1", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.106647982205345, 128.4179970752263, "", ""))
-            newPhotos.add(Photo("2", album.id, "장소2", "김싸피","https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10671844993927, 128.4185147185645, "", ""))
-            newPhotos.add(Photo("3", album.id, "장소3", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10597868662755, 128.41782402493536, "", ""))
-            newPhotos.add(Photo("4", album.id, "장소4", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.1048985483351, 128.42000332554514, "", ""))
-            newPhotos.add(Photo("5", album.id, "장소5", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10459269177041, 128.4191982908834, "", ""))
-            newPhotos.add(Photo("6", album.id, "장소6", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10386391426613, 128.41986255304064, "", ""))
-            newPhotos.add(Photo("7", album.id, "장소7", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10665000270314, 128.42276664905924, "", ""))
-            newPhotos.add(Photo("8", album.id, "장소8", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10642775378698, 128.42175210127704, "", ""))
-            newPhotos.add(Photo("9", album.id, "장소9", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10674602946057, 128.42226866187877, "", ""))
-            newPhotos.add(Photo("10", album.id, "장소10", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10722862269554, 128.42336564725466, "", ""))
+            newPhotos.add(Photo("1", album.id, "장소1", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.106647982205345, 128.4179970752263, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("2", album.id, "장소2", "김싸피","https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10671844993927, 128.4185147185645, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("3", album.id, "장소3", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10597868662755, 128.41782402493536, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("4", album.id, "장소4", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.1048985483351, 128.42000332554514, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("5", album.id, "장소5", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10459269177041, 128.4191982908834, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("6", album.id, "장소6", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10386391426613, 128.41986255304064, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("7", album.id, "장소7", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10665000270314, 128.42276664905924, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("8", album.id, "장소8", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10642775378698, 128.42175210127704, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("9", album.id, "장소9", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10674602946057, 128.42226866187877, "25.01.17 12:00", ""))
+            newPhotos.add(Photo("10", album.id, "장소10", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10722862269554, 128.42336564725466, "25.01.17 12:00", ""))
         }
         _photos.value = newPhotos
         _selectedPhotos.value = _photos.value
@@ -191,6 +208,14 @@ class AlbumViewModel @Inject constructor(
             newMarkers.add(MarkerData(index + 1, photo, true))
         }
         _markers.value = newMarkers.toList()
+
+        val newPhotoComments = mutableListOf<Comment>()
+
+        newPhotoComments.add(Comment("1", "1", "김싸피", "굿굿", "25.01.17 13:00", "25.01.17 13:00"))
+        newPhotoComments.add(Comment("2", "1", "이싸피", "짱~", "25.01.17 13:30", "25.01.17 13:00"))
+        newPhotoComments.add(Comment("3", "1", "정싸피", "좋아요", "25.01.17 14:00", "25.01.17 13:00"))
+
+        _selectedPhotoComments.value = newPhotoComments
     }
 
     private fun fetchGalleryImages(): List<PhotoUploadUiState> {
@@ -241,6 +266,14 @@ class AlbumViewModel @Inject constructor(
 
         Timber.d("Places: $newPhotoPlaces")
         _photoPlaces.value = newPhotoPlaces
+    }
+
+    fun validPhotoComment(comment: CharSequence) {
+        when (comment.isBlank()) {
+            true -> _albumUiState.update { it.copy(commentValidState = InputValidState.NONE) }
+
+            else -> _albumUiState.update { it.copy(commentValidState = InputValidState.VALID) }
+        }
     }
 
     fun initUploadPhotos() {
