@@ -11,7 +11,6 @@ import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.isPhotoPickerAvailable
-import androidx.exifinterface.media.ExifInterface
 import androidx.fragment.app.activityViewModels
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
@@ -20,13 +19,11 @@ import com.neungi.moyeo.views.album.adapter.PhotoUploadAdapter
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @SuppressLint("IntentReset")
 @AndroidEntryPoint
-class PhotoUploadFragment : BaseFragment<FragmentPhotoUploadBinding>(R.layout.fragment_photo_upload) {
+class PhotoUploadFragment :
+    BaseFragment<FragmentPhotoUploadBinding>(R.layout.fragment_photo_upload) {
 
     private val viewModel: AlbumViewModel by activityViewModels()
     private val profileImagePicker =
@@ -67,7 +64,7 @@ class PhotoUploadFragment : BaseFragment<FragmentPhotoUploadBinding>(R.layout.fr
 
     private fun initRecyclerView() {
         binding.adapter = PhotoUploadAdapter(viewModel)
-        binding.rvPhotoUpload.setHasFixedSize(true)
+        binding.rvPhotoUpload.setHasFixedSize(false)
     }
 
     private fun checkAndRequestPermissions() {
@@ -104,7 +101,7 @@ class PhotoUploadFragment : BaseFragment<FragmentPhotoUploadBinding>(R.layout.fr
         var result = 0L
 
         val projection = arrayOf(
-            MediaStore.Images.Media.DATE_TAKEN // 촬영 시간
+            MediaStore.Images.Media.DATE_TAKEN
         )
 
         uri?.let { uri ->
@@ -112,7 +109,8 @@ class PhotoUploadFragment : BaseFragment<FragmentPhotoUploadBinding>(R.layout.fr
                 uri, projection, null, null, null
             )?.use { cursor ->
                 if (cursor.moveToFirst()) {
-                    val takenIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                    val takenIndex =
+                        cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
                     result = cursor.getLong(takenIndex)
                 }
             }
@@ -129,6 +127,10 @@ class PhotoUploadFragment : BaseFragment<FragmentPhotoUploadBinding>(R.layout.fr
                 } else {
                     getProfileImage()
                 }
+            }
+
+            is AlbumUiEvent.PhotoDuplicated -> {
+                showToastMessage(resources.getString(R.string.message_photo_duplicated))
             }
 
             is AlbumUiEvent.FinishPhotoUpload -> {

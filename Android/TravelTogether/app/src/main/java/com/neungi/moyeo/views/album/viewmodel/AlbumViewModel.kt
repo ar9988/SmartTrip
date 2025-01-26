@@ -249,12 +249,13 @@ class AlbumViewModel @Inject constructor(
         )
         newAlbums.add(
             PhotoAlbum(
+
                 "3",
                 "3",
                 "25제주팟",
                 "https://cdn.drtour.com/MainDrtour/item/2025/1/67e09f44-6c78-4c0f-91aa-87b0fdf66f18.jpg",
                 "2025-01-17",
-                "2025-01-27"
+                "2025-01-18"
             )
         )
         _photoAlbums.value = newAlbums
@@ -412,6 +413,14 @@ class AlbumViewModel @Inject constructor(
         _selectedPhotoComments.value = newPhotoComments
     }
 
+    private fun validUploadPhotos() {
+        if (_uploadPhotos.value.size <= 1) {
+            _albumUiState.update { it.copy(photoUploadValidState = EmptyState.EMPTY) }
+        } else {
+            _albumUiState.update { it.copy(photoUploadValidState = EmptyState.NONE) }
+        }
+    }
+
     private fun fetchGalleryImages(): List<PhotoUploadUiState> {
         val imageList = mutableListOf<PhotoUploadUiState>()
 
@@ -429,7 +438,6 @@ class AlbumViewModel @Inject constructor(
             SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(startDate)?.time ?: 0L
         val filterEndDate: Long = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             .parse(endDate)?.time ?: Long.MAX_VALUE
-        Timber.d("Start: $filterStartDate, End: $filterEndDate")
         val selectionArgs = arrayOf(filterStartDate.toString(), filterEndDate.toString())
         val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
         val queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -451,13 +459,17 @@ class AlbumViewModel @Inject constructor(
                 val uri = ContentUris.withAppendedId(queryUri, id)
                 val dateTaken = cursor.getLong(dateTakenColumn)
 
-                Timber.d("Taken: $dateTaken")
-
                 imageList.add(PhotoUploadUiState.UploadedPhoto(uri, dateTaken))
             }
         }
 
         return imageList
+    }
+
+    /*** 로직 수정이 필요함 ***/
+    private fun getImageIdFromUri(uri: Uri): String {
+        val tempId = uri.toString().split("/")
+        return tempId.last()
     }
 
     fun initPhotoPlaces(tags: List<String>) {
@@ -470,7 +482,6 @@ class AlbumViewModel @Inject constructor(
             }
         }
 
-        Timber.d("Places: $newPhotoPlaces")
         _photoPlaces.value = newPhotoPlaces
     }
 
@@ -490,19 +501,36 @@ class AlbumViewModel @Inject constructor(
         viewModelScope.launch {
             _uploadPhotos.value = listOf(PhotoUploadUiState.PhotoUploadButton())
             val newPhotos = fetchGalleryImages()
-            if (newPhotos.isEmpty()) {
-                _albumUiState.update { it.copy(photoUploadValidState = EmptyState.EMPTY) }
-            } else {
-                _albumUiState.update { it.copy(photoUploadValidState = EmptyState.NONE) }
-            }
             _uploadPhotos.value += newPhotos
+            validUploadPhotos()
         }
     }
 
     fun addUploadPhoto(uri: Uri?, takenAt: Long) {
         if (uri == null) return
+        viewModelScope.launch {
+            val idFromUi = getImageIdFromUri(uri)
+            Timber.d("Id: $idFromUi")
+            val newPhotos = _uploadPhotos.value.toMutableList()
+            for (i in 1 until(newPhotos.size)) {
+                val photoUploadUiState = (newPhotos[i] as PhotoUploadUiState.UploadedPhoto)
+                val nowIDFromUi = getImageIdFromUri(photoUploadUiState.photoUri)
+                Timber.d("Now Id: $nowIDFromUi")
+                if (nowIDFromUi == idFromUi) {
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoDuplicated)
+                    return@launch
+                }
+            }
+            newPhotos.add(1, PhotoUploadUiState.UploadedPhoto(uri, takenAt))
+            _uploadPhotos.value = newPhotos
+            validUploadPhotos()
+        }
+    }
+
+    fun deleteUploadPhoto(index: Int) {
         val newPhotos = _uploadPhotos.value.toMutableList()
-        newPhotos.add(PhotoUploadUiState.UploadedPhoto(uri, takenAt))
+        newPhotos.removeAt(index)
         _uploadPhotos.value = newPhotos
+        validUploadPhotos()
     }
 }
