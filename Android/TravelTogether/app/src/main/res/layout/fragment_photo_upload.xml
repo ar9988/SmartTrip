@@ -83,6 +83,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_button"
+            android:enabled="@{vm.albumUiState.isPhotoUploadBtnEnable == true}"
             android:fontFamily="@font/pretendardbold"
             android:text="@string/title_photo_upload"
             android:textColor="@{(vm.albumUiState.isPhotoUploadBtnEnable == true) ? @color/neutral_white : @color/neutral_100}"
