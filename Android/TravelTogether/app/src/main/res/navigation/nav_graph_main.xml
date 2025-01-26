@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_main"
-    app:startDestination="@id/fragment_login">
+    app:startDestination="@id/fragment_album">
 
     <fragment
         android:id="@+id/fragment_home"
@@ -18,9 +18,11 @@
         android:name="com.neungi.moyeo.views.plan.PlanFragment"
         android:label="Plan"
         tools:layout="@layout/fragment_plan">
+
         <action
             android:id="@+id/action_plan_to_planDetail"
             app:destination="@id/fragment_plan_detail" />
+
     </fragment>
 
     <fragment
@@ -28,9 +30,11 @@
         android:name="com.neungi.moyeo.views.plan.PlanDetailFragment"
         android:label="Plan Detail"
         tools:layout="@layout/fragment_plan_detail">
+
         <argument
             android:name="tripId"
             app:argType="integer" />
+
     </fragment>
 
     <fragment
@@ -63,15 +67,27 @@
         tools:layout="@layout/fragment_album_detail">
 
         <action
+            android:id="@+id/action_album_detail_to_photo_detail"
+            app:destination="@id/fragment_photo_detail" />
+
+        <action
             android:id="@+id/action_album_detail_to_photo_upload"
             app:destination="@id/fragment_photo_upload" />
 
     </fragment>
 
     <fragment
+        android:id="@+id/fragment_photo_detail"
+        android:name="com.neungi.moyeo.views.album.PhotoDetailFragment"
+        android:label="@string/label_photo_detail"
+        tools:layout="@layout/fragment_photo_detail">
+
+    </fragment>
+
+    <fragment
         android:id="@+id/fragment_photo_upload"
         android:name="com.neungi.moyeo.views.album.PhotoUploadFragment"
-        android:label="Photo Upload"
+        android:label="@string/label_photo_upload"
         tools:layout="@layout/fragment_photo_upload">
 
     </fragment>
@@ -80,7 +96,9 @@
         android:id="@+id/fragment_setting"
         android:name="com.neungi.moyeo.views.setting.SettingFragment"
         android:label="Setting"
-        tools:layout="@layout/fragment_setting"></fragment>
+        tools:layout="@layout/fragment_setting">
+
+    </fragment>
 
     <fragment
         android:id="@+id/fragment_ai_select_local"
