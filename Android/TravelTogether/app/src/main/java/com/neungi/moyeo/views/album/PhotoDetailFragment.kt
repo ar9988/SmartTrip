@@ -3,6 +3,7 @@ package com.neungi.moyeo.views.album
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPhotoDetailBinding
@@ -23,7 +24,6 @@ class PhotoDetailFragment :
         binding.vm = viewModel
 
         initRecyclerView()
-        initViews()
 
         collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
     }
@@ -31,17 +31,24 @@ class PhotoDetailFragment :
     private fun initRecyclerView() {
         binding.adapter = PhotoCommentAdapter(viewModel)
         binding.rvPhotoDetail.setHasFixedSize(true)
-        binding.rvPhotoDetail.minimumHeight = 200
-    }
-
-    private fun initViews() {
-
     }
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
             is AlbumUiEvent.BackToAlbumDetail -> {
                 requireActivity().supportFragmentManager.popBackStack()
+            }
+
+            is AlbumUiEvent.PhotoCommentSubmit -> {
+                showToastMessage(resources.getString(R.string.message_comment_submit))
+            }
+
+            is AlbumUiEvent.PhotoCommentUpdate -> {
+                showToastMessage(resources.getString(R.string.message_comment_update))
+            }
+
+            is AlbumUiEvent.PhotoCommentDelete -> {
+                findNavController().navigateSafely(R.id.action_photo_detail_to_photo_comment_delete)
             }
 
             else -> {}

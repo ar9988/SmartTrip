@@ -90,7 +90,7 @@
                     android:onTextChanged="@{(email, s, b, c) -> vm.validJoinEmail(email)}"
                     android:text="@={vm.joinEmail}"
                     android:textColor="@color/neutral_70"
-                    app:normalEditText="@{vm.authUiState}" />
+                    app:normalEditText="@{``}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -121,7 +121,7 @@
                     android:onTextChanged="@{(name, s, b, c) -> vm.validJoinName(name)}"
                     android:text="@={vm.joinName}"
                     android:textColor="@color/neutral_70"
-                    app:normalEditText="@{vm.authUiState}" />
+                    app:normalEditText="@{``}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -151,7 +151,7 @@
                     android:onTextChanged="@{(phoneNumber, s, b, c) -> vm.validJoinPhoneNumber(phoneNumber)}"
                     android:text="@={vm.joinPhoneNumber}"
                     android:textColor="@color/neutral_70"
-                    app:normalEditText="@{vm.authUiState}" />
+                    app:normalEditText="@{``}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -184,7 +184,7 @@
                     android:onTextChanged="@{(password, s, b, c) -> vm.validJoinPassword(password)}"
                     android:text="@={vm.joinPassword}"
                     android:textColor="@color/neutral_70"
-                    app:normalEditText="@{vm.authUiState}" />
+                    app:normalEditText="@{``}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -216,7 +216,7 @@
                     android:onTextChanged="@{(passwordAgain, s, b, c) -> vm.validJoinPasswordAgain(passwordAgain)}"
                     android:text="@={vm.joinPasswordAgain}"
                     android:textColor="@color/neutral_70"
-                    app:normalEditText="@{vm.authUiState}" />
+                    app:normalEditText="@{``}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

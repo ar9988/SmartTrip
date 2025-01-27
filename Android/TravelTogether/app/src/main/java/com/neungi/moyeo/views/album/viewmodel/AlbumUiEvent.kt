@@ -8,6 +8,14 @@ sealed class AlbumUiEvent {
 
     data object SelectPhoto : AlbumUiEvent()
 
+    data object PhotoCommentSubmit : AlbumUiEvent()
+
+    data object PhotoCommentUpdate : AlbumUiEvent()
+
+    data object PhotoCommentDelete : AlbumUiEvent()
+
+    data object PhotoCommentDeleteFinish : AlbumUiEvent()
+
     data object BackToAlbumDetail : AlbumUiEvent()
 
     data object PhotoDuplicated : AlbumUiEvent()

@@ -90,7 +90,7 @@
                     android:onTextChanged="@{(id, s, b, c) -> vm.validateLoginEmail(id)}"
                     android:text="@={vm.loginEmail}"
                     android:textColor="@color/neutral_70"
-                    app:normalEditText="@{vm.authUiState}" />
+                    app:normalEditText="@{``}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -123,7 +123,7 @@
                     android:onTextChanged="@{(password, s, b, c) -> vm.validateLoginPassword(password)}"
                     android:text="@={vm.loginPassword}"
                     android:textColor="@color/neutral_70"
-                    app:normalEditText="@{vm.authUiState}" />
+                    app:normalEditText="@{``}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
