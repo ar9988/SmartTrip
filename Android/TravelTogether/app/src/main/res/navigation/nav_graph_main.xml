@@ -82,6 +82,10 @@
         android:label="@string/label_photo_detail"
         tools:layout="@layout/fragment_photo_detail">
 
+        <action
+            android:id="@+id/action_photo_detail_to_photo_comment_delete"
+            app:destination="@id/fragment_photo_comment_delete_dialog" />
+
     </fragment>
 
     <fragment
@@ -127,5 +131,11 @@
         tools:layout="@layout/fragment_join">
 
     </fragment>
+
+    <dialog
+        android:id="@+id/fragment_photo_comment_delete_dialog"
+        android:name="com.neungi.moyeo.views.album.PhotoCommentDeleteDialogFragment"
+        tools:layout="@layout/fragment_photo_comment_delete_dialog"
+        android:label="Photo Comment Delete" />
 
 </navigation>

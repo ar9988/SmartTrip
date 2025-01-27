@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.album.viewmodel.AlbumViewModel" />
+
+    </data>
+
+    <LinearLayout
+        android:id="@+id/fragment_photo_comment_delete_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_button"
+            tools:context=".views.album.PhotoCommentDeleteDialogFragment">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_start_photo_comment_delete_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_top_photo_comment_delete_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+            <TextView
+                android:id="@+id/tv_title_photo_comment_delete_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendardbold"
+                android:text="@string/title_comment_delete"
+                android:textAlignment="viewStart"
+                android:textColor="@color/neutral_100"
+                android:textSize="@dimen/font_size_title"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_comment_delete_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_comment_delete_dialog"
+                app:layout_constraintTop_toBottomOf="@id/gl_top_photo_comment_delete_dialog" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_photo_comment_delete_dialog"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:src="@drawable/baseline_close_24"
+                app:layout_constraintBottom_toBottomOf="@id/tv_title_photo_comment_delete_dialog"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_comment_delete_dialog"
+                app:layout_constraintTop_toTopOf="@id/tv_title_photo_comment_delete_dialog" />
+
+            <TextView
+                android:id="@+id/tv_description_photo_comment_delete_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_large"
+                android:fontFamily="@font/pretendardsemibold"
+                android:text="@string/text_comment_delete"
+                android:textAlignment="center"
+                android:textColor="@color/neutral_90"
+                android:textSize="@dimen/font_size_large"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_comment_delete_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_comment_delete_dialog"
+                app:layout_constraintTop_toBottomOf="@id/tv_title_photo_comment_delete_dialog" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_photo_comment_delete_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_large"
+                android:background="@drawable/shape_button_delete"
+                android:fontFamily="@font/pretendardsemibold"
+                android:onClick="@{() -> vm.onClickCommentDeleteFinish()}"
+                android:text="@string/text_delete"
+                android:textAlignment="center"
+                android:textColor="@color/neutral_white"
+                android:textSize="@dimen/font_size_medium"
+                app:layout_constraintBottom_toTopOf="@id/gl_bottom_photo_comment_delete_dialog"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_comment_delete_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_comment_delete_dialog"
+                app:layout_constraintTop_toBottomOf="@id/tv_description_photo_comment_delete_dialog" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_end_photo_comment_delete_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_bottom_photo_comment_delete_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+</layout>
