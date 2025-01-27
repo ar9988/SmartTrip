@@ -80,8 +80,14 @@ class AlbumViewModel @Inject constructor(
     private val _selectedPhotoComments = MutableStateFlow<List<Comment>>(emptyList())
     val selectedPhotoComments = _selectedPhotoComments.asStateFlow()
 
+    private val _selectedPhotoComment = MutableStateFlow<Comment?>(null)
+    val selectedPhotoComment = _selectedPhotoComment.asStateFlow()
+
     private val _commentInput = MutableStateFlow<String>("")
     val commentInput = _commentInput
+
+    private val _commentUpdateInput = MutableStateFlow<String>("")
+    val commentUpdateInput = _commentUpdateInput
 
     private val _uploadPhotos = MutableStateFlow<List<PhotoUploadUiState>>(emptyList())
     val uploadPhotos = _uploadPhotos.asStateFlow()
@@ -175,6 +181,36 @@ class AlbumViewModel @Inject constructor(
     override fun onClickFinishPhotoUpload() {
         viewModelScope.launch {
             _albumUiEvent.emit(AlbumUiEvent.FinishPhotoUpload)
+        }
+    }
+
+    override fun onClickCommentSubmit() {
+        viewModelScope.launch {
+            submitComment()
+            getComments()
+            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmit)
+        }
+    }
+
+    override fun onClickCommentUpdate(comment: Comment) {
+        viewModelScope.launch {
+            updateComment(comment)
+            getComments()
+            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentUpdate)
+        }
+    }
+
+    override fun onClickCommentDelete(comment: Comment) {
+        viewModelScope.launch {
+            _selectedPhotoComment.value = comment
+            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDelete)
+        }
+    }
+
+    override fun onClickCommentDeleteFinish() {
+        viewModelScope.launch {
+            deleteComment()
+            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDeleteFinish)
         }
     }
 
@@ -521,6 +557,49 @@ class AlbumViewModel @Inject constructor(
             if (photo is PhotoUploadUiState.UploadedPhoto) {
                 Timber.d("Lat: ${photo.latitude}, Lng: ${photo.longitude}")
             }
+        }
+    }
+
+    private suspend fun getComments() {
+        getCommentsUseCase.getPhotoComments(
+            albumId = _selectedPhotoAlbum.value?.id ?: "",
+            photoId = _selectedPhoto.value?.id ?: ""
+        )
+    }
+
+    private suspend fun submitComment() {
+        getCommentsUseCase.submitPhotoComment(
+            albumId = _selectedPhotoAlbum.value?.id ?: "",
+            photoId = _selectedPhoto.value?.id ?: "",
+            body = Comment(
+                id = "",
+                photoId = _selectedPhoto.value?.id ?: "",
+                author = "",
+                content = _commentInput.value,
+                createdAt = "",
+                updatedAt = ""
+            )
+        )
+    }
+
+    private suspend fun updateComment(comment: Comment) {
+        getCommentsUseCase.modifyPhotoComment(
+            albumId = _selectedPhotoAlbum.value?.id ?: "",
+            photoId = _selectedPhoto.value?.id ?: "",
+            commentID = comment.id,
+            body = comment
+        )
+    }
+
+    private suspend fun deleteComment() {
+        _selectedPhotoComment.value?.let { comment ->
+            getCommentsUseCase.deletePhotoComment(
+                albumId = _selectedPhotoAlbum.value?.id ?: "",
+                photoId = _selectedPhoto.value?.id ?: "",
+                commentID = comment.id,
+                body = comment
+            )
+            getComments()
         }
     }
 
