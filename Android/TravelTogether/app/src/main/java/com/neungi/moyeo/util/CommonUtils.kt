@@ -11,4 +11,13 @@ object CommonUtils {
     fun validatePassword(password: CharSequence): Boolean = passwordRegex.matches(password)
 
     fun validatePhoneNumber(phoneNumber: CharSequence): Boolean = phoneNumberRegex.matches(phoneNumber)
+
+    fun convertToDegree(value: String): Double {
+        val dms = value.split(",", limit = 3)
+        val degrees = dms[0].split("/").let { it[0].toDouble() / it[1].toDouble() }
+        val minutes = dms[1].split("/").let { it[0].toDouble() / it[1].toDouble() }
+        val seconds = dms[2].split("/").let { it[0].toDouble() / it[1].toDouble() }
+
+        return degrees + (minutes / 60) + (seconds / 3600)
+    }
 }
