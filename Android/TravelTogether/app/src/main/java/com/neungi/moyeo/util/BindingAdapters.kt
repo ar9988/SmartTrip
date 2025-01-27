@@ -72,7 +72,7 @@ fun ConstraintLayout.bindBackgroundAlbumImage(url: String) {
 /*** EditText ***/
 @RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:normalEditText")
-fun EditText.bindEditTextCustomTheme(authUiState: AuthUiState) {
+fun EditText.bindEditTextCustomTheme(text: String) {
     highlightColor = resources.getColor(R.color.colorPrimary, context.theme)
     textCursorDrawable = ContextCompat.getDrawable(context, R.drawable.shape_edit_text_cursor)
     val customTextSelectHandle = ContextCompat.getDrawable(context, R.drawable.shape_edit_text_handle)
