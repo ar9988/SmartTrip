@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.naver.maps.geometry.LatLng
@@ -15,6 +16,7 @@ import com.neungi.domain.usecase.GetAlbumsUseCase
 import com.neungi.domain.usecase.GetCommentsUseCase
 import com.neungi.domain.usecase.GetPhotoLocationsUseCase
 import com.neungi.domain.usecase.GetPhotosUseCase
+import com.neungi.moyeo.util.CommonUtils.convertToDegree
 import com.neungi.moyeo.util.EmptyState
 import com.neungi.moyeo.util.InputValidState
 import com.neungi.moyeo.util.MarkerData
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -183,8 +186,8 @@ class AlbumViewModel @Inject constructor(
                 "1",
                 "18제주팟",
                 "https://cdn.hkbs.co.kr/news/photo/202405/755302_490954_5034.jpg",
-                "2025-01-17",
-                "2025-01-27"
+                "2025-01-01",
+                "2025-01-31"
             )
         )
         newAlbums.add(
@@ -457,19 +460,68 @@ class AlbumViewModel @Inject constructor(
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
                 val uri = ContentUris.withAppendedId(queryUri, id)
+                val (latitude, longitude) = getLatLngFromExif(uri)
                 val dateTaken = cursor.getLong(dateTakenColumn)
 
-                imageList.add(PhotoUploadUiState.UploadedPhoto(uri, dateTaken))
+                imageList.add(PhotoUploadUiState.UploadedPhoto(uri, latitude, longitude, dateTaken))
             }
         }
 
         return imageList
     }
 
+    /*** EXIF에서 위도, 경도 정보를 가져오는 메소드 ***/
+    private fun getLatLngFromExif(uri: Uri?): Pair<Double, Double> {
+        try {
+            uri?.let { uri ->
+                val inputStream: InputStream? = application.contentResolver.openInputStream(uri)
+                Timber.d("Input Stream: $inputStream")
+                inputStream?.use {
+                    val exif = ExifInterface(it)
+
+                    Timber.d("Exif: $exif")
+
+                    // EXIF에서 위도와 경도 읽기
+                    val lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)?.let { latitude ->
+                        convertToDegree(latitude)
+                    }
+                    val lng = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)?.let { longitude ->
+                        convertToDegree(longitude)
+                    }
+
+                    Timber.d("lat: $lat, lng: $lng")
+
+                    // 위도와 경도가 존재하면 Pair로 반환
+                    if (lat != null && lng != null) {
+                        val latRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
+                        val lonRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+
+                        val adjustedLat = if (latRef == "S") -lat else lat
+                        val adjustedLon = if (lonRef == "W") -lng else lng
+
+                        return Pair(adjustedLat, adjustedLon)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return Pair(0.0, 0.0)
+    }
+
     /*** 로직 수정이 필요함 ***/
     private fun getImageIdFromUri(uri: Uri): String {
         val tempId = uri.toString().split("/")
         return tempId.last()
+    }
+
+    private fun getLatLngFromPhotos() {
+        _uploadPhotos.value.forEach { photo ->
+            if (photo is PhotoUploadUiState.UploadedPhoto) {
+                Timber.d("Lat: ${photo.latitude}, Lng: ${photo.longitude}")
+            }
+        }
     }
 
     fun initPhotoPlaces(tags: List<String>) {
@@ -502,6 +554,7 @@ class AlbumViewModel @Inject constructor(
             _uploadPhotos.value = listOf(PhotoUploadUiState.PhotoUploadButton())
             val newPhotos = fetchGalleryImages()
             _uploadPhotos.value += newPhotos
+            getLatLngFromPhotos()
             validUploadPhotos()
         }
     }
@@ -521,8 +574,10 @@ class AlbumViewModel @Inject constructor(
                     return@launch
                 }
             }
-            newPhotos.add(1, PhotoUploadUiState.UploadedPhoto(uri, takenAt))
+            val (latitude, longitude) = getLatLngFromExif(uri)
+            newPhotos.add(1, PhotoUploadUiState.UploadedPhoto(uri, latitude, longitude, takenAt))
             _uploadPhotos.value = newPhotos
+            getLatLngFromPhotos()
             validUploadPhotos()
         }
     }
