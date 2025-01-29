@@ -31,6 +31,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper; // JSON 파싱을 위해 추가
 
 
+
     // tripId를 키로 하고, 해당 여행의 접속자들의 세션을 값으로 가지는 Map
     private final Map<String, Set<WebSocketSession>> tripSessions = new ConcurrentHashMap<>();
 
@@ -85,10 +86,10 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             Set<WebSocketSession> tripSessionSet = tripSessions.get(tripId);
             if (tripSessionSet != null) {
                 for (WebSocketSession tripSession : tripSessionSet) {
-//                    if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
-//                        tripSession.sendMessage(message);
-                    if (tripSession.isOpen()) {
+                    if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
                         tripSession.sendMessage(new TextMessage(jsonResponse));
+//                    if (tripSession.isOpen()) {
+//                        tripSession.sendMessage(new TextMessage(jsonResponse));
                     }
                 }
             }

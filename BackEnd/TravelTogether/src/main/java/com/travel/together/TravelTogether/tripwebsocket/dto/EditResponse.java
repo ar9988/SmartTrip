@@ -22,10 +22,8 @@ public class EditResponse {
     @Setter
     @NoArgsConstructor
     public static class Operation {
-        private String type;  // SCHEDULE, DAY
         private String action;  // MOVE
         private Integer schedule_id;  // type이 SCHEDULE일 때
-        private Integer day_id;       // type이 DAY일 때
         private Integer fromPosition;
         private Integer toPosition;
     }
@@ -40,10 +38,10 @@ public class EditResponse {
         response.setVersion(version);
 
         Operation operation = new Operation();
-        operation.setType(request.getOperation().getType());
+//        operation.setType(request.getOperation().getType());
         operation.setAction(request.getOperation().getAction());
         operation.setSchedule_id(request.getOperation().getSchedule_id());
-        operation.setDay_id(request.getOperation().getDay_id());
+//        operation.setDay_id(request.getOperation().getDay_id());
         operation.setFromPosition(request.getOperation().getFromPosition());
         operation.setToPosition(request.getOperation().getToPosition());
 

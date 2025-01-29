@@ -19,10 +19,8 @@ public class EditRequest {
     @Setter
     @NoArgsConstructor
     public static class Operation {
-        private String type;  // SCHEDULE, DAY
         private String action;  // MOVE
         private Integer schedule_id;  // type이 SCHEDULE일 때
-        private Integer day_id;       // type이 DAY일 때
         private Integer fromPosition;
         private Integer toPosition;
     }
