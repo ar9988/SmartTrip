@@ -6,12 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.moyeo.R
+import com.neungi.moyeo.databinding.ItemSectionHeaderBinding
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
 
 class SectionedAdapter(
     private val onItemClick: (Int) -> Unit,
     private val onDeleteClick: (Int) -> Unit,
     private val onEditClick: (Int) -> Unit,
+    private val onAddClick: () -> Unit,
     private val sections: MutableList<Section>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -45,9 +47,8 @@ class SectionedAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_SECTION_HEADER) {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(android.R.layout.simple_list_item_1, parent, false)
-            SectionHeaderViewHolder(view)
+            val binding = ItemSectionHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return SectionHeaderViewHolder(binding)
         } else {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_schedule, parent, false)
@@ -90,10 +91,13 @@ class SectionedAdapter(
         notifyDataSetChanged()
     }
 
-    class SectionHeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textView: TextView = view.findViewById(android.R.id.text1)
+    inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
+//        private val textView: TextView = view.findViewById(R.id.tv_section_header)
         fun bind(title: String) {
-            textView.text = title
+            binding.tvSectionHeaderIconText.text = title
+            binding.onClick = View.OnClickListener {
+                onAddClick()
+            }
         }
     }
 

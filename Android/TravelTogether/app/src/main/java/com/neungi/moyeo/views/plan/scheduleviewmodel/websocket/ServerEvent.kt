@@ -8,7 +8,7 @@ data class ServerEvent(
 
 data class Operation(
     val action: Int, // move, add, delete
-    val schedule_id: Int,   // UserID + timestamp
+    val scheduleId: Int,   // UserID + timestamp
     val fromPosition: Int,     // 현재 위치
     val toPosition: Int        // 이동할 위치
 )

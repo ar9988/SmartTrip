@@ -39,7 +39,7 @@ class WebSocketManager {
                 // 변환된 데이터 출력
                 println("Parsed ServerEvent -> tripId: ${ServerReceive.tripId}, timestamp: ${ServerReceive.timestamp}")
                 println("Operation -> action: ${ServerReceive.operation.action}, " +
-                        "schedule_id: ${ServerReceive.operation.schedule_id}, " +
+                        "schedule_id: ${ServerReceive.operation.scheduleId}, " +
                         "fromPosition: ${ServerReceive.operation.fromPosition}, " +
                         "toPosition: ${ServerReceive.operation.toPosition}")
 

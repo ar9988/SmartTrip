@@ -26,5 +26,9 @@
     <string name="description_btn_add_person">사람 추가 버튼</string>
     <string name="description_switch">이동 수단 선택 스위치</string>
     <string name="description_schedule_icon">일정 아이콘</string>
+    <string name="title_dialog_invite">같이 갈 사람 추가하기</string>
+    <string name="text_link_title">초대 링크</string>
+    <string name="string_link">초대 링크 복사하기</string>
+    <string name="title_dialog_add">체류 시간</string>
 
 </resources>

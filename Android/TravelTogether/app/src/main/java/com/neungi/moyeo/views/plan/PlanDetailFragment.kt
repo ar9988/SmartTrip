@@ -46,13 +46,15 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         sectionedAdapter = SectionedAdapter(
             onItemClick = { scheduleId ->
                 println("click $scheduleId")
-                findNavController().navigateSafely(R.id.action_plan_to_planDetail)
             },
             onDeleteClick = { scheduleId ->
                 println("Delete schedule with ID: $scheduleId")
             },
             onEditClick = { scheduleId ->
                 println("Edit schedule with ID: $scheduleId")
+            },
+            onAddClick = {
+                findNavController().navigateSafely(R.id.action_schedule_add)
             },
             mutableListOf(
                 Section(
