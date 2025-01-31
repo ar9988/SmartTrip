@@ -17,6 +17,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.textfield.TextInputLayout
 import com.neungi.moyeo.R
 import com.neungi.moyeo.views.auth.viewmodel.AuthUiState
+import java.time.LocalDate
 
 /*** ImageView***/
 @BindingAdapter("app:urlPhotoImage")
@@ -118,3 +119,19 @@ fun <T> RecyclerView.submitData(items: List<T>?) {
     val adapter = this.adapter as? ListAdapter<T, *> ?: return
     adapter.submitList(items ?: emptyList())
 }
+
+/*** CustomCalendarVIew ***/
+@BindingAdapter("app:startDate")
+fun setStartDate(view: CustomCalendarView, date: LocalDate?) {
+    if (view.selectedStartDate != date) {
+        view.selectedStartDate = date
+    }
+}
+
+@BindingAdapter("app:endDate")
+fun setEndDate(view: CustomCalendarView, date: LocalDate?) {
+    if (view.selectedEndDate != date) {
+        view.selectedEndDate = date
+    }
+}
+

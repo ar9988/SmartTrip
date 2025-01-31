@@ -1,12 +1,11 @@
 package com.neungi.moyeo.views.aiplanning.viwmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.naver.maps.geometry.LatLng
-import com.neungi.moyeo.util.MarkerData
-import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
-import com.neungi.moyeo.views.album.viewmodel.AlbumUiState
+import com.neungi.domain.model.Festival
+import com.neungi.domain.model.Spot
+import com.neungi.moyeo.util.EmptyState
+import com.neungi.moyeo.views.aiplanning.adapters.SelectedSpotAdapter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,8 +23,15 @@ import javax.inject.Inject
 @HiltViewModel
 class AIPlanningViewModel @Inject constructor(
 
-) : ViewModel() {
+) : ViewModel(),OnAIPlanningClickListener {
 
+
+
+    private val _aiDestinatiionUiState = MutableStateFlow<AIPlanningUiState>(AIPlanningUiState())
+    val aiDestinatiionUiState = _aiDestinatiionUiState.asStateFlow()
+
+    private val _aiPlanningUiEvent = MutableSharedFlow<AiPlanningUiEvent>()
+    val aiPlanningUiEvent = _aiPlanningUiEvent.asSharedFlow()
 
     private val _calendarSelectState = MutableStateFlow<Int>(0)
     val calendarSelectState = _calendarSelectState.asStateFlow()
@@ -47,6 +53,27 @@ class AIPlanningViewModel @Inject constructor(
 
     private val _selectedLocations = MutableStateFlow<List<String>>(emptyList())
     val selectedLocations = _selectedLocations.asStateFlow()
+
+    private val _selectedSpots = MutableStateFlow<List<String>>(listOf("섭지코지","한라산"))
+    val selectedSpots = _selectedSpots.asStateFlow()
+
+    private val _recommendFestivals = MutableStateFlow<List<Festival>>(
+        listOf(
+            Festival("강화도왕방마을얼음축제",
+                "https://tong.visitkorea.or.kr/cms/resource/75/2938675_image2_1.jpg",
+                "인천광역시 강화군 중앙로787번길 8-1 관리소매점",
+                "20241225",
+                "20250303"),
+            Festival("계양 빛축제",
+                "https://tong.visitkorea.or.kr/cms/resource/07/3399307_image2_1.jpg",
+                "인천광역시 계양구 경명대로 지하1089 (계산동)",
+                "20240923",
+                "20250228"),
+        ))
+    val recommendFestivals = _recommendFestivals.asStateFlow()
+
+    private val _spotSecarchResult = MutableStateFlow<List<Spot>>(Spot)
+    val spotSecarchResult = _spotSecarchResult.asStateFlow()
 
 
 
@@ -110,8 +137,13 @@ class AIPlanningViewModel @Inject constructor(
     fun toggleLocationSelection(location: String) {
         _selectedLocations.update { currentList ->
             if (currentList.contains(location)) {
+                if(currentList.size==1){
+                    _aiDestinatiionUiState.update { it.copy( destinationSelectState = EmptyState.EMPTY) }
+                    _selectedSpots.update{ emptyList() }
+                }
                 currentList - location
             } else {
+                _aiDestinatiionUiState.update { it.copy( destinationSelectState = EmptyState.NONE) }
                 if (currentList.size < 3) {
                     currentList + location
                 } else {
@@ -130,7 +162,54 @@ class AIPlanningViewModel @Inject constructor(
         _selectedLocations.value = emptyList()
     }
 
+    /*
+    AiDestination
+    선택된 관광지(spot) 토글
+     */
 
+    fun toggleSpotSelection(spot: String) {
+        _selectedSpots.update { currentList ->
+            if (currentList.contains(spot)) {
+                currentList - spot
+            } else {
+                if (currentList.size < 3) {
+                    currentList + spot
+                } else {
+                    currentList
+                }
+            }
+        }
+    }
+
+    /*
+    AiSpotSearch
+    검색창 텍스트 변경시
+     */
+    fun onSearchTextChanged(text:CharSequence){
+        Timber.d(text.toString())
+    }
+
+
+
+    /*
+    UIClickListener
+     */
+    override fun onClickGoToSelectLocal(){
+        viewModelScope.launch {
+            _aiPlanningUiEvent.emit(AiPlanningUiEvent.GoToSelectLocal)
+        }
+    }
+    override fun onClickGoToDestination(){
+        viewModelScope.launch {
+            _aiPlanningUiEvent.emit(AiPlanningUiEvent.GoToDestination)
+        }
+    }
+
+    override fun onClickGoToSearchSpot() {
+        viewModelScope.launch {
+            _aiPlanningUiEvent.emit(AiPlanningUiEvent.GoToSearchSpot)
+        }
+    }
 
 
 }

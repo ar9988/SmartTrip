@@ -4,12 +4,16 @@ import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentSelectPeriodBinding
-import com.neungi.moyeo.views.aiplanning.viwmodel.AIPlanningViewModel
+import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
+import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class SelectPeriodFragment : BaseFragment<FragmentSelectPeriodBinding>(R.layout.fragment_select_period) {
@@ -22,8 +26,10 @@ class SelectPeriodFragment : BaseFragment<FragmentSelectPeriodBinding>(R.layout.
 
         binding.vm = viewModel
         addListener()
+        collectEvent()
 
     }
+
 
     private fun addListener(){
         binding.toolbar.setNavigationOnClickListener {
@@ -39,9 +45,10 @@ class SelectPeriodFragment : BaseFragment<FragmentSelectPeriodBinding>(R.layout.
         binding.tvEndTime.setOnClickListener {
             showTimePickerDialog(false)
         }
-        binding.btnNext.setOnClickListener {
-            findNavController().navigateSafely(R.id.action_fragment_select_period_to_fragment_ai_select_local)
-        }
+//        binding.btnNext.setOnClickListener {
+//            Timber.d("next")
+//            findNavController().navigateSafely(R.id.action_fragment_select_period_to_fragment_ai_select_local)
+//        }
     }
 
     private fun showTimePickerDialog(isStartTime: Boolean) {
@@ -67,6 +74,24 @@ class SelectPeriodFragment : BaseFragment<FragmentSelectPeriodBinding>(R.layout.
 
         return Pair(hour, minute)
     }
+
+    private fun collectEvent() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.aiPlanningUiEvent.collect { event ->
+                when (event) {
+                    is AiPlanningUiEvent.GoToSelectLocal-> {
+                        Timber.d("next")
+                        findNavController().navigateSafely(R.id.action_fragment_select_period_to_fragment_ai_select_local)
+                    }
+
+                    else->{
+
+                    }
+                }
+            }
+        }
+    }
+
 
 
 

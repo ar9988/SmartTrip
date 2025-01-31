@@ -23,9 +23,9 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(context,attrs) {
-    private var selectedStartDate: LocalDate? = null
-    private var selectedEndDate: LocalDate? = null
+class CustomCalendarView (context: Context, attrs: AttributeSet) : CalendarView(context,attrs) {
+    var selectedStartDate: LocalDate? = null
+    var selectedEndDate: LocalDate? = null
     private var onDateRangeSelected: ((LocalDate?, LocalDate?) -> Unit)? = null
 
     init {

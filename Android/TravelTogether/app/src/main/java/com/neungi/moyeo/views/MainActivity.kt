@@ -8,7 +8,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseActivity
 import com.neungi.moyeo.databinding.ActivityMainBinding
-import com.neungi.moyeo.views.aiplanning.viwmodel.AIPlanningViewModel
+import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import com.neungi.moyeo.views.auth.viewmodel.AuthViewModel
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel

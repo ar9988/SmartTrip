@@ -6,7 +6,7 @@
     <data>
         <variable
             name="vm"
-            type="com.neungi.moyeo.views.aiplanning.viwmodel.AIPlanningViewModel" />
+            type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
         <import type="android.view.View" />
 
     </data>
@@ -120,6 +120,7 @@
             android:backgroundTint="@color/colorPrimary"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toTopOf="@id/gl_horizontal_bottom"
+            android:onClick="@{ () ->vm.onClickGoToSelectLocal()}"
              />
 
 
@@ -130,6 +131,8 @@
             app:cv_dayViewResource="@layout/calendar_day_layout"
             app:cv_monthHeaderResource="@layout/calendar_month_header_layout"
             app:cv_outDateStyle="endOfGrid"
+            app:startDate="@{vm.startDate}"
+            app:endDate="@{vm.endDate}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/gl_horizontal_top"
