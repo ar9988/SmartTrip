@@ -43,6 +43,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_back_photo_upload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dp_small"
+                android:onClick="@{() -> vm.onClickBackToAlbumDetail()}"
+                android:src="@drawable/baseline_chevron_left_24" />
+
             <TextView
                 android:id="@+id/tv_title_photo_upload"
                 android:layout_width="wrap_content"
@@ -65,7 +73,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_photo_upload"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginBottom="@dimen/dp_medium"
             android:adapter="@{adapter}"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
