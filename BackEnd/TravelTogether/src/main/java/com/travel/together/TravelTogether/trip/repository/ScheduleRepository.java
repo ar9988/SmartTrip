@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     List<Schedule> findByDayId(Integer dayId);
+
+    List<Schedule> findAllByDayIdOrderByOrderNumAsc(Integer id);
 }

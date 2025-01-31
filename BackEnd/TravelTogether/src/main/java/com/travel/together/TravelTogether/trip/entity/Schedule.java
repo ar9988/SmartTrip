@@ -1,6 +1,7 @@
 package com.travel.together.TravelTogether.trip.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Builder
 @Table(name = "schedule")
 public class Schedule {
     public Schedule() {

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<div>
+    <input type="text" id="sender" placeholder="name">
+    <input type="text" id="message" placeholder="message">
+    <button onclick="sendMessage()">send</button>
+</div>
+<div id="messageArea"></div>
+
+<script type="text/javascript">
+    var stompClient = null;
+
+    function connect() {
+    console.log('Attempting to connect...');  // 연결 시도 시작
+    var socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+
+    // 연결 시도 전 로그
+    console.log('SockJS object created:', socket);
+
+    stompClient.connect({},
+        function(frame) {
+            console.log('Connected: ' + frame);
+            console.log('Subscribing to /topic/messages');  // 구독 시도 로그
+            stompClient.subscribe('/topic/messages', function(message) {
+                console.log('Received message:', message);  // 메시지 수신 로그
+                var received = JSON.parse(message.body);
+                $("#messageArea").append("<p>" + received.sender + ": " + received.content + "</p>");
+            });
+            console.log('Subscription complete');  // 구독 완료 로그
+        },
+        function(error) {
+            console.error('STOMP error:', error);
+            console.log('Attempting to reconnect in 5 seconds...');
+            setTimeout(connect, 5000);
+        }
+    );
+}
+
+    function sendMessage() {
+        if (stompClient) {
+            var messageContent = $("#message").val();
+            var senderName = $("#sender").val();
+
+            if (messageContent && senderName) {
+                var chatMessage = {
+                    'content': messageContent,
+                    'sender': senderName
+                };
+                stompClient.send("/app/send", {}, JSON.stringify(chatMessage));
+                $("#message").val('');
+            }
+        }
+    }
+
+    $(document).ready(function() {
+        connect();
+    });
+</script>
+</body>
+</html>
