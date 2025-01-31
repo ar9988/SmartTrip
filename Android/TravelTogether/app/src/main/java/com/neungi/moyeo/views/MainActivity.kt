@@ -48,10 +48,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         with(binding.bnvMain) {
             setupWithNavController(navController)
             background = null
-//            menu.getItem(1).isEnabled = false
+            menu.getItem(2).isEnabled = false
         }
         binding.fabOrder.setOnClickListener {
-
+            navController.popBackStack()
+            navController.navigate(R.id.fragment_select_period)
+            binding.bnvMain.selectedItemId = 0
         }
     }
 }
