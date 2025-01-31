@@ -5,9 +5,9 @@
     <androidx.cardview.widget.CardView
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp">
+        android:layout_margin="@dimen/dp_small"
+        app:cardCornerRadius="@dimen/dp_small"
+        app:cardElevation="@dimen/dp_smaller">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -43,12 +43,12 @@
                 app:layout_constraintTop_toBottomOf="@id/iv_festival_image"/>
             <ImageView
                 android:id="@+id/iv_check"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="@dimen/dp_large"
+                android:layout_height="@dimen/dp_large"
                 android:layout_gravity="top|end"
                 android:layout_margin="8dp"
                 android:src="@drawable/ic_check_circle"
-                app:tint="@color/green"
+                app:tint="@color/mint"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>

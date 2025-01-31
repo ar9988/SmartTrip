@@ -9,9 +9,7 @@ import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAiSearchPlaceBinding
-import com.neungi.moyeo.databinding.FragmentSelectPeriodBinding
 import com.neungi.moyeo.views.aiplanning.adapters.SearchPlaceAdapter
-
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
 import dagger.hilt.android.AndroidEntryPoint

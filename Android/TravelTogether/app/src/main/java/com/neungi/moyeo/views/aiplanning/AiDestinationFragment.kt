@@ -50,6 +50,9 @@ class AiDestinationFragment : BaseFragment<FragmentAiDestinationBinding>(R.layou
                     is AiPlanningUiEvent.GoToSearchPlace->{
                         findNavController().navigateSafely(R.id.action_ai_destination_to_ai_search_place)
                     }
+                    is AiPlanningUiEvent.limitToast ->{
+                        showToastMessage(resources.getString(R.string.select_limit_toast_planning))
+                    }
                     else->{
 
                     }

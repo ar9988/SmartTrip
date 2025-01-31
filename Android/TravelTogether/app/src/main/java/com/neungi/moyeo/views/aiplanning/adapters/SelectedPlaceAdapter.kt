@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemSelectedDestinationBinding
+import com.neungi.moyeo.views.aiplanning.adapters.SelectedLocationAdapter.LocationUiModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import kotlinx.coroutines.launch
 class SelectedPlaceAdapter(
@@ -24,11 +25,19 @@ class SelectedPlaceAdapter(
 
     init {
         lifecycleOwner.lifecycleScope.launch {
-            viewModel.selectedPlaces.collect { spots ->
-                val uiModels = if (spots.isEmpty()) {
-                    listOf(PlaceUiModel.AddButton(true))
-                } else {
-                    spots.map { PlaceUiModel.PlaceName(it) } + PlaceUiModel.AddButton(false)
+            viewModel.selectedPlaces.collect { places ->
+                val uiModels = when {
+                    places.isEmpty() -> {
+                        listOf(PlaceUiModel.AddButton(true))
+                    }
+
+                    places.size >= 3 -> {
+                        places.map { PlaceUiModel.PlaceName(it) }
+                    }
+
+                    else -> {
+                        places.map { PlaceUiModel.PlaceName(it) } + PlaceUiModel.AddButton(false)  // 그 외에는 Location + AddButton
+                    }
                 }
                 submitList(uiModels)
             }

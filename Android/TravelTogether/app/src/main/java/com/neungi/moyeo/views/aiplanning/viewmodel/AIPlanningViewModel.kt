@@ -149,6 +149,9 @@ class AIPlanningViewModel @Inject constructor(
                 if (currentList.size < 3) {
                     currentList + location
                 } else {
+                    viewModelScope.launch {
+                        _aiPlanningUiEvent.emit(AiPlanningUiEvent.limitToast)
+                    }
                     currentList
                 }
             }
@@ -177,6 +180,9 @@ class AIPlanningViewModel @Inject constructor(
                 if (currentList.size < 3) {
                     currentList + place
                 } else {
+                    viewModelScope.launch {
+                        _aiPlanningUiEvent.emit(AiPlanningUiEvent.limitToast)
+                    }
                     currentList
                 }
             }

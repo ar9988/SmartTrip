@@ -54,7 +54,7 @@
                 android:id="@+id/iv_photo_comment_delete_dialog"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:src="@drawable/baseline_close_24"
+                android:src="@drawable/ic_close"
                 app:layout_constraintBottom_toBottomOf="@id/tv_title_photo_comment_delete_dialog"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_photo_comment_delete_dialog"

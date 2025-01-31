@@ -14,7 +14,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".views.aiplanning.SelectPeriodFragment">
+        android:paddingHorizontal="@dimen/dp_smaller"
+        tools:context=".views.aiplanning.AiSelectPeriodFragment">
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -24,39 +25,42 @@
             app:contentInsetStart="0dp"
             app:contentInsetLeft="0dp"
             app:contentInsetStartWithNavigation="0dp"
-            app:title="일정"
+            app:title="@string/period_planning"
             />
 
 
         <TextView
             android:id="@+id/tv_select_start"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="여행 시작일을 선택해주세요."
+            android:text="@string/select_start_date_planning"
+            android:textSize="@dimen/font_size_large"
             android:visibility="@{vm.calendarSelectState == 0 ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@id/gl_horizontal_top"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_margin="16dp" />
+            android:layout_margin="@dimen/dp_medium" />
 
         <TextView
             android:id="@+id/tv_select_end"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="여행 종료일을 선택해주세요."
+            android:text="@string/select_end_date_planning"
+            android:textSize="@dimen/font_size_large"
             android:visibility="@{vm.calendarSelectState == 1 ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@id/gl_horizontal_top"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_margin="16dp" />
+            android:layout_margin="@dimen/dp_medium" />
 
         <TextView
             android:id="@+id/tv_select_time"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="시작 날 일정 시작 시간과 마지막 날 일정을 마칠 시간을 정해주세요"
+            android:text="@string/select_time_planning"
+            android:textSize="@dimen/font_size_large"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@id/gl_horizontal_top"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_margin="16dp" />
+            android:layout_margin="@dimen/dp_medium" />
 
         <TextView
             android:id="@+id/tv_start_date"
@@ -64,6 +68,7 @@
             android:layout_height="wrap_content"
             android:text="@{vm.formattedStartDate}"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
+            android:textSize="@dimen/font_size_larger"
             app:layout_constraintTop_toTopOf="@id/tv_tilde_date"
             app:layout_constraintBottom_toBottomOf="@id/tv_tilde_date"
             app:layout_constraintStart_toStartOf="parent"
@@ -75,15 +80,17 @@
             android:layout_height="wrap_content"
             android:text="~ "
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
+            android:textSize="@dimen/font_size_larger"
             app:layout_constraintTop_toBottomOf="@id/calendarView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="@dimen/dp_medium" />
         <TextView
             android:id="@+id/tv_end_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{vm.formattedEndDate}"
+            android:textSize="@dimen/font_size_larger"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toTopOf="@id/tv_tilde_date"
             app:layout_constraintBottom_toBottomOf="@id/tv_tilde_date"
@@ -96,6 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{vm.startTime}"
+            android:textSize="@dimen/font_size_larger"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toBottomOf="@id/tv_start_date"
             app:layout_constraintStart_toStartOf="@id/tv_start_date"
@@ -106,6 +114,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{vm.endTime}"
+            android:textSize="@dimen/font_size_larger"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toTopOf="@id/tv_start_time"
             app:layout_constraintStart_toStartOf="@id/tv_end_date"
@@ -116,10 +125,10 @@
             android:id="@+id/btn_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="다음"
+            android:text="@string/next"
             android:backgroundTint="@color/colorPrimary"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
-            app:layout_constraintTop_toTopOf="@id/gl_horizontal_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:onClick="@{ () ->vm.onClickGoToSelectLocal()}"
              />
 
@@ -143,14 +152,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="667dp" />
+            app:layout_constraintGuide_percent="0.8" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_horizontal_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_begin="127dp" />
+            app:layout_constraintGuide_percent="0.2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

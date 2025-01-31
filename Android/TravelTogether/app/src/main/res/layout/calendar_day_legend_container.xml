@@ -1,85 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:weightSum="7">
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <TextView
         android:id="@+id/tv_sun"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:textColor="@color/red"
-        android:textSize="14sp"
-        android:text="일"
-        tools:text="일" />
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:textSize="@dimen/font_size_small"
+        android:text="@string/sun_calendar"
+        tools:text="@string/sun_calendar" />
+    <TextView
         android:id="@+id/tv_mon"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:textColor="@color/neutral_100"
-        android:textSize="14sp"
-        android:text="월"
-        tools:text="월" />
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:textSize="@dimen/font_size_small"
+        android:text="@string/mon_calendar"
+        tools:text="@string/mon_calendar" />
+    <TextView
         android:id="@+id/tv_tue"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:textColor="@color/neutral_100"
-        android:textSize="14sp"
-        android:text="화"
-        tools:text="화" />
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:textSize="@dimen/font_size_small"
+        android:text="@string/tue_calendar"
+        tools:text="@string/tue_calendar" />
+    <TextView
         android:id="@+id/wed"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:textColor="@color/neutral_100"
-        android:textSize="14sp"
-        android:text="수"
-        tools:text="수" />
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:textSize="@dimen/font_size_small"
+        android:text="@string/wend_calendar"
+        tools:text="@string/wend_calendar" />
+    <TextView
         android:id="@+id/tv_thu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:textColor="@color/neutral_100"
-        android:textSize="14sp"
-        android:text="목"
-        tools:text="목" />
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:textSize="@dimen/font_size_small"
+        android:text="@string/thur_calendar"
+        tools:text="@string/thur_calendar" />
+    <TextView
         android:id="@+id/fri"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:textColor="@color/neutral_100"
-        android:textSize="14sp"
-        android:text="금"
-        tools:text="금" />
-    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:textSize="@dimen/font_size_small"
+        android:text="@string/fri_calendar"
+        tools:text="@string/fri_calendar" />
+    <TextView
         android:id="@+id/tv_sat"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:textColor="@color/colorPrimary"
-        android:textSize="14sp"
-        android:text="토"
-        tools:text="토" />
+        android:textSize="@dimen/font_size_small"
+        android:text="@string/sat_calendar"
+        tools:text="@string/sat_calendar" />
 
 </LinearLayout>

@@ -8,7 +8,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
-import com.neungi.moyeo.databinding.FragmentSelectPeriodBinding
+import com.neungi.moyeo.databinding.FragmentAiSelectPeriodBinding
+import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,9 +17,11 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
-class SelectPeriodFragment : BaseFragment<FragmentSelectPeriodBinding>(R.layout.fragment_select_period) {
+class AiSelectPeriodFragment : BaseFragment<FragmentAiSelectPeriodBinding>(R.layout.fragment_ai_select_period) {
 
     private val viewModel: AIPlanningViewModel by activityViewModels()
+
+    private val mainViewModel : MainViewModel by activityViewModels()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -90,6 +93,11 @@ class SelectPeriodFragment : BaseFragment<FragmentSelectPeriodBinding>(R.layout.
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mainViewModel.setBnvState(false)
     }
 
 

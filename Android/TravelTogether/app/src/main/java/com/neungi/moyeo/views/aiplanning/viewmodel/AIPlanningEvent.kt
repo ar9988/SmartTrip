@@ -10,5 +10,7 @@ sealed class AiPlanningUiEvent {
 
     data object PopBackToDestiination :AiPlanningUiEvent()
 
+    data object limitToast:AiPlanningUiEvent()
+
 
 }
