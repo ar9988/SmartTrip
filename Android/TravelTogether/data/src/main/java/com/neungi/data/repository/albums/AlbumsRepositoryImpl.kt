@@ -12,6 +12,7 @@ import com.neungi.domain.repository.AlbumsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MultipartBody
 import javax.inject.Inject
 
 class AlbumsRepositoryImpl @Inject constructor(
@@ -53,7 +54,7 @@ class AlbumsRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun postPhoto(body: Photo): ApiResult<Boolean> =
+    override suspend fun postPhoto(body: MultipartBody.Part): ApiResult<Boolean> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 albumsRemoteDataSource.postPhoto(body)
