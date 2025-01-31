@@ -2,14 +2,11 @@ package com.neungi.moyeo.views.aiplanning.adapters
 
 import android.content.Context
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.neungi.moyeo.R
-import com.neungi.moyeo.views.aiplanning.SelectPeriodFragment
-import com.neungi.moyeo.views.aiplanning.viwmodel.AIPlanningViewModel
+import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 
 class RegionPagerAdapter(
     private val context: Context,

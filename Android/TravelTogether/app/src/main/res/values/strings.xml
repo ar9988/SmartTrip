@@ -66,6 +66,5 @@
     <string name="text_hint_join_password">비밀번호를 입력해주세요.</string>
     <string name="text_hint_join_password_again">비밀번호를 다시 입력해주세요.</string>
     <string name="message_join_fail">회원가입에 실패하였습니다.</string>
->>>>>>> Android/TravelTogether/app/src/main/res/values/strings.xml
 
 </resources>

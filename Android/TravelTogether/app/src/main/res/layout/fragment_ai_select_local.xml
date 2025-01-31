@@ -6,7 +6,7 @@
     <data>
         <variable
             name="vm"
-            type="com.neungi.moyeo.views.aiplanning.viwmodel.AIPlanningViewModel" />
+            type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
         <import type="android.view.View" />
     </data>
 
@@ -153,6 +153,7 @@
             android:text="다음"
             android:backgroundTint="@color/colorPrimary"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
+            android:onClick="@{ () ->vm.onClickGoToDestination()}"
             app:layout_constraintTop_toTopOf="@id/gl_horizontal_bottom"
             />
 

@@ -1,7 +1,6 @@
 package com.neungi.moyeo.views.aiplanning
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -12,11 +11,14 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAiSelectLocalBinding
+import com.neungi.moyeo.databinding.ItemSelectedLocalChipBinding
 import com.neungi.moyeo.views.aiplanning.adapters.RegionPagerAdapter
-import com.neungi.moyeo.views.aiplanning.viwmodel.AIPlanningViewModel
+import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
+import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
-
+@AndroidEntryPoint
 class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layout.fragment_ai_select_local) {
 
 
@@ -30,23 +32,11 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
         binding.toolbarAiLocalSelect.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
-
+//        binding.btnNext.setOnClickListener {
+//            findNavController().navigateSafely(R.id.action_ai_select_local_to_ai_destinaation)
+//        }
 //        binding.rvLocalBig.adapter = LocalAdapter(resources.getStringArray(R.array.local_big).toList())
         setupViewPager()
-        binding.tablayoutLocalBig.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                (tab?.customView as? Chip)?.isChecked = true
-
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                (tab?.customView as? Chip)?.isChecked = false
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-
-            }
-        })
         observeStates()
 
     }
@@ -66,6 +56,20 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
         // 첫 번째 탭 선택 상태로 설정
         val firstTab = binding.tablayoutLocalBig.getTabAt(0)?.customView as? Chip
         firstTab?.isChecked = true
+        binding.tablayoutLocalBig.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                (tab?.customView as? Chip)?.isChecked = true
+
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                (tab?.customView as? Chip)?.isChecked = false
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+
+            }
+        })
     }
 
 
@@ -81,20 +85,22 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
                 updateSelectedLocationChips(locations)
             }
         }
+        collectEvent()
     }
     private fun updateSelectedLocationChips(locations: List<String>) {
-        Timber.tag("??")
         binding.chipgroupSelectedLocations.removeAllViews()
         if(locations.isEmpty())binding.chipgroupSelectedLocations.visibility = View.GONE
         else binding.chipgroupSelectedLocations.visibility = View.VISIBLE
         locations.forEach { location ->
-            val chip = layoutInflater.inflate(
-                R.layout.item_selected_local_chip,
+            val chipBinding = ItemSelectedLocalChipBinding.inflate(
+                layoutInflater,
                 binding.chipgroupSelectedLocations,
                 false
-            ) as Chip
+            )
+            chipBinding.text = location
 
-            chip.text = location
+            val chip = chipBinding.root
+
             chip.setOnClickListener {  // closeIcon 대신 일반 클릭 리스너 사용
                 Timber.d(location)
                 viewModel.toggleLocationSelection(location)
@@ -114,4 +120,20 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
 ////            is RegionUiState.Horizontal -> View.VISIBLE
 ////        }
 //    }
+private fun collectEvent() {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewModel.aiPlanningUiEvent.collect { event ->
+            when (event) {
+                is AiPlanningUiEvent.GoToDestination-> {
+                    Timber.d("next")
+                    findNavController().navigateSafely(R.id.action_ai_select_local_to_ai_destinaation)
+                }
+
+                else->{
+
+                }
+            }
+        }
+    }
+}
 }

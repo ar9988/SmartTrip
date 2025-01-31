@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
+        <import type="android.view.View" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="800dp"
+        android:padding="16dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_search_place"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/baseline_chevron_left_24"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:title="관광지 검색">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchView_search_spot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:queryBackground="@drawable/bg_search_view"
+
+                />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <TextView
+            android:id="@+id/tv_ai_search_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="관광지를 검색해주세요"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="16sp"
+            android:visibility="@{vm.searchUiState.searchTextIsEmpty ? View.VISIBLE : View.GONE}"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_search_place"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_ai_search_result"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:visibility="@{vm.searchUiState.searchTextIsEmpty ? View.GONE : View.VISIBLE}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_search_place"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

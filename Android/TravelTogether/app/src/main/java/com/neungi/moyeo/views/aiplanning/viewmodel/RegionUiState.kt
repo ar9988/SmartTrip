@@ -1,4 +1,4 @@
-package com.neungi.moyeo.views.aiplanning.viwmodel
+package com.neungi.moyeo.views.aiplanning.viewmodel
 
 
 data class RegionUiState(
