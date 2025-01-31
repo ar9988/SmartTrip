@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.naver.maps.map.NaverMap
 import com.neungi.moyeo.R
@@ -12,6 +13,9 @@ import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
+import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.Section
+import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.SectionedAdapter
+import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.createItemTouchHelperCallback
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -29,34 +33,56 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
         println("Received tripId: $tripId")
-
-        setupRecyclerView()
-        lifecycleScope.launch {
-            viewModel.scheduleData.collect {
-//                sectionedAdapter.submitList(it)
-            }
+        viewModel.webSocketManager.events.observe(viewLifecycleOwner) { event ->
+            println("Received event: $event")
+            val from = event.operation.fromPosition
+            val to = event.operation.toPosition
+            sectionedAdapter.moveItem(from, to)
         }
+        setupRecyclerView()
     }
+
     private fun setupRecyclerView() {
         sectionedAdapter = SectionedAdapter(
             onItemClick = { scheduleId ->
                 println("click $scheduleId")
-                findNavController().navigateSafely(R.id.action_plan_to_planDetail)
             },
             onDeleteClick = { scheduleId ->
-                // 삭제 처리 로직
                 println("Delete schedule with ID: $scheduleId")
             },
             onEditClick = { scheduleId ->
-                // 편집 처리 로직
                 println("Edit schedule with ID: $scheduleId")
             },
+            onAddClick = {
+                findNavController().navigateSafely(R.id.action_schedule_add)
+            },
             mutableListOf(
-                Section("1일차", mutableListOf(ScheduleData(4,"일정5 ","17시","19시","식당","30분"),ScheduleData(4,"일정5 ","17시","19시","식당","30분"))),
-                Section("2일차", mutableListOf(ScheduleData(4,"일정5 ","17시","19시","식당","30분"),ScheduleData(4,"일정5 ","17시","19시","식당","30분"),ScheduleData(4,"일정5 ","17시","19시","식당","30분"))
-                ))
+                Section(
+                    "1일차", mutableListOf(
+                        ScheduleData(1, "일정1", "17시", "19시", "식당", "30분"),
+                        ScheduleData(2, "일정2", "17시", "19시", "식당", "30분")
+                    )
+                ),
+                Section(
+                    "2일차",
+                    mutableListOf(
+                        ScheduleData(3, "일정3", "17시", "19시", "식당", "30분"),
+                        ScheduleData(4, "일정4", "17시", "19시", "식당", "30분"),
+                        ScheduleData(5, "일정5", "17시", "19시", "식당", "30분")
+                    )
+                )
+            )
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.recyclerView.adapter = sectionedAdapter
+
+        // ItemTouchHelper 초기화
+        val itemTouchHelperCallback = createItemTouchHelperCallback { fromPosition, toPosition ->
+            // 이동 이벤트를 ViewModel로 전달
+            viewModel.onItemMoved(fromPosition, toPosition)
+        }
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
     }
+
 }

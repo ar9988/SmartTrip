@@ -33,8 +33,19 @@
 
         <argument
             android:name="tripId"
-            app:argType="integer" />
+            app:argType="integer"/>
 
+        <action
+            android:id="@+id/action_schedule_add"
+            app:destination="@id/fragment_schedule_add" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_schedule_add"
+        android:name="com.neungi.moyeo.views.plan.ScheduleAddFragment"
+        android:label="Schedule Add"
+        tools:layout="@layout/fragment_schedule_add">
+        
     </fragment>
 
     <fragment

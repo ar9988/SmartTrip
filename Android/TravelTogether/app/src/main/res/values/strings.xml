@@ -36,6 +36,10 @@
     <string name="description_btn_add_person">사람 추가 버튼</string>
     <string name="description_switch">이동 수단 선택 스위치</string>
     <string name="description_schedule_icon">일정 아이콘</string>
+    <string name="title_dialog_invite">같이 갈 사람 추가하기</string>
+    <string name="text_link_title">초대 링크</string>
+    <string name="string_link">초대 링크 복사하기</string>
+    <string name="title_dialog_add">체류 시간</string>
     <string name="text_comment_submit">등록</string>
     <string name="text_hint_comment">100자 이내로 입력해주세요.</string>
     <string name="text_no_comment">아직 나눈 추억이 없어요.</string>
@@ -62,5 +66,6 @@
     <string name="text_hint_join_password">비밀번호를 입력해주세요.</string>
     <string name="text_hint_join_password_again">비밀번호를 다시 입력해주세요.</string>
     <string name="message_join_fail">회원가입에 실패하였습니다.</string>
+>>>>>>> Android/TravelTogether/app/src/main/res/values/strings.xml
 
 </resources>

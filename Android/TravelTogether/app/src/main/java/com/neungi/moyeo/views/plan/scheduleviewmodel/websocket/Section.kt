@@ -1,4 +1,4 @@
-package com.neungi.moyeo.views.plan
+package com.neungi.moyeo.views.plan.scheduleviewmodel.websocket
 
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
 
