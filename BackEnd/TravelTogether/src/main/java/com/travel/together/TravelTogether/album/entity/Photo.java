@@ -2,9 +2,7 @@ package com.travel.together.TravelTogether.album.entity;
 
 import com.travel.together.TravelTogether.auth.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
