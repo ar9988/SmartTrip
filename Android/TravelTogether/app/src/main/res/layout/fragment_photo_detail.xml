@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.album.viewmodel.AlbumViewModel" />
+
+        <variable
+            name="adapter"
+            type="com.neungi.moyeo.views.album.adapter.PhotoCommentAdapter" />
+
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_photo_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:context=".views.album.PhotoDetailFragment">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_start_photo_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_top_photo_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+            <Toolbar
+                android:id="@+id/toolbar_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_back_photo_detail"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:onClick="@{() -> vm.onClickBackToAlbumDetail()}"
+                        android:src="@drawable/baseline_chevron_left_24"
+                        app:layout_constraintBottom_toBottomOf="@id/tv_title_photo_detail"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/tv_title_photo_detail" />
+
+                    <TextView
+                        android:id="@+id/tv_title_photo_detail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/pretendardbold"
+                        android:text="@string/title_album"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/neutral_100"
+                        android:textSize="@dimen/font_size_title"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/iv_back_photo_detail"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </Toolbar>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:urlPhotoImage="@{vm.selectedPhoto.filePath}" />
+
+            <TextView
+                android:id="@+id/tv_name_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_medium"
+                android:layout_marginTop="@dimen/dp_medium"
+                android:layout_marginEnd="@dimen/dp_small"
+                android:fontFamily="@font/pretendardsemibold"
+                android:text="@{vm.selectedPhoto.photoPlace}"
+                android:textAlignment="viewStart"
+                android:textColor="@color/neutral_100"
+                android:textSize="@dimen/font_size_title"
+                app:layout_constraintEnd_toStartOf="@id/iv_delete_photo_detail"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_detail"
+                app:layout_constraintTop_toBottomOf="@id/iv_photo_detail" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_delete_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/dp_small"
+                android:src="@drawable/ic_photo_delete"
+                app:layout_constraintBottom_toBottomOf="@id/tv_name_photo_detail"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/iv_share_photo_detail"
+                app:layout_constraintTop_toTopOf="@id/tv_name_photo_detail" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_share_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/dp_medium"
+                android:src="@drawable/ic_photo_share"
+                app:layout_constraintBottom_toBottomOf="@id/tv_name_photo_detail"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_detail"
+                app:layout_constraintTop_toTopOf="@id/tv_name_photo_detail" />
+
+            <TextView
+                android:id="@+id/tv_date_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_medium"
+                android:layout_marginTop="@dimen/dp_small"
+                android:layout_marginEnd="@dimen/dp_medium"
+                android:fontFamily="@font/pretendardregular"
+                android:text="@{vm.selectedPhoto.takenAt}"
+                android:textAlignment="viewStart"
+                android:textColor="@color/neutral_100"
+                android:textSize="@dimen/font_size_medium"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_detail"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_detail"
+                app:layout_constraintTop_toBottomOf="@id/tv_name_photo_detail" />
+
+            <TextView
+                android:id="@+id/tv_comment_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_medium"
+                android:fontFamily="@font/pretendardbold"
+                android:text="@string/title_photo_comment"
+                android:textAlignment="viewStart"
+                android:textColor="@color/neutral_100"
+                android:textSize="@dimen/font_size_title"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_detail"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_detail"
+                app:layout_constraintTop_toBottomOf="@id/tv_date_photo_detail" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/et_comment_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="@dimen/dp_medium"
+                android:background="@drawable/shape_edit_text"
+                android:fontFamily="@font/pretendardregular"
+                android:hint="@string/text_hint_comment"
+                android:maxLength="100"
+                android:maxLines="1"
+                android:onTextChanged="@{(comment, s, b, c) -> vm.validPhotoComment(comment)}"
+                android:text="@={vm.commentInput}"
+                android:textColor="@color/neutral_70"
+                android:textSize="@dimen/font_size_small"
+                app:layout_constraintBottom_toBottomOf="@id/btn_comment_submit_photo_detail"
+                app:layout_constraintEnd_toStartOf="@id/btn_comment_submit_photo_detail"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_detail"
+                app:layout_constraintTop_toTopOf="@id/btn_comment_submit_photo_detail"
+                app:normalEditText="@{``}" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_comment_submit_photo_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_medium"
+                android:background="@drawable/selector_button"
+                android:enabled="@{vm.albumUiState.isCommentSubmitBtnEnable}"
+                android:fontFamily="@font/pretendardsemibold"
+                android:onClick="@{() -> vm.onClickCommentSubmit()}"
+                android:text="@string/text_comment_submit"
+                android:textColor="@{(vm.albumUiState.isCommentSubmitBtnEnable == true) ? @color/neutral_white : @color/neutral_90}"
+                android:textSize="@dimen/font_size_small"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_detail"
+                app:layout_constraintTop_toBottomOf="@id/tv_comment_photo_detail" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_small"
+                android:layout_marginBottom="@dimen/dp_small"
+                android:adapter="@{adapter}"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:overScrollMode="never"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constrainedHeight="true"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_detail"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_detail"
+                app:layout_constraintTop_toBottomOf="@id/btn_comment_submit_photo_detail"
+                app:submitData="@{vm.selectedPhotoComments}"
+                tools:listitem="@layout/list_photo_comment" />
+
+            <TextView
+                android:id="@+id/tv_comment_empty_photo_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_medium"
+                android:fontFamily="@font/pretendardsemibold"
+                android:text="@string/text_no_comment"
+                android:textAlignment="center"
+                android:textColor="@color/neutral_70"
+                android:textSize="@dimen/font_size_medium"
+                android:visibility="@{(vm.selectedPhotoComments.isEmpty()) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_detail"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_detail"
+                app:layout_constraintTop_toBottomOf="@id/btn_comment_submit_photo_detail" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_end_photo_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_bottom_photo_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

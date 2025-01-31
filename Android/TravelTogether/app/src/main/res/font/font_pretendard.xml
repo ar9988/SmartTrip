@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <font
+        android:font="@font/pretendardregular"
+        android:fontStyle="normal" />
+
+    <font
+        android:font="@font/pretendardblack"
+        android:fontStyle="normal" />
+
+    <font
+        android:font="@font/pretendardbold"
+        android:fontStyle="normal" />
+
+    <font
+        android:font="@font/pretendardsemibold"
+        android:fontStyle="normal" />
+
+    <font
+        android:font="@font/pretendardextrabold"
+        android:fontStyle="normal" />
+
+    <font
+        android:font="@font/pretendardlight"
+        android:fontStyle="normal" />
+
+    <font
+        android:font="@font/pretendardextralight"
+        android:fontStyle="normal" />
+
+    <font
+        android:font="@font/pretendardmedium"
+        android:fontStyle="normal" />
+
+    <font
+        android:font="@font/pretendardthin"
+        android:fontStyle="normal" />
+
+</font-family>

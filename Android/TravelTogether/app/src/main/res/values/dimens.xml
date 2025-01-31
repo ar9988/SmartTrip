@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Font -->
+    <dimen name="font_size_smallest">11sp</dimen>
+    <dimen name="font_size_smaller">12sp</dimen>
+    <dimen name="font_size_small">14sp</dimen>
+    <dimen name="font_size_medium">16sp</dimen>
+    <dimen name="font_size_large">18sp</dimen>
+    <dimen name="font_size_larger">20sp</dimen>
+    <dimen name="font_size_title">24sp</dimen>
+
+    <!-- Margin, Padding -->
+    <dimen name="dp_smaller">4dp</dimen>
+    <dimen name="dp_small">8dp</dimen>
+    <dimen name="dp_medium">16dp</dimen>
+    <dimen name="dp_large">24dp</dimen>
+    <dimen name="dp_larger">32dp</dimen>
+    <dimen name="dp_largest">48dp</dimen>
+    <dimen name="dp_bottom_nav">80dp</dimen>
+
+    <!-- Elevation -->
+    <dimen name="card_view_elevation">4dp</dimen>
+    <dimen name="toolbar_elevation">16dp</dimen>
+
+</resources>
