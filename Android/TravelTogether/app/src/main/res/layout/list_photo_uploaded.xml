@@ -19,6 +19,7 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/mcv_photo_uploaded"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="@dimen/dp_medium"

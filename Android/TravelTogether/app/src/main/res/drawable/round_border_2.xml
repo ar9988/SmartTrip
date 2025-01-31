@@ -1,0 +1,5 @@
+<!-- res/drawable/round_border.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#B9C4C1"/> <!-- 배경 색상 (여기서는 파란색) -->
+    <corners android:radius="16dp"/> <!-- 둥근 모서리 (radius 값으로 조절 가능) -->
+</shape>

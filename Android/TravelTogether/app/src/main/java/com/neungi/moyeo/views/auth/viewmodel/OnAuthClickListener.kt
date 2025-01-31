@@ -5,4 +5,6 @@ interface OnAuthClickListener {
     fun onClickLogin()
 
     fun onClickJoin()
+
+    fun onClickJoinFinish()
 }

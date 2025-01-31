@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentLoginBinding
@@ -68,7 +69,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     private fun handleUiEvent(event: AuthUiEvent) {
         when (event) {
             is AuthUiEvent.LoginSuccess -> {
-
+                requireActivity().supportFragmentManager.popBackStack()
             }
 
             is AuthUiEvent.LoginFail -> {
@@ -76,8 +77,10 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
             }
 
             is AuthUiEvent.GoToJoin -> {
-
+                findNavController().navigateSafely(R.id.action_login_to_join)
             }
+
+            else -> {}
         }
     }
 }

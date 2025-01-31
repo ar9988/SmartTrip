@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">TravelTogether</string>
+    <string name="app_name">모여</string>
 
     <!-- Main -->
     <string name="description_fab_planner">AI 여행 일정 플래너</string>
@@ -20,6 +20,8 @@
     <!-- Album -->
     <string name="label_album">Album</string>
     <string name="label_album_detail">Album Detail</string>
+    <string name="label_photo_detail">Photo Detail</string>
+    <string name="label_photo_upload">Photo Upload</string>
     <string name="title_album">추억 앨범</string>
     <string name="title_photo_comment">추억 나누기</string>
     <string name="title_photo_upload">업로드</string>
@@ -34,16 +36,35 @@
     <string name="description_btn_add_person">사람 추가 버튼</string>
     <string name="description_switch">이동 수단 선택 스위치</string>
     <string name="description_schedule_icon">일정 아이콘</string>
+    <string name="title_dialog_invite">같이 갈 사람 추가하기</string>
+    <string name="text_link_title">초대 링크</string>
+    <string name="string_link">초대 링크 복사하기</string>
+    <string name="title_dialog_add">체류 시간</string>
+    <string name="text_comment_submit">등록</string>
+    <string name="text_hint_comment">100자 이내로 입력해주세요.</string>
+    <string name="text_no_comment">아직 나눈 추억이 없어요.</string>
+    <string name="message_photo_duplicated">이미 업로드하기로 결정한 사진입니다.</string>
+    <string name="title_comment_delete">추억 삭제하기</string>
+    <string name="text_comment_delete">남긴 추억을 삭제하시겠습니까?</string>
+    <string name="text_delete">삭제하기</string>
+    <string name="message_comment_submit">추억을 남겼습니다.</string>
+    <string name="message_comment_update">추억을 수정했습니다.</string>
 
     <!-- Auth -->
     <string name="label_login">Login</string>
+    <string name="label_join">Join</string>
     <string name="title_login">로그인</string>
+    <string name="title_join">회원가입</string>
     <string name="text_login_description">로그인해주세요.</string>
+    <string name="text_join_description"> · 이메일은 이메일 형식에 맞춰 입력하세요. \n· 비밀번호는 영문, 숫자 혼합하여 8~16자리 이내로 입력하세요. 특수문자는 꼭 1자 이상 포함하세요.\n· 아이디와 같은 비밀번호, 생일, 학번, 전화번호 등 개인정보와 관련된 숫자, 연속된 숫자, 동일하게 반복된 숫자 등 다른 사람이 쉽게 알아낼 수 있는 비밀번호는 유출 위험이 높아요.</string>
     <string name="text_login_email">이메일</string>
     <string name="text_login_password">비밀번호</string>
-    <string name="text_login_join">회원가입</string>
     <string name="message_login_fail">로그인에 실패하였습니다.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="text_hint_join_email">이메일을 입력해주세요.</string>
+    <string name="text_hint_join_name">닉네임을 입력해주세요.</string>
+    <string name="text_hint_join_phone_number">전화번호를 입력해주세요.</string>
+    <string name="text_hint_join_password">비밀번호를 입력해주세요.</string>
+    <string name="text_hint_join_password_again">비밀번호를 다시 입력해주세요.</string>
+    <string name="message_join_fail">회원가입에 실패하였습니다.</string>
 
 </resources>

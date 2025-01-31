@@ -14,6 +14,9 @@
     <dimen name="dp_smaller">4dp</dimen>
     <dimen name="dp_small">8dp</dimen>
     <dimen name="dp_medium">16dp</dimen>
+    <dimen name="dp_large">24dp</dimen>
+    <dimen name="dp_larger">32dp</dimen>
+    <dimen name="dp_largest">48dp</dimen>
     <dimen name="dp_bottom_nav">80dp</dimen>
 
     <!-- Elevation -->

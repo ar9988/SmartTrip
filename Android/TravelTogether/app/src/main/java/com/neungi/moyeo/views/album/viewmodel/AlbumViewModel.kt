@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.naver.maps.geometry.LatLng
@@ -15,7 +16,9 @@ import com.neungi.domain.usecase.GetAlbumsUseCase
 import com.neungi.domain.usecase.GetCommentsUseCase
 import com.neungi.domain.usecase.GetPhotoLocationsUseCase
 import com.neungi.domain.usecase.GetPhotosUseCase
+import com.neungi.moyeo.util.CommonUtils.convertToDegree
 import com.neungi.moyeo.util.EmptyState
+import com.neungi.moyeo.util.InputValidState
 import com.neungi.moyeo.util.MarkerData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,6 +28,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -73,6 +79,15 @@ class AlbumViewModel @Inject constructor(
 
     private val _selectedPhotoComments = MutableStateFlow<List<Comment>>(emptyList())
     val selectedPhotoComments = _selectedPhotoComments.asStateFlow()
+
+    private val _selectedPhotoComment = MutableStateFlow<Comment?>(null)
+    val selectedPhotoComment = _selectedPhotoComment.asStateFlow()
+
+    private val _commentInput = MutableStateFlow<String>("")
+    val commentInput = _commentInput
+
+    private val _commentUpdateInput = MutableStateFlow<String>("")
+    val commentUpdateInput = _commentUpdateInput
 
     private val _uploadPhotos = MutableStateFlow<List<PhotoUploadUiState>>(emptyList())
     val uploadPhotos = _uploadPhotos.asStateFlow()
@@ -138,6 +153,19 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
+    override fun onClickPhoto(photo: Photo) {
+        viewModelScope.launch {
+            _selectedPhoto.value = photo
+            _albumUiEvent.emit(AlbumUiEvent.SelectPhoto)
+        }
+    }
+
+    override fun onClickBackToAlbumDetail() {
+        viewModelScope.launch {
+            _albumUiEvent.emit(AlbumUiEvent.BackToAlbumDetail)
+        }
+    }
+
     override fun onClickPhotoUpload() {
         viewModelScope.launch {
             _albumUiEvent.emit(AlbumUiEvent.PhotoUpload)
@@ -156,32 +184,255 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
+    override fun onClickCommentSubmit() {
+        viewModelScope.launch {
+            submitComment()
+            getComments()
+            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmit)
+        }
+    }
+
+    override fun onClickCommentUpdate(comment: Comment) {
+        viewModelScope.launch {
+            updateComment(comment)
+            getComments()
+            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentUpdate)
+        }
+    }
+
+    override fun onClickCommentDelete(comment: Comment) {
+        viewModelScope.launch {
+            _selectedPhotoComment.value = comment
+            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDelete)
+        }
+    }
+
+    override fun onClickCommentDeleteFinish() {
+        viewModelScope.launch {
+            deleteComment()
+            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDeleteFinish)
+        }
+    }
+
     private fun initTempAlbums() {
         val newAlbums = mutableListOf<PhotoAlbum>()
-        newAlbums.add(PhotoAlbum("1", "1", "18제주팟", "https://cdn.hkbs.co.kr/news/photo/202405/755302_490954_5034.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("2", "2", "19제주팟", "https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/3fuW/image/oKAZIY6tS8e4z_7r4oOgDS-BPgU.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "20제주팟", "https://img.freepik.com/free-photo/tourist-with-map-sunny-sky-background_23-2147828103.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "21제주팟", "https://content.skyscnr.com/m/26448d8c5b60885d/original/eyeem_141769102-jpg.jpg?resize=1224%3Aauto", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "22제주팟", "https://img.modetour.com/eagle/photoimg/33769/bfile/636529163406869782.png?resize=y&resize_w=603&resize_h=360&w_h_fill=y", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "23제주팟", "https://cdn.informaticsview.com/news/photo/202410/647_2527_2618.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "24제주팟", "https://dimg.donga.com/wps/NEWS/IMAGE/2019/01/02/93531867.2.jpg", "25.01.17", "25.01.20"))
-        newAlbums.add(PhotoAlbum("3", "3", "25제주팟", "https://cdn.drtour.com/MainDrtour/item/2025/1/67e09f44-6c78-4c0f-91aa-87b0fdf66f18.jpg", "25.01.17", "25.01.20"))
+        newAlbums.add(
+            PhotoAlbum(
+                "1",
+                "1",
+                "18제주팟",
+                "https://cdn.hkbs.co.kr/news/photo/202405/755302_490954_5034.jpg",
+                "2025-01-01",
+                "2025-01-31"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "2",
+                "2",
+                "19제주팟",
+                "https://t1.daumcdn.net/thumb/R720x0/?fname=http://t1.daumcdn.net/brunch/service/user/3fuW/image/oKAZIY6tS8e4z_7r4oOgDS-BPgU.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "20제주팟",
+                "https://img.freepik.com/free-photo/tourist-with-map-sunny-sky-background_23-2147828103.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "21제주팟",
+                "https://content.skyscnr.com/m/26448d8c5b60885d/original/eyeem_141769102-jpg.jpg?resize=1224%3Aauto",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "22제주팟",
+                "https://img.modetour.com/eagle/photoimg/33769/bfile/636529163406869782.png?resize=y&resize_w=603&resize_h=360&w_h_fill=y",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "23제주팟",
+                "https://cdn.informaticsview.com/news/photo/202410/647_2527_2618.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+                "3",
+                "3",
+                "24제주팟",
+                "https://dimg.donga.com/wps/NEWS/IMAGE/2019/01/02/93531867.2.jpg",
+                "2025-01-17",
+                "2025-01-27"
+            )
+        )
+        newAlbums.add(
+            PhotoAlbum(
+
+                "3",
+                "3",
+                "25제주팟",
+                "https://cdn.drtour.com/MainDrtour/item/2025/1/67e09f44-6c78-4c0f-91aa-87b0fdf66f18.jpg",
+                "2025-01-17",
+                "2025-01-18"
+            )
+        )
         _photoAlbums.value = newAlbums
     }
 
     private fun initTempPhotos() {
         val newPhotos = mutableListOf<Photo>()
         _selectedPhotoAlbum.value?.let { album ->
-            newPhotos.add(Photo("1", album.id, "장소1", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.106647982205345, 128.4179970752263, "", ""))
-            newPhotos.add(Photo("2", album.id, "장소2", "김싸피","https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10671844993927, 128.4185147185645, "", ""))
-            newPhotos.add(Photo("3", album.id, "장소3", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10597868662755, 128.41782402493536, "", ""))
-            newPhotos.add(Photo("4", album.id, "장소4", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.1048985483351, 128.42000332554514, "", ""))
-            newPhotos.add(Photo("5", album.id, "장소5", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10459269177041, 128.4191982908834, "", ""))
-            newPhotos.add(Photo("6", album.id, "장소6", "김싸피", "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420", 36.10386391426613, 128.41986255304064, "", ""))
-            newPhotos.add(Photo("7", album.id, "장소7", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10665000270314, 128.42276664905924, "", ""))
-            newPhotos.add(Photo("8", album.id, "장소8", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10642775378698, 128.42175210127704, "", ""))
-            newPhotos.add(Photo("9", album.id, "장소9", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10674602946057, 128.42226866187877, "", ""))
-            newPhotos.add(Photo("10", album.id, "장소10", "김싸피", "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083", 36.10722862269554, 128.42336564725466, "", ""))
+            newPhotos.add(
+                Photo(
+                    "1",
+                    album.id,
+                    "장소1",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.106647982205345,
+                    128.4179970752263,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "2",
+                    album.id,
+                    "장소2",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.10671844993927,
+                    128.4185147185645,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "3",
+                    album.id,
+                    "장소3",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.10597868662755,
+                    128.41782402493536,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "4",
+                    album.id,
+                    "장소4",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.1048985483351,
+                    128.42000332554514,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "5",
+                    album.id,
+                    "장소5",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.10459269177041,
+                    128.4191982908834,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "6",
+                    album.id,
+                    "장소6",
+                    "김싸피",
+                    "https://mblogthumb-phinf.pstatic.net/20130925_10/2mcool_1380077202055F5nIu_JPEG/%C0%CE%B5%BF%C3%CA01.jpg?type=w420",
+                    36.10386391426613,
+                    128.41986255304064,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "7",
+                    album.id,
+                    "장소7",
+                    "김싸피",
+                    "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083",
+                    36.10665000270314,
+                    128.42276664905924,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "8",
+                    album.id,
+                    "장소8",
+                    "김싸피",
+                    "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083",
+                    36.10642775378698,
+                    128.42175210127704,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "9",
+                    album.id,
+                    "장소9",
+                    "김싸피",
+                    "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083",
+                    36.10674602946057,
+                    128.42226866187877,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
+            newPhotos.add(
+                Photo(
+                    "10",
+                    album.id,
+                    "장소10",
+                    "김싸피",
+                    "https://gumi.grandculture.net/Image?localName=gumi&id=GC012P1083",
+                    36.10722862269554,
+                    128.42336564725466,
+                    "25.01.17 12:00",
+                    ""
+                )
+            )
         }
         _photos.value = newPhotos
         _selectedPhotos.value = _photos.value
@@ -191,6 +442,22 @@ class AlbumViewModel @Inject constructor(
             newMarkers.add(MarkerData(index + 1, photo, true))
         }
         _markers.value = newMarkers.toList()
+
+        val newPhotoComments = mutableListOf<Comment>()
+
+        newPhotoComments.add(Comment("1", "1", "김싸피", "굿굿", "25.01.17 13:00", "25.01.17 13:00"))
+        newPhotoComments.add(Comment("2", "1", "이싸피", "짱~", "25.01.17 13:30", "25.01.17 13:00"))
+        newPhotoComments.add(Comment("3", "1", "정싸피", "좋아요", "25.01.17 14:00", "25.01.17 13:00"))
+
+        _selectedPhotoComments.value = newPhotoComments
+    }
+
+    private fun validUploadPhotos() {
+        if (_uploadPhotos.value.size <= 1) {
+            _albumUiState.update { it.copy(photoUploadValidState = EmptyState.EMPTY) }
+        } else {
+            _albumUiState.update { it.copy(photoUploadValidState = EmptyState.NONE) }
+        }
     }
 
     private fun fetchGalleryImages(): List<PhotoUploadUiState> {
@@ -199,17 +466,26 @@ class AlbumViewModel @Inject constructor(
         val projection = arrayOf(
             MediaStore.Images.Media._ID,
             MediaStore.Images.Media.DISPLAY_NAME,
-            MediaStore.Images.Media.DATE_TAKEN,
-            MediaStore.Images.Media.DATE_ADDED
+            MediaStore.Images.Media.DATE_TAKEN
         )
-        val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+
+        val selection =
+            "${MediaStore.Images.Media.DATE_TAKEN} >= ? AND ${MediaStore.Images.Media.DATE_TAKEN} <= ?"
+        val startDate = _selectedPhotoAlbum.value?.startDate ?: "1970-01-01"
+        val endDate = _selectedPhotoAlbum.value?.endDate ?: "1970-01-01"
+        val filterStartDate: Long =
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(startDate)?.time ?: 0L
+        val filterEndDate: Long = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            .parse(endDate)?.time ?: Long.MAX_VALUE
+        val selectionArgs = arrayOf(filterStartDate.toString(), filterEndDate.toString())
+        val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
         val queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
         val query = application.contentResolver.query(
             queryUri,
             projection,
-            null,
-            null,
+            selection,
+            selectionArgs,
             sortOrder
         )
 
@@ -220,13 +496,111 @@ class AlbumViewModel @Inject constructor(
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
                 val uri = ContentUris.withAppendedId(queryUri, id)
+                val (latitude, longitude) = getLatLngFromExif(uri)
                 val dateTaken = cursor.getLong(dateTakenColumn)
 
-                imageList.add(PhotoUploadUiState.UploadedPhoto(uri, dateTaken))
+                imageList.add(PhotoUploadUiState.UploadedPhoto(uri, latitude, longitude, dateTaken))
             }
         }
 
         return imageList
+    }
+
+    /*** EXIF에서 위도, 경도 정보를 가져오는 메소드 ***/
+    private fun getLatLngFromExif(uri: Uri?): Pair<Double, Double> {
+        try {
+            uri?.let { uri ->
+                val inputStream: InputStream? = application.contentResolver.openInputStream(uri)
+                Timber.d("Input Stream: $inputStream")
+                inputStream?.use {
+                    val exif = ExifInterface(it)
+
+                    Timber.d("Exif: $exif")
+
+                    // EXIF에서 위도와 경도 읽기
+                    val lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)?.let { latitude ->
+                        convertToDegree(latitude)
+                    }
+                    val lng = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)?.let { longitude ->
+                        convertToDegree(longitude)
+                    }
+
+                    Timber.d("lat: $lat, lng: $lng")
+
+                    // 위도와 경도가 존재하면 Pair로 반환
+                    if (lat != null && lng != null) {
+                        val latRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
+                        val lonRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+
+                        val adjustedLat = if (latRef == "S") -lat else lat
+                        val adjustedLon = if (lonRef == "W") -lng else lng
+
+                        return Pair(adjustedLat, adjustedLon)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return Pair(0.0, 0.0)
+    }
+
+    /*** 로직 수정이 필요함 ***/
+    private fun getImageIdFromUri(uri: Uri): String {
+        val tempId = uri.toString().split("/")
+        return tempId.last()
+    }
+
+    private fun getLatLngFromPhotos() {
+        _uploadPhotos.value.forEach { photo ->
+            if (photo is PhotoUploadUiState.UploadedPhoto) {
+                Timber.d("Lat: ${photo.latitude}, Lng: ${photo.longitude}")
+            }
+        }
+    }
+
+    private suspend fun getComments() {
+        getCommentsUseCase.getPhotoComments(
+            albumId = _selectedPhotoAlbum.value?.id ?: "",
+            photoId = _selectedPhoto.value?.id ?: ""
+        )
+    }
+
+    private suspend fun submitComment() {
+        getCommentsUseCase.submitPhotoComment(
+            albumId = _selectedPhotoAlbum.value?.id ?: "",
+            photoId = _selectedPhoto.value?.id ?: "",
+            body = Comment(
+                id = "",
+                photoId = _selectedPhoto.value?.id ?: "",
+                author = "",
+                content = _commentInput.value,
+                createdAt = "",
+                updatedAt = ""
+            )
+        )
+    }
+
+    private suspend fun updateComment(comment: Comment) {
+        getCommentsUseCase.modifyPhotoComment(
+            albumId = _selectedPhotoAlbum.value?.id ?: "",
+            photoId = _selectedPhoto.value?.id ?: "",
+            commentID = comment.id,
+            body = comment
+        )
+    }
+
+    private suspend fun deleteComment() {
+        _selectedPhotoComment.value?.let { comment ->
+            getCommentsUseCase.deletePhotoComment(
+                albumId = _selectedPhotoAlbum.value?.id ?: "",
+                photoId = _selectedPhoto.value?.id ?: "",
+                commentID = comment.id,
+                body = comment
+            )
+            getComments()
+        }
     }
 
     fun initPhotoPlaces(tags: List<String>) {
@@ -239,27 +613,58 @@ class AlbumViewModel @Inject constructor(
             }
         }
 
-        Timber.d("Places: $newPhotoPlaces")
         _photoPlaces.value = newPhotoPlaces
+    }
+
+    fun setPhotoPlace(index: Int) {
+        _selectedPhotoPlace.value = _photoPlaces.value[index]
+    }
+
+    fun validPhotoComment(comment: CharSequence) {
+        when (comment.isBlank()) {
+            true -> _albumUiState.update { it.copy(commentValidState = InputValidState.NONE) }
+
+            else -> _albumUiState.update { it.copy(commentValidState = InputValidState.VALID) }
+        }
     }
 
     fun initUploadPhotos() {
         viewModelScope.launch {
             _uploadPhotos.value = listOf(PhotoUploadUiState.PhotoUploadButton())
             val newPhotos = fetchGalleryImages()
-            if (newPhotos.isEmpty()) {
-                _albumUiState.update { it.copy(photoUploadValidState = EmptyState.EMPTY) }
-            } else {
-                _albumUiState.update { it.copy(photoUploadValidState = EmptyState.NONE) }
-            }
             _uploadPhotos.value += newPhotos
+            getLatLngFromPhotos()
+            validUploadPhotos()
         }
     }
 
     fun addUploadPhoto(uri: Uri?, takenAt: Long) {
         if (uri == null) return
+        viewModelScope.launch {
+            val idFromUi = getImageIdFromUri(uri)
+            Timber.d("Id: $idFromUi")
+            val newPhotos = _uploadPhotos.value.toMutableList()
+            for (i in 1 until(newPhotos.size)) {
+                val photoUploadUiState = (newPhotos[i] as PhotoUploadUiState.UploadedPhoto)
+                val nowIDFromUi = getImageIdFromUri(photoUploadUiState.photoUri)
+                Timber.d("Now Id: $nowIDFromUi")
+                if (nowIDFromUi == idFromUi) {
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoDuplicated)
+                    return@launch
+                }
+            }
+            val (latitude, longitude) = getLatLngFromExif(uri)
+            newPhotos.add(1, PhotoUploadUiState.UploadedPhoto(uri, latitude, longitude, takenAt))
+            _uploadPhotos.value = newPhotos
+            getLatLngFromPhotos()
+            validUploadPhotos()
+        }
+    }
+
+    fun deleteUploadPhoto(index: Int) {
         val newPhotos = _uploadPhotos.value.toMutableList()
-        newPhotos.add(PhotoUploadUiState.UploadedPhoto(uri, takenAt))
+        newPhotos.removeAt(index)
         _uploadPhotos.value = newPhotos
+        validUploadPhotos()
     }
 }

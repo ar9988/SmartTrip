@@ -12,6 +12,8 @@ sealed class PhotoUploadUiState(val id: String = UUID.randomUUID().toString()) {
 
     data class UploadedPhoto(
         val photoUri: Uri,
+        val latitude: Double,
+        val longitude: Double,
         val takenAt: Long
     ) : PhotoUploadUiState()
 

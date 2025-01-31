@@ -9,10 +9,13 @@ import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -22,6 +25,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.tabs.TabLayoutMediator
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraUpdate
@@ -33,6 +37,7 @@ import com.naver.maps.map.clustering.ClusterMarkerInfo
 import com.naver.maps.map.clustering.Clusterer
 import com.naver.maps.map.clustering.DefaultClusterMarkerUpdater
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import com.neungi.moyeo.R
@@ -43,10 +48,12 @@ import com.neungi.moyeo.util.Permissions
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.album.adapter.PhotoAdapter
 import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter
+import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter.Companion.START_POSITION
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -70,7 +77,6 @@ class AlbumDetailFragment :
         binding.vm = viewModel
 
         initFusedLocationClient()
-        initRecyclerView()
 
         collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
     }
@@ -181,30 +187,31 @@ class AlbumDetailFragment :
     private fun initClusterer() {
         markerBuilder = Clusterer.ComplexBuilder<MarkerData>()
         lifecycleScope.launch {
-            tags.clear()
-            val newClusterer = makeMarker(
-                viewModel.markers.value,
-                markerBuilder
-            ) {
-                val newMarkers = mutableListOf<List<MarkerData>>()
-                tags.forEach { tag ->
-                    val newLocations = mutableListOf<MarkerData>()
-                    tag.split(",").forEach { id ->
-                        newLocations.add(viewModel.markers.value[id.toInt() - 1])
+            viewModel.markers.collectLatest { markers ->
+                tags.clear()
+                val newClusterer = makeMarker(
+                    markers,
+                    markerBuilder
+                ) {
+                    val newMarkers = mutableListOf<List<MarkerData>>()
+                    tags.forEach { tag ->
+                        val newLocations = mutableListOf<MarkerData>()
+                        tag.split(",").forEach { id ->
+                            newLocations.add(markers[id.toInt() - 1])
+                        }
+                        calculateRepresentativeCoordinate(newLocations)
+                        newMarkers.add(newLocations)
                     }
-                    calculateRepresentativeCoordinate(newLocations)
-                    newMarkers.add(newLocations)
-                    Timber.d("Tag: $tag")
+                    addClusterMarkers(newMarkers)
+
+                    viewModel.initPhotoPlaces(tags)
+                    initTabLayout()
+                    clusterer.map = null
                 }
-                addClusterMarkers(newMarkers)
 
-                viewModel.initPhotoPlaces(tags)
-                initPlaceRecyclerView()
-                clusterer.map = null
+                clusterer = newClusterer
+                clusterer.map = naverMap
             }
-
-            clusterer = newClusterer
-            clusterer.map = naverMap
         }
     }
 
@@ -225,6 +232,8 @@ class AlbumDetailFragment :
                     override fun updateClusterMarker(info: ClusterMarkerInfo, marker: Marker) {
 
                         tags.add(info.tag.toString())
+
+
                         markerManager.releaseMarker(info, marker)
 
                         processedMarkers += info.size
@@ -254,45 +263,70 @@ class AlbumDetailFragment :
 
     @SuppressLint("InflateParams")
     private fun addClusterMarkers(clusterGroups: List<List<MarkerData>>) {
-        clusterGroups.forEach { cluster ->
+
+        val placeName = viewModel.selectedPhotoPlace.value?.name ?: "전체"
+        clusterGroups.forEachIndexed { index, cluster ->
             val representativeCoordinate = calculateRepresentativeCoordinate(cluster)
 
-            val marker = Marker()
-            marker.position = representativeCoordinate
-            val customView = LayoutInflater.from(requireContext()).inflate(
-                R.layout.marker_cluster_icon, null
-            )
-            val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
-            val firstPhotoIndex = cluster.first().id - 1
-            val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].photo.filePath
-            Glide.with(requireContext())
-                .asBitmap()
-                .apply(RequestOptions.circleCropTransform())
-                .circleCrop()
-                .override(144, 144)
-                .load(firstPhotoUrl)
-                .into(object : CustomTarget<Bitmap>() {
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                        imageView.setImageBitmap(resource)
-                        marker.icon = OverlayImage.fromView(customView)
-                    }
+            if ((placeName == "전체") || ((placeName != "전체") && (placeName == viewModel.photoPlaces.value[index + 1].name))) {
+                val marker = Marker()
+                marker.position = representativeCoordinate
+                val customView = LayoutInflater.from(requireContext()).inflate(
+                    R.layout.marker_cluster_icon, null
+                )
+                val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
+                val firstPhotoIndex = cluster.first().id - 1
+                val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].photo.filePath
+                Glide.with(requireContext())
+                    .asBitmap()
+                    .apply(RequestOptions.circleCropTransform())
+                    .circleCrop()
+                    .override(144, 144)
+                    .load(firstPhotoUrl)
+                    .into(object : CustomTarget<Bitmap>() {
+                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                            imageView.setImageBitmap(resource)
+                            marker.icon = OverlayImage.fromView(customView)
+                        }
 
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                        imageView.setImageDrawable(placeholder)
+                        override fun onLoadCleared(placeholder: Drawable?) {
+                            imageView.setImageDrawable(placeholder)
+                        }
+                    })
+                marker.onClickListener = Overlay.OnClickListener {
+                    var placeIndex = 0
+                    viewModel.photoPlaces.value.forEachIndexed { index2, place ->
+                        if (place.name == viewModel.photoPlaces.value[index + 1].name) {
+                            viewModel.setPhotoPlace(index2)
+                            placeIndex = index2
+                        }
                     }
-                })
-            marker.map = naverMap
+                    binding.vpAlbumDetail.setCurrentItem(placeIndex, true)
+                    true
+                }
+                marker.map = naverMap
+            }
         }
     }
 
-    private fun initRecyclerView() {
-        binding.photoAdapter = PhotoAdapter(viewModel)
-        binding.rvPhotoAlbumDetail.setHasFixedSize(true)
-    }
-
-    private fun initPlaceRecyclerView() {
-        binding.photoPlaceAdapter = PhotoPlaceAdapter(viewModel)
-        binding.rvPlaceAlbumDetail.setHasFixedSize(false)
+    private fun initTabLayout() {
+        binding.photoPlaceAdapter = PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
+        with(binding.vpAlbumDetail) {
+            adapter = PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
+            setCurrentItem(START_POSITION, true)
+        }
+        TabLayoutMediator(binding.tlAlbumDetail, binding.vpAlbumDetail) { tab, position ->
+            tab.text = viewModel.photoPlaces.value[position].name
+        }.attach()
+        for (i in 0 until resources.getStringArray(R.array.local_big).size) {
+            val tabs = binding.tlAlbumDetail.getChildAt(0) as ViewGroup
+            for (tab in tabs.children) {
+                val lp = tab.layoutParams as LinearLayout.LayoutParams
+                lp.marginEnd = 16
+                tab.layoutParams = lp
+                binding.tlAlbumDetail.requestLayout()
+            }
+        }
     }
 
     private fun handleUiEvent(event: AlbumUiEvent) {
@@ -301,8 +335,8 @@ class AlbumDetailFragment :
                 findNavController().navigateSafely(R.id.action_album_detail_to_photo_upload)
             }
 
-            is AlbumUiEvent.SelectPlace -> {
-                binding.rvPlaceAlbumDetail.requestLayout()
+            is AlbumUiEvent.SelectPhoto -> {
+                findNavController().navigateSafely(R.id.action_album_detail_to_photo_detail)
             }
 
             else -> {}
