@@ -1,11 +1,10 @@
-package com.neungi.moyeo.views.aiplanning.viwmodel
+package com.neungi.moyeo.views.aiplanning.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neungi.domain.model.Festival
-import com.neungi.domain.model.Spot
+import com.neungi.domain.model.Place
 import com.neungi.moyeo.util.EmptyState
-import com.neungi.moyeo.views.aiplanning.adapters.SelectedSpotAdapter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +28,9 @@ class AIPlanningViewModel @Inject constructor(
 
     private val _aiDestinatiionUiState = MutableStateFlow<AIPlanningUiState>(AIPlanningUiState())
     val aiDestinatiionUiState = _aiDestinatiionUiState.asStateFlow()
+
+    private val _searchUiState = MutableStateFlow<SearchUiState>(SearchUiState())
+    val searchUiState = _searchUiState.asStateFlow()
 
     private val _aiPlanningUiEvent = MutableSharedFlow<AiPlanningUiEvent>()
     val aiPlanningUiEvent = _aiPlanningUiEvent.asSharedFlow()
@@ -54,8 +56,8 @@ class AIPlanningViewModel @Inject constructor(
     private val _selectedLocations = MutableStateFlow<List<String>>(emptyList())
     val selectedLocations = _selectedLocations.asStateFlow()
 
-    private val _selectedSpots = MutableStateFlow<List<String>>(listOf("섭지코지","한라산"))
-    val selectedSpots = _selectedSpots.asStateFlow()
+    private val _selectedPlaces = MutableStateFlow<List<String>>(listOf("섭지코지","한라산"))
+    val selectedPlaces = _selectedPlaces.asStateFlow()
 
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(
         listOf(
@@ -72,8 +74,8 @@ class AIPlanningViewModel @Inject constructor(
         ))
     val recommendFestivals = _recommendFestivals.asStateFlow()
 
-    private val _spotSecarchResult = MutableStateFlow<List<Spot>>(Spot)
-    val spotSecarchResult = _spotSecarchResult.asStateFlow()
+    private val _placeSearchResult = MutableStateFlow<List<Place>>(listOf(Place("만장굴","동굴"),Place("경복궁","궁궐"),Place("불국사","절")))
+    val placeSearchResult = _placeSearchResult.asStateFlow()
 
 
 
@@ -139,7 +141,7 @@ class AIPlanningViewModel @Inject constructor(
             if (currentList.contains(location)) {
                 if(currentList.size==1){
                     _aiDestinatiionUiState.update { it.copy( destinationSelectState = EmptyState.EMPTY) }
-                    _selectedSpots.update{ emptyList() }
+                    _selectedPlaces.update{ emptyList() }
                 }
                 currentList - location
             } else {
@@ -164,16 +166,16 @@ class AIPlanningViewModel @Inject constructor(
 
     /*
     AiDestination
-    선택된 관광지(spot) 토글
+    선택된 관광지(place) 토글
      */
 
-    fun toggleSpotSelection(spot: String) {
-        _selectedSpots.update { currentList ->
-            if (currentList.contains(spot)) {
-                currentList - spot
+    fun togglePlaceSelection(place: String) {
+        _selectedPlaces.update { currentList ->
+            if (currentList.contains(place)) {
+                currentList - place
             } else {
                 if (currentList.size < 3) {
-                    currentList + spot
+                    currentList + place
                 } else {
                     currentList
                 }
@@ -182,11 +184,16 @@ class AIPlanningViewModel @Inject constructor(
     }
 
     /*
-    AiSpotSearch
+    AiPlaceSearch
     검색창 텍스트 변경시
      */
-    fun onSearchTextChanged(text:CharSequence){
+    fun onSearchTextChanged(text:String?){
         Timber.d(text.toString())
+        if(text.isNullOrBlank()){
+            _searchUiState.update { it.copy( searchTextState = EmptyState.EMPTY) }
+        }else{
+            _searchUiState.update { it.copy( searchTextState = EmptyState.NONE) }
+        }
     }
 
 
@@ -205,10 +212,17 @@ class AIPlanningViewModel @Inject constructor(
         }
     }
 
-    override fun onClickGoToSearchSpot() {
+    override fun onClickGoToSearchPlace() {
         viewModelScope.launch {
-            _aiPlanningUiEvent.emit(AiPlanningUiEvent.GoToSearchSpot)
+            _aiPlanningUiEvent.emit(AiPlanningUiEvent.GoToSearchPlace)
         }
+    }
+
+    override fun onClickPopBackToDestiination() {
+        viewModelScope.launch {
+            _aiPlanningUiEvent.emit(AiPlanningUiEvent.PopBackToDestiination)
+        }
+        _searchUiState.update { it.copy( searchTextState = EmptyState.EMPTY) }
     }
 
 

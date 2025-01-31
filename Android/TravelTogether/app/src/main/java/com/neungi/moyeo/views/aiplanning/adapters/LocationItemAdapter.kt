@@ -6,7 +6,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.moyeo.databinding.ItemLocationBinding
-import com.neungi.moyeo.views.aiplanning.viwmodel.AIPlanningViewModel
+import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import kotlinx.coroutines.launch
 
 class LocationItemAdapter(
