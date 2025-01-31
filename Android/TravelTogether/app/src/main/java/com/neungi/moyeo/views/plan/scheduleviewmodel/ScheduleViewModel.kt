@@ -13,7 +13,7 @@ import javax.inject.Inject
 class ScheduleViewModel @Inject constructor(
     //
 ) : ViewModel() {
-    val serverUrl = "ws://192.168.0.5:8080/ws?tripId=1"
+    val serverUrl = "ws://192.168.100.63:8080/ws?tripId=1"
     var tripId = 0
 
     var webSocketManager : WebSocketManager // hilt에서 주입받을 수 있도록 변경

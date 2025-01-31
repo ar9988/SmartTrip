@@ -1,3 +1,4 @@
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -6,6 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.moyeo.databinding.ItemTripBinding
 import com.neungi.moyeo.views.plan.tripviewmodel.TripData
+import timber.log.Timber
 
 class TripAdapter(
     private val onItemClick: (Int) -> Unit,
@@ -26,8 +28,8 @@ class TripAdapter(
     inner class TripViewHolder(private val binding: ItemTripBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(trip: TripData) {
             binding.apply {
-
                 this.trip = trip
+                Timber.d("${trip.tripTitle}")
                 onDeleteClick = View.OnClickListener {
                     onDeleteClick(trip.tripId)
                 }
