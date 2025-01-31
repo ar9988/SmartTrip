@@ -46,7 +46,6 @@ import com.neungi.moyeo.databinding.FragmentAlbumDetailBinding
 import com.neungi.moyeo.util.MarkerData
 import com.neungi.moyeo.util.Permissions
 import com.neungi.moyeo.views.MainViewModel
-import com.neungi.moyeo.views.album.adapter.PhotoAdapter
 import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter
 import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter.Companion.START_POSITION
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
@@ -56,7 +55,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
+import kotlin.math.abs
 
 @AndroidEntryPoint
 class AlbumDetailFragment :
@@ -77,6 +76,7 @@ class AlbumDetailFragment :
         binding.vm = viewModel
 
         initFusedLocationClient()
+        initViews()
 
         collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
     }
@@ -263,48 +263,60 @@ class AlbumDetailFragment :
 
     @SuppressLint("InflateParams")
     private fun addClusterMarkers(clusterGroups: List<List<MarkerData>>) {
-
-        val placeName = viewModel.selectedPhotoPlace.value?.name ?: "전체"
         clusterGroups.forEachIndexed { index, cluster ->
             val representativeCoordinate = calculateRepresentativeCoordinate(cluster)
 
-            if ((placeName == "전체") || ((placeName != "전체") && (placeName == viewModel.photoPlaces.value[index + 1].name))) {
-                val marker = Marker()
-                marker.position = representativeCoordinate
-                val customView = LayoutInflater.from(requireContext()).inflate(
-                    R.layout.marker_cluster_icon, null
-                )
-                val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
-                val firstPhotoIndex = cluster.first().id - 1
-                val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].photo.filePath
-                Glide.with(requireContext())
-                    .asBitmap()
-                    .apply(RequestOptions.circleCropTransform())
-                    .circleCrop()
-                    .override(144, 144)
-                    .load(firstPhotoUrl)
-                    .into(object : CustomTarget<Bitmap>() {
-                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                            imageView.setImageBitmap(resource)
-                            marker.icon = OverlayImage.fromView(customView)
-                        }
-
-                        override fun onLoadCleared(placeholder: Drawable?) {
-                            imageView.setImageDrawable(placeholder)
-                        }
-                    })
-                marker.onClickListener = Overlay.OnClickListener {
-                    var placeIndex = 0
-                    viewModel.photoPlaces.value.forEachIndexed { index2, place ->
-                        if (place.name == viewModel.photoPlaces.value[index + 1].name) {
-                            viewModel.setPhotoPlace(index2)
-                            placeIndex = index2
-                        }
+            val marker = Marker()
+            marker.position = representativeCoordinate
+            val customView = LayoutInflater.from(requireContext()).inflate(
+                R.layout.marker_cluster_icon, null
+            )
+            val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
+            val firstPhotoIndex = cluster.first().id - 1
+            val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].photo.filePath
+            Glide.with(requireContext())
+                .asBitmap()
+                .apply(RequestOptions.circleCropTransform())
+                .circleCrop()
+                .override(144, 144)
+                .load(firstPhotoUrl)
+                .into(object : CustomTarget<Bitmap>() {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        imageView.setImageBitmap(resource)
+                        marker.icon = OverlayImage.fromView(customView)
                     }
-                    binding.vpAlbumDetail.setCurrentItem(placeIndex, true)
-                    true
+
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                        imageView.setImageDrawable(placeholder)
+                    }
+                })
+            marker.onClickListener = Overlay.OnClickListener {
+                var placeIndex = 0
+                viewModel.photoPlaces.value.forEachIndexed { index2, place ->
+                    if (place.name == viewModel.photoPlaces.value[index + 1].name) {
+                        viewModel.setPhotoPlace(index2)
+                        placeIndex = index2
+                    }
                 }
-                marker.map = naverMap
+                binding.vpAlbumDetail.setCurrentItem(placeIndex, true)
+                true
+            }
+            marker.map = naverMap
+        }
+    }
+
+    private fun initViews() {
+        with(binding) {
+            ablAlbumDetail.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+                val isCollapsed = abs(verticalOffset) >= appBarLayout.totalScrollRange
+
+                if (isCollapsed) {
+                    ivBackAlbumDetail.visibility = View.GONE
+                    ivBackToolbarAlbumDetail.visibility = View.VISIBLE
+                } else {
+                    ivBackAlbumDetail.visibility = View.VISIBLE
+                    ivBackToolbarAlbumDetail.visibility = View.GONE
+                }
             }
         }
     }
@@ -331,6 +343,10 @@ class AlbumDetailFragment :
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
+            is AlbumUiEvent.BackToAlbum -> {
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+
             is AlbumUiEvent.PhotoUpload -> {
                 findNavController().navigateSafely(R.id.action_album_detail_to_photo_upload)
             }

@@ -56,8 +56,8 @@
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_back_photo_detail"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:onClick="@{() -> vm.onClickBackToAlbumDetail()}"
                         android:src="@drawable/baseline_chevron_left_24"
                         app:layout_constraintBottom_toBottomOf="@id/tv_title_photo_detail"
@@ -69,6 +69,7 @@
                         android:id="@+id/tv_title_photo_detail"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dp_small"
                         android:fontFamily="@font/pretendardbold"
                         android:text="@string/title_album"
                         android:textAlignment="viewStart"
@@ -90,7 +91,7 @@
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/toolbar_photo_detail"
                 app:urlPhotoImage="@{vm.selectedPhoto.filePath}" />
 
             <TextView

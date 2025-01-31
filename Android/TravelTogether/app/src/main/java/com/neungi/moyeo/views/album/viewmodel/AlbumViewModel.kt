@@ -1,7 +1,9 @@
 package com.neungi.moyeo.views.album.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentUris
+import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
@@ -27,7 +29,11 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import timber.log.Timber
+import java.io.File
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -92,6 +98,9 @@ class AlbumViewModel @Inject constructor(
     private val _uploadPhotos = MutableStateFlow<List<PhotoUploadUiState>>(emptyList())
     val uploadPhotos = _uploadPhotos.asStateFlow()
 
+    private val _uploadMultiparts = MutableStateFlow<List<MultipartBody.Part>>(emptyList())
+    val uploadMultiparts = _uploadMultiparts.asStateFlow()
+
     init {
         initTempAlbums()
     }
@@ -101,6 +110,12 @@ class AlbumViewModel @Inject constructor(
             _selectedPhotoAlbum.value = photoAlbum
             initTempPhotos() // 추후 Album ID로 Photo를 전부 가져오는 비즈니스 로직 작성
             _albumUiEvent.emit(AlbumUiEvent.GoToAlbumDetail)
+        }
+    }
+
+    override fun onClickBackToAlbum() {
+        viewModelScope.launch {
+            _albumUiEvent.emit(AlbumUiEvent.BackToAlbum)
         }
     }
 
@@ -222,8 +237,8 @@ class AlbumViewModel @Inject constructor(
                 "1",
                 "18제주팟",
                 "https://cdn.hkbs.co.kr/news/photo/202405/755302_490954_5034.jpg",
-                "2025-01-01",
-                "2025-01-31"
+                "2025.01.01",
+                "2025.01.31"
             )
         )
         newAlbums.add(
@@ -460,6 +475,17 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
+    @SuppressLint("Recycle")
+    private fun absolutelyPath(uri: Uri?): String? {
+        val proj: Array<String> = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor: Cursor? =
+            uri?.let { application.contentResolver.query(uri, proj, null, null, null) }
+        cursor?.moveToNext()
+        val index = cursor?.getColumnIndex(MediaStore.MediaColumns.DATA)
+
+        return index?.let { cursor.getString(index) }
+    }
+
     private fun fetchGalleryImages(): List<PhotoUploadUiState> {
         val imageList = mutableListOf<PhotoUploadUiState>()
 
@@ -471,11 +497,11 @@ class AlbumViewModel @Inject constructor(
 
         val selection =
             "${MediaStore.Images.Media.DATE_TAKEN} >= ? AND ${MediaStore.Images.Media.DATE_TAKEN} <= ?"
-        val startDate = _selectedPhotoAlbum.value?.startDate ?: "1970-01-01"
-        val endDate = _selectedPhotoAlbum.value?.endDate ?: "1970-01-01"
+        val startDate = _selectedPhotoAlbum.value?.startDate ?: "1970.01.01"
+        val endDate = _selectedPhotoAlbum.value?.endDate ?: "1970.01.01"
         val filterStartDate: Long =
-            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(startDate)?.time ?: 0L
-        val filterEndDate: Long = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).parse(startDate)?.time ?: 0L
+        val filterEndDate: Long = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
             .parse(endDate)?.time ?: Long.MAX_VALUE
         val selectionArgs = arrayOf(filterStartDate.toString(), filterEndDate.toString())
         val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
@@ -498,8 +524,14 @@ class AlbumViewModel @Inject constructor(
                 val uri = ContentUris.withAppendedId(queryUri, id)
                 val (latitude, longitude) = getLatLngFromExif(uri)
                 val dateTaken = cursor.getLong(dateTakenColumn)
+                val path = absolutelyPath(uri)
+                path?.let {
+                    val file = File(path)
+                    val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+                    val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                    imageList.add(PhotoUploadUiState.UploadedPhoto(uri, body, latitude, longitude, dateTaken))
+                }
 
-                imageList.add(PhotoUploadUiState.UploadedPhoto(uri, latitude, longitude, dateTaken))
             }
         }
 
@@ -509,15 +541,11 @@ class AlbumViewModel @Inject constructor(
     /*** EXIF에서 위도, 경도 정보를 가져오는 메소드 ***/
     private fun getLatLngFromExif(uri: Uri?): Pair<Double, Double> {
         try {
-            uri?.let { uri ->
+            uri?.let {
                 val inputStream: InputStream? = application.contentResolver.openInputStream(uri)
-                Timber.d("Input Stream: $inputStream")
                 inputStream?.use {
                     val exif = ExifInterface(it)
 
-                    Timber.d("Exif: $exif")
-
-                    // EXIF에서 위도와 경도 읽기
                     val lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)?.let { latitude ->
                         convertToDegree(latitude)
                     }
@@ -527,7 +555,6 @@ class AlbumViewModel @Inject constructor(
 
                     Timber.d("lat: $lat, lng: $lng")
 
-                    // 위도와 경도가 존재하면 Pair로 반환
                     if (lat != null && lng != null) {
                         val latRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
                         val lonRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
@@ -638,7 +665,7 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    fun addUploadPhoto(uri: Uri?, takenAt: Long) {
+    fun addUploadPhoto(uri: Uri?, takenAt: Long, body: MultipartBody.Part) {
         if (uri == null) return
         viewModelScope.launch {
             val idFromUi = getImageIdFromUri(uri)
@@ -654,7 +681,7 @@ class AlbumViewModel @Inject constructor(
                 }
             }
             val (latitude, longitude) = getLatLngFromExif(uri)
-            newPhotos.add(1, PhotoUploadUiState.UploadedPhoto(uri, latitude, longitude, takenAt))
+            newPhotos.add(1, PhotoUploadUiState.UploadedPhoto(uri, body, latitude, longitude, takenAt))
             _uploadPhotos.value = newPhotos
             getLatLngFromPhotos()
             validUploadPhotos()

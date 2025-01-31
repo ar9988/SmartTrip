@@ -9,6 +9,8 @@ interface OnAlbumClickListener {
 
     fun onClickAlbum(photoAlbum: PhotoAlbum)
 
+    fun onClickBackToAlbum()
+
     fun onClickPhotoPlace(photoPlace: PhotoPlace)
 
     fun onClickPhoto(photo: Photo)

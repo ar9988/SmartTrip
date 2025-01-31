@@ -1,7 +1,11 @@
 package com.neungi.moyeo.config
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -92,6 +96,17 @@ abstract class BaseFragment<T : ViewDataBinding>(private val layoutId: Int) : Fr
 
     protected fun showToastMessage(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    @SuppressLint("Recycle")
+    protected fun absolutelyPath(uri: Uri?): String? {
+        val proj: Array<String> = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor: Cursor? =
+            uri?.let { requireActivity().contentResolver.query(uri, proj, null, null, null) }
+        cursor?.moveToNext()
+        val index = cursor?.getColumnIndex(MediaStore.MediaColumns.DATA)
+
+        return index?.let { cursor.getString(index) }
     }
 
     fun NavController.navigateSafely(

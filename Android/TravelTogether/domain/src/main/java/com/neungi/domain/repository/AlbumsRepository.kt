@@ -4,6 +4,7 @@ import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.Comment
 import com.neungi.domain.model.Photo
 import com.neungi.domain.model.PhotoAlbum
+import okhttp3.MultipartBody
 
 interface AlbumsRepository {
 
@@ -11,7 +12,7 @@ interface AlbumsRepository {
 
     suspend fun getAlbumPhotos(albumId: String): ApiResult<List<Photo>>
 
-    suspend fun postPhoto(body: Photo): ApiResult<Boolean>
+    suspend fun postPhoto(body: MultipartBody.Part): ApiResult<Boolean>
 
     suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Void>
 

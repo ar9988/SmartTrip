@@ -4,6 +4,8 @@ sealed class AlbumUiEvent {
 
     data object GoToAlbumDetail : AlbumUiEvent()
 
+    data object BackToAlbum : AlbumUiEvent()
+
     data object SelectPlace : AlbumUiEvent()
 
     data object SelectPhoto : AlbumUiEvent()

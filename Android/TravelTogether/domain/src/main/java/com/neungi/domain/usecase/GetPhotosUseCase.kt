@@ -3,6 +3,7 @@ package com.neungi.domain.usecase
 import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.Photo
 import com.neungi.domain.repository.AlbumsRepository
+import okhttp3.MultipartBody
 import javax.inject.Inject
 
 class GetPhotosUseCase @Inject constructor(
@@ -13,7 +14,7 @@ class GetPhotosUseCase @Inject constructor(
         return albumsRepository.getAlbumPhotos(albumId)
     }
 
-    suspend fun submitPhoto(photo: Photo): ApiResult<Boolean> {
+    suspend fun submitPhoto(photo: MultipartBody.Part): ApiResult<Boolean> {
         return albumsRepository.postPhoto(photo)
     }
 

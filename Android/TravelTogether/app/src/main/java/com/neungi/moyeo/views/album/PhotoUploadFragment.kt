@@ -19,6 +19,10 @@ import com.neungi.moyeo.views.album.adapter.PhotoUploadAdapter
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 @SuppressLint("IntentReset")
 @AndroidEntryPoint
@@ -29,7 +33,13 @@ class PhotoUploadFragment :
     private val profileImagePicker =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
-                viewModel.addUploadPhoto(it, fetchPhotoTakenAt(it))
+                val path = absolutelyPath(uri)
+                path?.let {
+                    val file = File(path)
+                    val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+                    val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                    viewModel.addUploadPhoto(uri, fetchPhotoTakenAt(uri), body)
+                }
             } ?: showToastMessage(resources.getString(R.string.message_select_picture))
         }
     private val requestMultiPermissions =
@@ -46,7 +56,11 @@ class PhotoUploadFragment :
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data
                 uri?.let {
-                    viewModel.addUploadPhoto(it, fetchPhotoTakenAt(it))
+                    val path = absolutelyPath(uri)
+                    val file = File(path.toString())
+                    val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+                    val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                    viewModel.addUploadPhoto(it, fetchPhotoTakenAt(it), body)
                 } ?: showToastMessage(resources.getString(R.string.message_select_picture))
             }
         }
@@ -104,7 +118,7 @@ class PhotoUploadFragment :
             MediaStore.Images.Media.DATE_TAKEN
         )
 
-        uri?.let { uri ->
+        uri?.let {
             requireContext().contentResolver.query(
                 uri, projection, null, null, null
             )?.use { cursor ->
@@ -121,6 +135,10 @@ class PhotoUploadFragment :
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
+            is AlbumUiEvent.BackToAlbumDetail -> {
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+
             is AlbumUiEvent.GoToStorage -> {
                 if (isPhotoPickerAvailable(requireContext())) {
                     profileImagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))

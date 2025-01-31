@@ -1,6 +1,7 @@
 package com.neungi.moyeo.views.album.viewmodel
 
 import android.net.Uri
+import okhttp3.MultipartBody
 import java.util.UUID
 
 sealed class PhotoUploadUiState(val id: String = UUID.randomUUID().toString()) {
@@ -12,6 +13,7 @@ sealed class PhotoUploadUiState(val id: String = UUID.randomUUID().toString()) {
 
     data class UploadedPhoto(
         val photoUri: Uri,
+        val body: MultipartBody.Part,
         val latitude: Double,
         val longitude: Double,
         val takenAt: Long
