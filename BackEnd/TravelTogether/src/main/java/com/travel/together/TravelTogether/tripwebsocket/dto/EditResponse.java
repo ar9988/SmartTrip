@@ -16,16 +16,16 @@ public class EditResponse {
     private Long timestamp;
     private Integer version;
 
-
-
     @Getter
     @Setter
     @NoArgsConstructor
     public static class Operation {
         private String action;  // MOVE
         private Integer schedule_id;  // type이 SCHEDULE일 때
-        private Integer fromPosition;
-        private Integer toPosition;
+//        private Integer fromPosition;
+//        private Integer toPosition;
+        private Integer position_path;
+
     }
 
     // 성공 응답 생성을 위한 팩토리 메서드
@@ -42,8 +42,8 @@ public class EditResponse {
         operation.setAction(request.getOperation().getAction());
         operation.setSchedule_id(request.getOperation().getSchedule_id());
 //        operation.setDay_id(request.getOperation().getDay_id());
-        operation.setFromPosition(request.getOperation().getFromPosition());
-        operation.setToPosition(request.getOperation().getToPosition());
+//        operation.setFromPosition(request.getOperation().getFromPosition());
+        operation.setPosition_path(request.getOperation().getPosition_path());
 
         response.setOperation(operation);
         return response;

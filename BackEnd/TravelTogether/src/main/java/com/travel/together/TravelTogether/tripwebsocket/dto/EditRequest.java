@@ -21,8 +21,9 @@ public class EditRequest {
     public static class Operation {
         private String action;  // MOVE
         private Integer schedule_id;  // type이 SCHEDULE일 때
-        private Integer fromPosition;
-        private Integer toPosition;
+//        private Integer fromPosition;
+//        private Integer toPosition;
+        private Integer position_path;
     }
 
 }
