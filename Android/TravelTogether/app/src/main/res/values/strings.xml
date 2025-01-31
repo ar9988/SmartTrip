@@ -49,6 +49,8 @@
     <string name="text_delete">삭제하기</string>
     <string name="message_comment_submit">추억을 남겼습니다.</string>
     <string name="message_comment_update">추억을 수정했습니다.</string>
+    <string name="description_photo_upload">이미지 업로드</string>
+    <string name="description_photo_tab_layout">이미지 ViewPager</string>
 
     <!-- Auth -->
     <string name="label_login">Login</string>
