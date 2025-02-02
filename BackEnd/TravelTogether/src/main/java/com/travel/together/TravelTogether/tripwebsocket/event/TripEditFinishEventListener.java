@@ -45,12 +45,19 @@ public class TripEditFinishEventListener {
             // 편집 내역 순서대로 처리
             for (EditRequest edit : edits) {
                 if ("MOVE".equals(edit.getOperation().getAction())) {
-                    // TODO: 스케쥴 순서 업데이트하는로직이라서 꼭해야함....
+                    // position_path받아서 DB업데이트
                     updateScheduleOrder(edit);
                     log.info("Updated schedule order: scheduleId={}, toPosition={}",
                             edit.getOperation().getSchedule_id(),
                             edit.getOperation().getPosition_path());
 
+                } else if ("DELETE".equals(edit.getOperation().getAction())) {
+                    deleteSchedule(edit);
+                    log.info("Deleted schedule: scheduleId={}",
+                            edit.getOperation().getSchedule_id());
+
+                } else if ("ADD".equals(edit.getOperation().getAction())) {
+                    // TODO: 일정추가기능
                 }
 
                 log.info("Successfully processed {} edits for tripId: {}", edits.size(), tripId);
@@ -112,4 +119,17 @@ public class TripEditFinishEventListener {
         }
         log.info("Updated schedule order: scheduleId={}, finalPosition={}", scheduleId, positionPath);
     }
+
+
+    private void deleteSchedule(EditRequest edit) {
+        Integer scheduleId = edit.getOperation().getSchedule_id();
+
+        // 스케줄이 존재하는지 확인
+        if (scheduleRepository.existsById(scheduleId)) {
+            scheduleRepository.deleteById(scheduleId);
+        } else {
+            log.warn("Attempted to delete non-existent schedule: {}", scheduleId);
+        }
+    }
+
 }

@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 
 @EnableAsync
+@EnableScheduling
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = {
 		"com.travel.together.TravelTogether.album.repository",
