@@ -31,8 +31,8 @@ public class KakaoService {
 
         // 장소의 이름, 위도, 경도 추출해서 DTO로 반환
         String placeName = place.getString("place_name");
-        String latitude = place.getString("y");
-        String longitude = place.getString("x");
+        Double latitude = place.getDouble("y");
+        Double longitude = place.getDouble("x");
 
         return new KakaoResponseDto(placeName, latitude, longitude);
     }

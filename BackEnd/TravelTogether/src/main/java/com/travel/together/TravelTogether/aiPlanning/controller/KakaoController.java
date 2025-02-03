@@ -27,7 +27,7 @@ public class KakaoController {
         } catch (Exception e) {
             e.printStackTrace();
             // 에러 처리 (적절한 에러 메시지를 반환할 수 있습니다)
-            return new KakaoResponseDto("Error","0","0");
+            return new KakaoResponseDto("Error",0.0,0.0);
         }
     }
 }
