@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
+import com.neungi.domain.model.ServerEvent
+import com.neungi.domain.model.ServerReceive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -35,15 +37,15 @@ class WebSocketManager {
 
                 // JSON을 ServerEvent 객체로 변환
                 val gson = Gson()
-                val ServerReceive = gson.fromJson(text, ServerReceive::class.java)
+                val serverReceive = gson.fromJson(text, ServerReceive::class.java)
 
                 // 변환된 데이터 출력
-                println("Parsed ServerEvent -> tripId: ${ServerReceive.tripId}, timestamp: ${ServerReceive.timestamp}")
-                println("Operation -> action: ${ServerReceive.operation.action}, " +
-                        "schedule_id: ${ServerReceive.operation.scheduleId}, " +
-                        "newPosition: ${ServerReceive.operation.positionPath}, ")
+                println("Parsed ServerEvent -> tripId: ${serverReceive.tripId}, timestamp: ${serverReceive.timestamp}")
+                println("Operation -> action: ${serverReceive.operation.action}, " +
+                        "schedule_id: ${serverReceive.operation.scheduleId}, " +
+                        "newPosition: ${serverReceive.operation.positionPath}, ")
 
-                _events.postValue(ServerReceive)
+                _events.postValue(serverReceive)
             } catch (e: Exception) {
                 e.printStackTrace()
                 println("Failed to parse JSON: $text")
@@ -72,6 +74,8 @@ class WebSocketManager {
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             super.onFailure(webSocket, t, response)
             isConnected = false
+            Timber.d(t)
+            Timber.d(response.toString())
             println("WebSocket Error: ${t.message}")
         }
     }

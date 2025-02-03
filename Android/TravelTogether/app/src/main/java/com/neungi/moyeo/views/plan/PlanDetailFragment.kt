@@ -3,11 +3,11 @@ package com.neungi.moyeo.views.plan
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.naver.maps.map.NaverMap
+import com.neungi.domain.model.ServerReceive
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
@@ -18,8 +18,6 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.Section
 import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.SectionedAdapter
 import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.createItemTouchHelperCallback
 import dagger.hilt.android.AndroidEntryPoint
-import hilt_aggregated_deps._com_neungi_moyeo_views_album_AlbumDetailWithPlaceFragment_GeneratedInjector
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -36,11 +34,9 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
         Timber.d("Received tripId: $tripId")
-        viewModel.webSocketManager.events.observe(viewLifecycleOwner) { event ->
+        viewModel.webSocketManager.events.observe(viewLifecycleOwner) { event : ServerReceive ->
             println("Received event: $event")
-            val sId = event.operation.scheduleId
-            val value = event.operation.positionPath
-            sectionedAdapter.updatePosition(sId,value)
+            sectionedAdapter.updatePosition(event)
             // list에 해당 sId의 positionPath 값 업데이트, rebuild 한다
         }
         setupRecyclerView()
@@ -64,16 +60,16 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 Section(
                     ScheduleHeader(1, "1일차", 0),
                     mutableListOf(
-                        ScheduleData(1, "일정1", 1000, "19시", "식당", "30분"),
-                        ScheduleData(2, "일정2", 2000, "19시", "식당", "30분")
+                        ScheduleData(1, "일정1", 1000, 0, "식당", "30분"),
+                        ScheduleData(2, "일정2", 2000, 0, "식당", "30분")
                     )
                 ),
                 Section(
                     ScheduleHeader(2, "2일차", 3000),
                     mutableListOf(
-                        ScheduleData(3, "일정3", 4000, "19시", "식당", "30분"),
-                        ScheduleData(4, "일정4", 5000, "19시", "식당", "30분"),
-                        ScheduleData(5, "일정5", 6000, "19시", "식당", "30분")
+                        ScheduleData(3, "일정3", 4000, 0, "식당", "30분"),
+                        ScheduleData(4, "일정4", 5000, 0, "식당", "30분"),
+                        ScheduleData(5, "일정5", 6000, 0, "식당", "30분")
                     )
                 )
             )
@@ -82,7 +78,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         binding.recyclerView.adapter = sectionedAdapter
         binding.recyclerView.setItemAnimator(null)
         // ItemTouchHelper 초기화
-        val itemTouchHelperCallback = createItemTouchHelperCallback { fromPosition, toPosition ->
+        val itemTouchHelperCallback = createItemTouchHelperCallback{ fromPosition, toPosition ->
             // 이동 이벤트를 ViewModel로 전달
             viewModel.onItemMoved(fromPosition, toPosition)
         }

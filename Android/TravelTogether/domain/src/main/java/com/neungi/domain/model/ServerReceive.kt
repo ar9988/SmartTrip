@@ -1,4 +1,4 @@
-package com.neungi.moyeo.views.plan.scheduleviewmodel.websocket
+package com.neungi.domain.model
 
 data class ServerReceive(
     val status:String,

@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.neungi.domain.model.ServerReceive
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemSectionHeaderBinding
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
@@ -75,8 +76,8 @@ class SectionedAdapter(
         val item = listItems.removeAt(fromPosition) as ListItem.Item
         listItems.add(toPosition, item)
         notifyItemMoved(fromPosition, toPosition)
-
-        // 강제로 UI를 갱신하여 잔상 문제 해결
+//        rebuildSections()
+        // 강제로 UI를 갱신하여Z 잔상 문제 해결
         notifyItemChanged(fromPosition)
         notifyItemChanged(toPosition)
     }
@@ -158,9 +159,10 @@ class SectionedAdapter(
 
     class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val titleTextView: TextView = view.findViewById(R.id.title_schedule)
-
+        private val textView2 :TextView = view.findViewById(R.id.type_schedule)
         fun bind(data: ScheduleData) {
             titleTextView.text = data.scheduleTitle
+            textView2.text = data.positionPath.toString()
         }
     }
 
@@ -172,22 +174,21 @@ class SectionedAdapter(
         return sections[sectionIndex].head.title
     }
 
-    fun updatePosition(sId: Int, value: Int) {
-        Timber.d("Updating position of schedule $sId to $value")
-//        listItems.forEach {
-//            Timber.d("Item: $it")
-//            if (it is ListItem.Item && (it.data.scheduleId == 5)) {
-//                it.data.positionPath = 500
-//            }
-//        }
-        listItems.forEach {
-            if (it is ListItem.Item && (it.data.scheduleId == sId)) {
-                it.data.positionPath = value
+    fun updatePosition(event: ServerReceive) {
+        Timber.d("Updating position of schedule ${event.operation.scheduleId} to ${event.operation.positionPath}")
+        listItems.forEachIndexed { position, item ->
+            if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
+                // positionPath 업데이트
+                item.data.positionPath = event.operation.positionPath
+
+                // 텍스트뷰 갱신을 위해 해당 위치의 아이템을 갱신
+                notifyItemChanged(position)
             }
         }
+
+        // 섹션을 재구성하여 순서를 반영
         rebuildSections()
     }
-
     fun updateValue(position: Int, newPositionPath: Int) {
         listItems[position] = ListItem.Item(
             (listItems[position] as ListItem.Item).data.copy(positionPath = newPositionPath),

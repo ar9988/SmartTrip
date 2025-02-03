@@ -12,7 +12,11 @@ class GetScheduleUseCase @Inject constructor(
         return scheduleRepository.getSchedulesById(tripId)
     }
 
-    suspend fun rescheduleEventPosition(sId:Int,from: Int,to:Int) : ApiResult<Boolean>{
+    suspend fun updateScheduleData() : ApiResult<Boolean>{
+        return scheduleRepository.updateSchedule()
+    }
+
+    suspend fun rescheduleEventPosition(sId:Int,newPosition: Int) : ApiResult<Boolean>{
         return scheduleRepository.updateSchedule()
     }
 
