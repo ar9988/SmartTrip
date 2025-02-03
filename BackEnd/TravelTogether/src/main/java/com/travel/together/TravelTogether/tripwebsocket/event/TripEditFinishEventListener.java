@@ -45,12 +45,19 @@ public class TripEditFinishEventListener {
             // 편집 내역 순서대로 처리
             for (EditRequest edit : edits) {
                 if ("MOVE".equals(edit.getOperation().getAction())) {
-                    // TODO: 스케쥴 순서 업데이트하는로직이라서 꼭해야함....
+                    // position_path받아서 DB업데이트
                     updateScheduleOrder(edit);
                     log.info("Updated schedule order: scheduleId={}, toPosition={}",
-                            edit.getOperation().getSchedule_id(),
-                            edit.getOperation().getToPosition());
+                            edit.getOperation().getScheduleId(),
+                            edit.getOperation().getPositionPath());
 
+                } else if ("DELETE".equals(edit.getOperation().getAction())) {
+                    deleteSchedule(edit);
+                    log.info("Deleted schedule: scheduleId={}",
+                            edit.getOperation().getScheduleId());
+
+                } else if ("ADD".equals(edit.getOperation().getAction())) {
+                    // TODO: 일정추가기능
                 }
 
                 log.info("Successfully processed {} edits for tripId: {}", edits.size(), tripId);
@@ -62,69 +69,67 @@ public class TripEditFinishEventListener {
             throw new RuntimeException("Failed to process trip edits", e);
         }
 
-//        log.info("Handling TripEditFinishEvent for tripId: {}", event.getTripId());
-//        try {
-//            // 1. 먼저 Trip 엔티티를 조회
-//            Trip trip = tripRepository.findById(event.getTripId())
-//                    .orElseThrow(() -> new EntityNotFoundException("Trip not found: " + event.getTripId()));
-//
-//            // 2. 메모리에 있던 편집 내용을 DB에 반영
-//            // TODO: 실제 데이터 업데이트 로직 구현
-//
-//            log.info("Successfully processed TripEditFinishEvent for tripId: {}", event.getTripId());
-//        } catch (Exception e) {
-//            log.error("Error processing TripEditFinishEvent for tripId: " + event.getTripId(), e);
-//            // 에러 처리 로직 필요
-//        }
-
-
     }
 
 
     private void updateScheduleOrder(EditRequest edit) {
-        Integer scheduleId = edit.getOperation().getSchedule_id();
-        Integer fromPosition = edit.getOperation().getFromPosition();
-        Integer toPosition = edit.getOperation().getToPosition();
+        Integer scheduleId = edit.getOperation().getScheduleId();
+        Integer positionPath = edit.getOperation().getPositionPath();
 
         // 이동할 스케줄 가져오기
-        Schedule movingschedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new EntityNotFoundException("schedule is not found:" + scheduleId));
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new EntityNotFoundException("Schedule not found: " + scheduleId));
 
 
         // 같은 날의 모든 스케쥴 가져오기
-        List<Schedule> schedules = scheduleRepository.findAllByDayIdOrderByOrderNumAsc(movingschedule.getDay().getId());
+        List<Schedule> schedules = scheduleRepository.findAllByDayIdOrderByOrderNumAsc(schedule.getDay().getId());
 
 
         // 위치 변경을 위한 orderNum 업데이트
-        if (fromPosition < toPosition) {
-            // 앞에서 뒤로 이동하는 경우
-            for (Schedule s : schedules) {
-                if (s.getId().equals(scheduleId)) {
-                    s.setOrderNum(toPosition);
-                } else if (s.getOrderNum() <= toPosition && s.getOrderNum() > fromPosition) {
-                    s.setOrderNum(s.getOrderNum() - 1);
-                }
-            }
-        } else {
-            // 뒤에서 앞으로 이동
-            for (Schedule s : schedules) {
-                if (s.getId().equals(scheduleId)) {
-                    s.setOrderNum(fromPosition);
-                } else if (s.getOrderNum() >= toPosition && s.getOrderNum() < fromPosition) {
-                    s.setOrderNum(s.getOrderNum() + 1);
-                }
-            }
-        }
+//        if (fromPosition < toPosition) {
+//            // 앞에서 뒤로 이동하는 경우
+//            for (Schedule s : schedules) {
+//                if (s.getId().equals(scheduleId)) {
+//                    s.setOrderNum(toPosition);
+//                } else if (s.getOrderNum() <= toPosition && s.getOrderNum() > fromPosition) {
+//                    s.setOrderNum(s.getOrderNum() - 1);
+//                }
+//            }
+//        } else {
+//            // 뒤에서 앞으로 이동
+//            for (Schedule s : schedules) {
+//                if (s.getId().equals(scheduleId)) {
+//                    s.setOrderNum(fromPosition);
+//                } else if (s.getOrderNum() >= toPosition && s.getOrderNum() < fromPosition) {
+//                    s.setOrderNum(s.getOrderNum() + 1);
+//                }
+//            }
+//        }
 
 
 
         // 모든 변경사항 저장
-        scheduleRepository.saveAll(schedules);
+        schedule.setPositionPath(positionPath);
+        scheduleRepository.save(schedule);
+//        scheduleRepository.saveAll(schedules);
 
         // 변경된 모든 스케줄의 순서 로깅
         for (Schedule s : schedules) {
             log.info("Schedule id={} now has orderNum={}", s.getId(), s.getOrderNum());
         }
-        log.info("Updated schedule order: scheduleId={}, finalPosition={}", scheduleId, toPosition);
+        log.info("Updated schedule order: scheduleId={}, finalPosition={}", scheduleId, positionPath);
     }
+
+
+    private void deleteSchedule(EditRequest edit) {
+        Integer scheduleId = edit.getOperation().getScheduleId();
+
+        // 스케줄이 존재하는지 확인
+        if (scheduleRepository.existsById(scheduleId)) {
+            scheduleRepository.deleteById(scheduleId);
+        } else {
+            log.warn("Attempted to delete non-existent schedule: {}", scheduleId);
+        }
+    }
+
 }

@@ -20,9 +20,10 @@ public class EditRequest {
     @NoArgsConstructor
     public static class Operation {
         private String action;  // MOVE
-        private Integer schedule_id;  // type이 SCHEDULE일 때
-        private Integer fromPosition;
-        private Integer toPosition;
+        private Integer scheduleId;  // type이 SCHEDULE일 때
+//        private Integer fromPosition;
+//        private Integer toPosition;
+        private Integer positionPath;
     }
 
 }
