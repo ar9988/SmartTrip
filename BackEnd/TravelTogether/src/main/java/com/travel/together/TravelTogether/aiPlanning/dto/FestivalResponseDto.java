@@ -2,15 +2,14 @@ package com.travel.together.TravelTogether.aiPlanning.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.json.JSONObject;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 public class FestivalResponseDto {
-    private JSONObject festivals; // json 형태의 축제 데이터
+    private List<FestivalDto> festivals; //리스트 형태의 자료
 
-    // 생성자
-    public FestivalResponseDto(JSONObject festivals) {
+    public FestivalResponseDto(List<FestivalDto> festivals) {
         this.festivals = festivals;
     }
 }

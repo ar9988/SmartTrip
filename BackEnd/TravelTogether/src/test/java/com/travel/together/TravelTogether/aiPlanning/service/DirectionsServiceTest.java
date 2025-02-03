@@ -16,7 +16,7 @@ class DirectionsServiceTest {
     @Test
     void testGetDrivingDirections() throws Exception {
         // Given: DirectionsRequestDto 객체 준비
-        DirectionsRequestDto requestDto = new DirectionsRequestDto("127.10023101886318", "37.51331105877401", "127.06302321147605", "37.508822740225305");
+        DirectionsRequestDto requestDto = new DirectionsRequestDto(127.10023101886318, 37.51331105877401, 127.06302321147605, 37.508822740225305);
 
         // HttpClient를 Mock 객체로 생성
         HttpClient mockHttpClient = Mockito.mock(HttpClient.class);
