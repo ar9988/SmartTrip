@@ -40,7 +40,7 @@ class FestivalServiceTest {
             System.out.println("Address: " + festival.getAddress());
             System.out.println("Start Date: " + festival.getEventStartDate());
             System.out.println("End Date: " + festival.getEventEndDate());
-            System.out.println("Image URL: " + festival.getImage());
+            System.out.println("Image URL: " + festival.getImageurl());
             System.out.println("contentid: " + festival.getContentid());
             System.out.println("================================");
         }
