@@ -2,9 +2,10 @@ package com.neungi.moyeo.views.plan.scheduleviewmodel.websocket
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import timber.log.Timber
 
 fun createItemTouchHelperCallback(
-    onItemMove: (fromPosition: Int, toPosition: Int) -> Unit
+    updatePosition: (scheduleId: Int, positionPath: Int) -> Unit
 ): ItemTouchHelper.Callback {
     return object : ItemTouchHelper.Callback() {
         override fun getMovementFlags(
@@ -30,15 +31,52 @@ fun createItemTouchHelperCallback(
 
             // 드래그 제한 조건 처리
             val targetItem = adapter.getItem(toPosition)
-            if (targetItem is ListItem.SectionHeader && targetItem.title == "1일차") {
+            if (targetItem is ListItem.SectionHeader && targetItem.data.title == "1일차") {
                 return false // 1일차 섹션으로 이동 금지
             }
 
-            // 어댑터 내부에서 아이템 이동 처리
+            // 아이템 이동 처리
             adapter.moveItem(fromPosition, toPosition)
+            Timber.d("onMove: $fromPosition -> $toPosition")
+            val upsideItem =
+                if (toPosition == 0) adapter.getItem(0) else adapter.getItem(toPosition - 1)
+            val upsidePositionPath =
+                if (upsideItem is ListItem.SectionHeader) upsideItem.data.positionPath else (upsideItem as ListItem.Item).data.positionPath
 
-            // 이동 이벤트를 람다를 통해 ViewModel로 전달
-            onItemMove(fromPosition, toPosition)
+            val downsidePositionPath = if (toPosition == adapter.itemCount - 1) {
+                val tmp = adapter.getItem(toPosition - 1)
+                if (tmp is ListItem.SectionHeader) {
+                    // SectionHeader 처리
+                    when (val fromItem = adapter.getItem(fromPosition)) {
+                        is ListItem.SectionHeader -> fromItem.data.positionPath + 1000
+                        is ListItem.Item -> fromItem.data.positionPath + 1000
+                        else -> throw IllegalStateException("Unexpected item type")
+                    }
+                } else if (tmp is ListItem.Item) {
+                    tmp.data.positionPath + 1000
+                } else {
+                    throw IllegalStateException("Unexpected item type")
+                }
+            } else {
+                val tmp = adapter.getItem(toPosition + 1)
+                if (tmp is ListItem.SectionHeader) {
+                    // SectionHeader 처리
+                    ((adapter.getItem(toPosition + 1) as ListItem.SectionHeader).data.positionPath)
+                } else if (tmp is ListItem.Item) {
+                    // Item 처리
+                    (tmp as ListItem.Item).data.positionPath
+                } else {
+                    // 다른 타입 처리 (예: ListItem이 아닌 경우)
+                    throw IllegalStateException("Unexpected item type")
+                }
+            }
+            val newPositionPath = (upsidePositionPath + downsidePositionPath) / 2
+            updatePosition(
+                (adapter.getItem(toPosition) as ListItem.Item).data.scheduleId,
+                newPositionPath
+            )
+            adapter.updateValue(toPosition, newPositionPath)
+            Timber.d("onMove: $fromPosition -> $toPosition, ${((upsidePositionPath + downsidePositionPath) / 2)}")
             return true
         }
 
