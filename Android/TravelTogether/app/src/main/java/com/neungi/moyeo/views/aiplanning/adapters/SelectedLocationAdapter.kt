@@ -26,17 +26,23 @@ class SelectedLocationAdapter(
     init {
         lifecycleOwner.lifecycleScope.launch {
             viewModel.selectedLocations.collect { locations ->
-                val uiModels = if (locations.isEmpty()) {
-                    listOf(LocationUiModel.AddButton(true))  // 빈 리스트일 때는 텍스트가 있는 Chip
-                } else {
-                    locations.map { LocationUiModel.Location(it) } + LocationUiModel.AddButton(false)  // 아닐 때는 + 버튼
+                val uiModels = when {
+                    locations.isEmpty() -> {
+                        listOf(LocationUiModel.AddButton(true))
+                    }
+                    locations.size >= 3 -> {
+                        locations.map { LocationUiModel.Location(it) }
+                    }
+                    else -> {
+                        locations.map { LocationUiModel.Location(it) } + LocationUiModel.AddButton(false)  // 그 외에는 Location + AddButton
+                    }
                 }
                 submitList(uiModels)
             }
         }
     }
 
-    class ViewHolder(val binding: ItemSelectedDestinationBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: ItemSelectedDestinationBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(
             model: LocationUiModel,
             onDeleteClick: () -> Unit,

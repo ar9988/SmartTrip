@@ -128,7 +128,9 @@ private fun collectEvent() {
                     Timber.d("next")
                     findNavController().navigateSafely(R.id.action_ai_select_local_to_ai_destinaation)
                 }
-
+                is AiPlanningUiEvent.LimitToast ->{
+                    showToastMessage(resources.getString(R.string.select_limit_toast_planning))
+                }
                 else->{
 
                 }

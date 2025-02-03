@@ -25,7 +25,7 @@
         android:layout_height="50dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/baseline_close_24"/>
+        android:src="@drawable/ic_close"/>
 
     <Button
         android:id="@+id/button_dialog_invite_copy"

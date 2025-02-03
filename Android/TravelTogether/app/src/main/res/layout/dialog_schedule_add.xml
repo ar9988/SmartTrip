@@ -22,7 +22,7 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/description_dialog_close"
         android:scaleType="fitXY"
-        android:src="@drawable/baseline_close_24"
+        android:src="@drawable/ic_close"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

@@ -9,8 +9,10 @@
     <dimen name="font_size_large">18sp</dimen>
     <dimen name="font_size_larger">20sp</dimen>
     <dimen name="font_size_title">24sp</dimen>
+    <dimen name="font_size_largest">28sp</dimen>
 
     <!-- Margin, Padding -->
+    <dimen name="dp_line_size">1dp</dimen>
     <dimen name="dp_smaller">4dp</dimen>
     <dimen name="dp_small">8dp</dimen>
     <dimen name="dp_medium">16dp</dimen>

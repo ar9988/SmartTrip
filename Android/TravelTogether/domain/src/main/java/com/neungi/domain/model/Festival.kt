@@ -7,5 +7,6 @@ data class Festival(
     val imageUrl: String?,
     val address:String,
     val startDate: String,
-    val endDate: String
+    val endDate: String,
+    val overView:String
 )

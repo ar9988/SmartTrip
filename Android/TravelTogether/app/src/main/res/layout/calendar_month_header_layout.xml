@@ -10,7 +10,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:padding="@dimen/dp_medium">
 
             <ImageButton
                 android:id="@+id/btn_month_previous"
@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="18sp"
+                android:textSize="@dimen/font_size_large"
                 android:textColor="@color/colorPrimary"
                 tools:text="July 2021" />
 

@@ -9,9 +9,7 @@ import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAiSearchPlaceBinding
-import com.neungi.moyeo.databinding.FragmentSelectPeriodBinding
 import com.neungi.moyeo.views.aiplanning.adapters.SearchPlaceAdapter
-
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +20,7 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
 
 
     private val viewModel: AIPlanningViewModel by activityViewModels()
+    private lateinit var searchPlaceAdapter : SearchPlaceAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -32,6 +31,15 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
         setAdapter()
         setListener()
         collectEvent()
+        observeState()
+    }
+
+    private fun observeState() {
+        lifecycleScope.launch {
+            viewModel.placeSearchResult.collect { places ->
+                searchPlaceAdapter.submitList(places)
+            }
+        }
     }
 
     private fun setListener() {
@@ -50,15 +58,15 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
     }
 
     private fun setAdapter() {
-        val viewPagerAdapter = SearchPlaceAdapter(viewModel, viewLifecycleOwner)
-        binding.rvAiSearchResult.adapter = viewPagerAdapter
+        searchPlaceAdapter = SearchPlaceAdapter(viewModel)
+        binding.rvAiSearchResult.adapter = searchPlaceAdapter
     }
 
     private fun collectEvent() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.aiPlanningUiEvent.collect { event ->
                 when (event) {
-                    is AiPlanningUiEvent.PopBackToDestiination-> {
+                    is AiPlanningUiEvent.PopBackToDestination-> {
                         findNavController().popBackStack()
                     }
                     else->{

@@ -13,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".views.aiplanning.SelectPeriodFragment">
+        tools:context=".views.aiplanning.AiSelectPeriodFragment">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_ai_local_select"
@@ -24,7 +24,7 @@
             app:contentInsetStart="0dp"
             app:contentInsetLeft="0dp"
             app:contentInsetStartWithNavigation="0dp"
-            app:title="일정" />
+            app:title="@string/destination_planning" />
 
 <!--        <TextView-->
 <!--            android:id="@+id/text_guide"-->
@@ -65,8 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:paddingHorizontal="@dimen/dp_medium"
             app:tabMode="scrollable"
             app:tabGravity="start"
             app:tabInlineLabel="true"
@@ -82,7 +81,7 @@
         <View
             android:id="@+id/divider_ai_local_top"
             android:layout_width="0dp"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/dp_line_size"
             android:background="@color/colorPrimary"
             app:layout_constraintTop_toBottomOf="@id/tablayout_local_big"
             app:layout_constraintStart_toStartOf="parent"
@@ -104,7 +103,7 @@
         <View
             android:id="@+id/divider_ai_local_bottom"
             android:layout_width="0dp"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/dp_line_size"
             android:background="@color/colorPrimary"
             app:layout_constraintTop_toBottomOf="@id/vp_local_detail"
             app:layout_constraintStart_toStartOf="parent"
@@ -141,20 +140,21 @@
             android:id="@+id/chipgroup_selected_locations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:paddingVertical="@dimen/dp_smaller"
+            android:paddingHorizontal="@dimen/dp_medium"
             app:layout_constraintTop_toBottomOf="@id/divider_ai_local_bottom"
-            app:layout_constraintBottom_toTopOf="@id/btn_next"
-            app:chipSpacingHorizontal="8dp"
+            app:layout_constraintBottom_toTopOf="@id/btn_ai_select_local_next"
+            app:chipSpacingHorizontal="@dimen/dp_small"
             app:singleLine="false" />
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_next"
+            android:id="@+id/btn_ai_select_local_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="다음"
+            android:text="@string/next"
             android:backgroundTint="@color/colorPrimary"
             android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
             android:onClick="@{ () ->vm.onClickGoToDestination()}"
-            app:layout_constraintTop_toTopOf="@id/gl_horizontal_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
             />
 
         <androidx.constraintlayout.widget.Guideline
