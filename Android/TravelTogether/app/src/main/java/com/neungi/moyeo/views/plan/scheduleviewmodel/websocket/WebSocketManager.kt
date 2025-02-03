@@ -10,6 +10,7 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import timber.log.Timber
 import javax.inject.Inject
 
 class WebSocketManager {
@@ -40,8 +41,7 @@ class WebSocketManager {
                 println("Parsed ServerEvent -> tripId: ${ServerReceive.tripId}, timestamp: ${ServerReceive.timestamp}")
                 println("Operation -> action: ${ServerReceive.operation.action}, " +
                         "schedule_id: ${ServerReceive.operation.scheduleId}, " +
-                        "fromPosition: ${ServerReceive.operation.fromPosition}, " +
-                        "toPosition: ${ServerReceive.operation.toPosition}")
+                        "newPosition: ${ServerReceive.operation.positionPath}, ")
 
                 _events.postValue(ServerReceive)
             } catch (e: Exception) {
@@ -93,13 +93,13 @@ class WebSocketManager {
 
                 // WebSocket으로 메시지 전송
                 webSocket?.send(message)
-                println("Sent message: $message")
+                Timber.d("Sent message: $message")
             } catch (e: Exception) {
                 e.printStackTrace()
-                println("Failed to send message: ${e.message}")
+                Timber.d("Failed to send message: ${e.message}")
             }
         } else {
-            println("WebSocket is not connected. Message not sent.")
+            Timber.d("WebSocket is not connected. Message not sent.")
         }
     }
 

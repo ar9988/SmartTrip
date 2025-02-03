@@ -4,6 +4,6 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
 
 
 data class Section(
-    val title: String,
+    val head: ScheduleHeader,
     val items: MutableList<ScheduleData>
 )

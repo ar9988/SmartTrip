@@ -4,10 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemSectionHeaderBinding
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
+import timber.log.Timber
 
 class SectionedAdapter(
     private val onItemClick: (Int) -> Unit,
@@ -22,7 +24,7 @@ class SectionedAdapter(
         private const val VIEW_TYPE_ITEM = 1
     }
 
-    private val listItems = mutableListOf<ListItem>()
+    private var listItems = mutableListOf<ListItem>()
 
     init {
         buildListItems()
@@ -31,11 +33,12 @@ class SectionedAdapter(
     private fun buildListItems() {
         listItems.clear()
         sections.forEachIndexed { sectionIndex, section ->
-            listItems.add(ListItem.SectionHeader(section.title))
+            listItems.add(ListItem.SectionHeader(section.head))
             section.items.forEach { item ->
                 listItems.add(ListItem.Item(item, sectionIndex))
             }
         }
+        Timber.d(listItems.toString())
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -47,7 +50,8 @@ class SectionedAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_SECTION_HEADER) {
-            val binding = ItemSectionHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            val binding =
+                ItemSectionHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             return SectionHeaderViewHolder(binding)
         } else {
             val view = LayoutInflater.from(parent.context)
@@ -58,8 +62,10 @@ class SectionedAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = listItems[position]) {
-            is ListItem.SectionHeader -> (holder as SectionHeaderViewHolder).bind(item.title)
-            is ListItem.Item -> (holder as ItemViewHolder).bind(item.data)
+            is ListItem.SectionHeader -> (holder as SectionHeaderViewHolder).bind(item.data)
+            is ListItem.Item -> {
+                (holder as ItemViewHolder).bind(item.data)
+            }
         }
     }
 
@@ -69,32 +75,81 @@ class SectionedAdapter(
         val item = listItems.removeAt(fromPosition) as ListItem.Item
         listItems.add(toPosition, item)
         notifyItemMoved(fromPosition, toPosition)
+
+        // 강제로 UI를 갱신하여 잔상 문제 해결
+        notifyItemChanged(fromPosition)
+        notifyItemChanged(toPosition)
     }
 
     fun rebuildSections() {
-        sections.clear()
-        val currentSections = mutableMapOf<String, MutableList<ScheduleData>>()
+        // 1. 정렬된 아이템으로 sections 재구성
+        Timber.d("Rebuilding sections...")
+        val newSections = mutableListOf<Section>()
+        var currentSection: MutableList<ScheduleData>? = null
 
-        listItems.forEach {
-            if (it is ListItem.SectionHeader) {
-                currentSections[it.title] = mutableListOf()
-            } else if (it is ListItem.Item) {
-                val currentSection = listItems[it.sectionIndex] as ListItem.SectionHeader
-                currentSections[currentSection.title]?.add(it.data)
+        // positionPath로 정렬
+        val sortedItems = listItems.sortedBy {
+            when (it) {
+                is ListItem.SectionHeader -> it.data.positionPath
+                is ListItem.Item -> it.data.positionPath
             }
         }
 
-        currentSections.forEach { (title, items) ->
-            sections.add(Section(title, items))
+        // 섹션별로 아이템 재구성
+        sortedItems.forEach { item ->
+            when (item) {
+                is ListItem.SectionHeader -> {
+                    currentSection = mutableListOf()
+                    newSections.add(Section(item.data, currentSection!!))
+                }
+
+                is ListItem.Item -> {
+                    currentSection?.add(item.data)
+                }
+            }
         }
-        buildListItems()
-        notifyDataSetChanged()
+
+        // 2. sections 업데이트
+        sections.clear()
+        sections.addAll(newSections)
+
+        // 3. listItems 재구성
+        val oldList = listItems.toList() // 이전 리스트 복사
+        buildListItems() // 새로운 순서로 리스트 아이템 재구성
+
+        // 4. DiffUtil을 사용한 효율적인 업데이트
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = oldList.size
+            override fun getNewListSize() = listItems.size
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                val oldItem = oldList[oldItemPosition]
+                val newItem = listItems[newItemPosition]
+                return when {
+                    oldItem is ListItem.SectionHeader && newItem is ListItem.SectionHeader ->
+                        oldItem.data.title == newItem.data.title
+
+                    oldItem is ListItem.Item && newItem is ListItem.Item ->
+                        oldItem.data.scheduleId == newItem.data.scheduleId
+
+                    else -> false
+                }
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return oldList[oldItemPosition] == listItems[newItemPosition]
+            }
+        })
+
+        diffResult.dispatchUpdatesTo(this)
     }
 
-    inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) : RecyclerView.ViewHolder(binding.root) {
-//        private val textView: TextView = view.findViewById(R.id.tv_section_header)
-        fun bind(title: String) {
-            binding.tvSectionHeaderIconText.text = title
+
+    inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        //        private val textView: TextView = view.findViewById(R.id.tv_section_header)
+        fun bind(data: ScheduleHeader) {
+            binding.tvSectionHeaderIconText.text = data.title
             binding.onClick = View.OnClickListener {
                 onAddClick()
             }
@@ -114,6 +169,29 @@ class SectionedAdapter(
     }
 
     fun getSectionTitle(sectionIndex: Int): String {
-        return sections[sectionIndex].title
+        return sections[sectionIndex].head.title
+    }
+
+    fun updatePosition(sId: Int, value: Int) {
+        Timber.d("Updating position of schedule $sId to $value")
+//        listItems.forEach {
+//            Timber.d("Item: $it")
+//            if (it is ListItem.Item && (it.data.scheduleId == 5)) {
+//                it.data.positionPath = 500
+//            }
+//        }
+        listItems.forEach {
+            if (it is ListItem.Item && (it.data.scheduleId == sId)) {
+                it.data.positionPath = value
+            }
+        }
+        rebuildSections()
+    }
+
+    fun updateValue(position: Int, newPositionPath: Int) {
+        listItems[position] = ListItem.Item(
+            (listItems[position] as ListItem.Item).data.copy(positionPath = newPositionPath),
+            (listItems[position] as ListItem.Item).sectionIndex
+        )
     }
 }
