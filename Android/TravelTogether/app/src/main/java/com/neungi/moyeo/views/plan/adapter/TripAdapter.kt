@@ -1,4 +1,5 @@
-import android.util.Log
+package com.neungi.moyeo.views.plan.adapter
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

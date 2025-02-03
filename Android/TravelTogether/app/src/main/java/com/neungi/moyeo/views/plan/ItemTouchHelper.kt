@@ -1,7 +1,9 @@
-package com.neungi.moyeo.views.plan.scheduleviewmodel.websocket
+package com.neungi.moyeo.views.plan
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.neungi.moyeo.util.ListItem
+import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import timber.log.Timber
 
 fun createItemTouchHelperCallback(
@@ -70,6 +72,7 @@ fun createItemTouchHelperCallback(
                     throw IllegalStateException("Unexpected item type")
                 }
             }
+            //위치값 update
             val newPositionPath = (upsidePositionPath + downsidePositionPath) / 2
             updatePosition(
                 (adapter.getItem(toPosition) as ListItem.Item).data.scheduleId,

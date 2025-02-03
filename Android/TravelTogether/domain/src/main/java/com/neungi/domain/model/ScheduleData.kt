@@ -1,4 +1,4 @@
-package com.neungi.moyeo.views.plan.scheduleviewmodel
+package com.neungi.domain.model
 
 data class ScheduleData(
     val scheduleId: Int,

@@ -3,10 +3,7 @@ package com.neungi.moyeo.views.plan.scheduleviewmodel
 import androidx.lifecycle.ViewModel
 import com.neungi.domain.model.Operation
 import com.neungi.domain.model.ServerEvent
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.WebSocketManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel

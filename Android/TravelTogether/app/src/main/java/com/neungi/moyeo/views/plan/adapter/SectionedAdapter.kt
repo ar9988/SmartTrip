@@ -1,4 +1,4 @@
-package com.neungi.moyeo.views.plan.scheduleviewmodel.websocket
+package com.neungi.moyeo.views.plan.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,10 +6,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.neungi.domain.model.ScheduleData
 import com.neungi.domain.model.ServerReceive
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemSectionHeaderBinding
-import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
+import com.neungi.moyeo.util.ListItem
+import com.neungi.moyeo.util.ScheduleHeader
+import com.neungi.moyeo.util.Section
 import timber.log.Timber
 
 class SectionedAdapter(
@@ -35,7 +38,7 @@ class SectionedAdapter(
         listItems.clear()
         sections.forEachIndexed { sectionIndex, section ->
             listItems.add(ListItem.SectionHeader(section.head))
-            section.items.forEach { item ->
+            section.items.forEach { item : ScheduleData ->
                 listItems.add(ListItem.Item(item, sectionIndex))
             }
         }

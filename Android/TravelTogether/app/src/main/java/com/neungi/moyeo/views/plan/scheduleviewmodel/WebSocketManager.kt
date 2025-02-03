@@ -1,4 +1,4 @@
-package com.neungi.moyeo.views.plan.scheduleviewmodel.websocket
+package com.neungi.moyeo.views.plan.scheduleviewmodel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -13,7 +13,6 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
 import timber.log.Timber
-import javax.inject.Inject
 
 class WebSocketManager {
     private val client = OkHttpClient()

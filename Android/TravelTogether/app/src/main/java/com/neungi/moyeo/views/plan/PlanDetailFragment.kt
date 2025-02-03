@@ -7,16 +7,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.naver.maps.map.NaverMap
+import com.neungi.domain.model.ScheduleData
 import com.neungi.domain.model.ServerReceive
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
-import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.ScheduleHeader
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.Section
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.SectionedAdapter
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.createItemTouchHelperCallback
+import com.neungi.moyeo.util.ScheduleHeader
+import com.neungi.moyeo.util.Section
+import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -76,7 +75,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.recyclerView.adapter = sectionedAdapter
-        binding.recyclerView.setItemAnimator(null)
         // ItemTouchHelper 초기화
         val itemTouchHelperCallback = createItemTouchHelperCallback{ fromPosition, toPosition ->
             // 이동 이벤트를 ViewModel로 전달

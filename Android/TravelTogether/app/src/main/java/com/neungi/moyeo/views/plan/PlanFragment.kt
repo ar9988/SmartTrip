@@ -1,10 +1,9 @@
 package com.neungi.moyeo.views.plan
 
-import TripAdapter
+import com.neungi.moyeo.views.plan.adapter.TripAdapter
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.neungi.moyeo.R
@@ -14,7 +13,6 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripUiEvent
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
