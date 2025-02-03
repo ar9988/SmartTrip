@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.ThemeItem
 import com.neungi.moyeo.R
@@ -42,7 +43,7 @@ class SelectThemeAdapter(
         fun bind(item: ThemeSelectUiState) {
             with(binding) {
                 // 이미지 로딩 최적화
-                ivThemeItem.setImageResource(item.themeItem.imgId)
+                ivThemeItem.load(item.themeItem.imgId)
                 tvThemeItem.text = item.themeItem.name
                 root.setOnClickListener {
                     onThemeClick(item.themeItem.name)
