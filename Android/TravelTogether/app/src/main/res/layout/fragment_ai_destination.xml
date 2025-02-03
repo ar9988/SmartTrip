@@ -13,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/dp_medium">
+        >
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_ai_destination"
@@ -30,11 +30,12 @@
             android:id="@+id/tv_local"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_small"
             android:layout_marginTop="@dimen/font_size_medium"
             android:text="@string/destination_planning"
             android:textSize="@dimen/font_size_medium"
             android:textStyle="bold"
-            app:layout_goneMarginTop="@dimen/dp_smaller"
+            app:layout_goneMarginTop="@dimen/dp_small"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar_ai_destination"/>
 
@@ -45,7 +46,7 @@
             android:orientation="horizontal"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/tv_local"
             app:layout_constraintTop_toBottomOf="@id/tv_local" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -60,6 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_medium"
+                android:layout_marginStart="@dimen/dp_small"
                 android:text="@string/place_planning"
                 android:textSize="@dimen/font_size_medium"
                 android:textStyle="bold"
@@ -73,7 +75,7 @@
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tv_place"
                 app:layout_constraintTop_toBottomOf="@id/tv_place" />
 
             <TextView
@@ -84,7 +86,7 @@
                 android:text="김싸피님, 여긴 어떠세요?"
                 android:textSize="@dimen/font_size_larger"
                 android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tv_place"
                 app:layout_constraintTop_toBottomOf="@id/rv_place" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -95,10 +97,19 @@
                 android:orientation="horizontal"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tv_place"
                 app:layout_constraintTop_toBottomOf="@id/tv_festival" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ai_select_local_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/next"
+            android:backgroundTint="@color/colorPrimary"
+            android:onClick="@{ () ->vm.onClickGoToTheme()}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
 
 
 

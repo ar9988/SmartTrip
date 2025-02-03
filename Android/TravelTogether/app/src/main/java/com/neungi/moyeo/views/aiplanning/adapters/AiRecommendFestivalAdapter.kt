@@ -35,7 +35,11 @@ class AiRecommendFestivalAdapter(private val viewModel: AIPlanningViewModel,
                 }
             }
             binding.root.setOnClickListener {
-                viewModel.togglePlaceSelection(item.title)
+                if(viewModel.selectedLocations.value.contains(item.title)){
+                    viewModel.togglePlaceSelection(item.title)
+                }else {
+                    viewModel.selectFestival(item)
+                }
 
             }
 

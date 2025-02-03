@@ -9,4 +9,5 @@ interface OnAIPlanningClickListener {
     fun onClickGoToSearchPlace()
 
     fun onClickPopBackToDestiination()
+    fun onClickGoToTheme()
 }

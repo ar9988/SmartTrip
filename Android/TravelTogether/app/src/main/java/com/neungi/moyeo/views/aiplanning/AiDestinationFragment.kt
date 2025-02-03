@@ -1,12 +1,19 @@
 package com.neungi.moyeo.views.aiplanning
 
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import coil.load
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
+import com.neungi.moyeo.databinding.DialogFestivalInfoBinding
 import com.neungi.moyeo.databinding.FragmentAiDestinationBinding
 import com.neungi.moyeo.views.aiplanning.adapters.AiRecommendFestivalAdapter
 import com.neungi.moyeo.views.aiplanning.adapters.SelectedLocationAdapter
@@ -50,8 +57,14 @@ class AiDestinationFragment : BaseFragment<FragmentAiDestinationBinding>(R.layou
                     is AiPlanningUiEvent.GoToSearchPlace->{
                         findNavController().navigateSafely(R.id.action_ai_destination_to_ai_search_place)
                     }
-                    is AiPlanningUiEvent.limitToast ->{
+                    is AiPlanningUiEvent.GoToTheme ->{
+                        findNavController().navigateSafely(R.id.action_ai_destination_to_ai_select_theme)
+                    }
+                    is AiPlanningUiEvent.LimitToast ->{
                         showToastMessage(resources.getString(R.string.select_limit_toast_planning))
+                    }
+                    is AiPlanningUiEvent.ShowFestivalDialog ->{
+                        showFestivalDialog()
                     }
                     else->{
 
@@ -59,6 +72,43 @@ class AiDestinationFragment : BaseFragment<FragmentAiDestinationBinding>(R.layou
                 }
             }
         }
+    }
+
+    fun showFestivalDialog(){
+        val dialogBinding = DialogFestivalInfoBinding.inflate(layoutInflater)
+
+        // ViewModel 설정
+        dialogBinding.vm = viewModel
+        dialogBinding.lifecycleOwner = viewLifecycleOwner
+
+        val dialog = Dialog(requireContext()).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(dialogBinding.root)
+
+            // Dialog 크기 설정
+            window?.apply {
+                val width = (resources.displayMetrics.widthPixels * 0.85).toInt()
+                setLayout(
+                    width,
+                    WindowManager.LayoutParams.WRAP_CONTENT
+                )
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            }
+        }
+
+        with(dialogBinding) {
+            ivFestivalDialogImage.load(viewModel.dialogFestival.value!!.imageUrl)
+            btnFestivalDialogClose.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            btnFestivalDialogConfirm.setOnClickListener {
+                viewModel.togglePlaceSelection(viewModel.dialogFestival.value!!.title)
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
     }
 
 

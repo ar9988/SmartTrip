@@ -8,9 +8,15 @@ sealed class AiPlanningUiEvent {
 
     data object GoToSearchPlace : AiPlanningUiEvent()
 
-    data object PopBackToDestiination :AiPlanningUiEvent()
+    data object PopBackToDestination :AiPlanningUiEvent()
 
-    data object limitToast:AiPlanningUiEvent()
+    data object GoToTheme :AiPlanningUiEvent()
+
+    data object LimitToast:AiPlanningUiEvent()
+
+    data object ShowFestivalDialog:AiPlanningUiEvent()
+
+
 
 
 }
