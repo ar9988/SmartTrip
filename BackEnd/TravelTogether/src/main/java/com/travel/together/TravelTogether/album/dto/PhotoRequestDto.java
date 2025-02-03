@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class PhotoRequestDto {
     private int albumId;
-    private Integer userId;
+    private Long userId;
     private Float latitude;
     private Float longitude;
     private String filePath;
