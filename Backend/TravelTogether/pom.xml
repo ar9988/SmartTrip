@@ -139,6 +139,20 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 
+		<!-- S3 사용을 위한 의존성 추가		-->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.20.10</version>
+		</dependency>
+
+		<!-- EXIF 정보 파싱을 위한 metadata관련 의존성 추가 		-->
+		<dependency>
+			<groupId>com.drewnoakes</groupId>
+			<artifactId>metadata-extractor</artifactId>
+			<version>2.18.0</version>
+		</dependency>
+
 
 	<!-- Testing Dependencies -->
 		<dependency>
