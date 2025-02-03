@@ -3,6 +3,7 @@ package com.travel.together.TravelTogether.tripwebsocket.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.together.TravelTogether.tripwebsocket.dto.RouteResponse;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +17,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 @Slf4j
 public class RouteService {
-    // 대중교통용
-    private final String ODSAY_API_KEY = "GEshN7viFhh9l2tKtWSIdw";
-    private final String ODSAY_BASE_URL = "https://api.odsay.com/v1/api/searchPubTransPathT";
     private final WebClient webClient;
+    // 대중교통용
+    private static final Dotenv dotenv = Dotenv.configure()
+            .filename("env.properties")
+            .load();
+    private static final String ODSAY_API_KEY = dotenv.get("ODSAY_API_KEY");
+    private final String ODSAY_BASE_URL = "https://api.odsay.com/v1/api/searchPubTransPathT";
     // 개인차량용
-    private final String DIRECTION_API_ID = "nom1wg0ckc";
-    private final String DIRECTION_API_KEY = "VID442ub9KoZah2ZDf9zltrCxE6oG1aubM24I51T";
-    private final String DIRECTION_BASE_URL = "https://naveropenapi.apigw.ntruss.com/map-direction/v1";
+//    private final String DIRECTION_API_ID = "nom1wg0ckc";
+//    private final String DIRECTION_API_KEY = "VID442ub9KoZah2ZDf9zltrCxE6oG1aubM24I51T";
+//    private final String DIRECTION_BASE_URL = "https://naveropenapi.apigw.ntruss.com/map-direction/v1";
 
 
-    @Value("${odsay.api.key}")
-    private String apiKey;
 
 //     두 지점간의 경로정보 계산
     public RouteResponse.Routes calculateRoute(Coordinate start, Coordinate end, Integer dayId) {
@@ -53,7 +55,7 @@ public class RouteService {
             String response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path(ODSAY_BASE_URL)
-                            .queryParam("apiKey", apiKey)
+                            .queryParam("apiKey", ODSAY_API_KEY)
                             .queryParam("SX", start.getLongitude())
                             .queryParam("SY", start.getLatitude())
                             .queryParam("EX", end.getLongitude())
