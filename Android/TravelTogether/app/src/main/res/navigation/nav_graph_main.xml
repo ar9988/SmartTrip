@@ -151,6 +151,9 @@
         <action
             android:id="@+id/action_ai_destination_to_ai_search_place"
             app:destination="@id/fragment_ai_search_place" />
+        <action
+            android:id="@+id/action_ai_destination_to_ai_select_theme"
+            app:destination="@id/fragment_ai_theme" />
 
     </fragment>
 
@@ -173,5 +176,9 @@
         android:name="com.neungi.moyeo.views.album.PhotoCommentDeleteDialogFragment"
         tools:layout="@layout/fragment_photo_comment_delete_dialog"
         android:label="Photo Comment Delete" />
+    <fragment
+        android:id="@+id/fragment_ai_theme"
+        android:name="com.neungi.moyeo.views.aiplanning.AiSelectThemeFragment"
+        android:label="AiSelectThemeFragment" />
 
 </navigation>

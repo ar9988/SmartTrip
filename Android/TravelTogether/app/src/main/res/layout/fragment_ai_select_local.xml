@@ -143,11 +143,11 @@
             android:paddingVertical="@dimen/dp_smaller"
             android:paddingHorizontal="@dimen/dp_medium"
             app:layout_constraintTop_toBottomOf="@id/divider_ai_local_bottom"
-            app:layout_constraintBottom_toTopOf="@id/btn_next"
+            app:layout_constraintBottom_toTopOf="@id/btn_ai_select_local_next"
             app:chipSpacingHorizontal="@dimen/dp_small"
             app:singleLine="false" />
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_next"
+            android:id="@+id/btn_ai_select_local_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/next"

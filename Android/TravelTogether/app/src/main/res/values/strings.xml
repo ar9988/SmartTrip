@@ -84,7 +84,18 @@
     <string name="name_planning">이름</string>
     <string name="category_planning">카테고리</string>
     <string name="select_limit_toast_planning">선택지는 3개를 초과할 수 없습니다.</string>
+    <string name="add_festival">추가하기</string>
+    <string name="theme_planning">테마</string>
 
+    <!-- theme strings-->
+    <string name="theme_mountain">산</string>
+    <string name="theme_beach">바다</string>
+    <string name="theme_camping">캠핑</string>
+    <string name="theme_park">공원</string>
+    <string name="theme_shopping">쇼핑</string>
+    <string name="theme_museum">박물관</string>
+    <string name="theme_zoo">동물원</string>
+    <string name="theme_botanic_garden">식물원</string>
 
     <!-- CalendarView-->
     <string name="sun_calendar">일</string>
@@ -94,6 +105,8 @@
     <string name="thur_calendar">목</string>
     <string name="fri_calendar">금</string>
     <string name="sat_calendar">토</string>
+
+
 
 
 </resources>

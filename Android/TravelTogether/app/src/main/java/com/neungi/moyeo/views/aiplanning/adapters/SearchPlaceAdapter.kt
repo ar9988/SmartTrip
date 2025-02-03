@@ -14,15 +14,8 @@ import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import kotlinx.coroutines.launch
 
 class SearchPlaceAdapter(private val viewModel: AIPlanningViewModel,
-                         private val lifecycleOwner: LifecycleOwner
 ) : ListAdapter<Place, SearchPlaceAdapter.ViewHolder>(SearchPlaceDiffCallback()) {
-    init {
-        lifecycleOwner.lifecycleScope.launch {
-            viewModel.placeSearchResult.collect { places ->
-                submitList(places)
-            }
-        }
-    }
+     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ItemSearchPlaceBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }

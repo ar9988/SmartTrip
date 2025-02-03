@@ -14,7 +14,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="@dimen/dp_smaller"
         tools:context=".views.aiplanning.AiSelectPeriodFragment">
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -122,7 +121,7 @@
             />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_next"
+            android:id="@+id/btn_ai_select_period_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/next"
