@@ -21,10 +21,10 @@ public class EditResponse {
     @NoArgsConstructor
     public static class Operation {
         private String action;  // MOVE
-        private Integer schedule_id;  // type이 SCHEDULE일 때
+        private Integer scheduleId;  // type이 SCHEDULE일 때
 //        private Integer fromPosition;
 //        private Integer toPosition;
-        private Integer position_path;
+        private Integer positionPath;
 
     }
 
@@ -40,10 +40,10 @@ public class EditResponse {
         Operation operation = new Operation();
 //        operation.setType(request.getOperation().getType());
         operation.setAction(request.getOperation().getAction());
-        operation.setSchedule_id(request.getOperation().getSchedule_id());
+        operation.setScheduleId(request.getOperation().getScheduleId());
 //        operation.setDay_id(request.getOperation().getDay_id());
 //        operation.setFromPosition(request.getOperation().getFromPosition());
-        operation.setPosition_path(request.getOperation().getPosition_path());
+        operation.setPositionPath(request.getOperation().getPositionPath());
 
         response.setOperation(operation);
         return response;

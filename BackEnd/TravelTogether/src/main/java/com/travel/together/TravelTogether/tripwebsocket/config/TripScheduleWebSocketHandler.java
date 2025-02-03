@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditResponse;
+import com.travel.together.TravelTogether.tripwebsocket.dto.RouteResponse;
 import com.travel.together.TravelTogether.tripwebsocket.dto.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.event.TripEditFinishEvent;
 import io.jsonwebtoken.io.IOException;
@@ -155,4 +156,24 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         }
         return null;
     }
+
+    // route 정보 전송용 broadcast
+    public void broadcastRouteInfo(String tripId, RouteResponse response) {
+        try {
+            String jsonResponse = objectMapper.writeValueAsString(response);
+            Set<WebSocketSession> tripSessionSet = tripSessions.get(tripId);
+            if (tripSessionSet != null) {
+                for (WebSocketSession session : tripSessionSet) {
+                    if (session.isOpen()) {
+                        session.sendMessage(new TextMessage(jsonResponse));
+                    }
+                }
+            }
+        } catch (IOException | JsonProcessingException e) {
+            log.error("Error broadcasting route info", e);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

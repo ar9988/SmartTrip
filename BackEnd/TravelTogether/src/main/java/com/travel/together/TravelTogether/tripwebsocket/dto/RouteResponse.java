@@ -6,9 +6,13 @@ import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class RouteResponse {
     private Integer tripId;
     private List<Routes> routes;
+
 
 
     @Getter
@@ -25,7 +29,7 @@ public class RouteResponse {
         @Setter
         @NoArgsConstructor
         public static class TransportInfo {
-            private Integer type;      // 교통수단 타입
+            private Integer type;
             private Integer duration;  // 소요시간
 
         }

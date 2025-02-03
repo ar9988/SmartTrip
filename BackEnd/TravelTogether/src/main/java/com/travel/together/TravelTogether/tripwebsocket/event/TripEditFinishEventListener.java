@@ -48,13 +48,13 @@ public class TripEditFinishEventListener {
                     // position_path받아서 DB업데이트
                     updateScheduleOrder(edit);
                     log.info("Updated schedule order: scheduleId={}, toPosition={}",
-                            edit.getOperation().getSchedule_id(),
-                            edit.getOperation().getPosition_path());
+                            edit.getOperation().getScheduleId(),
+                            edit.getOperation().getPositionPath());
 
                 } else if ("DELETE".equals(edit.getOperation().getAction())) {
                     deleteSchedule(edit);
                     log.info("Deleted schedule: scheduleId={}",
-                            edit.getOperation().getSchedule_id());
+                            edit.getOperation().getScheduleId());
 
                 } else if ("ADD".equals(edit.getOperation().getAction())) {
                     // TODO: 일정추가기능
@@ -73,8 +73,8 @@ public class TripEditFinishEventListener {
 
 
     private void updateScheduleOrder(EditRequest edit) {
-        Integer scheduleId = edit.getOperation().getSchedule_id();
-        Integer positionPath = edit.getOperation().getPosition_path();
+        Integer scheduleId = edit.getOperation().getScheduleId();
+        Integer positionPath = edit.getOperation().getPositionPath();
 
         // 이동할 스케줄 가져오기
         Schedule schedule = scheduleRepository.findById(scheduleId)
@@ -122,7 +122,7 @@ public class TripEditFinishEventListener {
 
 
     private void deleteSchedule(EditRequest edit) {
-        Integer scheduleId = edit.getOperation().getSchedule_id();
+        Integer scheduleId = edit.getOperation().getScheduleId();
 
         // 스케줄이 존재하는지 확인
         if (scheduleRepository.existsById(scheduleId)) {

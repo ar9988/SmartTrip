@@ -3,6 +3,7 @@ package com.travel.together.TravelTogether.trip.controller;
 import com.travel.together.TravelTogether.trip.dto.TripDetailResponse;
 import com.travel.together.TravelTogether.trip.dto.TripResponse;
 import com.travel.together.TravelTogether.trip.service.TripViewService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/trips")
+@Tag(name = "Trips API", description = "여행계획조회 API")    // swagger UI 설정
 public class TripViewController {
     public TripViewController(TripViewService tripViewService) {
         this.tripViewService = tripViewService;
