@@ -4,10 +4,13 @@ import com.neungi.data.repository.aiplanning.FestivalRepositoryImpl
 import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSource
 import com.neungi.data.repository.albums.AlbumsRemoteDataSource
 import com.neungi.data.repository.albums.AlbumsRepositoryImpl
+import com.neungi.data.repository.auth.AuthRemoteDataSource
+import com.neungi.data.repository.auth.AuthRepositoryImpl
 import com.neungi.data.repository.trips.TripsRemoteDataSource
 import com.neungi.data.repository.trips.TripsRepositoryImpl
 import com.neungi.domain.repository.AlbumsRepository
 import com.neungi.domain.repository.FestivalRepository
+import com.neungi.domain.repository.AuthRepository
 import com.neungi.domain.repository.TripsRepository
 import dagger.Module
 import dagger.Provides
@@ -35,5 +38,11 @@ object RepositoryModule {
     @Singleton
     fun provideFestivalRepository(festivalDataSource: FestivalRemoteDataSource): FestivalRepository {
         return FestivalRepositoryImpl(festivalDataSource)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(authRemoteDataSource: AuthRemoteDataSource): AuthRepository {
+        return AuthRepositoryImpl(authRemoteDataSource)
     }
 }
