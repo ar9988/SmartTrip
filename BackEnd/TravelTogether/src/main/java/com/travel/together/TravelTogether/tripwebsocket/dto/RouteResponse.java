@@ -14,13 +14,11 @@ public class RouteResponse {
     private List<Routes> routes;
 
 
-
     @Getter
     @Setter
     @NoArgsConstructor
     public static class Routes {
         private Integer dayId;
-        private Integer duration; // 소요시간
         private TransportInfo publicTransport;    // 대중교통 정보
         private TransportInfo personalVehicle;    // 개인차량 정보
 

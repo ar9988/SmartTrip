@@ -2,6 +2,9 @@ package com.travel.together.TravelTogether.tripwebsocket.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.aiPlanning.dto.DirectionsRequestDto;
+import com.travel.together.TravelTogether.aiPlanning.dto.DirectionsResponseDto;
+import com.travel.together.TravelTogether.aiPlanning.service.DirectionsService;
 import com.travel.together.TravelTogether.tripwebsocket.dto.RouteResponse;
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.Getter;
@@ -18,20 +21,18 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 public class RouteService {
     private final WebClient webClient;
+    private final DirectionsService directionsService;
+
     // 대중교통용
     private static final Dotenv dotenv = Dotenv.configure()
             .filename("env.properties")
             .load();
     private static final String ODSAY_API_KEY = dotenv.get("ODSAY_API_KEY");
     private final String ODSAY_BASE_URL = "https://api.odsay.com/v1/api/searchPubTransPathT";
-    // 개인차량용
-//    private final String DIRECTION_API_ID = "nom1wg0ckc";
-//    private final String DIRECTION_API_KEY = "VID442ub9KoZah2ZDf9zltrCxE6oG1aubM24I51T";
-//    private final String DIRECTION_BASE_URL = "https://naveropenapi.apigw.ntruss.com/map-direction/v1";
 
 
 
-//     두 지점간의 경로정보 계산
+    //     두 지점간의 경로정보 계산
     public RouteResponse.Routes calculateRoute(Coordinate start, Coordinate end, Integer dayId) {
         RouteResponse.Routes route = new RouteResponse.Routes();
         route.setDayId(dayId);
@@ -39,11 +40,19 @@ public class RouteService {
         // 대중교통 정보 계산
         RouteResponse.Routes.TransportInfo publicTransport = calculatePublicTransport(start, end);
         // TODO: 자동차 정보 계산
-//        RouteResponse.Routes.TransportInfo personalVehicle = calculatePersonalVehicle(start, end);
+        DirectionsRequestDto directionsRequest = new DirectionsRequestDto(
+                start.getLongitude(),
+                start.getLatitude(),
+                end.getLongitude(),
+                end.getLatitude()
+        );
+        DirectionsResponseDto directionsResponse = directionsService.getDrivingDirections(directionsRequest);
+        RouteResponse.Routes.TransportInfo personalVehicle = new RouteResponse.Routes.TransportInfo();
+        personalVehicle.setType(1); // 자동차 타입
+        personalVehicle.setDuration(directionsResponse.getTotalTime() / 60); // 초를 분으로 변환
 
         route.setPublicTransport(publicTransport);
-//        route.setPersonalVehicle(personalVehicle);
-        route.setDuration(publicTransport.getDuration()); // 기본 duration은 대중교통 시간으로 설정
+        route.setPersonalVehicle(personalVehicle);
 
         return route;
     }
@@ -84,14 +93,6 @@ public class RouteService {
             // 에러 시 기본값 반환 또는 예외 처리
             return createDefaultTransportInfo();
         }
-    }
-
-
-
-    // 개인차량 경로 계산 추후 Directions API 구현
-    private RouteResponse.Routes.TransportInfo calculatePersonalVehicle(Coordinate start, Coordinate end) {
-        // TODO: Directions API
-        return createDefaultTransportInfo();
     }
 
 
