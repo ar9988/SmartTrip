@@ -2,6 +2,8 @@ package com.neungi.data.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.neungi.data.repository.aiplanning.FestivalRepositoryImpl
+import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSource
 import com.neungi.data.repository.albums.AlbumsRemoteDataSource
 import com.neungi.data.repository.albums.AlbumsRepositoryImpl
 import com.neungi.data.repository.auth.AuthRemoteDataSource
@@ -10,6 +12,7 @@ import com.neungi.data.repository.datastore.DataStoreRepositoryImpl
 import com.neungi.data.repository.trips.TripsRemoteDataSource
 import com.neungi.data.repository.trips.TripsRepositoryImpl
 import com.neungi.domain.repository.AlbumsRepository
+import com.neungi.domain.repository.FestivalRepository
 import com.neungi.domain.repository.AuthRepository
 import com.neungi.domain.repository.DataStoreRepository
 import com.neungi.domain.repository.TripsRepository
@@ -33,6 +36,12 @@ object RepositoryModule {
     @Singleton
     fun provideTripsRepository(tripsRemoteDataSource: TripsRemoteDataSource): TripsRepository {
         return TripsRepositoryImpl(tripsRemoteDataSource)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFestivalRepository(festivalDataSource: FestivalRemoteDataSource): FestivalRepository {
+        return FestivalRepositoryImpl(festivalDataSource)
     }
 
     @Provides

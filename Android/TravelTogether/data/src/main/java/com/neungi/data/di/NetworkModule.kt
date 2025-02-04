@@ -1,6 +1,7 @@
 package com.neungi.data.di
 
 import com.neungi.data.api.AlbumsApi
+import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
 import com.neungi.data.api.TripsApi
 import com.squareup.moshi.Moshi
@@ -60,6 +61,12 @@ object NetworkModule {
         return retrofit.create(AlbumsApi::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideFestivalApiService(@Named("Moyeo") retrofit: Retrofit): FestivalApi {
+        return retrofit.create(FestivalApi::class.java)
+    }
+    
     @Provides
     @Singleton
     fun provideAuthApiService(@Named("Moyeo") retrofit: Retrofit): AuthApi {
