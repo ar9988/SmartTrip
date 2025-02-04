@@ -28,7 +28,7 @@ public class RouteCalculatorScheduler {
     private final ScheduleRepository scheduleRepository;
     private final RouteService routeService;
 
-    @Scheduled(fixedRate = 10000) // 10초마다
+    @Scheduled(fixedRate = 30000) // 30초마다
     @Transactional(readOnly = true)
     public void processRouteInformation() {
         log.info("Starting route information processing");
