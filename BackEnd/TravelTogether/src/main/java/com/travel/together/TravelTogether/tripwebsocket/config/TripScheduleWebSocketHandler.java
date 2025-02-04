@@ -87,10 +87,10 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             Set<WebSocketSession> tripSessionSet = tripSessions.get(tripId);
             if (tripSessionSet != null) {
                 for (WebSocketSession tripSession : tripSessionSet) {
-                    if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
-                        tripSession.sendMessage(new TextMessage(jsonResponse));
-//                    if (tripSession.isOpen()) {
+//                    if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
 //                        tripSession.sendMessage(new TextMessage(jsonResponse));
+                    if (tripSession.isOpen()) {
+                        tripSession.sendMessage(new TextMessage(jsonResponse));
                     }
                 }
             }
