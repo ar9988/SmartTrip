@@ -1,5 +1,7 @@
 package com.neungi.moyeo.views.plan.adapter
 
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -142,7 +144,9 @@ class SectionedAdapter(
             }
         })
 
-        diffResult.dispatchUpdatesTo(this)
+        Handler(Looper.getMainLooper()).post {
+            diffResult.dispatchUpdatesTo(this)
+        }
     }
 
 
