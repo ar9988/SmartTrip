@@ -3,6 +3,9 @@ package com.neungi.moyeo.views.auth.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.neungi.domain.model.PhotoEntity
+import com.neungi.domain.usecase.GetAuthUseCase
 import com.neungi.moyeo.util.CommonUtils.validateEmail
 import com.neungi.moyeo.util.CommonUtils.validatePassword
 import com.neungi.moyeo.util.CommonUtils.validatePhoneNumber
@@ -14,11 +17,16 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    application: Application
+    application: Application,
+    private val getAuthUseCase: GetAuthUseCase
 ) : AndroidViewModel(application), OnAuthClickListener {
 
     private val _authUiState = MutableStateFlow<AuthUiState>(AuthUiState())
@@ -64,9 +72,22 @@ class AuthViewModel @Inject constructor(
 
     override fun onClickJoinFinish() {
         viewModelScope.launch {
-            // 추후 회원가입 쪽 로직 추가 후 회원가입 성공과 실패를 구분할 예정임.
+            getAuthUseCase.signUp(makeSignUpRequestBody())
             _authUiEvent.emit(AuthUiEvent.JoinSuccess)
         }
+    }
+
+    private fun makeSignUpRequestBody(): RequestBody {
+        val metadata = mapOf(
+            "email" to _joinEmail.value,
+            "password" to _joinPassword.value,
+            "name" to _joinName.value,
+            "created_at" to "",
+            "profile" to "",
+            "updated_at" to ""
+        )
+        val json = Gson().toJson(metadata)
+        return json.toRequestBody("application/json".toMediaTypeOrNull())
     }
 
     fun validateLoginEmail(email: CharSequence) {
