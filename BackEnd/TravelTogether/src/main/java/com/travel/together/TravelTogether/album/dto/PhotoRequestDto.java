@@ -10,4 +10,5 @@ public class PhotoRequestDto {
     private Float longitude;
     private String filePath;
     private String takenAt;
+    private String place;
 }

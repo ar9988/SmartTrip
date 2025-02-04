@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface PhotoAlbumRepository extends JpaRepository<PhotoAlbum, Integer> {
-    List<PhotoAlbum> findByTripId(int tripId);
+    PhotoAlbum findByTrip_Id(int tripId);
 }
