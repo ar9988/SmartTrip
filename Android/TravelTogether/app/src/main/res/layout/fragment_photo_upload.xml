@@ -60,14 +60,6 @@
                 android:textColor="@color/neutral_100"
                 android:textSize="@dimen/font_size_title" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_photo_upload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginEnd="@dimen/dp_medium"
-                android:src="@drawable/ic_check" />
-
         </Toolbar>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -93,6 +85,7 @@
             android:background="@drawable/selector_button"
             android:enabled="@{vm.albumUiState.isPhotoUploadBtnEnable == true}"
             android:fontFamily="@font/pretendardbold"
+            android:onClick="@{() -> vm.onClickGoToClassifyPlaces()}"
             android:text="@string/title_photo_upload"
             android:textColor="@{(vm.albumUiState.isPhotoUploadBtnEnable == true) ? @color/neutral_white : @color/neutral_100}"
             android:textSize="@dimen/font_size_medium"

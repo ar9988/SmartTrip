@@ -21,6 +21,14 @@ interface OnAlbumClickListener {
 
     fun onClickGoToStorage()
 
+    fun onClickGoToClassifyPlaces()
+
+    fun onClickUpdatePlaceName(index: Int)
+
+    fun onClickUpdatePhotoClassification(place: Int, index: Int)
+
+    fun onClickFinishUpdatePhotoClassification()
+
     fun onClickFinishPhotoUpload()
 
     fun onClickCommentSubmit()

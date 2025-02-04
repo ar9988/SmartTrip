@@ -6,6 +6,7 @@ import com.neungi.data.entity.CommentEntity
 import com.neungi.data.entity.PhotoEntity
 import com.neungi.domain.model.Comment
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -19,8 +20,8 @@ class AlbumsRemoteDataSourceImpl @Inject constructor(
     override suspend fun getAlbumPhotos(albumId: String): Response<List<PhotoEntity>> =
         albumsApi.getAlbumPhotos(albumId)
 
-    override suspend fun postPhoto(body: MultipartBody.Part): Response<Boolean> =
-        albumsApi.postPhoto(body)
+    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Response<Boolean> =
+        albumsApi.postPhoto(photos, body)
 
     override suspend fun deletePhoto(albumId: String, photoId: String): Response<Void> =
         albumsApi.deletePhoto(albumId, photoId)

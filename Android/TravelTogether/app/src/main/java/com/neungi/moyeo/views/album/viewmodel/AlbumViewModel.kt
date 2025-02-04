@@ -9,10 +9,12 @@ import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import com.naver.maps.geometry.LatLng
 import com.neungi.domain.model.Comment
 import com.neungi.domain.model.Photo
 import com.neungi.domain.model.PhotoAlbum
+import com.neungi.domain.model.PhotoEntity
 import com.neungi.domain.model.PhotoPlace
 import com.neungi.domain.usecase.GetAlbumsUseCase
 import com.neungi.domain.usecase.GetCommentsUseCase
@@ -31,7 +33,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 import java.io.File
 import java.io.InputStream
@@ -64,6 +68,21 @@ class AlbumViewModel @Inject constructor(
 
     private val _markers = MutableStateFlow<List<MarkerData>>(emptyList())
     val markers = _markers.asStateFlow()
+
+    private val _tempMarkers = MutableStateFlow<List<MarkerData>>(emptyList())
+    val tempMarkers = _tempMarkers.asStateFlow()
+
+    private val _tempPlaces = MutableStateFlow<List<Pair<String, List<MarkerData>>>>(emptyList())
+    val tempPlaces = _tempPlaces.asStateFlow()
+
+    private val _tempPlacesName = MutableStateFlow<String>("")
+    val tempPlacesName = _tempPlacesName
+
+    private val _tempClassifiedPhotoIndex = MutableStateFlow<Pair<Int, Int>>(Pair(-1, -1))
+    val tempClassifiedPhotoIndex = _tempClassifiedPhotoIndex.asStateFlow()
+
+    private val _photoClassifications = MutableStateFlow<List<PhotoClassificationUiState>>(emptyList())
+    val photoClassifications = _photoClassifications.asStateFlow()
 
     private val _selectedPhotoAlbum = MutableStateFlow<PhotoAlbum?>(null)
     val selectedPhotoAlbum = _selectedPhotoAlbum.asStateFlow()
@@ -193,10 +212,75 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
+    override fun onClickGoToClassifyPlaces() {
+        viewModelScope.launch {
+            _albumUiEvent.emit(AlbumUiEvent.GoToClassifyPlaces)
+        }
+    }
+
+    override fun onClickUpdatePlaceName(index: Int) {
+        val newTempPlaces = _tempPlaces.value.toMutableList()
+        newTempPlaces[index] = Pair(_tempPlacesName.value, newTempPlaces[index].second)
+        _tempPlaces.value = newTempPlaces.toList()
+    }
+
+    override fun onClickUpdatePhotoClassification(place: Int, index: Int) {
+        viewModelScope.launch {
+            _tempClassifiedPhotoIndex.value = Pair(place, index)
+            _albumUiEvent.emit(AlbumUiEvent.UpdatePhotoClassification)
+        }
+    }
+
+    override fun onClickFinishUpdatePhotoClassification() {
+        viewModelScope.launch {
+            _tempClassifiedPhotoIndex.value = Pair(-1, -1)
+            _albumUiEvent.emit(AlbumUiEvent.FinishPhotoClassificationUpdate)
+        }
+    }
+
     override fun onClickFinishPhotoUpload() {
         viewModelScope.launch {
+            val photos = mutableListOf<PhotoEntity>()
+            _tempPlaces.value.forEach { place ->
+                place.second.forEach { photo ->
+                    photos.add(
+                        PhotoEntity(
+                            place = place.first,
+                            body = photo.body,
+                            latitude = photo.photo.latitude,
+                            longitude = photo.photo.longitude,
+                            takenAt = photo.photo.takenAt
+                        )
+                    )
+                }
+            }
+
+            val chunked = photos.chunked(10)
+            for ((index, chunk) in chunked.withIndex()) {
+                val photoParts = chunk.mapNotNull { photo ->
+                    photo.body
+                }
+
+                val metadataPart = prepareMetadataPart(chunk)
+
+                getPhotosUseCase.submitPhoto(photoParts, metadataPart)
+            }
             _albumUiEvent.emit(AlbumUiEvent.FinishPhotoUpload)
         }
+    }
+
+    private fun prepareMetadataPart(photoEntities: List<PhotoEntity>): RequestBody {
+        val metadataList = photoEntities.map {
+            mapOf(
+                "place" to it.place,
+                "latitude" to it.latitude,
+                "longitude" to it.longitude,
+                "takenAt" to it.takenAt
+            )
+        }
+
+        val json = Gson().toJson(metadataList)
+        return json.toRequestBody("application/json".toMediaTypeOrNull())
     }
 
     override fun onClickCommentSubmit() {
@@ -454,7 +538,7 @@ class AlbumViewModel @Inject constructor(
 
         val newMarkers = mutableListOf<MarkerData>()
         _selectedPhotos.value.forEachIndexed { index, photo ->
-            newMarkers.add(MarkerData(index + 1, photo, true))
+            newMarkers.add(MarkerData(index + 1, photo, null,true))
         }
         _markers.value = newMarkers.toList()
 
@@ -529,7 +613,16 @@ class AlbumViewModel @Inject constructor(
                     val file = File(path)
                     val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
                     val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
-                    imageList.add(PhotoUploadUiState.UploadedPhoto(uri, body, latitude, longitude, dateTaken))
+                    imageList.add(
+                        PhotoUploadUiState.UploadedPhoto(
+                            uri,
+                            body,
+                            latitude,
+                            longitude,
+                            dateTaken
+                        )
+                    )
+
                 }
 
             }
@@ -571,6 +664,28 @@ class AlbumViewModel @Inject constructor(
         }
 
         return Pair(0.0, 0.0)
+    }
+
+    private fun initTempMarkers() {
+        val newTempMarkers = mutableListOf<MarkerData>()
+        var index = 1
+        for (i in 1 until _uploadPhotos.value.size) {
+            val uploadPhoto = _uploadPhotos.value[i] as PhotoUploadUiState.UploadedPhoto
+            val photo = Photo(
+                index.toString(),
+                "",
+                "",
+                "",
+                uploadPhoto.photoUri.toString(),
+                uploadPhoto.latitude,
+                uploadPhoto.longitude,
+                "",
+                ""
+            )
+            newTempMarkers.add(MarkerData(index, photo, uploadPhoto.body, false))
+            index++
+        }
+        _tempMarkers.value = newTempMarkers
     }
 
     /*** 로직 수정이 필요함 ***/
@@ -660,6 +775,7 @@ class AlbumViewModel @Inject constructor(
             _uploadPhotos.value = listOf(PhotoUploadUiState.PhotoUploadButton())
             val newPhotos = fetchGalleryImages()
             _uploadPhotos.value += newPhotos
+            initTempMarkers()
             getLatLngFromPhotos()
             validUploadPhotos()
         }
@@ -669,29 +785,41 @@ class AlbumViewModel @Inject constructor(
         if (uri == null) return
         viewModelScope.launch {
             val idFromUi = getImageIdFromUri(uri)
-            Timber.d("Id: $idFromUi")
             val newPhotos = _uploadPhotos.value.toMutableList()
-            for (i in 1 until(newPhotos.size)) {
+            for (i in 1 until (newPhotos.size)) {
                 val photoUploadUiState = (newPhotos[i] as PhotoUploadUiState.UploadedPhoto)
                 val nowIDFromUi = getImageIdFromUri(photoUploadUiState.photoUri)
-                Timber.d("Now Id: $nowIDFromUi")
                 if (nowIDFromUi == idFromUi) {
                     _albumUiEvent.emit(AlbumUiEvent.PhotoDuplicated)
                     return@launch
                 }
             }
             val (latitude, longitude) = getLatLngFromExif(uri)
-            newPhotos.add(1, PhotoUploadUiState.UploadedPhoto(uri, body, latitude, longitude, takenAt))
+            newPhotos.add(
+                1,
+                PhotoUploadUiState.UploadedPhoto(uri, body, latitude, longitude, takenAt)
+            )
             _uploadPhotos.value = newPhotos
+            initTempMarkers()
             getLatLngFromPhotos()
             validUploadPhotos()
         }
+    }
+
+    fun initTempPlaces(tags: List<String>, markers: List<List<MarkerData>>) {
+        val newTempPlaces = mutableListOf<Pair<String, List<MarkerData>>>()
+        tags.forEachIndexed { index, _ ->
+            newTempPlaces.add(Pair("장소 ${index + 1}", markers[index]))
+        }
+
+        _tempPlaces.value = newTempPlaces.toList()
     }
 
     fun deleteUploadPhoto(index: Int) {
         val newPhotos = _uploadPhotos.value.toMutableList()
         newPhotos.removeAt(index)
         _uploadPhotos.value = newPhotos
+        initTempMarkers()
         validUploadPhotos()
     }
 }

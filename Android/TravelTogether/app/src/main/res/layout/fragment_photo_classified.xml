@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.album.viewmodel.AlbumViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".views.album.PhotoClassifiedFragment">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/et_photo_classification_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="@dimen/dp_small"
+            android:background="@drawable/shape_edit_text"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:text="@={vm.tempPlacesName}"
+            android:textColor="@color/neutral_70"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/iv_edit_photo_classification_content"
+            app:layout_constraintEnd_toStartOf="@id/iv_edit_photo_classification_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_edit_photo_classification_content" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_edit_photo_classification_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/dp_small"
+            android:src="@drawable/ic_check"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_photo_classification_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/dp_small"
+            android:src="@drawable/baseline_mode_edit_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_photo_classification_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="64dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:spanCount="2"
+            tools:listitem="@layout/list_photo_classified" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
