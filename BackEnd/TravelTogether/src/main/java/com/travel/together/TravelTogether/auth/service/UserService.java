@@ -29,9 +29,8 @@ public class UserService {
         //user 저장
         User user = User.builder()
                 .email(userRequestDto.getEmail())
-                .passwordHash(passwordEncoder.encode(userRequestDto.getPasswordHash()))
-                .nickname(userRequestDto.getNickname())
-                .profile(userRequestDto.getProfile())
+                .password(passwordEncoder.encode(userRequestDto.getPassword()))
+                .name(userRequestDto.getName())
                 .build();
 
         userRepository.save(user);
@@ -45,7 +44,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         //비밀번호 조회
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("invalid credentials");
         }
 
@@ -70,7 +69,7 @@ public class UserService {
         return UserResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .nickname(user.getNickname())
+                .name(user.getName())
                 .profile(user.getProfile())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
@@ -80,9 +79,9 @@ public class UserService {
                 .tripMemberships(user.getTripMemberships().stream()
                         .map(tripMember -> tripMember.getTrip().getTitle()) // Trip 이름 추출
                         .collect(Collectors.toList()))
-//                .photos(user.getPhotos().stream()
-//                        .map(photo -> photo.getUrl()) // Photo URL 추출
-//                        .collect(Collectors.toList()))
+                .photos(user.getPhotos().stream()
+                        .map(photo -> photo.getFilePath()) // Photo URL 추출
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

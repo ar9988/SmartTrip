@@ -13,7 +13,7 @@ import java.util.List;
 public class UserResponseDto {
     private Integer id;
     private String email;
-    private String nickname;
+    private String name;
     private String profile;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

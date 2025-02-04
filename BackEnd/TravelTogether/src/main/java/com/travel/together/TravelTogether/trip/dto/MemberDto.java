@@ -11,7 +11,7 @@ public class MemberDto {
 
     public MemberDto(TripMember member) {
         this.userId = member.getUser().getId().toString();
-        this.name = member.getUser().getNickname();
+        this.name = member.getUser().getName();
         this.isOwner = member.getIsOwner();
     }
 }

@@ -1,5 +1,5 @@
 -- Users
-INSERT INTO User (id, email, password_hash, nickname, profile, created_at, updated_at) VALUES
+INSERT INTO User (id, email, password, name, profile, created_at, updated_at) VALUES
 (1, 'kim@email.com', 'hash1', '김여행러', '여행 좋아하는 직장인', '2024-01-01', '2024-01-01'),
 (2, 'lee@email.com', 'hash2', '이배낭', '배낭여행 전문가', '2024-01-01', '2024-01-01'),
 (3, 'park@email.com', 'hash3', '박포토', '사진작가', '2024-01-01', '2024-01-01'),

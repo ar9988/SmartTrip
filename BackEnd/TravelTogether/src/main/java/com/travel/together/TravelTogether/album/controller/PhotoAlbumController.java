@@ -62,4 +62,14 @@ public class PhotoAlbumController {
         return ResponseEntity.ok(responseDto);
     }
 
+    // [DELETE] /albums/{albumId}/photos/{photoId}
+    // 특정 사진 삭제
+    @DeleteMapping("/{albumId}/photos/{photoId}")
+    public ResponseEntity<Void> deletePhoto(
+            @PathVariable int albumId,
+            @PathVariable Integer photoId
+    ) {
+        photoService.deletePhoto(albumId, photoId);
+        return ResponseEntity.noContent().build();
+    }
 }
