@@ -16,6 +16,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+
                 .securityMatcher("/ws/**", "/topic/**", "/app/**")  // WebSocket 경로만 처리
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/ws/**", "/topic/**", "/app/**").permitAll()
