@@ -1,6 +1,7 @@
 package com.neungi.data.di
 
 import com.neungi.data.api.AlbumsApi
+import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.TripsApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -18,7 +19,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://192.168.0.200:9987/"
+    private const val BASE_URL = "http://10.0.2.2:8080/"
 
     @Provides
     @Singleton
@@ -57,5 +58,11 @@ object NetworkModule {
     @Singleton
     fun provideAlbumsApiService(@Named("Moyeo") retrofit: Retrofit): AlbumsApi {
         return retrofit.create(AlbumsApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFestivalApiService(@Named("Moyeo") retrofit: Retrofit): FestivalApi {
+        return retrofit.create(FestivalApi::class.java)
     }
 }

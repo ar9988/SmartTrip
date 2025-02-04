@@ -10,35 +10,24 @@ import coil.load
 import com.neungi.domain.model.Festival
 import com.neungi.moyeo.databinding.ItemAiDestinationFestivalBinding
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
+import com.neungi.moyeo.views.aiplanning.viewmodel.FestivalSelectUiState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class AiRecommendFestivalAdapter(private val viewModel: AIPlanningViewModel,
                                  private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<AiRecommendFestivalAdapter.AiRecommendFestivalViewHolder>() {
-    private var items: List<Festival> = emptyList()
-    init {
-        lifecycleOwner.lifecycleScope.launch {
-            viewModel.recommendFestivals.collect { festivals ->
-                items = festivals
-            }
-        }
-    }
+    private var items: List<FestivalSelectUiState> = emptyList()
+
     inner class AiRecommendFestivalViewHolder(val binding: ItemAiDestinationFestivalBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: Festival) {
-            binding.tvFestivalTitle.text = item.title
-            binding.ivFestivalImage.load(item.imageUrl)
-            lifecycleOwner.lifecycleScope.launch {
-                viewModel.selectedPlaces.collect { selectedPlaces ->
-                    Timber.d(selectedPlaces.toString())
-                    val isSelected = selectedPlaces.contains(item.title)
-                    updateSelectedUI(isSelected)
-                }
-            }
+        fun bind(item: FestivalSelectUiState) {
+            binding.tvFestivalTitle.text = item.festival.title
+            binding.ivFestivalImage.load(item.festival.imageUrl)
+            updateSelectedUI(item.isSelected)
             binding.root.setOnClickListener {
-                if(viewModel.selectedLocations.value.contains(item.title)){
-                    viewModel.togglePlaceSelection(item.title)
+                if(viewModel.selectedLocations.value.contains(item.festival.title)){
+                    viewModel.togglePlaceSelection(item.festival.title)
                 }else {
-                    viewModel.selectFestival(item)
+                    viewModel.selectFestival(item.festival)
                 }
 
             }
@@ -63,5 +52,10 @@ class AiRecommendFestivalAdapter(private val viewModel: AIPlanningViewModel,
     }
 
     override fun getItemCount() = items.size
+
+    fun submitList(newItems:List<FestivalSelectUiState>){
+        items = newItems.toList()
+        notifyDataSetChanged()
+    }
 }
 

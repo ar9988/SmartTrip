@@ -1,5 +1,9 @@
 package com.neungi.moyeo.util
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Date
+
 object CommonUtils {
 
     private val emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$".toRegex()
@@ -20,4 +24,7 @@ object CommonUtils {
 
         return degrees + (minutes / 60) + (seconds / 3600)
     }
+
+    fun convertToYYYYMMDD(date: LocalDate?): String =
+        (date ?: LocalDate.now()).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 }

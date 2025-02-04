@@ -1,10 +1,15 @@
 package com.neungi.moyeo.views.aiplanning.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.neungi.domain.model.ApiResult
+import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.Place
 import com.neungi.domain.model.ThemeItem
+import com.neungi.domain.usecase.GetRecommendFestivalUseCase
+import com.neungi.moyeo.util.CommonUtils
 import com.neungi.moyeo.util.EmptyState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +27,8 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 @HiltViewModel
 class AIPlanningViewModel @Inject constructor(
-
+    private val getRecommendFestivalUseCase: GetRecommendFestivalUseCase,
+    private val regionMapper: RegionMapper
 ) : ViewModel(),OnAIPlanningClickListener {
 
 
@@ -61,20 +67,8 @@ class AIPlanningViewModel @Inject constructor(
     val selectedPlaces = _selectedPlaces.asStateFlow()
 
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(
-        listOf(
-            Festival("강화도왕방마을얼음축제",
-                "https://tong.visitkorea.or.kr/cms/resource/75/2938675_image2_1.jpg",
-                "인천광역시 강화군 중앙로787번길 8-1 관리소매점",
-                "20241225",
-                "20250303",
-                "은백의 겨울 이곳 왕방마을 인산낚시터에서 제11회 강화도 송어.빙어축제를 [2024.12.25 ~ 2025.3.3]에 개최한다. 주변의 수려한 경관과 산책로, 얼음썰매 등 여러 즐길거리와 이벤트가 준비되어있다. 또한 낚시 체험과 더불어 빙어튀김,분식류 등 맛있는 먹거리가 풍성하게 준비되어있다."),
-            Festival("계양 빛축제",
-                "https://tong.visitkorea.or.kr/cms/resource/07/3399307_image2_1.jpg",
-                "인천광역시 계양구 경명대로 지하1089 (계산동)",
-                "20240923",
-                "20250228",
-                "계양의 대표 가을 축제인 계양 빛 축제, 올해는 &apos;소풍&apos;을 테마로 우주탐험, 바다 숲, 빛의 바다, 빛담길 등 다채로운 콘셉트의 독특한 빛 조형물과 포토존, 경관조명이 가을 밤을 화려하게 밝힌다."),
-        ))
+        emptyList()
+    )
     val recommendFestivals = _recommendFestivals.asStateFlow()
 
     private val _dialogSelectedFestival = MutableStateFlow<Festival?>(null)
@@ -200,6 +194,33 @@ class AIPlanningViewModel @Inject constructor(
                     currentList
                 }
             }
+        }
+    }
+
+    //축제 api통신 연결
+    fun updateFestivalsByLocation(firstLocation: String) {
+        Timber.d("updateFestival!!")
+        viewModelScope.launch {
+            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDD(startDate.value), CommonUtils.convertToYYYYMMDD(endDate.value), regionMapper.getRegionCode(firstLocation))
+            Timber.d("${result}")
+            when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    result.data?.let { festivals ->
+                        _recommendFestivals.value = festivals.toList()
+                    }
+                }
+                ApiStatus.ERROR -> {
+                    Timber.e(result.message)
+                    _recommendFestivals.value = emptyList()
+                }
+                ApiStatus.FAIL -> {
+                    _recommendFestivals.value = emptyList()
+                }
+                ApiStatus.LOADING -> {
+                    // 로딩 상태 처리가 필요한 경우
+                }
+            }
+
         }
     }
 

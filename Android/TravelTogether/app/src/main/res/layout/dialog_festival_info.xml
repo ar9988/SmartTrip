@@ -18,6 +18,7 @@
             android:id="@+id/iv_festival_dialog_image"
             android:layout_width="0dp"
             android:layout_height="200dp"
+            android:maxWidth="400dp"
             android:scaleType="centerInside"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
