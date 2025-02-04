@@ -1,8 +1,12 @@
 package com.neungi.data.di
 
 import com.neungi.data.api.AlbumsApi
+import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
 import com.neungi.data.api.TripsApi
+import com.neungi.data.repository.aiplanning.FestivalRepositoryImpl
+import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSource
+import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSourceImpl
 import com.neungi.data.repository.albums.AlbumsRemoteDataSource
 import com.neungi.data.repository.albums.AlbumsRemoteDataSourceImpl
 import com.neungi.data.repository.auth.AuthRemoteDataSource
@@ -30,6 +34,18 @@ object RemoteDataModule {
     fun provideTripsRemoteDataSource(tripsApi: TripsApi): TripsRemoteDataSource {
         return TripsRemoteDataSourceImpl(tripsApi)
     }
+
+    @Provides
+    @Singleton
+    fun provideFestivalRemoteDataSource(festivalApi: FestivalApi): FestivalRemoteDataSource {
+        return FestivalRemoteDataSourceImpl(festivalApi)
+    }
+
+//    @Provides
+//    @Singleton
+//    fun provideAiPlanningLocalRegionDataSource(): AiPlanningLocalRegionDataSource {
+//        return AiPlanningLocalRegionDataSourceImpl()
+//    }
 
     @Provides
     @Singleton

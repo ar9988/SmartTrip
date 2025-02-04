@@ -18,6 +18,7 @@
             android:id="@+id/iv_festival_dialog_image"
             android:layout_width="0dp"
             android:layout_height="200dp"
+            app:layout_constraintWidth_percent="0.7"
             android:scaleType="centerInside"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -80,9 +81,8 @@
         <ScrollView
             android:id="@+id/sv_festival_dialog_overview"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="16dp"
-            android:maxHeight="150dp"
             app:layout_constraintEnd_toEndOf="@id/tv_festival_dialog_title"
             app:layout_constraintStart_toStartOf="@id/tv_festival_dialog_title"
             app:layout_constraintBottom_toTopOf="@id/btn_festival_dialog_confirm"
