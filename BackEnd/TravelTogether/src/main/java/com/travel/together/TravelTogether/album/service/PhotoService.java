@@ -15,6 +15,7 @@ import com.travel.together.TravelTogether.album.repository.PhotoRepository;
 import com.travel.together.TravelTogether.album.repository.PhotoPlaceRepository;
 import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
+import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -176,5 +177,27 @@ public class PhotoService {
             dto.setPlace(photo.getPhotoPlace().getName());
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deletePhoto(int albumId, Integer photoId) {
+        Photo photo = photoRepository.findById(photoId)
+                .orElseThrow(() -> new IllegalArgumentException("Photo not found"));
+
+        int albumIdFromPhoto = (photo.getAlbum() != null) ? photo.getAlbum().getId() : -1;
+        if (albumIdFromPhoto != albumId) {
+            throw new IllegalArgumentException("Photo does not belong to the album");
+        }
+
+        // 1. S3에서 사진 삭제
+        String fileKey = extractFileKeyFromUrl(photo.getFilePath()); // URL에서 파일 키 추출
+        s3Service.deleteFile(fileKey);
+
+        // 2. 데이터베이스에서 삭제
+        photoRepository.delete(photo);
+    }
+
+    private String extractFileKeyFromUrl(String imageUrl) {
+        return imageUrl.substring(imageUrl.lastIndexOf("/") + 1); // S3 URL에서 키 추출
     }
 }

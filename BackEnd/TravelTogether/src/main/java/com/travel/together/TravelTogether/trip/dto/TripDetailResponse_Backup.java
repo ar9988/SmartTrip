@@ -126,7 +126,7 @@ public class TripDetailResponse_Backup {
         TripDetailResponse_Backup response = new TripDetailResponse_Backup();
         response.setTripId(trip.getId());
         response.setTitle(trip.getTitle());
-        response.setCreatorName(trip.getCreator().getNickname());
+        response.setCreatorName(trip.getCreator().getName());
         response.setStartDate(trip.getStartDate());
         response.setEndDate(trip.getEndDate());
 
@@ -147,7 +147,7 @@ public class TripDetailResponse_Backup {
                 .map(member -> {
                     MemberDto dto = new MemberDto();
                     dto.setUserId(member.getUser().getId());
-                    dto.setNickname(member.getUser().getNickname());
+                    dto.setNickname(member.getUser().getName());
                     dto.setOwner(member.getIsOwner());
                     return dto;
                 })

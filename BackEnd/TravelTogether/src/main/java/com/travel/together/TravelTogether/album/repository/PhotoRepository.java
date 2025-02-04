@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PhotoRepository extends JpaRepository<Photo, Integer> {
     List<Photo> findByAlbumId(int albumId);
+    void deleteByIdAndAlbumId(int photoId, int albumId);
 }

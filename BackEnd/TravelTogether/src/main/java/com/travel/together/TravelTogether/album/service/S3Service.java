@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Utilities;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
@@ -77,5 +78,15 @@ public class S3Service {
     private String generateFileName(String originalFilename) {
         String sanitizedFilename = originalFilename.replace(" ", "_");
         return UUID.randomUUID().toString() + "_" + sanitizedFilename;
+    }
+
+    // 파일 삭제
+    public void deleteFile(String fileKey) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileKey)
+                .build();
+
+        s3Client.deleteObject(deleteObjectRequest);
     }
 }

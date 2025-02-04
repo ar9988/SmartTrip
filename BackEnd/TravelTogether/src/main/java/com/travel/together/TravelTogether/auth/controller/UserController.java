@@ -12,19 +12,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
     //회원가입 처리
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<UserResponseDto> registerUser(@RequestBody UserRequestDto userRequestDto) {
         User user = userService.registerUser(userRequestDto);
         UserResponseDto responseDto = UserResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .nickname(user.getNickname())
+                .name(user.getName())
                 .profile(user.getProfile())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
@@ -36,7 +36,7 @@ public class UserController {
     //Login
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDto> loginUser(@RequestBody LoginRequestDto loginRequestDto) {
-        String token = userService.loginUser(loginRequestDto.getEmail(), loginRequestDto.getPasswordHash());
+        String token = userService.loginUser(loginRequestDto.getEmail(), loginRequestDto.getPassword());
         return ResponseEntity.ok(TokenResponseDto.builder()
                 .token("Bearer " + token)
                 .build());
