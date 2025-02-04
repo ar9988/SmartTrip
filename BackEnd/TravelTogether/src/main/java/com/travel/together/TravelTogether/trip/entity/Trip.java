@@ -1,6 +1,7 @@
 package com.travel.together.TravelTogether.trip.entity;
 
 import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.trip.entity.TripEntityListener;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Table(name = "trip")
 @Getter
 @Setter
+@EntityListeners(TripEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Trip {
 

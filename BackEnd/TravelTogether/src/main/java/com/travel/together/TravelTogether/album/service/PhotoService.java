@@ -12,6 +12,7 @@ import com.travel.together.TravelTogether.album.entity.PhotoAlbum;
 import com.travel.together.TravelTogether.album.entity.PhotoPlace;
 import com.travel.together.TravelTogether.album.repository.PhotoAlbumRepository;
 import com.travel.together.TravelTogether.album.repository.PhotoRepository;
+import com.travel.together.TravelTogether.album.repository.PhotoPlaceRepository;
 import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -33,21 +34,25 @@ public class PhotoService {
 
     private final PhotoRepository photoRepository;
     private final PhotoAlbumRepository photoAlbumRepository;
+    private final PhotoPlaceRepository photoPlaceRepository; // 📌 PhotoPlaceRepository 추가
     private final UserRepository userRepository;
     private final S3Service s3Service;
 
     // S3 업로드를 위한 의존성 주입
     public PhotoService(PhotoRepository photoRepository,
                         PhotoAlbumRepository photoAlbumRepository,
+                        PhotoPlaceRepository photoPlaceRepository,
                         UserRepository userRepository,
                         S3Service s3Service) {
         this.photoRepository = photoRepository;
         this.photoAlbumRepository = photoAlbumRepository;
+        this.photoPlaceRepository = photoPlaceRepository;
         this.userRepository = userRepository;
         this.s3Service = s3Service;
     }
 
-    // 사진 업로드
+
+    // 사진 업로드 및 S3 저장 후 DB 저장
     @Transactional
     public PhotoResponseDto uploadPhoto(PhotoRequestDto photoRequestDto, MultipartFile file) {
         // 파일 전체 바이트 배열 읽기 (재사용을 위해)
@@ -84,69 +89,66 @@ public class PhotoService {
                 }
             }
         } catch (Exception e) {
-            // 파싱 실패해도 업로드는 진행
             System.err.println("EXIF 파싱 실패: " + e.getMessage());
         }
 
-        // S3 업로드를 위해 fileBytes를 새로운 ByteArrayInputStream으로 변환하여 사용
+        // S3 업로드 후 URL 저장
         String s3Url;
         try (ByteArrayInputStream uploadStream = new ByteArrayInputStream(fileBytes)) {
-            // 기존 S3Service.uploadFile(MultipartFile file) 대신, 오버로딩된 메서드를 사용합니다.
-            // 예제에서는 S3Service에 다음과 같은 메서드가 있다고 가정합니다:
-            // uploadFile(InputStream inputStream, long contentLength, String contentType, String originalFilename)
             s3Url = s3Service.uploadFile(uploadStream, file.getSize(), file.getContentType(), file.getOriginalFilename());
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 중 에러 발생", e);
         }
 
+        // EXIF 데이터를 사용할 수 없으면 DTO 값 사용
+        photoRequestDto.setLatitude(latitude != null ? latitude : photoRequestDto.getLatitude());
+        photoRequestDto.setLongitude(longitude != null ? longitude : photoRequestDto.getLongitude());
+        photoRequestDto.setTakenAt(takenAt != null ? takenAt.toString() : photoRequestDto.getTakenAt());
+        photoRequestDto.setFilePath(s3Url); // ✅ S3 URL을 filePath로 설정
+
+        // 새로 만든 `savePhoto` 메서드를 사용해 DB 저장
+        return savePhoto(photoRequestDto);
+    }
+
+    // 이미 S3에 저장된 사진을 DB에 저장하는 메서드
+    @Transactional
+    public PhotoResponseDto savePhoto(PhotoRequestDto photoRequestDto) {
         // 앨범 정보 조회
-        Optional<PhotoAlbum> albumOpt = photoAlbumRepository.findById(photoRequestDto.getAlbumId());
-        if (!albumOpt.isPresent()) {
-            throw new RuntimeException("PhotoAlbum not found with id: " + photoRequestDto.getAlbumId());
-        }
-        PhotoAlbum album = albumOpt.get();
+        PhotoAlbum album = photoAlbumRepository.findById(photoRequestDto.getAlbumId())
+                .orElseThrow(() -> new RuntimeException("PhotoAlbum not found with id: " + photoRequestDto.getAlbumId()));
 
-        Optional<User> userOpt = userRepository.findById(photoRequestDto.getUserId());
-        if (!userOpt.isPresent()) {
-            throw new RuntimeException("User not found with id: " + photoRequestDto.getUserId());
-        }
-        User user = userOpt.get();
+        // 유저 정보 조회
+        User user = userRepository.findById(photoRequestDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + photoRequestDto.getUserId()));
 
-        // PhotoPlace : 기존 장소가 있으면 사용, 없으면 "Default"
-        PhotoPlace photoPlace;
-        if (album.getPhotoPlaces() != null && !album.getPhotoPlaces().isEmpty()) {
-            photoPlace = album.getPhotoPlaces().get(0);
-        } else {
-            photoPlace = new PhotoPlace();
-            photoPlace.setAlbum(album);
-            photoPlace.setName("Default");
-            album.getPhotoPlaces().add(photoPlace);
-        }
+        // place(장소) 데이터를 기반으로 PhotoPlace 조회 또는 생성
+        PhotoPlace photoPlace = photoPlaceRepository.findByNameAndAlbum(photoRequestDto.getPlace(), album)
+                .orElseGet(() -> {
+                    PhotoPlace newPlace = new PhotoPlace();
+                    newPlace.setAlbum(album);
+                    newPlace.setName(photoRequestDto.getPlace()); // 클라이언트가 보낸 place 값 저장
+                    return photoPlaceRepository.save(newPlace);
+                });
+
 
         // Photo 엔티티 생성 및 필드 설정
         Photo photo = new Photo();
         photo.setAlbum(album);
         photo.setPhotoPlace(photoPlace);
         photo.setUser(user);
-        photo.setFilePath(s3Url);
+        photo.setFilePath(photoRequestDto.getFilePath());
+        photo.setLatitude(photoRequestDto.getLatitude());
+        photo.setLongitude(photoRequestDto.getLongitude());
 
-        // EXIF 값이 있으면 사용, 없으면 DTO의 값 사용
-        if (latitude != null && longitude != null) {
-            photo.setLatitude(latitude);
-            photo.setLongitude(longitude);
-        } else {
-            photo.setLatitude(photoRequestDto.getLatitude());
-            photo.setLongitude(photoRequestDto.getLongitude());
-        }
-        if (takenAt != null) {
-            photo.setTakenAt(takenAt);
-        } else if (photoRequestDto.getTakenAt() != null && !photoRequestDto.getTakenAt().isEmpty()) {
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-            photo.setTakenAt(LocalDateTime.parse(photoRequestDto.getTakenAt(), formatter));
+        // 촬영 날짜 설정
+        if (photoRequestDto.getTakenAt() != null && !photoRequestDto.getTakenAt().isEmpty()) {
+            photo.setTakenAt(LocalDateTime.parse(photoRequestDto.getTakenAt(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         }
 
-        // DB 저장 DTO 반환
+        // DB 저장
         Photo savedPhoto = photoRepository.save(photo);
+
+        // Response DTO 변환
         PhotoResponseDto responseDto = new PhotoResponseDto();
         responseDto.setAlbumId(savedPhoto.getAlbum().getId());
         responseDto.setUserId(savedPhoto.getUser().getId());
@@ -154,11 +156,12 @@ public class PhotoService {
         responseDto.setLongitude(savedPhoto.getLongitude());
         responseDto.setFilePath(savedPhoto.getFilePath());
         responseDto.setTakenAt(savedPhoto.getTakenAt() != null ? savedPhoto.getTakenAt().toString() : null);
+        responseDto.setPlace(savedPhoto.getPhotoPlace().getName());
+
         return responseDto;
     }
 
-
-    // 앨법에 속한 사진 조회
+   // 앨범 사진 조회
     @Transactional(readOnly = true)
     public List<PhotoResponseDto> getPhotosByAlbumId(int albumId) {
         List<Photo> photos = photoRepository.findByAlbumId(albumId);
@@ -170,6 +173,7 @@ public class PhotoService {
             dto.setLongitude(photo.getLongitude());
             dto.setFilePath(photo.getFilePath());
             dto.setTakenAt(photo.getTakenAt() != null ? photo.getTakenAt().toString() : null);
+            dto.setPlace(photo.getPhotoPlace().getName());
             return dto;
         }).collect(Collectors.toList());
     }
