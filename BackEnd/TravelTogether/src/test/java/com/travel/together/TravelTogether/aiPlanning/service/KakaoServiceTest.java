@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import java.io.UnsupportedEncodingException;
 
 class KakaoServiceTest {
-    private KakaoService kakaoApiService;
+    private KakaoService kakaoService;
 
     @BeforeEach
     public void setUp() {
-        kakaoApiService = new KakaoService();
+        kakaoService = new KakaoService();
     }
 
     @Test
@@ -21,7 +21,7 @@ class KakaoServiceTest {
         KakaoRequestDto requestDto = new KakaoRequestDto("서울");
 
         // Act
-        KakaoResponseDto response = kakaoApiService.searchByKeyword(requestDto);
+        KakaoResponseDto response = kakaoService.searchByKeyword(requestDto);
 
         // Assert
         System.out.println("장소 = " + response.getPlaceName());
