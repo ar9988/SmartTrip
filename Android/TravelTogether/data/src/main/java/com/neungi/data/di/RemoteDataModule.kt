@@ -4,7 +4,6 @@ import com.neungi.data.api.AlbumsApi
 import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.TripsApi
 import com.neungi.data.repository.aiplanning.FestivalRepositoryImpl
-import com.neungi.data.repository.aiplanning.datasource.AiPlanningLocalRegionDataSource
 import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSource
 import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSourceImpl
 import com.neungi.data.repository.albums.AlbumsRemoteDataSource

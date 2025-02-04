@@ -52,5 +52,22 @@ class FestivalRepositoryImpl@Inject constructor(
             ApiResult.fail()
         }
 
+    override suspend fun getFestivalOverview(
+        contentId: String
+    ): ApiResult<String> =
+        try {
+            val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                festivalRemoteDataSource.getFestivalOverview(contentId)
+            }
+            val body = response.body()
+            if (response.isSuccessful && (body != null)) {
+                ApiResult.success(body.overview)
+            } else {
+                ApiResult.error(response.errorBody().toString(), null)
+            }
+
+        } catch (e: Exception) {
+            ApiResult.fail()
+        }
 
 }

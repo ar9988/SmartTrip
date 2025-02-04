@@ -8,6 +8,7 @@ import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.Place
 import com.neungi.domain.model.ThemeItem
+import com.neungi.domain.usecase.GetFestivalOverview
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
 import com.neungi.moyeo.util.CommonUtils
 import com.neungi.moyeo.util.EmptyState
@@ -28,6 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AIPlanningViewModel @Inject constructor(
     private val getRecommendFestivalUseCase: GetRecommendFestivalUseCase,
+    private val GetFestivalOverview:GetFestivalOverview,
     private val regionMapper: RegionMapper
 ) : ViewModel(),OnAIPlanningClickListener {
 
@@ -197,6 +199,8 @@ class AIPlanningViewModel @Inject constructor(
         }
     }
 
+
+
     //축제 api통신 연결
     fun updateFestivalsByLocation(firstLocation: String) {
         Timber.d("updateFestival!!")
@@ -226,12 +230,39 @@ class AIPlanningViewModel @Inject constructor(
 
     //추천 축제 선택시 dialog
     fun selectFestival(festival:Festival){
-        _dialogSelectedFestival.update {
-            festival
-        }
         viewModelScope.launch {
+            val result = GetFestivalOverview(festival.contentId)
+            Timber.d("${result}")
+            val overView : String = when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    result.data?:"정보가 없습니다"
+                }
+                ApiStatus.ERROR -> {
+                    "정보가 없습니다"
+                }
+                ApiStatus.FAIL -> {
+                    "정보가 없습니다"
+                }
+                ApiStatus.LOADING -> {
+                    ""
+                }
+            }
+            val newFestival = Festival(
+                title = festival.title,
+                imageUrl = festival.imageUrl,
+                address = festival.address,
+                startDate = festival.startDate,
+                endDate = festival.endDate,
+                overView = overView,
+                contentId = festival.contentId
+
+                )
+            _dialogSelectedFestival.update {
+                newFestival
+            }
             _aiPlanningUiEvent.emit(AiPlanningUiEvent.ShowFestivalDialog)
         }
+
 
     }
 

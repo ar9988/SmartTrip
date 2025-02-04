@@ -9,5 +9,7 @@ interface FestivalRepository {
 
     suspend fun getRecommendFestival(startDate:String, endDate:String, regionNumber:String):ApiResult<List<Festival>>
 
+    suspend fun getFestivalOverview(contentId:String):ApiResult<String>
+
 //    suspend fun getRecommendFestivalInfo():ApiResult<Festival>
 }
