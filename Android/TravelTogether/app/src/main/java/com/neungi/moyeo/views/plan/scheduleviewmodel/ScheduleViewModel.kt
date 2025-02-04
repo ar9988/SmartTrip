@@ -1,7 +1,10 @@
 package com.neungi.moyeo.views.plan.scheduleviewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.neungi.domain.model.Operation
+import com.neungi.domain.model.Place
 import com.neungi.domain.model.ServerEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -13,6 +16,8 @@ class ScheduleViewModel @Inject constructor(
     val serverUrl = "ws://43.202.51.112:8080/ws?tripId=1"
     var tripId = 0
 
+    private val _searchResults = MutableLiveData<Place>()
+    val searchResut: LiveData<Place> get() = _searchResults
     var webSocketManager : WebSocketManager // hilt에서 주입받을 수 있도록 변경
 
     fun onItemMoved(scheduleId: Int, positionPath: Int) {

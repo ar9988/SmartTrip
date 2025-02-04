@@ -27,25 +27,41 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private val viewModel: ScheduleViewModel by activityViewModels()
     private lateinit var sectionedAdapter: SectionedAdapter
     private lateinit var naverMap: NaverMap
-
+    private var isUserDragging = false  // 드래그 상태 추적
     //    private lateinit var scheduleAdapter: ScheduleAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
         Timber.d("Received tripId: $tripId")
         viewModel.webSocketManager.events.observe(viewLifecycleOwner) { event : ServerReceive ->
-            println("Received event: $event")
-            sectionedAdapter.updatePosition(event)
-            // list에 해당 sId의 positionPath 값 업데이트, rebuild 한다
+            if (!isUserDragging) {
+                Timber.d("Received external event: $event")
+                sectionedAdapter.updatePosition(event)
+            } else {
+                sectionedAdapter.setPosition(event)
+                Timber.d("Ignoring external event during user drag")
+            }
         }
         setupRecyclerView()
     }
 
     private fun setupRecyclerView() {
+        val itemTouchHelperCallback = createItemTouchHelperCallback ({ fromPosition, toPosition ->
+            // 이동 이벤트를 ViewModel로 전달
+            viewModel.onItemMoved(fromPosition, toPosition)
+        },
+            {
+                    value ->
+                isUserDragging = value
+                if(!value){
+                    sectionedAdapter.rebuildSections()
+                }
+            }
+        )
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
         sectionedAdapter = SectionedAdapter(
-            onItemClick = { scheduleId ->
-                println("click $scheduleId")
-            },
+            itemTouchHelper,
             onDeleteClick = { scheduleId ->
                 println("Delete schedule with ID: $scheduleId")
             },
@@ -75,13 +91,9 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.recyclerView.adapter = sectionedAdapter
-        // ItemTouchHelper 초기화
-        val itemTouchHelperCallback = createItemTouchHelperCallback{ fromPosition, toPosition ->
-            // 이동 이벤트를 ViewModel로 전달
-            viewModel.onItemMoved(fromPosition, toPosition)
-        }
-        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        binding.recyclerView.animation = null
+        binding.recyclerView.hasFixedSize()
+
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
     }
-
 }

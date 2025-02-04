@@ -1,13 +1,17 @@
 package com.neungi.moyeo.views.plan
 
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.neungi.moyeo.R
 import com.neungi.moyeo.util.ListItem
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import timber.log.Timber
 
 fun createItemTouchHelperCallback(
-    updatePosition: (scheduleId: Int, positionPath: Int) -> Unit
+    updatePosition: (scheduleId: Int, positionPath: Int) -> Unit,
+    onDrag: (Boolean) -> Unit
 ): ItemTouchHelper.Callback {
     return object : ItemTouchHelper.Callback() {
         override fun getMovementFlags(
@@ -21,6 +25,7 @@ fun createItemTouchHelperCallback(
                 makeMovementFlags(dragFlags, 0)
             }
         }
+        override fun isLongPressDragEnabled() = false
 
         override fun onMove(
             recyclerView: RecyclerView,
@@ -30,6 +35,12 @@ fun createItemTouchHelperCallback(
             val adapter = recyclerView.adapter as SectionedAdapter
             val fromPosition = viewHolder.bindingAdapterPosition
             val toPosition = target.bindingAdapterPosition
+
+
+            // 현재 화면에 보이는 부분의 위치 저장
+            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+//            val firstVisible = layoutManager.findFirstVisibleItemPosition()
+//            val lastVisible = layoutManager.findLastVisibleItemPosition()
 
             // 드래그 제한 조건 처리
             val targetItem = adapter.getItem(toPosition)
@@ -79,12 +90,41 @@ fun createItemTouchHelperCallback(
                 newPositionPath
             )
             adapter.updateValue(toPosition, newPositionPath)
+
+
+//            layoutManager.scrollToPosition(fromPosition)
+
             Timber.d("onMove: $fromPosition -> $toPosition, ${((upsidePositionPath + downsidePositionPath) / 2)}")
             return true
         }
 
+
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             // 스와이프 비활성화
+        }
+        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+            when (actionState) {
+                ItemTouchHelper.ACTION_STATE_IDLE -> {
+                    // 드래그 종료 시
+                    onDrag(false)
+                }
+                ItemTouchHelper.ACTION_STATE_DRAG -> {
+                    // 터치가 시작되었을 때
+                    viewHolder?.itemView?.findViewById<ConstraintLayout>(R.id.card_schedule)?.let { card ->
+                        // 드래그 중일 때의 배경색 설정
+                        card.setBackgroundResource(R.drawable.round_border_dragging)  // 드래그 중일 때 사용할 배경
+                    }
+                    onDrag(true)
+                }
+            }
+        }
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+            // 드래그가 끝났을 때 원래 배경으로 복원
+            viewHolder.itemView.findViewById<ConstraintLayout>(R.id.card_schedule)?.let { card ->
+                card.setBackgroundResource(R.drawable.round_border)  // 기본 배경
+            }
         }
     }
 }

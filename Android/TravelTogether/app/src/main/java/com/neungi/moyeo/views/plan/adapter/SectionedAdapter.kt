@@ -4,7 +4,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.domain.model.ScheduleData
 import com.neungi.domain.model.ServerReceive
@@ -16,7 +18,7 @@ import com.neungi.moyeo.util.Section
 import timber.log.Timber
 
 class SectionedAdapter(
-    private val onItemClick: (Int) -> Unit,
+    private val itemTouchHelper: ItemTouchHelper,
     private val onDeleteClick: (Int) -> Unit,
     private val onEditClick: (Int) -> Unit,
     private val onAddClick: () -> Unit,
@@ -79,15 +81,10 @@ class SectionedAdapter(
         val item = listItems.removeAt(fromPosition) as ListItem.Item
         listItems.add(toPosition, item)
         notifyItemMoved(fromPosition, toPosition)
-//        rebuildSections()
-        // 강제로 UI를 갱신하여Z 잔상 문제 해결
-        notifyItemChanged(fromPosition)
-        notifyItemChanged(toPosition)
     }
 
     fun rebuildSections() {
-        // 1. 정렬된 아이템으로 sections 재구성
-        Timber.d("Rebuilding sections...")
+
         val newSections = mutableListOf<Section>()
         var currentSection: MutableList<ScheduleData>? = null
 
@@ -160,12 +157,17 @@ class SectionedAdapter(
         }
     }
 
-    class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val titleTextView: TextView = view.findViewById(R.id.title_schedule)
         private val textView2 :TextView = view.findViewById(R.id.type_schedule)
+        private val cardSchedule : ConstraintLayout = view.findViewById(R.id.card_schedule)
         fun bind(data: ScheduleData) {
             titleTextView.text = data.scheduleTitle
             textView2.text = data.positionPath.toString()
+            cardSchedule.setOnLongClickListener { view ->
+                itemTouchHelper.startDrag(this)
+                true
+            }
         }
     }
 
@@ -197,5 +199,15 @@ class SectionedAdapter(
             (listItems[position] as ListItem.Item).data.copy(positionPath = newPositionPath),
             (listItems[position] as ListItem.Item).sectionIndex
         )
+    }
+
+    fun setPosition(event: ServerReceive) {
+        listItems.forEachIndexed { position, item ->
+            if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
+                // positionPath 업데이트
+                item.data.positionPath = event.operation.positionPath
+                notifyItemChanged(position)
+            }
+        }
     }
 }

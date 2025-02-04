@@ -1,14 +1,14 @@
 package com.neungi.domain.usecase
 
 import com.neungi.domain.model.ApiResult
-import com.neungi.domain.model.Schedule
+import com.neungi.domain.model.ScheduleData
 import com.neungi.domain.repository.ScheduleRepository
 import javax.inject.Inject
 
 class GetScheduleUseCase @Inject constructor(
     private val scheduleRepository : ScheduleRepository
 ) {
-    suspend fun getSchedules(tripId:Int) : ApiResult<List<Schedule>>{
+    suspend fun getSchedules(tripId:Int) : ApiResult<List<ScheduleData>>{
         return scheduleRepository.getSchedulesById(tripId)
     }
 
