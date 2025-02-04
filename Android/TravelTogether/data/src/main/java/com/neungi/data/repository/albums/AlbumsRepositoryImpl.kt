@@ -1,5 +1,6 @@
 package com.neungi.data.repository.albums
 
+import android.util.Log
 import com.neungi.data.mapper.AlbumsMapper
 import com.neungi.data.mapper.CommentMapper
 import com.neungi.data.mapper.CommentsMapper
@@ -8,11 +9,13 @@ import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.Comment
 import com.neungi.domain.model.Photo
 import com.neungi.domain.model.PhotoAlbum
+import com.neungi.domain.model.PhotoEntity
 import com.neungi.domain.repository.AlbumsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import javax.inject.Inject
 
 class AlbumsRepositoryImpl @Inject constructor(
@@ -54,20 +57,24 @@ class AlbumsRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun postPhoto(body: MultipartBody.Part): ApiResult<Boolean> =
+    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<Boolean> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                albumsRemoteDataSource.postPhoto(body)
+                albumsRemoteDataSource.postPhoto(photos, body)
             }
 
             val body = response.body()
+            Log.d("AlbumsRepositoryImpl", "postPhoto: $body")
             if (response.isSuccessful && (body != null)) {
+                Log.d("AlbumsRepositoryImpl", "postPhoto Success: $body")
                 ApiResult.success(body)
             } else {
+                Log.d("AlbumsRepositoryImpl", "postPhoto Not Success: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
 
         } catch (e: Exception) {
+            Log.d("AlbumsRepositoryImpl", "Fail: $${e.message}")
             ApiResult.fail()
         }
 

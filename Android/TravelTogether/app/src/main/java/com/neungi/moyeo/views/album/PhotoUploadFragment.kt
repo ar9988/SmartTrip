@@ -12,6 +12,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.isPhotoPickerAvailable
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPhotoUploadBinding
@@ -151,8 +152,8 @@ class PhotoUploadFragment :
                 showToastMessage(resources.getString(R.string.message_photo_duplicated))
             }
 
-            is AlbumUiEvent.FinishPhotoUpload -> {
-
+            is AlbumUiEvent.GoToClassifyPlaces -> {
+                findNavController().navigateSafely(R.id.action_photo_upload_to_photo_classification)
             }
 
             else -> {}
