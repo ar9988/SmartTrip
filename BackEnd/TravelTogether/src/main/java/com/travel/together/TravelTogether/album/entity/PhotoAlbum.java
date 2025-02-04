@@ -16,8 +16,8 @@ public class PhotoAlbum {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "trip_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "trip_id", nullable = false, unique = true)
     private Trip trip;
 
     @Column(length = 200, nullable = false)
