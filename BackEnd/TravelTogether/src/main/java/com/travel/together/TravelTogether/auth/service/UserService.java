@@ -1,5 +1,6 @@
 package com.travel.together.TravelTogether.auth.service;
 
+import com.travel.together.TravelTogether.auth.dto.TokenResponseDto;
 import com.travel.together.TravelTogether.auth.dto.UserRequestDto;
 import com.travel.together.TravelTogether.auth.dto.UserResponseDto;
 import com.travel.together.TravelTogether.auth.entity.User;
@@ -9,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,18 +38,26 @@ public class UserService {
     }
 
     //Login
-    public String loginUser(String email, String password) {
+    public TokenResponseDto loginUser(String email, String password) {
         //사용자 조회
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         //비밀번호 조회
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("invalid credentials");
+            throw new RuntimeException("Invalid credentials");
         }
 
         //JWT 토큰 생성
-        return jwtTokenProvider.generateToken(user.getEmail());
+        String token = jwtTokenProvider.generateToken(user.getEmail());
+
+        return TokenResponseDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .profile(user.getProfile())
+                .token("Bearer " + token)
+                .build();
 
     }
 
