@@ -28,13 +28,14 @@ public class RouteCalculatorScheduler {
     private final ScheduleRepository scheduleRepository;
     private final RouteService routeService;
 
-    @Scheduled(fixedRate = 30000) // 30초마다
+    @Scheduled(fixedRate = 10000) // 10초마다
     @Transactional(readOnly = true)
     public void processRouteInformation() {
         log.info("Starting route information processing");
 
         // 해당하는 day 다 가져오기
         List<Day> days = dayRepository.findAll();
+        log.info("Days found: {}", days.size());
 
         for (Day day : days) {
             // 해당 day의 모든 스케줄을 position_path 순으로 정렬하여 조회

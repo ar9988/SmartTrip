@@ -34,6 +34,7 @@ public class AuthConfig {
 //                        .requestMatchers("/api/auth/**").permitAll()
 //                        .requestMatchers("/ws/**", "/topic/**", "/app/**").permitAll()  // WebSocket 경로
 //                        .requestMatchers("/api/auth/**").permitAll()  // 인증 관련 경로
+//                      .requestMatchers("/swagger-ui.html").permitAll()
 //                        .anyRequest().authenticated()
 //                )
 //                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
