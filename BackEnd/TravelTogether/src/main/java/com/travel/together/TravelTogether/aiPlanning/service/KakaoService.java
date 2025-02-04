@@ -1,7 +1,6 @@
 package com.travel.together.TravelTogether.aiPlanning.service;
 
-import com.travel.together.TravelTogether.aiPlanning.dto.KakaoRequestDto;
-import com.travel.together.TravelTogether.aiPlanning.dto.KakaoResponseDto;
+import com.travel.together.TravelTogether.aiPlanning.dto.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -15,6 +14,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class KakaoService {
@@ -28,15 +29,23 @@ public class KakaoService {
     public KakaoResponseDto searchByKeyword(KakaoRequestDto requestDto) throws UnsupportedEncodingException {
         String url = KEYWORD_URL + "?query=" + URLEncoder.encode(requestDto.getKeyword(), "UTF-8");
         JSONObject json = getJson(url);
-        JSONArray documents = json.getJSONArray("documents");
-        JSONObject place = documents.getJSONObject(0); // 검색 결과 중 첫 번째 장소 선택
+        JSONArray placeArray = json.getJSONArray("documents");
 
-        // 장소의 이름, 위도, 경도 추출해서 DTO로 반환
-        String placeName = place.getString("place_name");
-        Double latitude = place.getDouble("y");
-        Double longitude = place.getDouble("x");
+        List<KakaoDto> placeList = new ArrayList<>();
 
-        return new KakaoResponseDto(placeName, latitude, longitude);
+        // 리스트 길이만큼 반복문 진행
+        for (int i = 0; i < placeArray.length(); i++) {
+            JSONObject placeObj = placeArray.getJSONObject(i);
+
+            KakaoDto place = new KakaoDto(
+                    placeObj.getString("place_name"),
+                    placeObj.optString("address_name"),
+                    placeObj.optDouble("y"),
+                    placeObj.optDouble("x")
+            );
+            placeList.add(place);
+        }
+        return new KakaoResponseDto(placeList);
     }
 
     // Kakao API로부터 JSON 응답을 받아오는 메서드

@@ -56,7 +56,7 @@ public class AiPlanningController {
             return ResponseEntity.ok(responseDto);
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body(new KakaoResponseDto("Error fetching data", 0.0, 0.0));
+            return ResponseEntity.internalServerError().body(new KakaoResponseDto(null));
         }
     }
 
