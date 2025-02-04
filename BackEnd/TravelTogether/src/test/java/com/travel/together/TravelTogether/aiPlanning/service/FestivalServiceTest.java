@@ -37,10 +37,10 @@ class FestivalServiceTest {
         // 전체 축제 확인
         for (FestivalDto festival : festivals) {
             System.out.println("Title: " + festival.getTitle());
-            System.out.println("Address: " + festival.getAddr1());
+            System.out.println("Address: " + festival.getAddress());
             System.out.println("Start Date: " + festival.getEventStartDate());
             System.out.println("End Date: " + festival.getEventEndDate());
-            System.out.println("Image URL: " + festival.getFirstImage());
+            System.out.println("Image URL: " + festival.getImageurl());
             System.out.println("contentid: " + festival.getContentid());
             System.out.println("================================");
         }
