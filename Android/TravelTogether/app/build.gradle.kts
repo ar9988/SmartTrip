@@ -69,6 +69,9 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
+    // Preferences DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     // Naver Map
     implementation("com.naver.maps:map-sdk:3.20.0")
 

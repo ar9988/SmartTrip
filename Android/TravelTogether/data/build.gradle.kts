@@ -46,6 +46,9 @@ dependencies {
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
+    // Preferences DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     // Retrofit2
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
