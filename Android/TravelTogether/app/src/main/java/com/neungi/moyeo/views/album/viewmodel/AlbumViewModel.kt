@@ -726,7 +726,9 @@ class AlbumViewModel @Inject constructor(
                 Timber.d("$photo 제거")
                 newPhotos.removeAt(_tempClassifiedPhotoIndex.value.second)
             }
-            newTempPlaces.add(Pair(pair.first, newPhotos))
+            if (newPhotos.isNotEmpty()) {
+                newTempPlaces.add(Pair(pair.first, newPhotos))
+            }
         }
         if (!flag) {
             newTempPlaces.add(Pair(_tempNewPlaceName.value, listOf(photo)))

@@ -53,6 +53,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 @AndroidEntryPoint
 class PhotoClassificationFragment :
@@ -98,6 +99,7 @@ class PhotoClassificationFragment :
         naverMap.locationSource = locationSource
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
         naverMap.uiSettings.isLocationButtonEnabled = true
+        naverMap.maxZoom = 18.0
 
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -221,6 +223,7 @@ class PhotoClassificationFragment :
 
                     override fun updateClusterMarker(info: ClusterMarkerInfo, marker: Marker) {
 
+                        Timber.d("Tag: ${info.tag.toString()}")
                         tags.add(info.tag.toString())
 
                         markerManager.releaseMarker(info, marker)
@@ -237,6 +240,7 @@ class PhotoClassificationFragment :
 
         withContext(Dispatchers.Default) {
             markers.forEach { item ->
+                Timber.d("ID: ${item.id}")
                 cluster.add(item, "${item.id}")
             }
         }
