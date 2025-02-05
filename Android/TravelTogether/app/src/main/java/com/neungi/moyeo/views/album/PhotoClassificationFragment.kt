@@ -282,12 +282,12 @@ class PhotoClassificationFragment :
     }
 
     private fun initTabLayout() {
-        with(binding.vpPhotoClassification) {
-            adapter = PhotoClassificationAdapter(requireActivity(), viewModel.tempPlaces.value.size)
-            setCurrentItem(START_POSITION, true)
-        }
         lifecycleScope.launch {
             viewModel.tempPlaces.collectLatest { places ->
+                with(binding.vpPhotoClassification) {
+                    adapter = PhotoClassificationAdapter(requireActivity(), viewModel.tempPlaces.value.size)
+                    setCurrentItem(START_POSITION, true)
+                }
                 TabLayoutMediator(binding.tlPhotoClassification, binding.vpPhotoClassification) { tab, position ->
                     tab.text = places[position].first
                 }.attach()
