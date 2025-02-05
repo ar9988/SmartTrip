@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetTripUseCase @Inject constructor(
     private val tripsRepository : TripsRepository
 ){
-    suspend fun getTrips(): ApiResult<List<Trip>> {
-        return tripsRepository.getTrips()
+    suspend fun getTrips(userId: String): ApiResult<List<Trip>> {
+        return tripsRepository.getTrips(userId)
     }
 }

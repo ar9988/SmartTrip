@@ -6,12 +6,13 @@ import androidx.lifecycle.ViewModel
 import com.neungi.domain.model.Operation
 import com.neungi.domain.model.Place
 import com.neungi.domain.model.ServerEvent
+import com.neungi.domain.usecase.GetScheduleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
-    //
+    private val getScheduleUseCase : GetScheduleUseCase
 ) : ViewModel() {
     val serverUrl = "ws://43.202.51.112:8080/ws?tripId=1"
     var tripId = 0

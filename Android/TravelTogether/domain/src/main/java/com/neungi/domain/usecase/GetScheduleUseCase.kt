@@ -6,21 +6,17 @@ import com.neungi.domain.repository.ScheduleRepository
 import javax.inject.Inject
 
 class GetScheduleUseCase @Inject constructor(
-    private val scheduleRepository : ScheduleRepository
+//    private val scheduleRepository : ScheduleRepository
 ) {
-    suspend fun getSchedules(tripId:Int) : ApiResult<List<ScheduleData>>{
-        return scheduleRepository.getSchedulesById(tripId)
-    }
-
-    suspend fun updateScheduleData() : ApiResult<Boolean>{
-        return scheduleRepository.updateSchedule()
-    }
-
-    suspend fun rescheduleEventPosition(sId:Int,newPosition: Int) : ApiResult<Boolean>{
-        return scheduleRepository.updateSchedule()
-    }
-
-    suspend fun removeSchedule(schedule: Int) : ApiResult<Void>{
-        return scheduleRepository.deleteSchedule(schedule)
-    }
+//    suspend fun getSchedules(tripId:Int) : ApiResult<List<ScheduleData>>{
+//        return scheduleRepository.getSchedulesById(tripId)
+//    }
+//
+//    suspend fun rescheduleEventPosition(sId:Int,newPosition: Int) : ApiResult<Boolean>{
+//        return scheduleRepository.updateSchedule(sId,newPosition)
+//    }
+//
+//    suspend fun removeSchedule(schedule: Int) : ApiResult<Void>{
+//        return scheduleRepository.deleteSchedule(schedule)
+//    }
 }

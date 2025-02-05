@@ -3,7 +3,7 @@
     <data>
         <variable
             name="trip"
-            type="com.neungi.moyeo.views.plan.tripviewmodel.TripData" />
+            type="com.neungi.domain.model.Trip" />
         <variable
             name="onDeleteClick"
             type="android.view.View.OnClickListener" />
@@ -39,7 +39,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/imageview_plan"
-            android:text="@{trip.tripTitle}"
+            android:text="@{trip.title}"
             app:layout_constraintVertical_bias="0.1"
             />
         <TextView
@@ -50,7 +50,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/imageview_plan"
-            android:text="@{trip.tripDate}"
+            android:text="@{trip.startDate}"
             app:layout_constraintVertical_bias="0.4"
             />
         <TextView

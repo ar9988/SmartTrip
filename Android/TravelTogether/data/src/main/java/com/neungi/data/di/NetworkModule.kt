@@ -19,6 +19,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     private const val BASE_URL = "http://192.168.0.200:9987/"
+    private const val WEBSOCKET_URL = "ws://43.202.51.112:8080/"
 
     @Provides
     @Singleton
@@ -58,4 +59,5 @@ object NetworkModule {
     fun provideAlbumsApiService(@Named("Moyeo") retrofit: Retrofit): AlbumsApi {
         return retrofit.create(AlbumsApi::class.java)
     }
+
 }

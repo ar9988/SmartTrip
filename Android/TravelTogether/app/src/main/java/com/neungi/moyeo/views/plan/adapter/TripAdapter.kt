@@ -6,15 +6,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.neungi.domain.model.Trip
 import com.neungi.moyeo.databinding.ItemTripBinding
-import com.neungi.moyeo.views.plan.tripviewmodel.TripData
 import timber.log.Timber
 
 class TripAdapter(
     private val onItemClick: (Int) -> Unit,
     private val onDeleteClick: (Int) -> Unit,
     private val onEditClick: (Int) -> Unit
-) : ListAdapter<TripData, TripAdapter.TripViewHolder>(TripDiffCallback()) {
+) : ListAdapter<Trip, TripAdapter.TripViewHolder>(TripDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
         val binding = ItemTripBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -27,18 +27,18 @@ class TripAdapter(
     }
 
     inner class TripViewHolder(private val binding: ItemTripBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(trip: TripData) {
+        fun bind(trip: Trip) {
             binding.apply {
                 this.trip = trip
-                Timber.d("${trip.tripTitle}")
+                Timber.d("${trip.title}")
                 onDeleteClick = View.OnClickListener {
-                    onDeleteClick(trip.tripId)
+                    onDeleteClick(trip.id)
                 }
                 onEditClick = View.OnClickListener {
-                    onEditClick(trip.tripId)
+                    onEditClick(trip.id)
                 }
                 onItemClick = View.OnClickListener{
-                    onItemClick(trip.tripId)
+                    onItemClick(trip.id)
                 }
                 executePendingBindings()
             }
@@ -47,12 +47,12 @@ class TripAdapter(
 
 
     // DiffUtil을 사용하여 리스트 변경을 최적화
-    class TripDiffCallback : DiffUtil.ItemCallback<TripData>() {
-        override fun areItemsTheSame(oldItem: TripData, newItem: TripData): Boolean {
-            return oldItem.tripId == newItem.tripId
+    class TripDiffCallback : DiffUtil.ItemCallback<Trip>() {
+        override fun areItemsTheSame(oldItem: Trip, newItem: Trip): Boolean {
+            return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: TripData, newItem: TripData): Boolean {
+        override fun areContentsTheSame(oldItem: Trip, newItem: Trip): Boolean {
             return oldItem == newItem
         }
     }
