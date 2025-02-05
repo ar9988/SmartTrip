@@ -31,7 +31,7 @@ public class FestivalController {
     public ResponseEntity<FestivalResponseDto> getFestivals(
             @RequestParam String startDate,
             @RequestParam String endDate,
-            @RequestParam String regionCode) {
+            String regionCode) {
         try {
             // 요청 DTO 생성
             FestivalRequestDto requestDto = new FestivalRequestDto(startDate, endDate, regionCode);

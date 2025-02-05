@@ -3,6 +3,7 @@ package com.travel.together.TravelTogether.aiPlanning.service;
 import com.travel.together.TravelTogether.aiPlanning.dto.FestivalDto;
 import com.travel.together.TravelTogether.aiPlanning.dto.FestivalRequestDto;
 import com.travel.together.TravelTogether.aiPlanning.dto.FestivalResponseDto;
+import jakarta.validation.constraints.Null;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.apache.http.HttpResponse;
@@ -38,9 +39,13 @@ public class FestivalService {
                 + requestDto.getStartDate()
                 + "&eventEndDate=" // 여행 종료 날짜
                 + requestDto.getEndDate()
-                + "&areaCode=" // 지역 코드
-                + requestDto.getRegionNumber()
+//                + "&areaCode=" // 지역 코드(if 문으로 작성)
+//                + requestDto.getRegionNumber()
                 + "&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json&listYN=Y&arrange=A";
+
+        if (requestDto.getRegionNumber().isBlank()) {
+            url = url + "&areaCode=" + requestDto.getRegionNumber();
+        }
 
         // API 호출
         HttpClient client = HttpClientBuilder.create().build();
