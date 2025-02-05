@@ -1,5 +1,6 @@
 package com.neungi.data.di
 
+import com.neungi.data.api.AiPlanningApi
 import com.neungi.data.api.AlbumsApi
 import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
@@ -20,7 +21,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://43.202.51.112:8081/"
+    private const val BASE_URL = "http://10.0.2.2:8080/"
 
     @Provides
     @Singleton
@@ -71,5 +72,11 @@ object NetworkModule {
     @Singleton
     fun provideAuthApiService(@Named("Moyeo") retrofit: Retrofit): AuthApi {
         return retrofit.create(AuthApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAiPlanningApiService(@Named("Moyeo") retrofit: Retrofit): AiPlanningApi {
+        return retrofit.create(AiPlanningApi::class.java)
     }
 }

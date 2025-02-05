@@ -1,12 +1,14 @@
 package com.neungi.data.di
 
+import com.neungi.data.api.AiPlanningApi
 import com.neungi.data.api.AlbumsApi
 import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
 import com.neungi.data.api.TripsApi
-import com.neungi.data.repository.aiplanning.FestivalRepositoryImpl
-import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSource
-import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSourceImpl
+import com.neungi.data.repository.aiplanning.datasource.AiPlanningDataSource
+import com.neungi.data.repository.aiplanning.datasource.AiPlanningDataSourceImpl
+import com.neungi.data.repository.festival.datasource.FestivalRemoteDataSource
+import com.neungi.data.repository.festival.datasource.FestivalRemoteDataSourceImpl
 import com.neungi.data.repository.albums.AlbumsRemoteDataSource
 import com.neungi.data.repository.albums.AlbumsRemoteDataSourceImpl
 import com.neungi.data.repository.auth.AuthRemoteDataSource
@@ -41,15 +43,16 @@ object RemoteDataModule {
         return FestivalRemoteDataSourceImpl(festivalApi)
     }
 
-//    @Provides
-//    @Singleton
-//    fun provideAiPlanningLocalRegionDataSource(): AiPlanningLocalRegionDataSource {
-//        return AiPlanningLocalRegionDataSourceImpl()
-//    }
 
     @Provides
     @Singleton
     fun provideAuthRemoteDataSource(authApi: AuthApi): AuthRemoteDataSource {
         return AuthRemoteDataSourceImpl(authApi)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAiPlanningDataSource(aiPlanningApi: AiPlanningApi): AiPlanningDataSource {
+        return AiPlanningDataSourceImpl(aiPlanningApi)
     }
 }
