@@ -1,6 +1,7 @@
 package com.travel.together.TravelTogether.aiPlanning.service;
 
 import com.travel.together.TravelTogether.aiPlanning.dto.OpenaiRequestDto;
+import com.travel.together.TravelTogether.aiPlanning.dto.OpenaiResponseDto;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,11 +20,10 @@ public class OpenaiService {
             .filename("env.properties")
             .load();
     private static final String API_KEY = dotenv.get("OPENAI_API_KEY");
-    private static final int BUFFER_SIZE = 4096;
     private static final int MAX_TOKENS = 4096; // 최대 토큰 수 설정
 
-    public String callOpenaiApi(OpenaiRequestDto requestDTO) {
-        String response = "";
+    public OpenaiResponseDto callOpenaiApi(OpenaiRequestDto requestDTO) {
+        OpenaiResponseDto openaiResponseDto = null;
         try {
             String url = "https://api.openai.com/v1/chat/completions";
 
@@ -62,31 +62,36 @@ public class OpenaiService {
                 }
             }
 
-            response = responseBuilder.toString();
+            // 응답 JSON 파싱
+            String response = responseBuilder.toString();
+            JSONObject responseJson = new JSONObject(response);
+
+            // 'choices' 배열에서 첫 번째 항목을 가져와서 메시지를 추출
+            String promptResponse = responseJson
+                    .getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content");
+
+            // 마크업이나 불필요한 부분 제거
+            promptResponse = promptResponse
+                    .replaceAll("```json", "")
+                    .replaceAll("```", "")
+                    .replaceAll("\n","")
+                    .replaceAll(" ","")
+                    .replaceAll("\\\\","")
+                    .trim();
+
+            // DTO 생성
+            openaiResponseDto = new OpenaiResponseDto(promptResponse);
+
         } catch (Exception e) {
             e.printStackTrace();
+            // 예외 발생 시 빈 DTO를 반환하도록 처리
+            openaiResponseDto = new OpenaiResponseDto("{}");
         }
-        return response;
-    }
 
-    public void parseAndPrintResponse(String responseBody) {
-        JSONObject jsonObject = new JSONObject(responseBody);
-        JSONArray choices = jsonObject.getJSONArray("choices");
-
-        for (int i = 0; i < choices.length(); i++) {
-            String text = choices.getJSONObject(i).getJSONObject("message").getString("content");
-            printInChunks(text, BUFFER_SIZE);
-        }
-    }
-
-    private void printInChunks(String text, int bufferSize) {
-        int length = text.length();
-        int start = 0;
-
-        while (start < length) {
-            int end = Math.min(length, start + bufferSize);
-            System.out.println(text.substring(start, end));
-            start = end;
-        }
+        // 응답 DTO 반환
+        return openaiResponseDto;
     }
 }
