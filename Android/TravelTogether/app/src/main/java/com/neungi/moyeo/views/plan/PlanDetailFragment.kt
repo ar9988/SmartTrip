@@ -28,12 +28,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private lateinit var sectionedAdapter: SectionedAdapter
     private lateinit var naverMap: NaverMap
     private var isUserDragging = false  // 드래그 상태 추적
+
     //    private lateinit var scheduleAdapter: ScheduleAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
         Timber.d("Received tripId: $tripId")
-        viewModel.webSocketManager.events.observe(viewLifecycleOwner) { event : ServerReceive ->
+        viewModel.webSocketManager.events.observe(viewLifecycleOwner) { event: ServerReceive ->
             if (!isUserDragging) {
                 Timber.d("Received external event: $event")
                 sectionedAdapter.updatePosition(event)
@@ -46,16 +47,18 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun setupRecyclerView() {
-        val itemTouchHelperCallback = createItemTouchHelperCallback ({ fromPosition, toPosition ->
+        val itemTouchHelperCallback = createItemTouchHelperCallback({ fromPosition, toPosition ->
             // 이동 이벤트를 ViewModel로 전달
             viewModel.onItemMoved(fromPosition, toPosition)
         },
-            {
-                    value ->
+            { value ->
                 isUserDragging = value
-                if(!value){
+                if (!value) {
                     sectionedAdapter.rebuildSections()
                 }
+            },
+            { position: Int ->
+                sectionedAdapter.uiUpdate(position)
             }
         )
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)

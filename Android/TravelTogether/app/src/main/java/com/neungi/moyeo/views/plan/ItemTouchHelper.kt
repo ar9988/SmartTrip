@@ -11,7 +11,8 @@ import timber.log.Timber
 
 fun createItemTouchHelperCallback(
     updatePosition: (scheduleId: Int, positionPath: Int) -> Unit,
-    onDrag: (Boolean) -> Unit
+    onDrag: (Boolean) -> Unit,
+    uiUpdate: (position: Int) -> Unit
 ): ItemTouchHelper.Callback {
     return object : ItemTouchHelper.Callback() {
         override fun getMovementFlags(
@@ -108,6 +109,10 @@ fun createItemTouchHelperCallback(
                 ItemTouchHelper.ACTION_STATE_IDLE -> {
                     // 드래그 종료 시
                     onDrag(false)
+                    viewHolder?.let {
+                        val position = it.bindingAdapterPosition
+                        uiUpdate(position) // Update the UI (notify the adapter)
+                    }
                 }
                 ItemTouchHelper.ACTION_STATE_DRAG -> {
                     // 터치가 시작되었을 때

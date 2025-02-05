@@ -203,6 +203,7 @@ class SectionedAdapter(
             (listItems[position] as ListItem.Item).data.copy(positionPath = newPositionPath),
             (listItems[position] as ListItem.Item).sectionIndex
         )
+        notifyItemChanged(position)
     }
 
     fun setPosition(event: ServerReceive) {
@@ -213,5 +214,9 @@ class SectionedAdapter(
                 notifyItemChanged(position)
             }
         }
+    }
+
+    fun uiUpdate(position:Int){
+        notifyItemChanged(position)
     }
 }
