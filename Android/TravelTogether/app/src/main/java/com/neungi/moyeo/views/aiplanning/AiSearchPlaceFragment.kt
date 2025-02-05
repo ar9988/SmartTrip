@@ -9,6 +9,7 @@ import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAiSearchPlaceBinding
+import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.aiplanning.adapters.SearchPlaceAdapter
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
@@ -20,13 +21,30 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
 
 
     private val viewModel: AIPlanningViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var searchPlaceAdapter : SearchPlaceAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.vm = viewModel
+        binding.vm = mainViewModel
         binding.toolbarSearchPlace.setNavigationOnClickListener {
             findNavController().popBackStack()
+        }
+        binding.ivSearch.setOnClickListener {
+            it.visibility = View.GONE
+            binding.searchViewSearchSpot.visibility = View.VISIBLE
+            binding.searchViewSearchSpot.requestFocus()
+        }
+
+        binding.searchViewSearchSpot.apply {
+            setOnSearchClickListener {
+                binding.ivSearch.visibility = View.GONE
+            }
+//            setOnCloseListener {
+//                binding.ivSearch.visibility = View.VISIBLE
+//                visibility = View.GONE
+//                true
+//            }
         }
         setAdapter()
         setListener()
@@ -36,7 +54,7 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
 
     private fun observeState() {
         lifecycleScope.launch {
-            viewModel.placeSearchResult.collect { places ->
+            mainViewModel.placeSearchResult.collect { places ->
                 searchPlaceAdapter.submitList(places)
             }
         }
@@ -50,7 +68,7 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.onSearchTextChanged(newText)
+                mainViewModel.onSearchTextChanged(newText)
                     return true
             }
 
@@ -75,5 +93,10 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mainViewModel.clearSearchResult()
     }
 }

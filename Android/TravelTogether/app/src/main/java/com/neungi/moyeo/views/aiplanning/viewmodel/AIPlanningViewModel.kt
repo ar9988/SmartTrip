@@ -29,7 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AIPlanningViewModel @Inject constructor(
     private val getRecommendFestivalUseCase: GetRecommendFestivalUseCase,
-    private val GetFestivalOverview:GetFestivalOverview,
+    private val getFestivalOverview:GetFestivalOverview,
     private val regionMapper: RegionMapper
 ) : ViewModel(),OnAIPlanningClickListener {
 
@@ -38,8 +38,7 @@ class AIPlanningViewModel @Inject constructor(
     private val _aiDestinatiionUiState = MutableStateFlow<AIPlanningUiState>(AIPlanningUiState())
     val aiDestinatiionUiState = _aiDestinatiionUiState.asStateFlow()
 
-    private val _searchUiState = MutableStateFlow<SearchUiState>(SearchUiState())
-    val searchUiState = _searchUiState.asStateFlow()
+
 
     private val _aiPlanningUiEvent = MutableSharedFlow<AiPlanningUiEvent>()
     val aiPlanningUiEvent = _aiPlanningUiEvent.asSharedFlow()
@@ -65,7 +64,7 @@ class AIPlanningViewModel @Inject constructor(
     private val _selectedLocations = MutableStateFlow<List<String>>(emptyList())
     val selectedLocations = _selectedLocations.asStateFlow()
 
-    private val _selectedPlaces = MutableStateFlow<List<String>>(listOf("섭지코지","한라산"))
+    private val _selectedPlaces = MutableStateFlow<List<String>>(emptyList())
     val selectedPlaces = _selectedPlaces.asStateFlow()
 
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(
@@ -75,9 +74,6 @@ class AIPlanningViewModel @Inject constructor(
 
     private val _dialogSelectedFestival = MutableStateFlow<Festival?>(null)
     val dialogFestival = _dialogSelectedFestival.asStateFlow()
-
-    private val _placeSearchResult = MutableStateFlow<List<Place>>(listOf(Place("만장굴","동굴"),Place("경복궁","궁궐"),Place("불국사","절")))
-    val placeSearchResult = _placeSearchResult.asStateFlow()
 
     private val _themeList = MutableStateFlow<List<ThemeItem>>(emptyList())
     val themeList = _themeList.asStateFlow()
@@ -231,7 +227,7 @@ class AIPlanningViewModel @Inject constructor(
     //추천 축제 선택시 dialog
     fun selectFestival(festival:Festival){
         viewModelScope.launch {
-            val result = GetFestivalOverview(festival.contentId)
+            val result = getFestivalOverview(festival.contentId)
             Timber.d("${result}")
             val overView : String = when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -266,18 +262,7 @@ class AIPlanningViewModel @Inject constructor(
 
     }
 
-    /*
-    AiPlaceSearch
-    검색창 텍스트 변경시
-     */
-    fun onSearchTextChanged(text:String?){
-        Timber.d(text.toString())
-        if(text.isNullOrBlank()){
-            _searchUiState.update { it.copy( searchTextState = EmptyState.EMPTY) }
-        }else{
-            _searchUiState.update { it.copy( searchTextState = EmptyState.NONE) }
-        }
-    }
+
 
 
 
@@ -311,7 +296,7 @@ class AIPlanningViewModel @Inject constructor(
         viewModelScope.launch {
             _aiPlanningUiEvent.emit(AiPlanningUiEvent.PopBackToDestination)
         }
-        _searchUiState.update { it.copy( searchTextState = EmptyState.EMPTY) }
+
     }
 
     // selectTheme

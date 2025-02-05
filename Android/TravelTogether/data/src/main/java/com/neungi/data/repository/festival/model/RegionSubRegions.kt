@@ -1,4 +1,4 @@
-package com.neungi.data.repository.aiplanning.model
+package com.neungi.data.repository.festival.model
 
 data class RegionSubRegions(
     val gyeonggi: Set<String>,

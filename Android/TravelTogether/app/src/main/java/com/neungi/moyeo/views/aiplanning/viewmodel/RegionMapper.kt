@@ -2,7 +2,7 @@ package com.neungi.moyeo.views.aiplanning.viewmodel
 
 
 import android.content.Context
-import com.neungi.data.repository.aiplanning.model.RegionSubRegions
+import com.neungi.data.repository.festival.model.RegionSubRegions
 import com.neungi.moyeo.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
