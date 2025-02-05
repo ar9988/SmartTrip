@@ -2,6 +2,8 @@ package com.neungi.moyeo.views.album
 
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.neungi.moyeo.R
@@ -34,6 +36,33 @@ class PhotoClassificationUpdateDialogFragment :
             }
         }
 
-        binding.ivPhotoClassificationUpdateDialog.setOnClickListener { dismiss() }
+        initView()
+    }
+
+    private fun initView() {
+        with(binding) {
+            ivPhotoClassificationUpdateDialog.setOnClickListener { dismiss() }
+            val places = viewModel.tempPlaces.value.map { it.first }
+            spinnerPhotoClassificationUpdateDialog.adapter =
+                ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, places).apply {
+                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                }
+            spinnerPhotoClassificationUpdateDialog.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        viewModel.selectedPlace(places[position])
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        viewModel.selectedPlace("")
+                    }
+                }
+        }
     }
 }
