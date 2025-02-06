@@ -285,7 +285,9 @@ class AlbumViewModel @Inject constructor(
             )
         }
 
-        val json = Gson().toJson("photos" to metadataList)
+        val json = Gson().toJson(mapOf("photos" to metadataList))
+
+        Timber.d("Json: $json")
         return json.toRequestBody("application/json".toMediaTypeOrNull())
     }
 
@@ -628,9 +630,7 @@ class AlbumViewModel @Inject constructor(
                             dateTaken
                         )
                     )
-
                 }
-
             }
         }
 
@@ -651,8 +651,6 @@ class AlbumViewModel @Inject constructor(
                     val lng = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)?.let { longitude ->
                         convertToDegree(longitude)
                     }
-
-                    Timber.d("lat: $lat, lng: $lng")
 
                     if (lat != null && lng != null) {
                         val latRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
@@ -712,18 +710,15 @@ class AlbumViewModel @Inject constructor(
         val nowTempPlaces = _tempPlaces.value.toMutableList()
         val newTempPlaces = mutableListOf<Pair<String, List<MarkerData>>>()
         var flag = false
-        Timber.d("Index: (${_tempClassifiedPhotoIndex.value.first}, ${_tempClassifiedPhotoIndex.value.second})")
         val photo = nowTempPlaces[_tempClassifiedPhotoIndex.value.first].second[_tempClassifiedPhotoIndex.value.second]
         nowTempPlaces.forEachIndexed { index, pair ->
             val placeName = pair.first
             val newPhotos = pair.second.toMutableList()
             if (placeName == _tempNewPlaceName.value) {
-                Timber.d("$photo")
                 flag = true
                 newPhotos.add(photo)
             }
             if (index == _tempClassifiedPhotoIndex.value.first) {
-                Timber.d("$photo 제거")
                 newPhotos.removeAt(_tempClassifiedPhotoIndex.value.second)
             }
             if (newPhotos.isNotEmpty()) {
@@ -735,7 +730,6 @@ class AlbumViewModel @Inject constructor(
         }
 
         _tempPlaces.value = newTempPlaces
-        Timber.d("Size: ${_tempPlaces.value.size}")
         _tempClassifiedPhotoIndex.value = Pair(-1, -1)
     }
 
