@@ -2,9 +2,11 @@ package com.neungi.domain.model
 
 data class ScheduleData(
     val scheduleId: Int,
-    val scheduleTitle: String,
+    val placeName: String,
     var positionPath: Int,
     val timeStamp: Long,
-    val s3: String,
-    val s4: String,
+    val type: Int,
+    val lat: Double,
+    val lng: Double,
+    val duration: Int,
 )

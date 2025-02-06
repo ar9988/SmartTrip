@@ -10,8 +10,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.ScheduleData
-import com.neungi.domain.model.ServerReceive
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemSectionHeaderBinding
 import com.neungi.moyeo.util.ListItem
@@ -21,10 +21,9 @@ import timber.log.Timber
 
 class SectionedAdapter(
     private val itemTouchHelper: ItemTouchHelper,
-    private val onDeleteClick: (Int) -> Unit,
     private val onEditClick: (Int) -> Unit,
     private val onAddClick: () -> Unit,
-    private val sections: MutableList<Section>
+    var sections: MutableList<Section>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -38,7 +37,7 @@ class SectionedAdapter(
         buildListItems()
     }
 
-    private fun buildListItems() {
+    fun buildListItems() {
         listItems.clear()
         sections.forEachIndexed { sectionIndex, section ->
             listItems.add(ListItem.SectionHeader(section.head))
@@ -47,6 +46,7 @@ class SectionedAdapter(
             }
         }
         Timber.d(listItems.toString())
+        notifyDataSetChanged()  // 데이터가 변경된 후, RecyclerView를 갱신
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -166,7 +166,7 @@ class SectionedAdapter(
         private val textView2 :TextView = view.findViewById(R.id.type_schedule)
         private val cardSchedule : ConstraintLayout = view.findViewById(R.id.card_schedule)
         fun bind(data: ScheduleData) {
-            titleTextView.text = data.scheduleTitle
+            titleTextView.text = data.placeName
             textView2.text = data.positionPath.toString()
             cardSchedule.setOnLongClickListener { view ->
                 itemTouchHelper.startDrag(this)
@@ -185,16 +185,26 @@ class SectionedAdapter(
 
     fun updatePosition(event: ServerReceive) {
         Timber.d("Updating position of schedule ${event.operation.scheduleId} to ${event.operation.positionPath}")
-        listItems.forEachIndexed { position, item ->
-            if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
-                // positionPath 업데이트
-                item.data.positionPath = event.operation.positionPath
-
-                // 텍스트뷰 갱신을 위해 해당 위치의 아이템을 갱신
-                notifyItemChanged(position)
+        if(event.operation.action=="DELETE"){
+            listItems.forEachIndexed { position, item ->
+                if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId) {
+                    removeItem(position)
+                }
             }
         }
+        else if(event.operation.action=="ADD"){
 
+        }
+        else if(event.operation.action=="MOVE"){
+            listItems.forEachIndexed { position, item ->
+                if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
+                    item.data.positionPath = event.operation.positionPath
+                    // 텍스트뷰 갱신을 위해 해당 위치의 아이템을 갱신
+                    notifyItemChanged(position)
+                }
+            }
+
+        }
         // 섹션을 재구성하여 순서를 반영
         rebuildSections()
     }
@@ -218,5 +228,10 @@ class SectionedAdapter(
 
     fun uiUpdate(position:Int){
         notifyItemChanged(position)
+    }
+
+    fun removeItem(position: Int) {
+        sections.removeAt(position)  // 해당 position의 아이템 제거
+        notifyItemRemoved(position)  // 리사이클러뷰에 변경사항 알림
     }
 }

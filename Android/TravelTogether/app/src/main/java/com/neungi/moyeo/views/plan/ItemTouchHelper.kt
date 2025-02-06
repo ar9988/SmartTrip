@@ -12,7 +12,8 @@ import timber.log.Timber
 fun createItemTouchHelperCallback(
     updatePosition: (scheduleId: Int, positionPath: Int) -> Unit,
     onDrag: (Boolean) -> Unit,
-    uiUpdate: (position: Int) -> Unit
+    uiUpdate: (position: Int) -> Unit,
+    delete: (position: Int)->Unit
 ): ItemTouchHelper.Callback {
     return object : ItemTouchHelper.Callback() {
         override fun getMovementFlags(
@@ -101,7 +102,16 @@ fun createItemTouchHelperCallback(
 
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            // 스와이프 비활성화
+            val position = viewHolder.bindingAdapterPosition
+            val adapter = viewHolder.bindingAdapter as SectionedAdapter
+            if (direction == ItemTouchHelper.RIGHT) {  // 오른쪽 스와이프
+                // 해당 아이템 삭제
+                adapter.removeItem(position)
+                // 삭제 콜백 실행
+                delete(position)
+            } else {
+                // 스와이프 동작이 왼쪽일 때의 동작을 추가할 수 있습니다.
+            }
         }
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
             super.onSelectedChanged(viewHolder, actionState)

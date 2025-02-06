@@ -5,21 +5,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.neungi.domain.model.AddRequest
-import com.neungi.domain.model.Operation
 import com.neungi.domain.model.Place
-import com.neungi.domain.model.ServerEvent
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
-import com.neungi.moyeo.databinding.FragmentScheduleAddBinding
-import com.neungi.moyeo.views.plan.adapter.PlaceAdapter
+import com.neungi.moyeo.databinding.FragmentAiSearchPlaceBinding
+import com.neungi.moyeo.views.aiplanning.adapters.SearchPlaceAdapter
+import com.neungi.moyeo.views.plan.adapter.AddPlaceAdapter
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ScheduleAddFragment :BaseFragment<FragmentScheduleAddBinding>(R.layout.fragment_schedule_add) {
+class ScheduleAddFragment :BaseFragment<FragmentAiSearchPlaceBinding>(R.layout.fragment_ai_search_place) {
     private val viewModel: ScheduleViewModel by activityViewModels()
-    private lateinit var adapter: PlaceAdapter
+    private lateinit var adapter: AddPlaceAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -33,11 +31,11 @@ class ScheduleAddFragment :BaseFragment<FragmentScheduleAddBinding>(R.layout.fra
             Place(placeName = "명동", address = "쇼핑", 0.0, 0.0),
             Place(placeName = "서울숲", address = "공원", 0.0, 0.0)
         )
-        adapter = PlaceAdapter { viewModel.webSocketManager.sendMessage(
-            AddRequest("ADD",1,1,"Test",1)
-        ) }
+        adapter = AddPlaceAdapter{
+
+        }
         adapter.submitList(placeList)
-        binding.recyclerView.adapter = adapter
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.rvAiSearchResult.adapter = adapter
+        binding.rvAiSearchResult.layoutManager = LinearLayoutManager(context)
     }
 }

@@ -11,9 +11,8 @@ import com.neungi.moyeo.databinding.ItemTripBinding
 import timber.log.Timber
 
 class TripAdapter(
-    private val onItemClick: (Int) -> Unit,
-    private val onDeleteClick: (Int) -> Unit,
-    private val onEditClick: (Int) -> Unit
+    private val onItemClick: (Trip) -> Unit,
+    private val onDeleteClick: (Int) -> Unit
 ) : ListAdapter<Trip, TripAdapter.TripViewHolder>(TripDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
@@ -34,11 +33,8 @@ class TripAdapter(
                 onDeleteClick = View.OnClickListener {
                     onDeleteClick(trip.id)
                 }
-                onEditClick = View.OnClickListener {
-                    onEditClick(trip.id)
-                }
                 onItemClick = View.OnClickListener{
-                    onItemClick(trip.id)
+                    onItemClick(trip)
                 }
                 executePendingBindings()
             }

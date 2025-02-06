@@ -1,0 +1,22 @@
+import com.neungi.domain.model.ScheduleData
+import java.time.LocalDateTime
+
+data class ScheduleReceive(
+    val tripId: Int,
+    val title: String,
+    val members: List<Member>,
+    val day: List<Day>,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime
+)
+
+data class Member(
+    val userId: String,
+    val name: String,
+    val owner: Boolean
+)
+
+data class Day(
+    val startTime: LocalDateTime,
+    val schedules: List<ScheduleData>  // 'schedule'이 아닌 'schedules'로 변경
+)

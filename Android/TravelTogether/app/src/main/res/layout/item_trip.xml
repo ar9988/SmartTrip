@@ -8,9 +8,6 @@
             name="onDeleteClick"
             type="android.view.View.OnClickListener" />
         <variable
-            name="onEditClick"
-            type="android.view.View.OnClickListener" />
-        <variable
             name="onItemClick"
             type="android.view.View.OnClickListener" />
     </data>
@@ -87,18 +84,18 @@
             android:background="@android:color/transparent"
             android:scaleType="fitXY"/>
 
-        <!-- 편집 버튼 -->
-        <ImageButton
-            android:id="@+id/button_edit"
-            android:onClick="@{onEditClick}"
-            android:contentDescription="@string/description_plan_edit_button"
-            android:src="@drawable/baseline_mode_edit_24"
-            android:layout_margin="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/button_delete"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"/>
+<!--        &lt;!&ndash; 편집 버튼 &ndash;&gt;-->
+<!--        <ImageButton-->
+<!--            android:id="@+id/button_edit"-->
+<!--            android:onClick="@{onEditClick}"-->
+<!--            android:contentDescription="@string/description_plan_edit_button"-->
+<!--            android:src="@drawable/baseline_mode_edit_24"-->
+<!--            android:layout_margin="15dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toStartOf="@id/button_delete"-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:background="@android:color/transparent"-->
+<!--            android:scaleType="fitXY"/>-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
