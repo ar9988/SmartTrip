@@ -27,11 +27,11 @@ class ScheduleAddFragment :BaseFragment<FragmentScheduleAddBinding>(R.layout.fra
     }
     private fun setupRecyclerView() {
         val placeList = mutableListOf(
-            Place(title = "서울역", category = "교통"),
-            Place(title = "강남역", category = "교통"),
-            Place(title = "경복궁", category = "관광지"),
-            Place(title = "명동", category = "쇼핑"),
-            Place(title = "서울숲", category = "공원")
+            Place(placeName = "서울역", address = "교통", 0.0, 0.0),
+            Place(placeName = "강남역", address = "교통", 0.0, 0.0),
+            Place(placeName = "경복궁", address = "관광지", 0.0, 0.0),
+            Place(placeName = "명동", address = "쇼핑", 0.0, 0.0),
+            Place(placeName = "서울숲", address = "공원", 0.0, 0.0)
         )
         adapter = PlaceAdapter { viewModel.webSocketManager.sendMessage(
             AddRequest("ADD",1,1,"Test",1)
