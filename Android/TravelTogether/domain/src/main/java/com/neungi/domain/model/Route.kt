@@ -1,10 +1,17 @@
 package com.neungi.domain.model
 
 data class Route(
-    val id: String,
-    val tripId: String,
-    val day: Int,
-    val order: Int,
-    val driveDuration: Int,
-    val transDuration: Int
+    val dayId: String,
+    val publicTransport: PublicTransport,
+    val personalVehicle: PersonalVehicle
+)
+
+data class PublicTransport(
+    val type: Int,
+    val duration: Int
+)
+
+data class PersonalVehicle(
+    val type: Int,
+    val duration: Int
 )

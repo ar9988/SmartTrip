@@ -78,6 +78,9 @@ class AlbumViewModel @Inject constructor(
     private val _tempPlacesName = MutableStateFlow<String>("")
     val tempPlacesName = _tempPlacesName
 
+    private val _tempNewPlaceName = MutableStateFlow<String>("")
+    val tempNewPlaceName = _tempNewPlaceName
+
     private val _tempClassifiedPhotoIndex = MutableStateFlow<Pair<Int, Int>>(Pair(-1, -1))
     val tempClassifiedPhotoIndex = _tempClassifiedPhotoIndex.asStateFlow()
 
@@ -233,7 +236,7 @@ class AlbumViewModel @Inject constructor(
 
     override fun onClickFinishUpdatePhotoClassification() {
         viewModelScope.launch {
-            _tempClassifiedPhotoIndex.value = Pair(-1, -1)
+            updatePhotoPlace()
             _albumUiEvent.emit(AlbumUiEvent.FinishPhotoClassificationUpdate)
         }
     }
@@ -256,7 +259,7 @@ class AlbumViewModel @Inject constructor(
             }
 
             val chunked = photos.chunked(10)
-            for ((index, chunk) in chunked.withIndex()) {
+            for (chunk in chunked) {
                 val photoParts = chunk.mapNotNull { photo ->
                     photo.body
                 }
@@ -275,11 +278,16 @@ class AlbumViewModel @Inject constructor(
                 "place" to it.place,
                 "latitude" to it.latitude,
                 "longitude" to it.longitude,
-                "takenAt" to it.takenAt
+                "takenAt" to it.takenAt,
+                "albumId" to 1,
+                "userId" to 9,
+                "filePath" to "",
             )
         }
 
-        val json = Gson().toJson(metadataList)
+        val json = Gson().toJson(mapOf("photos" to metadataList))
+
+        Timber.d("Json: $json")
         return json.toRequestBody("application/json".toMediaTypeOrNull())
     }
 
@@ -612,7 +620,7 @@ class AlbumViewModel @Inject constructor(
                 path?.let {
                     val file = File(path)
                     val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                    val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
                     imageList.add(
                         PhotoUploadUiState.UploadedPhoto(
                             uri,
@@ -622,9 +630,7 @@ class AlbumViewModel @Inject constructor(
                             dateTaken
                         )
                     )
-
                 }
-
             }
         }
 
@@ -645,8 +651,6 @@ class AlbumViewModel @Inject constructor(
                     val lng = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)?.let { longitude ->
                         convertToDegree(longitude)
                     }
-
-                    Timber.d("lat: $lat, lng: $lng")
 
                     if (lat != null && lng != null) {
                         val latRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
@@ -700,6 +704,33 @@ class AlbumViewModel @Inject constructor(
                 Timber.d("Lat: ${photo.latitude}, Lng: ${photo.longitude}")
             }
         }
+    }
+
+    private fun updatePhotoPlace() {
+        val nowTempPlaces = _tempPlaces.value.toMutableList()
+        val newTempPlaces = mutableListOf<Pair<String, List<MarkerData>>>()
+        var flag = false
+        val photo = nowTempPlaces[_tempClassifiedPhotoIndex.value.first].second[_tempClassifiedPhotoIndex.value.second]
+        nowTempPlaces.forEachIndexed { index, pair ->
+            val placeName = pair.first
+            val newPhotos = pair.second.toMutableList()
+            if (placeName == _tempNewPlaceName.value) {
+                flag = true
+                newPhotos.add(photo)
+            }
+            if (index == _tempClassifiedPhotoIndex.value.first) {
+                newPhotos.removeAt(_tempClassifiedPhotoIndex.value.second)
+            }
+            if (newPhotos.isNotEmpty()) {
+                newTempPlaces.add(Pair(pair.first, newPhotos))
+            }
+        }
+        if (!flag) {
+            newTempPlaces.add(Pair(_tempNewPlaceName.value, listOf(photo)))
+        }
+
+        _tempPlaces.value = newTempPlaces
+        _tempClassifiedPhotoIndex.value = Pair(-1, -1)
     }
 
     private suspend fun getComments() {
@@ -767,6 +798,18 @@ class AlbumViewModel @Inject constructor(
             true -> _albumUiState.update { it.copy(commentValidState = InputValidState.NONE) }
 
             else -> _albumUiState.update { it.copy(commentValidState = InputValidState.VALID) }
+        }
+    }
+
+    fun selectedPlace(placeName: String) {
+        _tempNewPlaceName.value = placeName
+    }
+
+    fun validNewPlaceName(placeName: CharSequence) {
+        when (placeName.isBlank()) {
+            true -> _albumUiState.update { it.copy(newPlaceNameState = InputValidState.NONE) }
+
+            else -> _albumUiState.update { it.copy(newPlaceNameState = InputValidState.VALID) }
         }
     }
 

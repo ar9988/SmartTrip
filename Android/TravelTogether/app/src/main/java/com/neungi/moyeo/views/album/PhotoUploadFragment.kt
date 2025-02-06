@@ -38,7 +38,7 @@ class PhotoUploadFragment :
                 path?.let {
                     val file = File(path)
                     val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                    val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
                     viewModel.addUploadPhoto(uri, fetchPhotoTakenAt(uri), body)
                 }
             } ?: showToastMessage(resources.getString(R.string.message_select_picture))
@@ -60,7 +60,7 @@ class PhotoUploadFragment :
                     val path = absolutelyPath(uri)
                     val file = File(path.toString())
                     val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                    val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
                     viewModel.addUploadPhoto(it, fetchPhotoTakenAt(it), body)
                 } ?: showToastMessage(resources.getString(R.string.message_select_picture))
             }

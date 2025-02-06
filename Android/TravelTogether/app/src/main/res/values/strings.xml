@@ -53,6 +53,8 @@
     <string name="description_photo_tab_layout">이미지 ViewPager</string>
     <string name="title_photo_place_classify">이미지 촬영 장소 편집</string>
     <string name="text_place_classification_update">장소 편집하기</string>
+    <string name="text_hint_place_classification_input">직접 입력하기</string>
+    <string name="text_place_classification_change">장소 변경</string>
 
     <!-- Setting -->
     <string name="label_setting">Setting</string>

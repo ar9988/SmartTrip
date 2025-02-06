@@ -1,5 +1,6 @@
 package com.neungi.data.di
 
+import TripsRepositoryImpl
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.neungi.data.repository.aiplanning.AiPlanningRepositoryImpl

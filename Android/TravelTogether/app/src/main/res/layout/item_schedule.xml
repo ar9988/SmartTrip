@@ -9,6 +9,7 @@
     <!-- Left Section (20% width) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/left_section"
+        android:clickable="false"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintHeight_percent="0.8"

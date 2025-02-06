@@ -3,23 +3,20 @@ package com.neungi.moyeo.views.plan
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.naver.maps.map.NaverMap
+import com.neungi.domain.model.ScheduleData
+import com.neungi.domain.model.ServerReceive
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
-import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleData
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.ScheduleHeader
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.Section
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.SectionedAdapter
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.createItemTouchHelperCallback
+import com.neungi.moyeo.util.ScheduleHeader
+import com.neungi.moyeo.util.Section
+import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import hilt_aggregated_deps._com_neungi_moyeo_views_album_AlbumDetailWithPlaceFragment_GeneratedInjector
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -30,27 +27,44 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private val viewModel: ScheduleViewModel by activityViewModels()
     private lateinit var sectionedAdapter: SectionedAdapter
     private lateinit var naverMap: NaverMap
+    private var isUserDragging = false  // 드래그 상태 추적
 
     //    private lateinit var scheduleAdapter: ScheduleAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
         Timber.d("Received tripId: $tripId")
-        viewModel.webSocketManager.events.observe(viewLifecycleOwner) { event ->
-            println("Received event: $event")
-            val sId = event.operation.scheduleId
-            val value = event.operation.positionPath
-            sectionedAdapter.updatePosition(sId,value)
-            // list에 해당 sId의 positionPath 값 업데이트, rebuild 한다
+        viewModel.webSocketManager.events.observe(viewLifecycleOwner) { event: ServerReceive ->
+            if (!isUserDragging) {
+                Timber.d("Received external event: $event")
+                sectionedAdapter.updatePosition(event)
+            } else {
+                sectionedAdapter.setPosition(event)
+                Timber.d("Ignoring external event during user drag")
+            }
         }
         setupRecyclerView()
     }
 
     private fun setupRecyclerView() {
-        sectionedAdapter = SectionedAdapter(
-            onItemClick = { scheduleId ->
-                println("click $scheduleId")
+        val itemTouchHelperCallback = createItemTouchHelperCallback({ fromPosition, toPosition ->
+            // 이동 이벤트를 ViewModel로 전달
+            viewModel.onItemMoved(fromPosition, toPosition)
+        },
+            { value ->
+                isUserDragging = value
+                if (!value) {
+                    sectionedAdapter.rebuildSections()
+                }
             },
+            { position: Int ->
+                sectionedAdapter.uiUpdate(position)
+            }
+        )
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+        sectionedAdapter = SectionedAdapter(
+            itemTouchHelper,
             onDeleteClick = { scheduleId ->
                 println("Delete schedule with ID: $scheduleId")
             },
@@ -64,30 +78,25 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 Section(
                     ScheduleHeader(1, "1일차", 0),
                     mutableListOf(
-                        ScheduleData(1, "일정1", 1000, "19시", "식당", "30분"),
-                        ScheduleData(2, "일정2", 2000, "19시", "식당", "30분")
+                        ScheduleData(1, "일정1", 1000, 0, "식당", "30분"),
+                        ScheduleData(2, "일정2", 2000, 0, "식당", "30분")
                     )
                 ),
                 Section(
                     ScheduleHeader(2, "2일차", 3000),
                     mutableListOf(
-                        ScheduleData(3, "일정3", 4000, "19시", "식당", "30분"),
-                        ScheduleData(4, "일정4", 5000, "19시", "식당", "30분"),
-                        ScheduleData(5, "일정5", 6000, "19시", "식당", "30분")
+                        ScheduleData(3, "일정3", 4000, 0, "식당", "30분"),
+                        ScheduleData(4, "일정4", 5000, 0, "식당", "30분"),
+                        ScheduleData(5, "일정5", 6000, 0, "식당", "30분")
                     )
                 )
             )
         )
         binding.recyclerView.layoutManager = LinearLayoutManager(context)
         binding.recyclerView.adapter = sectionedAdapter
-        binding.recyclerView.setItemAnimator(null)
-        // ItemTouchHelper 초기화
-        val itemTouchHelperCallback = createItemTouchHelperCallback { fromPosition, toPosition ->
-            // 이동 이벤트를 ViewModel로 전달
-            viewModel.onItemMoved(fromPosition, toPosition)
-        }
-        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        binding.recyclerView.animation = null
+        binding.recyclerView.hasFixedSize()
+
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
     }
-
 }

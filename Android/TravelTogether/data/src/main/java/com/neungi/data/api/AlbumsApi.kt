@@ -29,8 +29,8 @@ interface AlbumsApi {
     @Multipart
     @POST("albums/1/photos")
     suspend fun postPhoto(
-        @Part photos: List<MultipartBody.Part>,
-        @Part("metadata") body: RequestBody
+        @Part files: List<MultipartBody.Part>,
+        @Part("photoData") body: RequestBody
     ): Response<Boolean>
 
     @DELETE("albums/{albumId}/photos/{photoId}")
