@@ -1,7 +1,7 @@
-package com.neungi.data.repository.aiplanning
+package com.neungi.data.repository.festival
 
 import com.neungi.data.mapper.FestivalMapper
-import com.neungi.data.repository.aiplanning.datasource.FestivalRemoteDataSource
+import com.neungi.data.repository.festival.datasource.FestivalRemoteDataSource
 import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.Festival
 import com.neungi.domain.repository.FestivalRepository

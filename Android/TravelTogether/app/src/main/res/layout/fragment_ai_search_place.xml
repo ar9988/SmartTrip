@@ -6,14 +6,13 @@
     <data>
         <variable
             name="vm"
-            type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
+            type="com.neungi.moyeo.views.MainViewModel" />
         <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="800dp"
-        android:padding="16dp">
+        android:layout_height="800dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_search_place"
@@ -30,9 +29,18 @@
                 android:id="@+id/searchView_search_spot"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 app:queryBackground="@drawable/bg_search_view"
+                app:searchIcon="@null"
+                app:iconifiedByDefault="false"/>
 
-                />
+            <ImageView
+                android:id="@+id/iv_search"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_search"/>
 
         </com.google.android.material.appbar.MaterialToolbar>
 
@@ -52,6 +60,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_ai_search_result"
             android:layout_width="match_parent"
+            android:padding="@dimen/dp_medium"
             android:layout_height="0dp"
             android:layout_marginTop="@dimen/dp_medium"
             android:visibility="@{vm.searchUiState.searchTextIsEmpty ? View.GONE : View.VISIBLE}"
