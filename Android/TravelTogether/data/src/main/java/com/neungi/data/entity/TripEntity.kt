@@ -1,34 +1,31 @@
-package com.neungi.data.entity
-
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
-import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class TripEntity(
-    @Json(name = "id")
+    @Json(name = "tripId")
     val id: Int,
 
-    @Json(name="title")
+    @Json(name = "title")
     val title: String,
 
-    @Json(name="start_date")
-    val startDate: Date,
+    @Json(name = "startDate")
+    val startDate: ZonedDateTime,
 
-    @Json(name="end_date")
-    val endDate:ZonedDateTime,
+    @Json(name = "endDate")
+    val endDate: ZonedDateTime,
 
-    @Json(name="thumbnail")
-    val thumbnail:String,
+    @Json(name = "thumbnail")
+    val thumbnail: String,
 
-    @Json(name="memberCount")
-    val memberCount:Int,
+    @Json(name = "memberCount")
+    val memberCount: Int,
 
     @Json(name = "status")
-    val status:Boolean,
+    val status: Boolean,
 
-    @Json(name ="createdAt")
-    val createdAt:ZonedDateTime
-
+    @Json(name = "createdAt")
+    val createdAt: ZonedDateTime
 )

@@ -1,21 +1,24 @@
 package com.neungi.moyeo.views.plan.scheduleviewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.Operation
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.ServerEvent
-import com.neungi.moyeo.views.plan.scheduleviewmodel.websocket.WebSocketManager
+import com.neungi.domain.model.Operation
+import com.neungi.domain.model.Place
+import com.neungi.domain.model.ServerEvent
+import com.neungi.domain.usecase.GetScheduleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
-    //
+    private val getScheduleUseCase : GetScheduleUseCase
 ) : ViewModel() {
-    val serverUrl = "ws://192.168.0.5:8080/ws?tripId=1"
+    val serverUrl = "ws://43.202.51.112:8080/ws?tripId=1"
     var tripId = 0
 
+    private val _searchResults = MutableLiveData<Place>()
+    val searchResut: LiveData<Place> get() = _searchResults
     var webSocketManager : WebSocketManager // hilt에서 주입받을 수 있도록 변경
 
     fun onItemMoved(scheduleId: Int, positionPath: Int) {

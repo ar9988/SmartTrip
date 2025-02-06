@@ -14,6 +14,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.time.ZonedDateTime
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -21,12 +22,15 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "http://10.0.2.2:8080/"
+    private const val BASE_URL = "http://43.202.51.112:8080/"
+    private const val WEBSOCKET_URL = "ws://43.202.51.112:8080/"
+    private const val BASE_URL2 = "http://10.0.2.2:8080/"
 
     @Provides
     @Singleton
     fun provideMoshiConverterFactory(): MoshiConverterFactory {
         val moshi = Moshi.Builder()
+            .add(ZonedDateTimeJsonAdapter())
             .add(KotlinJsonAdapterFactory())
             .build()
 

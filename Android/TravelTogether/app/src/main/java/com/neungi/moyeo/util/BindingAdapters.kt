@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -297,3 +298,7 @@ fun setEndDate(view: CustomCalendarView, date: LocalDate?) {
     }
 }
 
+@BindingAdapter("android:text")
+fun setIntAsString(view: TextView, value: Int) {
+    view.text = value.toString()
+}
