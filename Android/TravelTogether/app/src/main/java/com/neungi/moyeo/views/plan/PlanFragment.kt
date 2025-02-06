@@ -6,6 +6,9 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.neungi.domain.model.ApiStatus
+import com.neungi.domain.model.Trip
+import com.neungi.domain.usecase.GetTripUseCase
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanBinding
@@ -13,6 +16,10 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripUiEvent
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
@@ -25,6 +32,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
         binding.vm = viewModel
         setupRecyclerView()
+
     }
 
     private fun handleUiEvent(event: TripUiEvent) {

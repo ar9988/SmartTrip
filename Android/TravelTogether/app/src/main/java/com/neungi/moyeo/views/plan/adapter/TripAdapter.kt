@@ -30,7 +30,7 @@ class TripAdapter(
         fun bind(trip: Trip) {
             binding.apply {
                 this.trip = trip
-                Timber.d("${trip.title}")
+                Timber.d(trip.title)
                 onDeleteClick = View.OnClickListener {
                     onDeleteClick(trip.id)
                 }

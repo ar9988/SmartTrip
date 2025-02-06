@@ -1,15 +1,16 @@
 package com.neungi.data.repository.trips
 
+import TripEntity
 import android.util.Log
 import com.neungi.data.api.TripsApi
-import com.neungi.data.entity.TripEntity
+import com.neungi.data.entity.TripsResponse
 import retrofit2.Response
 import javax.inject.Inject
 
 class TripsRemoteDataSourceImpl @Inject constructor(
     private val tripsApi: TripsApi
 ) : TripsRemoteDataSource {
-    override suspend fun getTrips(userId: String): Response<List<TripEntity>> {
+    override suspend fun getTrips(userId: Int): Response<TripsResponse> {
         // 요청을 보내기 전에 로그 출력
         Log.d("TripsRemoteDataSource", "Requesting trips for userId: $userId")
 

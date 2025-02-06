@@ -27,6 +27,7 @@
             android:layout_margin="10dp" />
 
         <ImageButton
+            android:id="@+id/add_btn"
             android:background="@android:color/transparent"
             android:contentDescription="@string/description_travel_add_button"
             android:src="@drawable/baseline_add_24"

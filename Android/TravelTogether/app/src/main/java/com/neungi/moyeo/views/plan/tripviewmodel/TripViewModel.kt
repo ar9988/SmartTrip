@@ -25,13 +25,6 @@ class TripViewModel @Inject constructor(
 ): ViewModel(){
     private val BASE_URL = "http://43.202.51.112:8080/"
 
-    val apiService: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())  // JSON 응답을 객체로 변환
-            .build()
-            .create(ApiService::class.java)
-    }
     private val _tripUiState = MutableStateFlow<TripUiState>(TripUiState())
     val tripUiState = _tripUiState.asStateFlow()
 
@@ -51,35 +44,32 @@ class TripViewModel @Inject constructor(
 //        _trips.value = newTrips.toList()
 
         viewModelScope.launch {
-            // getTrips()에서 반환되는 ApiResult<List<Trip>>을 처리
-            val call = RetrofitInstance.apiService.getTrip(1)
-            Timber.d(call.toString())
-//            val result = getTripUseCase.getTrips("1")
-//            Timber.d(result.toString())
-//            when (result.status) {
-//                ApiStatus.SUCCESS -> {
-//                    // result.data가 null이 아니고 List<Trip>으로 캐스팅 가능한지 확인
-//                    val tripList = result.data as? List<Trip>
-//                    if (tripList != null) {
-//                        _trips.value = result.data!!
-//                    } else {
-//                        _trips.value = emptyList() // data가 null이거나 List<Trip>이 아닌 경우 처리
-//                    }
-//                }
-//                ApiStatus.ERROR -> {
-//                    // ApiResult.Status가 ERROR일 때 처리
-//                    // 예: UI 상태 변경 또는 에러 메시지 표시
-//                    // 예시: _tripUiState.value = TripUiState(errorMessage = result.message)
-//                }
-//                ApiStatus.FAIL -> {
-//                    // ApiResult.Status가 FAIL일 때 처리
-//                    // 예시: _tripUiState.value = TripUiState(failed = true)
-//                }
-//                ApiStatus.LOADING -> {
-//                    // ApiResult.Status가 LOADING일 때 처리
-//                    // 예시: _tripUiState.value = TripUiState(loading = true)
-//                }
-//            }
+            val result = getTripUseCase.getTrips(1)
+            Timber.d(result.toString())
+            when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    // result.data가 null이 아니고 List<Trip>으로 캐스팅 가능한지 확인
+                    val tripList = result.data as? List<Trip>
+                    if (tripList != null) {
+                        _trips.value = result.data!!
+                    } else {
+                        _trips.value = emptyList() // data가 null이거나 List<Trip>이 아닌 경우 처리
+                    }
+                }
+                ApiStatus.ERROR -> {
+                    // ApiResult.Status가 ERROR일 때 처리
+                    // 예: UI 상태 변경 또는 에러 메시지 표시
+                    // 예시: _tripUiState.value = TripUiState(errorMessage = result.message)
+                }
+                ApiStatus.FAIL -> {
+                    // ApiResult.Status가 FAIL일 때 처리
+                    // 예시: _tripUiState.value = TripUiState(failed = true)
+                }
+                ApiStatus.LOADING -> {
+                    // ApiResult.Status가 LOADING일 때 처리
+                    // 예시: _tripUiState.value = TripUiState(loading = true)
+                }
+            }
         }
     }
 }

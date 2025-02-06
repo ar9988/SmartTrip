@@ -1,9 +1,9 @@
 package com.neungi.data.di
 
+import TripsRepositoryImpl
 import com.neungi.data.repository.albums.AlbumsRemoteDataSource
 import com.neungi.data.repository.albums.AlbumsRepositoryImpl
 import com.neungi.data.repository.trips.TripsRemoteDataSource
-import com.neungi.data.repository.trips.TripsRepositoryImpl
 import com.neungi.domain.repository.AlbumsRepository
 import com.neungi.domain.repository.TripsRepository
 import dagger.Module
