@@ -1,9 +1,11 @@
 package com.travel.together.TravelTogether.tripwebsocket.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripScheduleCache;
 import com.travel.together.TravelTogether.tripwebsocket.service.ScheduleService;
+import com.travel.together.TravelTogether.tripwebsocket.service.TripStateManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +33,12 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Autowired
     private TripScheduleCache tripScheduleCache;
 
+    @Autowired
+    private TripStateManager tripStateManager;
+
+    @Autowired
+    private TripService tripService;
+
 
 
     @Bean
@@ -40,7 +48,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 tripEditCache,
                 objectMapper,
                 scheduleService,
-                tripScheduleCache
+                tripScheduleCache,
+                tripStateManager,
+                tripService
 
         );  // 직접 생성
     }

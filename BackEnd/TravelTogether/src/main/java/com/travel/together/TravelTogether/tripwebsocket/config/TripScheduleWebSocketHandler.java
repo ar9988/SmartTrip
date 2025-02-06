@@ -3,13 +3,13 @@ package com.travel.together.TravelTogether.tripwebsocket.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripScheduleCache;
-import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
-import com.travel.together.TravelTogether.tripwebsocket.dto.EditResponse;
-import com.travel.together.TravelTogether.tripwebsocket.dto.RouteResponse;
+import com.travel.together.TravelTogether.tripwebsocket.dto.*;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.event.TripEditFinishEvent;
 import com.travel.together.TravelTogether.tripwebsocket.service.ScheduleService;
+import com.travel.together.TravelTogether.tripwebsocket.service.TripStateManager;
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +33,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper; // JSON 파싱을 위해 추가
     private final ScheduleService scheduleService;
     private final TripScheduleCache scheduleCache;
+    private final TripStateManager stateManager;
+    private final TripService tripService;
 
 
     // tripId를 키로 하고, 해당 여행의 접속자들의 세션을 값으로 가지는 Map
@@ -66,42 +68,77 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
-            String tripId = sessionTripMapping.get(session.getId());
-            if (tripId == null) {
-                return;
-            }
+            log.info("Received message: {}", message.getPayload());
+
             // 메시지를 EditRequest 객체로 변환
             EditRequest editRequest = objectMapper.readValue(message.getPayload(), EditRequest.class);
+            Integer tripId = editRequest.getTripId();
             EditRequest.Operation operation = editRequest.getOperation();
 
+            // tripId null 체크
+            if (tripId == null) {
+                log.error("Trip ID is null");
+                session.sendMessage(new TextMessage("{\"error\": \"Trip ID cannot be null\"}"));
+                return;
+            }
+            log.info("Received message for tripId: {}", tripId);
+            log.info("Operation received: {}", operation.getAction());
+
+
+
+
             // 모든 작업 캐시에 저장
-            editCache.addEdit(tripId, editRequest);
-
-            // schedule:positionPath형태로 캐시에 저장
-
-            scheduleCache.updatePosition(
-                    tripId,
-                    operation.getScheduleId(),
-                    operation.getPositionPath()
-            );
+//            editCache.addEdit(tripId, editRequest);
+            editCache.addEdit(tripId.toString(), editRequest);
 
 
             switch (operation.getAction()) {
+                case "START":
+                    try {
+                        log.info("GET START");
+                        TripDetailDTO tripDetail = tripService.getTripDetailById(tripId);
+                        TripDetailResponse response = new TripDetailResponse(
+                                tripId,
+                                tripDetail.getTitle(),
+                                tripDetail.getMembers(),
+                                tripDetail.getDayDtos(),
+                                tripDetail.getCreatedAt(),
+                                tripDetail.getUpdatedAt()
+                        );
+                        String jsonResponse = objectMapper.writeValueAsString(response);
+                        session.sendMessage(new TextMessage(jsonResponse));
+                    } catch (Exception e) {
+                        log.error("Error processing START action", e);
+                        session.sendMessage(new TextMessage("{\"error\": \"Failed to process START action\"}"));
+                    }
+                    break;
                 case "MOVE":
-                    scheduleCache.updatePosition(
-                            tripId.toString(),
+                    // 작업 내용 저장
+                    stateManager.addEdit(tripId, editRequest);
+                    // position 업데이트
+                    stateManager.updateState(
+                            tripId,
                             operation.getScheduleId(),
                             operation.getPositionPath()
                     );
                     break;
+
                 case "ADD":
                     break;
                 case "DELETE":
+
                     scheduleCache.removePosition(
                             tripId.toString(),
                             operation.getScheduleId()
                     );
+
+                    // 메모리 상태에서 제거
+                    stateManager.removeState(
+                            tripId,
+                            operation.getScheduleId()
+                    );
                     break;
+
             }
 
 
@@ -110,14 +147,17 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             session.sendMessage(new TextMessage("SUCCESS"));
 
             // EditResponse클래스의 팩토리 메서드 사용(일단 버전 관리는 생략)
-            EditResponse response = EditResponse.createSuccess(editRequest, 1);
+            EditResponse response = EditResponse.createSuccess(editRequest, Integer.valueOf(1));
             String jsonResponse = objectMapper.writeValueAsString(response);
             System.out.println("Sending response: " + jsonResponse); // 디버깅용
 
+            // tripId를 String으로 변환하여 tripSessions에서 조회
+            String tripIdStr = String.valueOf(tripId);
+            Set<WebSocketSession> tripSessionSet = tripSessions.get(tripIdStr);
+
 
             // 다른 세션들에게 메시지 브로드캐스트
-            Set<WebSocketSession> tripSessionSet = tripSessions.get(tripId);
-            if (tripSessionSet != null) {
+            if (tripSessionSet != null && !tripSessionSet.isEmpty()) {
                 for (WebSocketSession tripSession : tripSessionSet) {
                     if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
                         tripSession.sendMessage(new TextMessage(jsonResponse));
@@ -154,7 +194,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
                     // 이벤트 발행
                     // String -> Integer 변환은 이벤트 발행 직전에만 수행
-                    Integer tripIdInt = Integer.parseInt(tripId);
+//                    Integer tripIdInt = Integer.parseInt(tripId);
+                    Integer tripIdInt = Integer.valueOf(Integer.parseInt(tripId));
                     eventPublisher.publishEvent(new TripEditFinishEvent(tripIdInt));
 //                    eventPublisher.publishEvent(new TripEditFinishEvent(tripId));
 

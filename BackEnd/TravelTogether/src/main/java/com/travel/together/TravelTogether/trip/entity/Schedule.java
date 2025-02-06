@@ -16,7 +16,7 @@ public class Schedule {
     public Schedule() {
     }
 
-    public Schedule(Integer id, Day day, Trip trip, String placeName, Integer orderNum, Double lat, Double lng, Integer type, Integer positionPath) {
+    public Schedule(Integer id, Day day, Trip trip, String placeName, Integer orderNum, Double lat, Double lng, Integer type, Integer positionPath, Integer duration) {
         this.id = id;
         this.day = day;
         this.trip = trip;
@@ -26,6 +26,7 @@ public class Schedule {
         this.lng = lng;
         this.type = type;
         this.positionPath = positionPath;
+        this.duration = duration;
     }
 
     @Id
@@ -57,6 +58,9 @@ public class Schedule {
 
     @Column(name = "position_path")
     private Integer positionPath;
+
+    @Column(name = "duration")
+    private Integer duration;
 
 
     // Getters and Setters

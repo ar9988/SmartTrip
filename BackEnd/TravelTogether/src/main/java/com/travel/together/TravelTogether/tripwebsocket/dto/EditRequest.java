@@ -19,11 +19,11 @@ public class EditRequest {
     @Setter
     @NoArgsConstructor
     public static class Operation {
-        private String action;  // MOVE, DELETE
-        private Integer scheduleId;  // type이 SCHEDULE일 때
+        private String action;  // MOVE, DELETE, START
+        private Integer scheduleId;  // START일떄 0
 //        private Integer fromPosition;
 //        private Integer toPosition;
-        private Integer positionPath;
+        private Integer positionPath; // START 일떄 0
     }
 
 }
