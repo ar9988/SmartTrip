@@ -9,194 +9,279 @@
             name="vm"
             type="com.neungi.moyeo.views.home.viewmodel.HomeViewModel" />
 
+        <variable
+            name="loginInfo"
+            type="com.neungi.domain.model.LoginInfo" />
+        <import type="android.view.View" />
+        <import type="com.neungi.moyeo.views.home.viewmodel.LoginState"/>
+=
+
     </data>
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nscrollview_home"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fragment_home"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".views.home.HomeFragment">
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardview_schedule_home"
-            android:layout_width="0dp"
-            android:layout_height="160dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp"
-            app:layout_constraintTop_toBottomOf="@id/gl_top_home"
-            app:layout_constraintStart_toStartOf="@id/gl_start_home"
-            app:layout_constraintEnd_toEndOf="@id/gl_end_home">
+        >
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_home"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:titleMarginStart="@dimen/dp_large"
+            app:title="홈"
+            />
+
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nscrollview_home"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_home"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_home"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#F0F8FF"
-                android:paddingVertical="16dp">
+                tools:context=".views.home.HomeFragment">
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardview_schedule_home"
+                    android:layout_width="0dp"
+                    android:layout_height="160dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    android:visibility="@{loginInfo != null &amp;&amp; vm.homeScheduleCardTrip !=null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintTop_toBottomOf="@id/gl_top_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    app:layout_constraintEnd_toEndOf="@id/gl_end_home"
+                    tools:visibility="gone">
 
-                <TextView
-                    android:id="@+id/tv_title"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#F0F8FF"
+                        android:paddingVertical="16dp">
+
+                        <TextView
+                            android:id="@+id/tv_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:textColor="#000000"
+                            android:textSize="@dimen/font_size_title"
+                            android:textStyle="bold"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="18제주팟" />
+
+                        <TextView
+                            android:id="@+id/tv_today_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="TODAY"
+                            android:textColor="@color/blue"
+                            android:textSize="@dimen/font_size_larger"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="@id/tv_title"
+                            app:layout_constraintStart_toEndOf="@id/tv_title"
+                            app:layout_constraintTop_toTopOf="@id/tv_title" />
+
+                        <ImageView
+                            android:id="@+id/iv_calendar"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="@dimen/dp_small"
+                            android:layout_marginTop="8dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="#666666"
+                            app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
+                            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+
+                        <TextView
+                            android:id="@+id/tv_date_range"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp_smaller"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="@id/iv_calendar"
+                            app:layout_constraintStart_toEndOf="@id/iv_calendar"
+                            app:layout_constraintTop_toTopOf="@id/iv_calendar"
+                            tools:text="25.01.17 - 25.01.19" />
+
+                        <ImageView
+                            android:id="@+id/iv_head_count_home"
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_marginStart="@dimen/dp_small"
+                            android:layout_marginTop="8dp"
+                            android:src="@drawable/ic_profile"
+                            app:tint="#666666"
+                            app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
+                            app:layout_constraintTop_toBottomOf="@id/iv_calendar" />
+
+
+                        <TextView
+                            android:id="@+id/tv_head_count_home"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp_smaller"
+                            android:textColor="#666666"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="@id/iv_head_count_home"
+                            app:layout_constraintStart_toEndOf="@id/iv_head_count_home"
+                            app:layout_constraintTop_toTopOf="@id/iv_head_count_home"
+                            tools:text="6명" />
+
+                        <TextView
+                            android:id="@+id/tv_edit_schedule_home"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="일정 편집하기"
+                            android:textColor="@color/blue"
+                            android:textSize="@dimen/font_size_medium"
+                            android:textStyle="bold"
+                            android:layout_marginTop="@dimen/dp_smaller"
+                            app:layout_constraintStart_toStartOf="@id/iv_calendar"
+                            app:layout_constraintTop_toBottomOf="@id/iv_head_count_home" />
+
+
+                        <!-- 썸네일 이미지 -->
+                        <ImageView
+                            android:id="@+id/iv_thumbnail"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_marginStart="16dp"
+                            android:scaleType="centerCrop"
+                            app:layout_constraintTop_toTopOf="@id/iv_calendar"
+                            app:layout_constraintStart_toStartOf="parent"
+                            tools:background="@drawable/image_beach" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardview_schedule_add_home"
+                    android:layout_width="0dp"
+                    android:layout_height="160dp"
+                    android:background="@android:color/transparent"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    android:visibility="@{loginInfo != null &amp;&amp; vm.homeScheduleCardTrip ==null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintTop_toBottomOf="@id/gl_top_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    app:layout_constraintEnd_toEndOf="@id/gl_end_home"
+                    app:cardElevation="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_dashed_card"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:id="@+id/imageViewPlus"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/baseline_add_24"
+                        app:tint="@color/neutral_60"
+                        app:layout_constraintBottom_toTopOf="@id/textViewAdd"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_chainStyle="packed" />
+
+                    <TextView
+                        android:id="@+id/textViewAdd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/font_size_medium"
+                        android:text="여행 일정 추가하기"
+                        android:textColor="@color/neutral_60"
+                        android:textSize="@dimen/font_size_large"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/imageViewPlus" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrier_card_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:textColor="#000000"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="cardview_schedule_home,cardview_schedule_add_home" />
+
+
+
+                <!--        <androidx.constraintlayout.widget.Guideline-->
+        <!--            android:id="@+id/gl_high_home"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:orientation="horizontal"-->
+        <!--            app:layout_constraintGuide_percent="0.25" />-->
+                <TextView
+                    android:id="@+id/tv_festival"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="축제 정보를 확인해보세요!"
                     android:textSize="@dimen/font_size_title"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="18제주팟" />
+                    android:layout_marginVertical="@dimen/dp_small"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_card_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_festival"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    submitData="@{vm.recommendFestivals}"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="@id/gl_end_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    app:layout_constraintTop_toBottomOf="@id/tv_festival"
+                    />
 
-                <TextView
-                    android:id="@+id/tv_today_label"
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_end_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="TODAY"
-                    android:textColor="@color/blue"
-                    android:textSize="@dimen/font_size_larger"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/tv_title"
-                    app:layout_constraintStart_toEndOf="@id/tv_title"
-                    app:layout_constraintTop_toTopOf="@id/tv_title" />
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="@dimen/dp_medium" />
 
-                <ImageView
-                    android:id="@+id/iv_calendar"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="@dimen/dp_small"
-                    android:layout_marginTop="8dp"
-                    android:src="@drawable/ic_calendar"
-                    app:tint="#666666"
-                    app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
-                    app:layout_constraintTop_toBottomOf="@id/tv_title" />
-
-
-                <TextView
-                    android:id="@+id/tv_date_range"
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_bottom_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_smaller"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="@id/iv_calendar"
-                    app:layout_constraintStart_toEndOf="@id/iv_calendar"
-                    app:layout_constraintTop_toTopOf="@id/iv_calendar"
-                    tools:text="25.01.17 - 25.01.19" />
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_end="@dimen/dp_medium" />
 
-                <ImageView
-                    android:id="@+id/iv_head_count_home"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="@dimen/dp_small"
-                    android:layout_marginTop="8dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="#666666"
-                    app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
-                    app:layout_constraintTop_toBottomOf="@id/iv_calendar" />
-
-
-                <TextView
-                    android:id="@+id/tv_head_count_home"
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_start_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_smaller"
-                    android:textColor="#666666"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="@id/iv_head_count_home"
-                    app:layout_constraintStart_toEndOf="@id/iv_head_count_home"
-                    app:layout_constraintTop_toTopOf="@id/iv_head_count_home"
-                    tools:text="6명" />
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
-                <TextView
-                    android:id="@+id/tv_edit_schedule_home"
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_top_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="일정 편집하기"
-                    android:textColor="@color/blue"
-                    android:textSize="@dimen/font_size_medium"
-                    android:textStyle="bold"
-                    android:layout_marginTop="@dimen/dp_smaller"
-                    app:layout_constraintStart_toStartOf="@id/iv_calendar"
-                    app:layout_constraintTop_toBottomOf="@id/iv_head_count_home" />
-
-
-                <!-- 썸네일 이미지 -->
-                <ImageView
-                    android:id="@+id/iv_thumbnail"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginStart="16dp"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintTop_toTopOf="@id/iv_calendar"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:background="@drawable/image_beach" />
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </androidx.cardview.widget.CardView>
-
-
-<!--        <androidx.constraintlayout.widget.Guideline-->
-<!--            android:id="@+id/gl_high_home"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            app:layout_constraintGuide_percent="0.25" />-->
-        <TextView
-            android:id="@+id/tv_festival"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="축제 정보를 확인해보세요!"
-            android:textSize="@dimen/font_size_title"
-            android:textStyle="bold"
-            android:layout_marginVertical="@dimen/dp_small"
-            app:layout_constraintTop_toBottomOf="@id/cardview_schedule_home"
-            app:layout_constraintStart_toStartOf="@id/gl_start_home"
-            />
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_festival"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            submitData="@{vm.recommendFestivals}"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toEndOf="@id/gl_end_home"
-            app:layout_constraintStart_toStartOf="@id/gl_start_home"
-            app:layout_constraintTop_toBottomOf="@id/tv_festival"
-            />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gl_end_home"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="@dimen/dp_medium" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gl_bottom_home"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_end="@dimen/dp_medium" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gl_start_home"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="@dimen/dp_medium" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gl_top_home"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="@dimen/dp_medium" />
-
+        </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
 
 </layout>

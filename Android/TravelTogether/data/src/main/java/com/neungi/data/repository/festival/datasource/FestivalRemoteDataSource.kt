@@ -6,7 +6,7 @@ import retrofit2.Response
 
 interface FestivalRemoteDataSource {
 
-    suspend fun getFestivals(startDate:String,endDate:String,regionCode:String): Response<FestivalResponse>
+    suspend fun getFestivals(startDate:String,endDate:String,regionCode:String?): Response<FestivalResponse>
 
     suspend fun getFestivalOverview(contentid:String):Response<OverViewEntity>
 }

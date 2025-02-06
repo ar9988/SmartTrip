@@ -28,6 +28,9 @@ class AiSelectPeriodFragment : BaseFragment<FragmentAiSelectPeriodBinding>(R.lay
         super.onViewCreated(view, savedInstanceState)
 
         binding.vm = viewModel
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
         addListener()
         collectEvent()
 

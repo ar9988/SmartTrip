@@ -72,7 +72,7 @@ class AuthViewModel @Inject constructor(
                 ApiStatus.SUCCESS -> {
                     val data = response.data
                     data?.let { saveUserInfo(it) }
-                    _authUiEvent.emit(AuthUiEvent.LoginSuccess(getUserName().first()))
+                    _authUiEvent.emit(AuthUiEvent.LoginSuccess(getUserName().first()?:""))
                 }
 
                 else -> {
@@ -151,7 +151,7 @@ class AuthViewModel @Inject constructor(
         _joinPhoneNumber.value = ""
     }
 
-    private fun getUserName(): Flow<String> = flow {
+    private fun getUserName(): Flow<String?> = flow {
         val name = getUserInfoUseCase.getUserName().first()
         emit(name)
     }

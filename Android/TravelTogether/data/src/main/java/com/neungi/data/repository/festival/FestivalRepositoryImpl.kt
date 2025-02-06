@@ -34,7 +34,7 @@ class FestivalRepositoryImpl@Inject constructor(
     override suspend fun getRecommendFestival(
         startDate: String,
         endDate: String,
-        regionNumber: String
+        regionNumber: String?
     ): ApiResult<List<Festival>> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {

@@ -51,7 +51,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             menu.getItem(2).isEnabled = false
         }
         binding.fabOrder.setOnClickListener {
-            navController.popBackStack()
+//            navController.popBackStack()
             navController.navigate(R.id.fragment_select_period)
             binding.bnvMain.selectedItemId = 0
         }

@@ -17,6 +17,7 @@ import com.neungi.moyeo.views.home.adapter.HomeFestivalAdapter
 import com.neungi.moyeo.views.home.viewmodel.HomeUiEvent
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
@@ -29,12 +30,18 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.vm = viewModel
+
         setAdapter()
+        collectLatestFlow(mainViewModel.userLoginInfo){ userInfo->
+            binding.loginInfo = userInfo
+        }
         collectLatestFlow(viewModel.homeUiEvent) { handleUiEvent(it) }
         collectLatestFlow(viewModel.recommendFestivals){ festivals ->
             homeFestivalAdapter.submitList(festivals)
         }
     }
+
+//    private fun on
 
     private fun setAdapter() {
         homeFestivalAdapter = HomeFestivalAdapter(viewModel)

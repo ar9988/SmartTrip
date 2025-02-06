@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
+import com.neungi.domain.model.Trip
 import com.neungi.domain.usecase.GetFestivalOverview
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
 import com.neungi.moyeo.util.CommonUtils
@@ -30,6 +31,11 @@ class HomeViewModel @Inject constructor(
     private val _homeUiEvent = MutableSharedFlow<HomeUiEvent>()
     val homeUiEvent = _homeUiEvent.asSharedFlow()
 
+    private val _homeScheduleCardTrip = MutableStateFlow<Trip?>(
+        null
+    )
+    val homeScheduleCardTrip = _homeScheduleCardTrip.asStateFlow()
+
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
     val recommendFestivals = _recommendFestivals.asStateFlow()
 
@@ -44,7 +50,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val today = LocalDate.now()
             val endDate = today.plusDays(30)
-            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDD(today), CommonUtils.convertToYYYYMMDD(endDate), "1")
+            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDD(today), CommonUtils.convertToYYYYMMDD(endDate), null)
             Timber.d("${result}")
             when (result.status) {
                 ApiStatus.SUCCESS -> {

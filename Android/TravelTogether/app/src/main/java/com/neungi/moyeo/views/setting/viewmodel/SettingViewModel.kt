@@ -38,14 +38,14 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    private fun fetchUserName(): Flow<String> = flow {
+    private fun fetchUserName(): Flow<String?> = flow {
         val name = getUserInfoUseCase.getUserName().first()
         emit(name)
     }
 
     fun getUserInfo() {
         viewModelScope.launch {
-            _userName.value = fetchUserName().first()
+            _userName.value = fetchUserName().first()?:""
         }
     }
 }
