@@ -34,7 +34,8 @@ public class DirectionsService {
                 .getJSONArray("traoptimal")
                 .getJSONObject(0)  // 첫 번째 항목 가져오기
                 .getJSONObject("summary")
-                .getInt("duration");
+                .getInt("duration")
+                /60000; // 밀리초 -> 분 단위 변환
         return new DirectionsResponseDto(totalTime);
     }
 

@@ -6,7 +6,9 @@ import com.travel.together.TravelTogether.aiPlanning.dto.OpenaiResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,10 +27,10 @@ class OpenaiServiceTest {
         OpenaiRequestDto requestDto = new OpenaiRequestDto();
         requestDto.setUserId("moyeo1234");
         requestDto.setStartDate("2025-02-05");
-        requestDto.setStartTime("08:00");
+        requestDto.setStartTime("10:00");
         requestDto.setEndDate("2025-02-06");
         requestDto.setEndTime("22:00");
-        requestDto.setDestination(Arrays.asList("서울특별시"));
+        requestDto.setDestination(Arrays.asList("서울특별시", "경기도 과천시"));
 
         Preferences preferences = new Preferences();
         preferences.setPlaces(Arrays.asList("축제", "관광지"));
@@ -40,10 +42,22 @@ class OpenaiServiceTest {
 
         // Then: 응답 검증
         assertNotNull(response, "응답이 null이면 안됩니다.");
-        assertNotNull(response.getResponseMessage(), "응답 메시지가 null이면 안됩니다.");
-        assertFalse(response.getResponseMessage().isEmpty(), "응답 메시지가 비어 있으면 안됩니다.");
 
-        // 응답 JSON이 올바른지 확인 (예제 검증)
-        System.out.println("응답 메시지: " + response.getResponseMessage());
+        // 날짜별 일정 조회
+        List<OpenaiResponseDto.DateActivities> days = response.getSchedule().getDays(); // days 리스트(첫째날, 둘째날... 조회)
+        for (int i = 0; i < days.size(); i++) {
+            OpenaiResponseDto.DateActivities day = days.get(i);
+            // 해당 날짜의 일정 조회
+            List<OpenaiResponseDto.Activity> activities = day.getActivities(); // activities 리스트
+            for (int j = 0; j < activities.size() ; j++) {
+                OpenaiResponseDto.Activity activity = activities.get(j);
+                System.out.println("name : " + activity.getName()); // 장소명
+                System.out.println("duration : " + activity.getDuration()); // 소요시간
+            }
+            System.out.println("-----------------------------------------------------");
+        }
+
+
+
     }
 }
