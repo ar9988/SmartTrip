@@ -39,10 +39,9 @@ public class FestivalService {
                 + requestDto.getStartDate()
                 + "&eventEndDate=" // 여행 종료 날짜
                 + requestDto.getEndDate()
-//                + "&areaCode=" // 지역 코드(if 문으로 작성)
-//                + requestDto.getRegionNumber()
                 + "&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json&listYN=Y&arrange=A";
 
+        // 지역 코드가 존재한다면 url에 추가
         if (requestDto.getRegionNumber() != null) {
             url += "&areaCode=" + requestDto.getRegionNumber();
         }
