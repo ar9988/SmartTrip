@@ -18,7 +18,7 @@ class FestivalServiceTest {
         FestivalService festivalService = new FestivalService();
 
         // 요청 데이터 설정 (실제 API 호출)
-        FestivalRequestDto requestDto = new FestivalRequestDto("20250131", "20250201", null);
+        FestivalRequestDto requestDto = new FestivalRequestDto("20250131", "20250201", "1");
 
         // When: 서비스 호출
         FestivalResponseDto responseDto = festivalService.getFestivals(requestDto);

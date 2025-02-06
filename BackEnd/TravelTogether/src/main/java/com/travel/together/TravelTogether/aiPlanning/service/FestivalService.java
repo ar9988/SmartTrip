@@ -43,8 +43,8 @@ public class FestivalService {
 //                + requestDto.getRegionNumber()
                 + "&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=AppTest&_type=json&listYN=Y&arrange=A";
 
-        if (requestDto.getRegionNumber().isBlank()) {
-            url = url + "&areaCode=" + requestDto.getRegionNumber();
+        if (requestDto.getRegionNumber() != null) {
+            url += "&areaCode=" + requestDto.getRegionNumber();
         }
 
         // API 호출
