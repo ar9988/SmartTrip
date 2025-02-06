@@ -3,7 +3,9 @@ package com.travel.together.TravelTogether.trip.dto;
 
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class ScheduleDto {
     private String placeName;

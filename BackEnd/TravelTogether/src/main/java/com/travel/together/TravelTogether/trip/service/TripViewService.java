@@ -53,17 +53,17 @@ public class TripViewService {
         List<Object[]> countResults = tripMemberRepository.countMembersByTripId();
         Map<Integer, Long> memberCounts = new HashMap<>();
         for (Object[] result : countResults) {
-            Integer tripId = ((Number) result[0]).intValue();
-            Long count = ((Number) result[1]).longValue();
+            Integer tripId = (Integer) ((Number) result[0]).intValue();
+            Long count = (Long) ((Number) result[1]).longValue();
             memberCounts.put(tripId, count);
         }
 
         // Response 생성
         return TripResponse.from(
                 trips,
-                trip -> memberCounts.getOrDefault(trip.getId(), 0L).intValue(),
+                trip -> (Integer) memberCounts.getOrDefault(trip.getId(), Long.valueOf(0L)).intValue(),
                 trip -> "",
-                trip -> LocalDateTime.now().isBefore(trip.getEndDate())
+                trip -> (Boolean) LocalDateTime.now().isBefore(trip.getEndDate())
         );
     }
 

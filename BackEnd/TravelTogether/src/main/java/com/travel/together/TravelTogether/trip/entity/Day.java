@@ -25,7 +25,7 @@ public class Day {
     @Column(name = "orderNum", nullable = false)
     private Integer orderNum;
 
-    @OneToMany(mappedBy = "day")
+    @OneToMany(mappedBy = "day", fetch = FetchType.EAGER)
     private List<Schedule> schedules;
 
     @OneToMany(mappedBy = "day")
