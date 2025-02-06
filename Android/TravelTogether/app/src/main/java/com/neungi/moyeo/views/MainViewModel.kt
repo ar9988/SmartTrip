@@ -4,13 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
+import com.neungi.domain.model.LoginInfo
 import com.neungi.domain.model.Place
 import com.neungi.domain.usecase.GetSearchPlaceUseCase
+import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.moyeo.util.EmptyState
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
 import com.neungi.moyeo.views.aiplanning.viewmodel.SearchUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,8 +23,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getSearchPlaceUseCase: GetSearchPlaceUseCase
+    private val getSearchPlaceUseCase: GetSearchPlaceUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : ViewModel() {
+
+    init {
+        login()
+    }
 
     private val _bnvState = MutableStateFlow<Boolean>(true)
     val bnvState = _bnvState.asStateFlow()
@@ -30,15 +39,16 @@ class MainViewModel @Inject constructor(
     }
 
     //관광지 검색 결과
-    private val _placeSearchResult = MutableStateFlow<List<Place>>(listOf(
-        Place("만장굴","동굴",0.0,0.0),
-        Place("경복궁","궁궐",0.0,0.0),
-        Place("불국사","절",0.0,0.0)
-    ))
+    private val _placeSearchResult = MutableStateFlow<List<Place>>(emptyList())
     val placeSearchResult = _placeSearchResult.asStateFlow()
 
     private val _searchUiState = MutableStateFlow<SearchUiState>(SearchUiState())
     val searchUiState = _searchUiState.asStateFlow()
+
+    private val _userLoginInfo = MutableStateFlow<LoginInfo?>(null)
+    val userLoginInfo = _userLoginInfo.asStateFlow()
+
+
 
 
 
@@ -79,6 +89,23 @@ class MainViewModel @Inject constructor(
     fun clearSearchResult(){
         _searchUiState.update { it.copy( searchTextState = EmptyState.EMPTY) }
         _placeSearchResult.value = emptyList()
+    }
+
+    fun login(){
+        viewModelScope.launch {
+            getUserInfoUseCase.getLoginInfo().collect { loginInfo ->
+                _userLoginInfo.value = loginInfo
+                Timber.d("Login Info loaded: $loginInfo")
+            }
+        }
+    }
+
+    fun logout(){
+        viewModelScope.launch {
+            _userLoginInfo.update {
+                null
+            }
+        }
     }
 
 

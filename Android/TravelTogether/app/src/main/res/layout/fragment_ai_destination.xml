@@ -7,6 +7,9 @@
         <variable
             name="vm"
             type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
+        <variable
+            name="userName"
+            type="String"/>
         <import type="android.view.View" />
     </data>
 
@@ -83,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_medium"
-                android:text="김싸피님, 여긴 어떠세요?"
+                android:text="@{userName+`님 여긴 어떠세요?`}"
                 android:textSize="@dimen/font_size_larger"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="@id/tv_place"

@@ -18,6 +18,7 @@
     import com.neungi.moyeo.databinding.DialogAddFestivalBinding
     import com.neungi.moyeo.databinding.DialogFestivalInfoBinding
     import com.neungi.moyeo.databinding.FragmentAiDestinationBinding
+    import com.neungi.moyeo.views.MainViewModel
     import com.neungi.moyeo.views.aiplanning.adapters.AiRecommendFestivalAdapter
     import com.neungi.moyeo.views.aiplanning.adapters.SelectedLocationAdapter
     import com.neungi.moyeo.views.aiplanning.adapters.SelectedPlaceAdapter
@@ -38,6 +39,7 @@
     class AiDestinationFragment : BaseFragment<FragmentAiDestinationBinding>(R.layout.fragment_ai_destination) {
 
         private val viewModel: AIPlanningViewModel by activityViewModels()
+        private val mainViewModel: MainViewModel by activityViewModels()
         lateinit var festivalAdapter:AiRecommendFestivalAdapter
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,6 +48,7 @@
                 findNavController().popBackStack()
             }
             binding.vm = viewModel
+            binding.userName = mainViewModel.userLoginInfo.value?.userName?:"김싸피"
             setAdapter()
             collectEvent()
             observeState()

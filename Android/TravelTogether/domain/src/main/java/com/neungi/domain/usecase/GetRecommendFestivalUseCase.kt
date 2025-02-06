@@ -10,7 +10,7 @@ class GetRecommendFestivalUseCase @Inject constructor(
     private val aiPlanningRepository: FestivalRepository
 ) {
 
-    suspend operator fun invoke(startDate:String, endDate:String, regionCode:String): ApiResult<List<Festival>> {
+    suspend operator fun invoke(startDate:String, endDate:String, regionCode:String?): ApiResult<List<Festival>> {
 //        val regionCode = regionMapper.getRegionCode(regionName)
 
         return aiPlanningRepository.getRecommendFestival(startDate, endDate, regionCode)

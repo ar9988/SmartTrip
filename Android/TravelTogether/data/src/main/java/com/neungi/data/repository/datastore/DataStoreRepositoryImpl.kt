@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.neungi.domain.model.LoginInfo
 import com.neungi.domain.repository.DataStoreRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -22,7 +23,7 @@ class DataStoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getJWT(): Flow<String> =
+    override fun getJWT(): Flow<String?> =
         dataStore.data.catch {
             if (it is IOException) {
                 it.printStackTrace()
@@ -40,7 +41,7 @@ class DataStoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getUserId(): Flow<String> =
+    override fun getUserId(): Flow<String?> =
         dataStore.data.catch {
             if (it is IOException) {
                 it.printStackTrace()
@@ -58,7 +59,7 @@ class DataStoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getUserEmail(): Flow<String> =
+    override fun getUserEmail(): Flow<String?> =
         dataStore.data.catch {
             if (it is IOException) {
                 it.printStackTrace()
@@ -76,7 +77,7 @@ class DataStoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getUserName(): Flow<String> =
+    override fun getUserName(): Flow<String?> =
         dataStore.data.catch {
             if (it is IOException) {
                 it.printStackTrace()
@@ -94,7 +95,7 @@ class DataStoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getUserProfile(): Flow<String> =
+    override fun getUserProfile(): Flow<String?> =
         dataStore.data.catch {
             if (it is IOException) {
                 it.printStackTrace()
@@ -105,6 +106,44 @@ class DataStoreRepositoryImpl @Inject constructor(
         }.map { preferences ->
             preferences[USER_PROFILE].toString()
         }
+
+    override fun getLoginInfo(): Flow<LoginInfo?> =
+        dataStore.data.catch {
+            if (it is IOException) {
+                it.printStackTrace()
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            val userId = preferences[USER_ID]
+            val userEmail = preferences[USER_EMAIL]
+            val userName = preferences[USER_NAME]
+            val userProfile = preferences[USER_PROFILE]
+
+            // userId, userEmail, userName 중 하나라도 null이면 null 리턴
+            if (userId != null && userEmail != null && userName != null) {
+                LoginInfo(
+                    userId = userId,
+                    userEmail = userEmail,
+                    userName = userName,
+                    userProfileImg = userProfile
+                )
+            } else {
+                null
+            }
+        }
+
+    override suspend fun logout() {
+        dataStore.edit { preferences ->
+            preferences.remove(JWT_TOKEN)
+            preferences.remove(USER_ID)
+            preferences.remove(USER_EMAIL)
+            preferences.remove(USER_NAME)
+            preferences.remove(USER_PROFILE)
+        }
+    }
+
 
     companion object {
 

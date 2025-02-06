@@ -7,7 +7,7 @@ interface FestivalRepository {
 
 //    suspend fun getPlaceSearchResult():ApiResult<Place>
 
-    suspend fun getRecommendFestival(startDate:String, endDate:String, regionNumber:String):ApiResult<List<Festival>>
+    suspend fun getRecommendFestival(startDate:String, endDate:String, regionNumber:String?):ApiResult<List<Festival>>
 
     suspend fun getFestivalOverview(contentId:String):ApiResult<String>
 
