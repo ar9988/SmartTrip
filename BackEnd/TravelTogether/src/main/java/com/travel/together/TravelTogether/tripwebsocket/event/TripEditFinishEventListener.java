@@ -5,7 +5,7 @@ import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.trip.repository.TripRepository;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
-import com.travel.together.TravelTogether.tripwebsocket.dto.TripEditCache;
+import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -51,14 +51,15 @@ public class TripEditFinishEventListener {
                             edit.getOperation().getScheduleId(),
                             edit.getOperation().getPositionPath());
 
-                } else if ("DELETE".equals(edit.getOperation().getAction())) {
-                    deleteSchedule(edit);
-                    log.info("Deleted schedule: scheduleId={}",
-                            edit.getOperation().getScheduleId());
-
-                } else if ("ADD".equals(edit.getOperation().getAction())) {
-                    // TODO: 일정추가기능
                 }
+//                else if ("DELETE".equals(edit.getOperation().getAction())) {
+//                    deleteSchedule(edit);
+//                    log.info("Deleted schedule: scheduleId={}",
+//                            edit.getOperation().getScheduleId());
+//
+//                } else if ("ADD".equals(edit.getOperation().getAction())) {
+//                    // TODO: 일정추가기능
+//                }
 
                 log.info("Successfully processed {} edits for tripId: {}", edits.size(), tripId);
 

@@ -28,7 +28,8 @@ public class RouteCalculatorScheduler {
     private final ScheduleRepository scheduleRepository;
     private final RouteService routeService;
 
-    @Scheduled(fixedRate = 30000) // 30초마다
+
+    @Scheduled(fixedRate = 300000) // 5분마다
     @Transactional(readOnly = true)
     public void processRouteInformation() {
         log.info("Starting route information processing");
@@ -70,6 +71,15 @@ public class RouteCalculatorScheduler {
                         startCoord,
                         endCoord,
                         day.getId());
+
+
+                // 각 route의 값을 확인
+                log.info("RouteService returned route - publicTransport: {}, personalVehicle: {}",
+                        route.getPublicTransport().getDuration(),
+                        route.getPersonalVehicle().getDuration());
+
+
+
 
                 routes.add(route);
             }

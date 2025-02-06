@@ -3,11 +3,13 @@ package com.travel.together.TravelTogether.tripwebsocket.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.tripwebsocket.cache.TripScheduleCache;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditResponse;
 import com.travel.together.TravelTogether.tripwebsocket.dto.RouteResponse;
-import com.travel.together.TravelTogether.tripwebsocket.dto.TripEditCache;
+import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.event.TripEditFinishEvent;
+import com.travel.together.TravelTogether.tripwebsocket.service.ScheduleService;
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +31,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     private final ApplicationEventPublisher eventPublisher;
     private final TripEditCache editCache;  // 추가
     private final ObjectMapper objectMapper; // JSON 파싱을 위해 추가
-
+    private final ScheduleService scheduleService;
+    private final TripScheduleCache scheduleCache;
 
 
     // tripId를 키로 하고, 해당 여행의 접속자들의 세션을 값으로 가지는 Map
@@ -70,11 +72,41 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             }
             // 메시지를 EditRequest 객체로 변환
             EditRequest editRequest = objectMapper.readValue(message.getPayload(), EditRequest.class);
+            EditRequest.Operation operation = editRequest.getOperation();
 
-            // 편집 내용을 캐시에 저장
+            // 모든 작업 캐시에 저장
             editCache.addEdit(tripId, editRequest);
 
-            // 송신자에게 즉시 "SUCCESS" 메시지 전송(테스트용)
+            // schedule:positionPath형태로 캐시에 저장
+
+            scheduleCache.updatePosition(
+                    tripId,
+                    operation.getScheduleId(),
+                    operation.getPositionPath()
+            );
+
+
+            switch (operation.getAction()) {
+                case "MOVE":
+                    scheduleCache.updatePosition(
+                            tripId.toString(),
+                            operation.getScheduleId(),
+                            operation.getPositionPath()
+                    );
+                    break;
+                case "ADD":
+                    break;
+                case "DELETE":
+                    scheduleCache.removePosition(
+                            tripId.toString(),
+                            operation.getScheduleId()
+                    );
+                    break;
+            }
+
+
+
+                // 송신자에게 즉시 "SUCCESS" 메시지 전송(테스트용)
             session.sendMessage(new TextMessage("SUCCESS"));
 
             // EditResponse클래스의 팩토리 메서드 사용(일단 버전 관리는 생략)
@@ -159,6 +191,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
     // route 정보 전송용 broadcast
     public void broadcastRouteInfo(String tripId, RouteResponse response) {
+        log.info("Broadcasting route info for tripId: {}", tripId);
+
         try {
             String jsonResponse = objectMapper.writeValueAsString(response);
             Set<WebSocketSession> tripSessionSet = tripSessions.get(tripId);
