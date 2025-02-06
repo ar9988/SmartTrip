@@ -5,6 +5,8 @@ data class ScheduleData(
     val scheduleTitle: String,
     var positionPath: Int,
     val timeStamp: Long,
-    val s3: String,
-    val s4: String,
+    val type: Int,
+    val lat: Double,
+    val lng: Double,
+    val duration: Int,
 )

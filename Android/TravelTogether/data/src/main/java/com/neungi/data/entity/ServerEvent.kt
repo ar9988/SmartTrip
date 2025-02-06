@@ -1,4 +1,6 @@
-package com.neungi.domain.model
+package com.neungi.data.entity
+
+import com.neungi.domain.model.Operation
 
 data class ServerEvent(
     val operationId: String,

@@ -6,31 +6,26 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.neungi.domain.model.ApiStatus
-import com.neungi.domain.model.Trip
-import com.neungi.domain.usecase.GetTripUseCase
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanBinding
+import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripUiEvent
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
-    private val viewModel: TripViewModel by activityViewModels()
+    private val tripViewModel: TripViewModel by activityViewModels()
+    private val mainViewModel : MainViewModel by activityViewModels()
     private val scheduleViewModel: ScheduleViewModel by activityViewModels()
     private lateinit var tripAdapter: TripAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.vm = viewModel
+        binding.vm = tripViewModel
         setupRecyclerView()
 
     }
@@ -43,6 +38,13 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         }
     }
 
+
+    override fun onResume() {
+        super.onResume()
+
+        mainViewModel.setBnvState(true)
+    }
+
     private fun setupRecyclerView() {
         tripAdapter = TripAdapter(
             onItemClick = { tripId ->
@@ -52,11 +54,8 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             },
             onDeleteClick = { tripId ->
                 // 삭제 처리 로직
+                tripViewModel
                 println("Delete trip with ID: $tripId")
-            },
-            onEditClick = { tripId ->
-                // 편집 처리 로직
-                println("Edit trip with ID: $tripId")
             }
         )
         binding.recyclerViewTrips.layoutManager = LinearLayoutManager(context)

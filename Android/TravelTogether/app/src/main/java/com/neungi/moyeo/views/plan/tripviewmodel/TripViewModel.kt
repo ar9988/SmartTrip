@@ -2,19 +2,15 @@ package com.neungi.moyeo.views.plan.tripviewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Trip
 import com.neungi.domain.usecase.GetTripUseCase
-import com.neungi.moyeo.util.MarkerData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -34,15 +30,11 @@ class TripViewModel @Inject constructor(
     private val _trips = MutableStateFlow<List<Trip>>(emptyList())
     val trips = _trips.asStateFlow()
 
-    init {
-//        val newTrips = mutableListOf<TripData>()
-//        newTrips.add(TripData(0,"제주도","1231-111","3명"))
-//        newTrips.add(TripData(1,"강원","1231-111","4명"))
-//        newTrips.add(TripData(2,"서울","1231-111","2명"))
-//        newTrips.add(TripData(3,"충청","1231-111","5명"))
-//        newTrips.add(TripData(4,"평창","1231-111","3명"))
-//        _trips.value = newTrips.toList()
+    fun deleteTrip(trip: Trip){
 
+    }
+
+    init {
         viewModelScope.launch {
             val result = getTripUseCase.getTrips(1)
             Timber.d(result.toString())
