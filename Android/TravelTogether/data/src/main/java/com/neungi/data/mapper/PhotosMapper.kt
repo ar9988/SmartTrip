@@ -12,13 +12,13 @@ object PhotosMapper {
             newPhotos.add(
                 Photo(
                     id = photoEntity.id.toString(),
-                    albumId = "",
-                    photoPlace = "",
-                    userId = "",
+                    albumId = photoEntity.albumId.toString(),
+                    photoPlace = photoEntity.place,
+                    userId = photoEntity.userId.toString(),
                     filePath = photoEntity.url,
                     latitude = photoEntity.latitude,
                     longitude = photoEntity.longitude,
-                    takenAt = photoEntity.createdAt,
+                    takenAt = photoEntity.takenAt ?: "",
                     uploadedAt = ""
                 )
             )

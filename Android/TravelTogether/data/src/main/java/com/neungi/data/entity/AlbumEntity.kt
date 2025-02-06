@@ -8,18 +8,18 @@ data class AlbumEntity(
     @Json(name = "id")
     val id: Int,
 
-    @Json(name = "trip_id")
+    @Json(name = "tripId")
     val tripId: Int,
 
-    @Json(name = "trip_title")
+    @Json(name = "tripTitle")
     val tripTitle: String,
 
-    @Json(name = "rep_image")
+    @Json(name = "repImage")
     val repImage: String,
 
-    @Json(name = "start_date")
+    @Json(name = "startDate")
     val startDate: String,
 
-    @Json(name = "end_date")
+    @Json(name = "endDate")
     val endDate: String
 )

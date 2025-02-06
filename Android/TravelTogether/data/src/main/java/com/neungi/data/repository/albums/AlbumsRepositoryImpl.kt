@@ -1,5 +1,6 @@
 package com.neungi.data.repository.albums
 
+import android.util.Log
 import com.neungi.data.mapper.AlbumsMapper
 import com.neungi.data.mapper.CommentMapper
 import com.neungi.data.mapper.CommentsMapper
@@ -27,13 +28,17 @@ class AlbumsRepositoryImpl @Inject constructor(
             }
 
             val body = response.body()
+            Log.d("AlbumsRepositoryImpl", "Response: $body")
             if (response.isSuccessful && (body != null)) {
+                Log.d("AlbumsRepositoryImpl", "Response Success: $body")
                 ApiResult.success(AlbumsMapper(body))
             } else {
+                Log.d("AlbumsRepositoryImpl", "Response Fail: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
 
         } catch (e: Exception) {
+            Log.d("AlbumsRepositoryImpl", "Fail: ${e.message}")
             ApiResult.fail()
         }
 
@@ -45,13 +50,17 @@ class AlbumsRepositoryImpl @Inject constructor(
             }
 
             val body = response.body()
+            Log.d("AlbumsRepositoryImpl", "Response: $body")
             if (response.isSuccessful && (body != null)) {
+                Log.d("AlbumsRepositoryImpl", "Response Success: $body")
                 ApiResult.success(PhotosMapper(body))
             } else {
+                Log.d("AlbumsRepositoryImpl", "Response Fail: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
 
         } catch (e: Exception) {
+            Log.d("AlbumsRepositoryImpl", "Fail: ${e.message}")
             ApiResult.fail()
         }
 
