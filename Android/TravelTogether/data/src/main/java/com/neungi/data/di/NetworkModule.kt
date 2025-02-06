@@ -5,6 +5,7 @@ import com.neungi.data.api.AlbumsApi
 import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
 import com.neungi.data.api.TripsApi
+import com.neungi.data.util.JwtInterceptor
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -14,7 +15,6 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import java.time.ZonedDateTime
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -40,17 +40,19 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().build()
+    fun provideOkHttpClient(jwtInterceptor: JwtInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(jwtInterceptor)
+            .build()
     }
 
     @Provides
     @Singleton
     @Named("Moyeo")
-    fun provideMoyeoRetrofit(): Retrofit {
+    fun provideMoyeoRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(provideOkHttpClient())
+            .baseUrl(BASE_URL3)
+            .client(okHttpClient)
             .addConverterFactory(provideMoshiConverterFactory())
             .build()
     }

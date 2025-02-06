@@ -13,7 +13,6 @@ import com.neungi.data.repository.auth.AuthRemoteDataSource
 import com.neungi.data.repository.auth.AuthRepositoryImpl
 import com.neungi.data.repository.datastore.DataStoreRepositoryImpl
 import com.neungi.data.repository.trips.TripsRemoteDataSource
-import com.neungi.data.repository.trips.TripsRepositoryImpl
 import com.neungi.domain.repository.AiPlanningRepository
 import com.neungi.domain.repository.AlbumsRepository
 import com.neungi.domain.repository.FestivalRepository
