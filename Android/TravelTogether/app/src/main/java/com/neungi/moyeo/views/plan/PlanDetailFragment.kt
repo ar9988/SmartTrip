@@ -31,12 +31,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         super.onResume()
 
         mainViewModel.setBnvState(false)
+        viewModel.startConnect()
     }
 
-    //    private lateinit var scheduleAdapter: ScheduleAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
+        binding.trip = viewModel.trip
         viewModel.serverEvents.observe(viewLifecycleOwner) { event: ServerReceive ->
             if (!isUserDragging) {
                 Timber.d("Received external event: $event")
@@ -47,8 +48,9 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             }
         }
         viewModel.scheduleSections.observe(viewLifecycleOwner){ sections ->
+            Timber.d(sections.toString())
             sectionedAdapter.sections = sections.toMutableList()
-            sectionedAdapter.rebuildSections()
+            sectionedAdapter.buildListItems()
         }
         setupRecyclerView()
         binding.btnBack.setOnClickListener {
@@ -85,29 +87,20 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             onAddClick = {
                 findNavController().navigateSafely(R.id.action_schedule_add)
             },
-            mutableListOf(
-//                Section(
-//                    ScheduleHeader(1, "1일차", 0),
-//                    mutableListOf(
-//                        ScheduleData(1, "일정1", 1000, 0,0, 0.1,0.2),
-//                        ScheduleData(2, "일정2", 2000, 0,0, 0.1,0.2)
-//                    )
-//                ),
-//                Section(
-//                    ScheduleHeader(2, "2일차", 3000),
-//                    mutableListOf(
-//                        ScheduleData(3, "일정3", 4000, 0, 0, 0.1,0.2),
-//                        ScheduleData(4, "일정4", 5000, 0, 0, 0.1,0.2),
-//                        ScheduleData(5, "일정5", 6000, 0, 0, 0.1,0.2)
-//                    )
-//                )
-            )
+            mutableListOf()
         )
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.adapter = sectionedAdapter
-        binding.recyclerView.animation = null
-        binding.recyclerView.hasFixedSize()
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = sectionedAdapter
+            setHasFixedSize(true)
+            itemAnimator = null // 애니메이션 비활성화
+        }
 
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.closeWebSocket()
     }
 }

@@ -14,6 +14,7 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripUiEvent
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
@@ -47,9 +48,9 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     private fun setupRecyclerView() {
         tripAdapter = TripAdapter(
-            onItemClick = { tripId ->
-                println("click $tripId")
-                scheduleViewModel.tripId = tripId
+            onItemClick = { trip ->
+                scheduleViewModel.trip = trip
+                Timber.d(trip.title)
                 findNavController().navigateSafely(R.id.action_plan_to_planDetail)
             },
             onDeleteClick = { tripId ->

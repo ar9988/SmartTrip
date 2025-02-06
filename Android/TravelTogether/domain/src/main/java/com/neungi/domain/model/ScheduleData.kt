@@ -2,7 +2,7 @@ package com.neungi.domain.model
 
 data class ScheduleData(
     val scheduleId: Int,
-    val scheduleTitle: String,
+    val placeName: String,
     var positionPath: Int,
     val timeStamp: Long,
     val type: Int,

@@ -1,6 +1,6 @@
 package com.neungi.moyeo.util
 
-import com.neungi.data.entity.ScheduleReceive
+import ScheduleReceive
 import com.neungi.domain.model.ScheduleData
 
 
@@ -21,7 +21,7 @@ fun convertToSections(scheduleReceive: ScheduleReceive): MutableList<Section> {
         )
 
         // 각 Day의 schedule을 items로 설정
-        val sectionItems = day.schedule.toMutableList()
+        val sectionItems = day.schedules.toMutableList()
 
         // Section을 생성하여 List에 추가
         val section = Section(

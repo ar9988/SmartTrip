@@ -37,7 +37,7 @@ class SectionedAdapter(
         buildListItems()
     }
 
-    private fun buildListItems() {
+    fun buildListItems() {
         listItems.clear()
         sections.forEachIndexed { sectionIndex, section ->
             listItems.add(ListItem.SectionHeader(section.head))
@@ -46,6 +46,7 @@ class SectionedAdapter(
             }
         }
         Timber.d(listItems.toString())
+        notifyDataSetChanged()  // 데이터가 변경된 후, RecyclerView를 갱신
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -165,7 +166,7 @@ class SectionedAdapter(
         private val textView2 :TextView = view.findViewById(R.id.type_schedule)
         private val cardSchedule : ConstraintLayout = view.findViewById(R.id.card_schedule)
         fun bind(data: ScheduleData) {
-            titleTextView.text = data.scheduleTitle
+            titleTextView.text = data.placeName
             textView2.text = data.positionPath.toString()
             cardSchedule.setOnLongClickListener { view ->
                 itemTouchHelper.startDrag(this)

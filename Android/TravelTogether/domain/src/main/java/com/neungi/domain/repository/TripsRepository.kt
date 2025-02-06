@@ -5,4 +5,5 @@ import com.neungi.domain.model.Trip
 
 interface TripsRepository {
     suspend fun getTrips(userId: Int): ApiResult<List<Trip>>
+    suspend fun deleteTrip(userId: Int, trip: Trip): ApiResult<Boolean>
 }

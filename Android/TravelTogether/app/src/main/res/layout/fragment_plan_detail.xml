@@ -5,6 +5,12 @@
 
     <data>
         <variable
+            name="trip"
+            type="com.neungi.domain.model.Trip" />
+        <variable
+            name="onAddClick"
+            type="android.view.View.OnClickListener" />
+        <variable
             name="vm"
             type="com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel" />
     </data>
@@ -43,6 +49,7 @@
                     android:layout_marginEnd="15dp"
                     android:ellipsize="end"
                     android:maxLines="1"
+                    android:text="@{trip.title}"
                     app:layout_constraintStart_toEndOf="@id/btn_back"
                     app:layout_constraintEnd_toStartOf="@id/rv_person_icon"
                     app:layout_constraintTop_toTopOf="parent"
@@ -60,6 +67,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <ImageButton
+                    android:onClick="@{onAddClick}"
                     android:id="@+id/btn_add_person"
                     android:layout_width="48dp"
                     android:layout_height="48dp"

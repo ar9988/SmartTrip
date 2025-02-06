@@ -1,5 +1,3 @@
-package com.neungi.data.entity
-
 import com.neungi.domain.model.ScheduleData
 import java.time.LocalDateTime
 
@@ -20,5 +18,5 @@ data class Member(
 
 data class Day(
     val startTime: LocalDateTime,
-    val schedule: List<ScheduleData>
+    val schedules: List<ScheduleData>  // 'schedule'이 아닌 'schedules'로 변경
 )

@@ -50,4 +50,8 @@ class TripsRepositoryImpl @Inject constructor(
             e.printStackTrace()
             ApiResult.fail()
         }
+
+    override suspend fun deleteTrip(userId: Int, trip: Trip): ApiResult<Boolean> {
+        TODO("Not yet implemented")
+    }
 }

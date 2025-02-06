@@ -11,4 +11,8 @@ class GetTripUseCase @Inject constructor(
     suspend fun getTrips(userId: Int): ApiResult<List<Trip>> {
         return tripsRepository.getTrips(userId)
     }
+
+    suspend fun removeTrip(userId: Int, trip: Trip): ApiResult<Boolean>{
+        return tripsRepository.deleteTrip(userId,trip)
+    }
 }
