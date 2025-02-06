@@ -31,10 +31,10 @@ public class FestivalController {
     public ResponseEntity<FestivalResponseDto> getFestivals(
             @RequestParam String startDate,
             @RequestParam String endDate,
-            @RequestParam String regionCode) {
+            @RequestParam(required = false) String regionNumber) {
         try {
             // 요청 DTO 생성
-            FestivalRequestDto requestDto = new FestivalRequestDto(startDate, endDate, regionCode);
+            FestivalRequestDto requestDto = new FestivalRequestDto(startDate, endDate, regionNumber);
 
             // 서비스 호출 및 응답 반환
             FestivalResponseDto responseDto = festivalService.getFestivals(requestDto);
