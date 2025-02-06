@@ -1,15 +1,14 @@
 package com.travel.together.TravelTogether.album.controller;
 
-import com.travel.together.TravelTogether.album.dto.PhotoAlbumRequestDto;
-import com.travel.together.TravelTogether.album.dto.PhotoAlbumResponseDto;
-import com.travel.together.TravelTogether.album.dto.PhotoRequestDto;
-import com.travel.together.TravelTogether.album.dto.PhotoResponseDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.album.dto.*;
 import com.travel.together.TravelTogether.album.service.PhotoAlbumService;
 import com.travel.together.TravelTogether.album.service.PhotoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -51,15 +50,34 @@ public class PhotoAlbumController {
     // [POST] /albums/{albumId}/photos
     // 특정 앨범에 사진 업로드
     @PostMapping("/{albumId}/photos")
-    public ResponseEntity<PhotoResponseDto> uploadPhotoToAlbum(
+    public ResponseEntity<List<PhotoResponseDto>> uploadPhotoToAlbum(
             @PathVariable("albumId") int albumId,
-            @RequestPart("photoData") PhotoRequestDto photoRequestDto,
-            @RequestPart("file") MultipartFile file) {
+            @RequestPart(value = "photoData") String photoDataJson,
+            @RequestPart("files") List<MultipartFile> files) {
 
-        // 경로에서 받은 albumId를 DTO에 설정
-        photoRequestDto.setAlbumId(albumId);
-        PhotoResponseDto responseDto = photoService.uploadPhoto(photoRequestDto, file);
-        return ResponseEntity.ok(responseDto);
+        BatchPhotoRequestDto batchPhotoRequestDto = null;
+        if (photoDataJson != null && !photoDataJson.isEmpty()) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                batchPhotoRequestDto = objectMapper.readValue(photoDataJson, BatchPhotoRequestDto.class);
+            } catch (Exception e) {
+                throw new RuntimeException("Invalid JSON format", e);
+            }
+        }
+
+        assert batchPhotoRequestDto != null;
+        if (batchPhotoRequestDto.getPhotos().size() != files.size()) {
+            throw new IllegalArgumentException("사진 데이터와 파일 개수가 일치하지 않습니다.");
+        }
+
+        List<PhotoResponseDto> responses = new ArrayList<>();
+        for (int i = 0; i < files.size(); i++) {
+            PhotoRequestDto photoDto = batchPhotoRequestDto.getPhotos().get(i);
+            photoDto.setAlbumId(albumId);
+            PhotoResponseDto response = photoService.uploadPhoto(photoDto, files.get(i));
+            responses.add(response);
+        }
+        return ResponseEntity.ok(responses);
     }
 
     // [DELETE] /albums/{albumId}/photos/{photoId}

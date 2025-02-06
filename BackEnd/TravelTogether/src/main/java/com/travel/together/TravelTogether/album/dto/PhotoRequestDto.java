@@ -1,8 +1,12 @@
 package com.travel.together.TravelTogether.album.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class PhotoRequestDto {
     private int albumId;
     private Long userId;
