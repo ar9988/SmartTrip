@@ -17,13 +17,13 @@ class JwtInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         val token = runBlocking { dataStoreRepository.getJWT().first() }
-        val responseWithJwt = if (token.isNotEmpty()) {
+        val responseWithJwt = if (token.isNullOrBlank()) {
+            originalRequest
+        } else {
             Log.d("JwtInterceptor", "intercept: $token")
             originalRequest.newBuilder()
                 .addHeader("Authorization", "Bearer $token")
                 .build()
-        } else {
-            originalRequest
         }
 
         return chain.proceed(responseWithJwt)

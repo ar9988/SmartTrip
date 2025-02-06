@@ -51,7 +51,7 @@ object NetworkModule {
     @Named("Moyeo")
     fun provideMoyeoRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL3)
+            .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(provideMoshiConverterFactory())
             .build()
