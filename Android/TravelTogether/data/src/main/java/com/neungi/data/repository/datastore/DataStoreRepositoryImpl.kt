@@ -85,7 +85,7 @@ class DataStoreRepositoryImpl @Inject constructor(
                 throw it
             }
         }.map { preferences ->
-            preferences[USER_NAME].toString()
+            preferences[USER_NAME] ?: ""
         }
 
     override suspend fun setUserProfile(profile: String) {
