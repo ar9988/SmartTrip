@@ -4,5 +4,5 @@ import lombok.*;
 
 @Data
 public class PhotoAlbumRequestDto {
-    private int tripId;
+
 }

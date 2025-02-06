@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class PhotoResponseDto {
     private int albumId;
+    private int photoId;
     private Integer userId;
     private Float latitude;
     private Float longitude;

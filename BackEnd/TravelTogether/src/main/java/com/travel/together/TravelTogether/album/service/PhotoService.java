@@ -152,6 +152,7 @@ public class PhotoService {
         // Response DTO 변환
         PhotoResponseDto responseDto = new PhotoResponseDto();
         responseDto.setAlbumId(savedPhoto.getAlbum().getId());
+        responseDto.setPhotoId(savedPhoto.getId());
         responseDto.setUserId(savedPhoto.getUser().getId());
         responseDto.setLatitude(savedPhoto.getLatitude());
         responseDto.setLongitude(savedPhoto.getLongitude());
@@ -169,6 +170,7 @@ public class PhotoService {
         return photos.stream().map(photo -> {
             PhotoResponseDto dto = new PhotoResponseDto();
             dto.setAlbumId(photo.getAlbum().getId());
+            dto.setPhotoId(photo.getId());
             dto.setUserId(photo.getUser().getId());
             dto.setLatitude(photo.getLatitude());
             dto.setLongitude(photo.getLongitude());

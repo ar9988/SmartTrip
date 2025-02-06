@@ -4,13 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.together.TravelTogether.album.dto.*;
 import com.travel.together.TravelTogether.album.service.PhotoAlbumService;
 import com.travel.together.TravelTogether.album.service.PhotoService;
+import com.travel.together.TravelTogether.auth.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/albums")
 public class PhotoAlbumController {
@@ -23,19 +29,15 @@ public class PhotoAlbumController {
         this.photoService = photoService;
     }
 
-//    // [POST] /albums
-//    // 새로운 앨범을 생성
-//    @PostMapping
-//    public ResponseEntity<PhotoAlbumResponseDto> createAlbum(@RequestBody PhotoAlbumRequestDto requestDto) {
-//        PhotoAlbumResponseDto albumResponse = photoAlbumService.createPhotoAlbum(requestDto);
-//        return ResponseEntity.ok(albumResponse);
-//    }
 
     // [GET] /albums
     // 전체 앨범 목록 조회
     @GetMapping
-    public ResponseEntity<List<PhotoAlbumResponseDto>> getAllAlbums() {
-        List<PhotoAlbumResponseDto> albumList = photoAlbumService.getAllAlbums();
+    public ResponseEntity<List<PhotoAlbumResponseDto>> getUserAlbums(@AuthenticationPrincipal User user, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        log.info("현재 로그인한 유저 ID: {}", user.getId());
+        log.info(token);
+        List<PhotoAlbumResponseDto> albumList = photoAlbumService.getUserAlbums(user.getUserId());
         return ResponseEntity.ok(albumList);
     }
 

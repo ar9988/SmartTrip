@@ -1,13 +1,10 @@
 package com.travel.together.TravelTogether.album.service;
 
-import com.travel.together.TravelTogether.album.dto.PhotoAlbumRequestDto;
 import com.travel.together.TravelTogether.album.dto.PhotoAlbumResponseDto;
-import com.travel.together.TravelTogether.album.dto.PhotoResponseDto;
 import com.travel.together.TravelTogether.album.entity.PhotoAlbum;
 import com.travel.together.TravelTogether.album.entity.Photo;
 import com.travel.together.TravelTogether.album.repository.PhotoAlbumRepository;
 import com.travel.together.TravelTogether.album.repository.PhotoRepository;
-import com.travel.together.TravelTogether.trip.entity.Trip;
 import com.travel.together.TravelTogether.trip.repository.TripRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,62 +17,35 @@ public class PhotoAlbumService {
 
     private final PhotoAlbumRepository photoAlbumRepository;
     private final PhotoRepository photoRepository;
-    private final TripRepository tripRepository;
 
     public PhotoAlbumService(PhotoAlbumRepository photoAlbumRepository,
                              PhotoRepository photoRepository,
                              TripRepository tripRepository) {
         this.photoAlbumRepository = photoAlbumRepository;
         this.photoRepository = photoRepository;
-        this.tripRepository = tripRepository;
     }
-
-//    @Transactional
-//    public PhotoAlbumResponseDto createPhotoAlbum(PhotoAlbumRequestDto requestDto) {
-//        // 전달받은 tripId로 Trip 엔티티를 조회.
-//        Trip trip = tripRepository.findById(requestDto.getTripId())
-//                .orElseThrow(() -> new IllegalArgumentException("Trip not found with id: " + requestDto.getTripId()));
-//
-//        // PhotoAlbum 엔티티를 생성, 조회한 Trip과 기본 앨범 커버 이미지를 설정
-//        // default 값 넣어 놓음.
-//        PhotoAlbum album = new PhotoAlbum();
-//        album.setTrip(trip);
-//        album.setImageUrl("default.jpg");
-//
-//        // 앨범을 데이터베이스에 저장.
-//        album = photoAlbumRepository.save(album);
-//
-//        // 앨범의 정보를 DTO로 변환하여 반환.
-//        PhotoAlbumResponseDto responseDto = new PhotoAlbumResponseDto();
-//        responseDto.setId(album.getId());
-//        responseDto.setTripId(trip.getId());
-//        responseDto.setPhotos(List.of());
-//        return responseDto;
-//    }
 
 
     @Transactional(readOnly = true)
-    public List<PhotoAlbumResponseDto> getAllAlbums() {
-        // 전체 앨범 조회 (여행 일정별 필터링 대신 전체 앨범 목록 반환)
-        return photoAlbumRepository.findAll().stream().map(album -> {
+    public List<PhotoAlbumResponseDto> getUserAlbums(Integer userId) {
+
+        List<PhotoAlbum> albums = photoAlbumRepository.findAllByUserId(userId);
+
+        return albums.stream().map(album -> {
             PhotoAlbumResponseDto responseDto = new PhotoAlbumResponseDto();
             responseDto.setId(album.getId());
             responseDto.setTripId(album.getTrip().getId());
+            responseDto.setTripTitle(album.getTrip().getTitle());
+            responseDto.setStartDate(album.getTrip().getStartDate().toString());
+            responseDto.setEndDate(album.getTrip().getEndDate().toString());
 
             // 앨범에 속한 사진 조회
             List<Photo> photos = photoRepository.findByAlbumId(album.getId());
-            List<PhotoResponseDto> photoDtos = photos.stream().map(photo -> {
-                PhotoResponseDto dto = new PhotoResponseDto();
-                dto.setAlbumId(photo.getAlbum().getId());
-                dto.setUserId(photo.getUser().getId());
-                dto.setLatitude(photo.getLatitude());
-                dto.setLongitude(photo.getLongitude());
-                dto.setFilePath(photo.getFilePath());
-                dto.setTakenAt(photo.getTakenAt() != null ? photo.getTakenAt().toString() : null);
-                dto.setPlace(photo.getPhotoPlace().getName());
-                return dto;
-            }).collect(Collectors.toList());
-            responseDto.setPhotos(photoDtos);
+            if (!photos.isEmpty()) {
+                responseDto.setRepImage(photos.get(2).getFilePath()); // 첫 번째 사진의 경로를 대표 이미지로 사용
+            } else {
+                responseDto.setRepImage(null); // 사진이 없을 경우 null 처리
+            }
             return responseDto;
         }).collect(Collectors.toList());
     }
