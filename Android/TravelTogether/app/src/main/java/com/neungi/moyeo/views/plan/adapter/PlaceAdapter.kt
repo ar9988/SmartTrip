@@ -16,8 +16,8 @@ class PlaceAdapter(
     // ViewHolder는 기존과 동일합니다.
     inner class ViewHolder(private val binding: ItemSearchPlaceBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(data: Place) {
-            binding.tvPlaceName.text = data.title
-            binding.tvPlaceCategory.text = data.category
+            binding.tvPlaceName.text = data.placeName
+            binding.tvPlaceCategory.text = data.address
 //            binding.onItemClick = View.OnClickListener {
 //                onClick(data)
 //            }
@@ -35,7 +35,7 @@ class PlaceAdapter(
 
     class PlaceDiffCallback : DiffUtil.ItemCallback<Place>() {
         override fun areItemsTheSame(oldItem: Place, newItem: Place): Boolean {
-            return oldItem.title == newItem.title
+            return oldItem.placeName == newItem.placeName
         }
 
         override fun areContentsTheSame(oldItem: Place, newItem: Place): Boolean {
