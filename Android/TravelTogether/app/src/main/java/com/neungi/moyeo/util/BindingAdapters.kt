@@ -30,10 +30,10 @@ import java.time.LocalDate
 fun ImageView.bindUrlPhotoImage(url: String?) {
     if (url != null) {
         load(url) {
-            error(R.drawable.ic_profile)
+            error(R.drawable.ic_theme_white)
         }
     } else {
-        this.setImageResource(R.drawable.ic_profile)
+        this.setImageResource(R.drawable.ic_theme_white)
     }
     scaleType = ImageView.ScaleType.CENTER_CROP
 }
@@ -42,10 +42,10 @@ fun ImageView.bindUrlPhotoImage(url: String?) {
 fun ImageView.bindUriPhotoImage(uri: Uri?) {
     if (uri != null) {
         load(uri) {
-            error(R.drawable.ic_profile)
+            error(R.drawable.ic_theme_white)
         }
     } else {
-        this.setImageResource(R.drawable.ic_profile)
+        this.setImageResource(R.drawable.ic_theme_white)
     }
     scaleType = ImageView.ScaleType.CENTER_CROP
 }
@@ -55,6 +55,7 @@ fun ImageView.bindUriPhotoImage(uri: Uri?) {
 fun ConstraintLayout.bindBackgroundAlbumImage(url: String) {
     Glide.with(this)
         .asBitmap()
+        .placeholder(R.drawable.ic_theme_white)
         .load(url)
         .centerCrop()
         .into(object : CustomTarget<Bitmap>() {
@@ -66,7 +67,7 @@ fun ConstraintLayout.bindBackgroundAlbumImage(url: String) {
             }
 
             override fun onLoadCleared(placeholder: Drawable?) {
-
+                background = placeholder
             }
         })
 }

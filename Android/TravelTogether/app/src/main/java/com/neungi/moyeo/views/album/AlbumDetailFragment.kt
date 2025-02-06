@@ -4,6 +4,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapShader
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Shader
 import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Bundle
@@ -33,13 +37,11 @@ import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.clustering.ClusterMarkerInfo
-import com.naver.maps.map.clustering.Clusterer
-import com.naver.maps.map.clustering.DefaultClusterMarkerUpdater
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import com.neungi.domain.model.Photo
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAlbumDetailBinding
@@ -51,10 +53,8 @@ import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter.Companion.START_PO
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -66,9 +66,6 @@ class AlbumDetailFragment :
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationSource: FusedLocationSource
-    private lateinit var clusterer: Clusterer<MarkerData>
-    private lateinit var markerBuilder: Clusterer.ComplexBuilder<MarkerData>
-    private val tags = mutableListOf<String>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -80,6 +77,7 @@ class AlbumDetailFragment :
 
         collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -129,7 +127,7 @@ class AlbumDetailFragment :
 
                     val cameraUpdate = CameraUpdate.scrollTo(LatLng(it.latitude, it.longitude))
                     naverMap.moveCamera(cameraUpdate)
-                    setMapToFitAllMarkers(viewModel.locations.value)
+                    setMapToFitAllMarkers(viewModel.photos.value)
                     initClusterer()
                 }
             }
@@ -173,11 +171,11 @@ class AlbumDetailFragment :
         mapFragment.getMapAsync(this)
     }
 
-    private fun setMapToFitAllMarkers(markers: List<LatLng>) {
+    private fun setMapToFitAllMarkers(markers: List<Photo>) {
         if (markers.isEmpty()) return
 
         val boundsBuilder = LatLngBounds.Builder()
-        markers.forEach { boundsBuilder.include(it) }
+        markers.forEach { boundsBuilder.include(LatLng(it.latitude, it.longitude)) }
         val bounds = boundsBuilder.build()
 
         val cameraUpdate = CameraUpdate.fitBounds(bounds, 100)
@@ -185,74 +183,13 @@ class AlbumDetailFragment :
     }
 
     private fun initClusterer() {
-        markerBuilder = Clusterer.ComplexBuilder<MarkerData>()
         lifecycleScope.launch {
             viewModel.markers.collectLatest { markers ->
-                tags.clear()
-                val newClusterer = makeMarker(
-                    markers,
-                    markerBuilder
-                ) {
-                    val newMarkers = mutableListOf<List<MarkerData>>()
-                    tags.forEach { tag ->
-                        val newLocations = mutableListOf<MarkerData>()
-                        tag.split(",").forEach { id ->
-                            newLocations.add(markers[id.toInt() - 1])
-                        }
-                        calculateRepresentativeCoordinate(newLocations)
-                        newMarkers.add(newLocations)
-                    }
-                    addClusterMarkers(newMarkers)
-
-                    viewModel.initPhotoPlaces(tags)
-                    initTabLayout()
-                    clusterer.map = null
-                }
-
-                clusterer = newClusterer
-                clusterer.map = naverMap
+                addClusterMarkers(markers)
+                viewModel.initPhotoPlaces()
+                initTabLayout()
             }
         }
-    }
-
-    private suspend fun makeMarker(
-        markers: List<MarkerData>,
-        builder: Clusterer.ComplexBuilder<MarkerData>,
-        onClusterComplete: () -> Unit
-    ): Clusterer<MarkerData> {
-        val totalMarkers = markers.size
-        var processedMarkers = 0
-
-        val cluster: Clusterer<MarkerData> = builder.tagMergeStrategy { cluster ->
-            cluster.children.map { it.tag }.joinToString(",")
-        }
-            .apply {
-                clusterMarkerUpdater(object : DefaultClusterMarkerUpdater() {
-
-                    override fun updateClusterMarker(info: ClusterMarkerInfo, marker: Marker) {
-
-                        tags.add(info.tag.toString())
-
-
-                        markerManager.releaseMarker(info, marker)
-
-                        processedMarkers += info.size
-
-                        if (processedMarkers == totalMarkers) {
-                            onClusterComplete()
-                        }
-                    }
-                })
-            }
-            .build()
-
-        withContext(Dispatchers.Default) {
-            markers.forEach { item ->
-                cluster.add(item, "${item.id}")
-            }
-        }
-
-        return cluster
     }
 
     private fun calculateRepresentativeCoordinate(cluster: List<MarkerData>): LatLng {
@@ -262,9 +199,9 @@ class AlbumDetailFragment :
     }
 
     @SuppressLint("InflateParams")
-    private fun addClusterMarkers(clusterGroups: List<List<MarkerData>>) {
+    private fun addClusterMarkers(clusterGroups: List<Pair<String, List<MarkerData>>>) {
         clusterGroups.forEachIndexed { index, cluster ->
-            val representativeCoordinate = calculateRepresentativeCoordinate(cluster)
+            val representativeCoordinate = calculateRepresentativeCoordinate(cluster.second)
 
             val marker = Marker()
             marker.position = representativeCoordinate
@@ -272,17 +209,24 @@ class AlbumDetailFragment :
                 R.layout.marker_cluster_icon, null
             )
             val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
-            val firstPhotoIndex = cluster.first().id - 1
-            val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].photo.filePath
+            val firstPhotoUrl = cluster.second.first().photo.filePath
             Glide.with(requireContext())
                 .asBitmap()
                 .apply(RequestOptions.circleCropTransform())
                 .circleCrop()
                 .override(144, 144)
+                .placeholder(R.drawable.ic_theme_white)
+                .error(R.drawable.ic_theme_white)
                 .load(firstPhotoUrl)
                 .into(object : CustomTarget<Bitmap>() {
+
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                         imageView.setImageBitmap(resource)
+                        marker.icon = OverlayImage.fromView(customView)
+                    }
+
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                        imageView.setImageBitmap(errorDrawable?.let { drawableToBitmap(it) })
                         marker.icon = OverlayImage.fromView(customView)
                     }
 
@@ -298,11 +242,33 @@ class AlbumDetailFragment :
                         placeIndex = index2
                     }
                 }
+                // setMapToFitAllMarkers(viewModel.markers.value[placeIndex - 1].second.map { it.photo })
                 binding.vpAlbumDetail.setCurrentItem(placeIndex, true)
                 true
             }
             marker.map = naverMap
         }
+    }
+
+    fun drawableToBitmap(drawable: Drawable, size: Int = 144): Bitmap {
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val paint = Paint().apply {
+            isAntiAlias = true
+            shader = BitmapShader(
+                Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also {
+                    val tempCanvas = Canvas(it)
+                    drawable.setBounds(0, 0, size, size)
+                    drawable.draw(tempCanvas)
+                },
+                Shader.TileMode.CLAMP, Shader.TileMode.CLAMP
+            )
+        }
+
+        val radius = size / 2f
+        canvas.drawCircle(radius, radius, radius, paint)
+        return bitmap
     }
 
     private fun initViews() {

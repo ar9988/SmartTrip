@@ -42,8 +42,16 @@ class AlbumFragment : BaseFragment<FragmentAlbumBinding>(R.layout.fragment_album
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
+            is AlbumUiEvent.GetAlbumsFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_get_albums))
+            }
+
             is AlbumUiEvent.GoToAlbumDetail -> {
                 findNavController().navigateSafely(R.id.action_album_to_album_Detail)
+            }
+
+            is AlbumUiEvent.GetAlbumDetailFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_get_album_detail))
             }
 
             else -> {}
