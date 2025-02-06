@@ -35,6 +35,10 @@ class PhotoDetailFragment :
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
+            is AlbumUiEvent.GetPhotoCommentsFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_get_photo_comments))
+            }
+
             is AlbumUiEvent.BackToAlbumDetail -> {
                 requireActivity().supportFragmentManager.popBackStack()
             }

@@ -5,7 +5,6 @@ import android.os.Parcelable
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import com.neungi.domain.model.Photo
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAlbumDetailWithPlaceBinding
@@ -14,7 +13,6 @@ import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @AndroidEntryPoint
 class AlbumDetailWithPlaceFragment :
@@ -49,9 +47,8 @@ class AlbumDetailWithPlaceFragment :
                             val photos = when (places[placeTagIndex].name == "전체") {
                                 true -> viewModel.photos.value
 
-                                else -> photoFiltered(places[placeTagIndex].name.split(","))
+                                else -> viewModel.markers.value[placeTagIndex - 1].second.map { it.photo }
                             }
-                            Timber.d("${places[placeTagIndex].name} : $photos")
                             adapter = PhotoAdapter(photos, viewModel)
                             setHasFixedSize(true)
                             layoutManager?.onRestoreInstanceState(recyclerViewState)
@@ -60,19 +57,6 @@ class AlbumDetailWithPlaceFragment :
                 }
             }
         }
-    }
-
-    private fun photoFiltered(tags: List<String>): List<Photo> {
-        val newPhotos = mutableListOf<Photo>()
-
-        viewModel.photos.value.forEach { photo ->
-            val id = photo.id
-            if (tags.contains(id)) {
-                newPhotos.add(photo)
-            }
-        }
-
-        return newPhotos.toList()
     }
 
     companion object {
