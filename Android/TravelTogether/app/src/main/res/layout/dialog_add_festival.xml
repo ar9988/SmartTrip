@@ -7,7 +7,7 @@
     <data>
         <variable
             name="vm"
-            type="com.neungi.moyeo.views.home.viewmodel.HomeViewModel" />
+            type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -85,7 +85,7 @@
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="@id/tv_festival_dialog_title"
             app:layout_constraintStart_toStartOf="@id/tv_festival_dialog_title"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/btn_festival_dialog_confirm"
             app:layout_constraintTop_toBottomOf="@id/tv_festival_dialog_date">
 
             <TextView
@@ -98,6 +98,18 @@
                 tools:text="2025 말 다리언컬쳐이선훼밀이 완금 에징 중 에서 외계인서 오텔 홈보와 다리언관광지를 알리기위한 축제이다." />
         </ScrollView>
 
+        <Button
+            android:id="@+id/btn_festival_dialog_confirm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="24dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="@string/add_festival"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toBottomOf="@id/sv_festival_dialog_overview"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -11,14 +11,14 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.neungi.domain.model.Festival
 import com.neungi.moyeo.R
-import com.neungi.moyeo.databinding.ItemAiDestinationFestivalBinding
+import com.neungi.moyeo.databinding.ItemFestivalAiDestinationBinding
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.FestivalSelectUiState
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class AiRecommendFestivalAdapter(private val viewModel: AIPlanningViewModel) : ListAdapter<FestivalSelectUiState, AiRecommendFestivalAdapter.AiRecommendFestivalViewHolder>(FestivalDiffCallback()) {
-    inner class AiRecommendFestivalViewHolder(val binding: ItemAiDestinationFestivalBinding) :
+    inner class AiRecommendFestivalViewHolder(val binding: ItemFestivalAiDestinationBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: FestivalSelectUiState) {
             binding.uiState = item
@@ -42,7 +42,7 @@ class AiRecommendFestivalAdapter(private val viewModel: AIPlanningViewModel) : L
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AiRecommendFestivalViewHolder {
 
-        return AiRecommendFestivalViewHolder(ItemAiDestinationFestivalBinding.inflate(
+        return AiRecommendFestivalViewHolder(ItemFestivalAiDestinationBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false

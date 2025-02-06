@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="data"
+            type="com.neungi.domain.model.Festival" />
+
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_small"
+        app:cardCornerRadius="@dimen/dp_small"
+        app:cardElevation="@dimen/dp_smaller">
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            >
+
+            <ImageView
+                android:id="@+id/iv_festival_image"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/gl_festival_home"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_festival_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.75" />
+
+            <TextView
+                android:id="@+id/tv_festival_title_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_small"
+                android:textSize="@dimen/font_size_title"
+                android:text="@{data.title}"
+                android:textColor="@android:color/black"
+                android:layout_marginStart="@dimen/dp_small"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:gravity="start"
+                android:ellipsize="end"
+                android:paddingHorizontal="@dimen/dp_small"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iv_festival_image"/>
+
+            <TextView
+                android:id="@+id/tv_festival_dialog_address"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_small"
+                android:drawablePadding="@dimen/dp_smaller"
+                android:gravity="center_vertical"
+
+                android:text="@{data.address}"
+                app:drawableStartCompat="@drawable/ic_location"
+                android:textSize="@dimen/font_size_medium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tv_festival_title_home"
+                app:layout_constraintTop_toBottomOf="@id/tv_festival_title_home"
+                tools:text="충청북도 단양군 단양읍 소백산등산길 12" />
+
+            <TextView
+                android:id="@+id/tv_festival_dialog_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_small"
+                android:drawablePadding="@dimen/dp_smaller"
+                android:textSize="@dimen/font_size_medium"
+                android:gravity="center_vertical"
+                android:text="@{data.startDate+` ~ `+data.endDate}"
+                app:drawableStartCompat="@drawable/ic_calendar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/tv_festival_title_home"
+                app:layout_constraintTop_toBottomOf="@id/tv_festival_dialog_address"
+                tools:text="2025.02.12 ~ 2025.02.26" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>
