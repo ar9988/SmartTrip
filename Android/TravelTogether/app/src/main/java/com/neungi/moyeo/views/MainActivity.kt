@@ -40,6 +40,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         binding.lifecycleOwner = this
 
         setBottomNavigationBar()
+
+
     }
 
     private fun setBottomNavigationBar() {
@@ -52,8 +54,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         }
         binding.fabOrder.setOnClickListener {
 //            navController.popBackStack()
-            navController.navigate(R.id.fragment_select_period)
-            binding.bnvMain.selectedItemId = 0
+            if(viewModel.userLoginInfo.value==null){
+                navController.navigate(R.id.fragment_login)
+            }else {
+                navController.navigate(R.id.fragment_select_period)
+                binding.bnvMain.selectedItemId = 0
+            }
         }
     }
 }

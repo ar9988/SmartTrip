@@ -26,4 +26,8 @@ interface DataStoreRepository {
     fun getUserProfile(): Flow<String?>
 
     fun getLoginInfo():Flow<LoginInfo?>
+
+    suspend fun logout()
+
+
 }

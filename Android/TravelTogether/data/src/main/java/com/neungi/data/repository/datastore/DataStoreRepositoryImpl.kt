@@ -134,6 +134,16 @@ class DataStoreRepositoryImpl @Inject constructor(
             }
         }
 
+    override suspend fun logout() {
+        dataStore.edit { preferences ->
+            preferences.remove(JWT_TOKEN)
+            preferences.remove(USER_ID)
+            preferences.remove(USER_EMAIL)
+            preferences.remove(USER_NAME)
+            preferences.remove(USER_PROFILE)
+        }
+    }
+
 
     companion object {
 

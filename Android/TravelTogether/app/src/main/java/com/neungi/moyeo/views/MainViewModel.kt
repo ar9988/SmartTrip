@@ -28,12 +28,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        viewModelScope.launch {
-            getUserInfoUseCase.getLoginInfo().collect { loginInfo ->
-                _userLoginInfo.value = loginInfo
-                Timber.d("Login Info loaded: $loginInfo")
-            }
-        }
+        login()
     }
 
     private val _bnvState = MutableStateFlow<Boolean>(true)
@@ -94,6 +89,23 @@ class MainViewModel @Inject constructor(
     fun clearSearchResult(){
         _searchUiState.update { it.copy( searchTextState = EmptyState.EMPTY) }
         _placeSearchResult.value = emptyList()
+    }
+
+    fun login(){
+        viewModelScope.launch {
+            getUserInfoUseCase.getLoginInfo().collect { loginInfo ->
+                _userLoginInfo.value = loginInfo
+                Timber.d("Login Info loaded: $loginInfo")
+            }
+        }
+    }
+
+    fun logout(){
+        viewModelScope.launch {
+            _userLoginInfo.update {
+                null
+            }
+        }
     }
 
 

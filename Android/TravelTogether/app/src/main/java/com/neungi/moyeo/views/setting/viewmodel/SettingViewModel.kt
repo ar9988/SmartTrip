@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neungi.domain.usecase.GetUserInfoUseCase
+import com.neungi.domain.usecase.SetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     application: Application,
-    private val getUserInfoUseCase: GetUserInfoUseCase
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val setUserInfoUseCase: SetUserInfoUseCase
 ) : AndroidViewModel(application), OnSettingClickListener {
 
     private val _settingUiState = MutableStateFlow<SettingUiState>(SettingUiState())
@@ -35,6 +37,13 @@ class SettingViewModel @Inject constructor(
     override fun onClickLogin() {
         viewModelScope.launch {
             _settingUiEvent.emit(SettingUiEvent.GoToLogin)
+        }
+    }
+
+    override fun onClickLogout() {
+        viewModelScope.launch {
+            setUserInfoUseCase.logOut()
+            getUserInfo()
         }
     }
 

@@ -34,7 +34,15 @@
             app:contentInsetStartWithNavigation="0dp"
             app:titleMarginStart="@dimen/dp_large"
             app:title="홈"
-            />
+            >
+            <ImageView
+                android:id="@+id/iv_profile"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_profile" />
+        </com.google.android.material.appbar.MaterialToolbar>
 
 
         <androidx.core.widget.NestedScrollView
