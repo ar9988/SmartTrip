@@ -15,6 +15,7 @@
     import coil.load
     import com.neungi.moyeo.R
     import com.neungi.moyeo.config.BaseFragment
+    import com.neungi.moyeo.databinding.DialogAddFestivalBinding
     import com.neungi.moyeo.databinding.DialogFestivalInfoBinding
     import com.neungi.moyeo.databinding.FragmentAiDestinationBinding
     import com.neungi.moyeo.views.aiplanning.adapters.AiRecommendFestivalAdapter
@@ -121,7 +122,7 @@
         }
 
         fun showFestivalDialog(){
-            val dialogBinding = DialogFestivalInfoBinding.inflate(layoutInflater)
+            val dialogBinding = DialogAddFestivalBinding.inflate(layoutInflater)
 
             // ViewModel 설정
             dialogBinding.vm = viewModel
