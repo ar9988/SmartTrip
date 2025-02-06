@@ -69,6 +69,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
     private fun handleUiEvent(event: AuthUiEvent) {
         when (event) {
             is AuthUiEvent.LoginSuccess -> {
+                showToastMessage("${event.name}${resources.getString(R.string.text_login_success)}")
                 requireActivity().supportFragmentManager.popBackStack()
             }
 

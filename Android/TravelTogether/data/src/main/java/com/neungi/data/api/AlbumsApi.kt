@@ -5,6 +5,7 @@ import com.neungi.data.entity.CommentEntity
 import com.neungi.data.entity.PhotoEntity
 import com.neungi.domain.model.Comment
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -12,6 +13,7 @@ import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface AlbumsApi {
@@ -25,9 +27,10 @@ interface AlbumsApi {
     ): Response<List<PhotoEntity>>
 
     @Multipart
-    @POST("albums/photos")
+    @POST("albums/1/photos")
     suspend fun postPhoto(
-        @Body body: MultipartBody.Part
+        @Part files: List<MultipartBody.Part>,
+        @Part("photoData") body: RequestBody
     ): Response<Boolean>
 
     @DELETE("albums/{albumId}/photos/{photoId}")

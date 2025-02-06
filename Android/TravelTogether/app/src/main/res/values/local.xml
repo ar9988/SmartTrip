@@ -21,10 +21,11 @@
     <string-array name="local_special">
         <item>서울</item>
         <item>인천</item>
-        <item>울산</item>
         <item>광주</item>
         <item>대구</item>
+        <item>대전</item>
         <item>부산</item>
+        <item>울산</item>
         <item>세종</item>
         <item>제주</item>
     </string-array>

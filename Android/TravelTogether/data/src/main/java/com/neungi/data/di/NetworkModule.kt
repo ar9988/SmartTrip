@@ -1,6 +1,9 @@
 package com.neungi.data.di
 
+import com.neungi.data.api.AiPlanningApi
 import com.neungi.data.api.AlbumsApi
+import com.neungi.data.api.FestivalApi
+import com.neungi.data.api.AuthApi
 import com.neungi.data.api.TripsApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -21,6 +24,7 @@ object NetworkModule {
 
     private const val BASE_URL = "http://43.202.51.112:8080/"
     private const val WEBSOCKET_URL = "ws://43.202.51.112:8080/"
+    private const val BASE_URL2 = "http://10.0.2.2:8080/"
 
     @Provides
     @Singleton
@@ -62,4 +66,21 @@ object NetworkModule {
         return retrofit.create(AlbumsApi::class.java)
     }
 
+    @Provides
+    @Singleton
+    fun provideFestivalApiService(@Named("Moyeo") retrofit: Retrofit): FestivalApi {
+        return retrofit.create(FestivalApi::class.java)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAuthApiService(@Named("Moyeo") retrofit: Retrofit): AuthApi {
+        return retrofit.create(AuthApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAiPlanningApiService(@Named("Moyeo") retrofit: Retrofit): AiPlanningApi {
+        return retrofit.create(AiPlanningApi::class.java)
+    }
 }

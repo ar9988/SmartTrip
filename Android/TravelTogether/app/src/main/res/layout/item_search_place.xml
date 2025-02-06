@@ -2,58 +2,56 @@
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <androidx.cardview.widget.CardView
-
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/dp_small"
-        android:layout_marginVertical="@dimen/dp_smaller"
-        app:cardBackgroundColor="@color/colorPrimary2"
-        app:cardCornerRadius="@dimen/dp_small"
-        app:cardElevation="@dimen/dp_smaller">
+        android:layout_marginHorizontal="@dimen/dp_medium"
+        android:layout_marginVertical="@dimen/dp_small"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/neutral_50">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:orientation="vertical"
-            android:padding="@dimen/dp_medium">
+            android:layout_height="wrap_content"
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/tv_place_name"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/name_planning"
                 android:textSize="@dimen/font_size_medium"
-                android:textStyle="bold"
+                android:textColor="@color/neutral_80"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
             <ImageView
                 android:id="@+id/iv_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_category"
+                android:layout_width="@dimen/dp_medium"
+                android:layout_height="@dimen/dp_medium"
+                android:src="@drawable/ic_location"
+                app:tint="@color/neutral_70"
                 android:layout_marginTop="@dimen/dp_small"
                 app:layout_constraintTop_toBottomOf="@id/tv_place_name"
-                app:layout_constraintStart_toStartOf="@id/tv_place_name"
-
-                />
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <TextView
                 android:id="@+id/tv_place_category"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/category_planning"
-                android:layout_marginStart="@dimen/dp_smaller"
+                android:layout_marginStart="@dimen/dp_medium"
                 android:textSize="@dimen/font_size_small"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@color/neutral_70"
                 app:layout_constraintTop_toTopOf="@id/iv_category"
                 app:layout_constraintBottom_toBottomOf="@id/iv_category"
                 app:layout_constraintStart_toEndOf="@id/iv_category"
-                />
+                app:layout_constraintEnd_toEndOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

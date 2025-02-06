@@ -26,5 +26,11 @@ sealed class AlbumUiEvent {
 
     data object GoToStorage : AlbumUiEvent()
 
+    data object GoToClassifyPlaces : AlbumUiEvent()
+
+    data object UpdatePhotoClassification : AlbumUiEvent()
+
+    data object FinishPhotoClassificationUpdate : AlbumUiEvent()
+
     data object FinishPhotoUpload : AlbumUiEvent()
 }

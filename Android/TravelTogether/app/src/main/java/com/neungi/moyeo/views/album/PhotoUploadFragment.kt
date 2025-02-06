@@ -12,6 +12,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.isPhotoPickerAvailable
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPhotoUploadBinding
@@ -37,7 +38,7 @@ class PhotoUploadFragment :
                 path?.let {
                     val file = File(path)
                     val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                    val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
                     viewModel.addUploadPhoto(uri, fetchPhotoTakenAt(uri), body)
                 }
             } ?: showToastMessage(resources.getString(R.string.message_select_picture))
@@ -59,7 +60,7 @@ class PhotoUploadFragment :
                     val path = absolutelyPath(uri)
                     val file = File(path.toString())
                     val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("file", file.name, requestBody)
+                    val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
                     viewModel.addUploadPhoto(it, fetchPhotoTakenAt(it), body)
                 } ?: showToastMessage(resources.getString(R.string.message_select_picture))
             }
@@ -151,8 +152,8 @@ class PhotoUploadFragment :
                 showToastMessage(resources.getString(R.string.message_photo_duplicated))
             }
 
-            is AlbumUiEvent.FinishPhotoUpload -> {
-
+            is AlbumUiEvent.GoToClassifyPlaces -> {
+                findNavController().navigateSafely(R.id.action_photo_upload_to_photo_classification)
             }
 
             else -> {}

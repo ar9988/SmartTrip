@@ -33,7 +33,7 @@
 
         <argument
             android:name="tripId"
-            app:argType="integer"/>
+            app:argType="integer" />
 
         <action
             android:id="@+id/action_schedule_add"
@@ -45,7 +45,7 @@
         android:name="com.neungi.moyeo.views.plan.ScheduleAddFragment"
         android:label="Schedule Add"
         tools:layout="@layout/fragment_schedule_add">
-        
+
     </fragment>
 
     <fragment
@@ -105,13 +105,21 @@
         android:label="@string/label_photo_upload"
         tools:layout="@layout/fragment_photo_upload">
 
+        <action
+            android:id="@+id/action_photo_upload_to_photo_classification"
+            app:destination="@id/fragment_photo_classification" />
+
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_setting"
-        android:name="com.neungi.moyeo.views.setting.SettingFragment"
-        android:label="Setting"
-        tools:layout="@layout/fragment_setting">
+        android:id="@+id/fragment_photo_classification"
+        android:name="com.neungi.moyeo.views.album.PhotoClassificationFragment"
+        android:label="Photo Classification"
+        tools:layout="@layout/fragment_photo_classification">
+
+        <action
+            android:id="@+id/action_photo_classification_to_photo_classification_update"
+            app:destination="@id/fragment_photo_classification_update_dialog" />
 
     </fragment>
 
@@ -124,18 +132,6 @@
         <action
             android:id="@+id/action_ai_select_local_to_ai_destinaation"
             app:destination="@id/fragment_ai_destination" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_login"
-        android:name="com.neungi.moyeo.views.auth.LoginFragment"
-        android:label="@string/label_login"
-        tools:layout="@layout/fragment_login">
-
-        <action
-            android:id="@+id/action_login_to_join"
-            app:destination="@id/fragment_join" />
-
     </fragment>
 
     <fragment
@@ -161,8 +157,32 @@
         android:id="@+id/fragment_ai_search_place"
         android:name="com.neungi.moyeo.views.aiplanning.AiSearchPlaceFragment"
         android:label="AiSearchPlaceFragment"
-        tools:layout="@layout/fragment_ai_search_place"/>
-        
+        tools:layout="@layout/fragment_ai_search_place" />
+
+    <fragment
+        android:id="@+id/fragment_setting"
+        android:name="com.neungi.moyeo.views.setting.SettingFragment"
+        android:label="@string/label_setting"
+        tools:layout="@layout/fragment_setting">
+
+        <action
+            android:id="@+id/action_setting_to_login"
+            app:destination="@id/fragment_login" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_login"
+        android:name="com.neungi.moyeo.views.auth.LoginFragment"
+        android:label="@string/label_login"
+        tools:layout="@layout/fragment_login">
+
+        <action
+            android:id="@+id/action_login_to_join"
+            app:destination="@id/fragment_join" />
+
+    </fragment>
+
     <fragment
         android:id="@+id/fragment_join"
         android:name="com.neungi.moyeo.views.auth.JoinFragment"
@@ -174,8 +194,15 @@
     <dialog
         android:id="@+id/fragment_photo_comment_delete_dialog"
         android:name="com.neungi.moyeo.views.album.PhotoCommentDeleteDialogFragment"
-        tools:layout="@layout/fragment_photo_comment_delete_dialog"
-        android:label="Photo Comment Delete" />
+        android:label="Photo Comment Delete"
+        tools:layout="@layout/fragment_photo_comment_delete_dialog" />
+
+    <dialog
+        android:id="@+id/fragment_photo_classification_update_dialog"
+        android:name="com.neungi.moyeo.views.album.PhotoClassificationUpdateDialogFragment"
+        android:label="Photo Classification Update"
+        tools:layout="@layout/fragment_photo_classification_update_dialog" />
+
     <fragment
         android:id="@+id/fragment_ai_theme"
         android:name="com.neungi.moyeo.views.aiplanning.AiSelectThemeFragment"

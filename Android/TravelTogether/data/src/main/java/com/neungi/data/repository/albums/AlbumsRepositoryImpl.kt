@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import javax.inject.Inject
 
 class AlbumsRepositoryImpl @Inject constructor(
@@ -54,15 +55,15 @@ class AlbumsRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun postPhoto(body: MultipartBody.Part): ApiResult<Boolean> =
+    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<Boolean> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                albumsRemoteDataSource.postPhoto(body)
+                albumsRemoteDataSource.postPhoto(photos, body)
             }
 
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(body)
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(responseBody)
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }

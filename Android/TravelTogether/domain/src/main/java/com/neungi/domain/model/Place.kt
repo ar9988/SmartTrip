@@ -1,7 +1,10 @@
 package com.neungi.domain.model
 
 data class Place (
-    val title: String,
-    val category: String
+    val placeName: String,
+    val address: String,
+    val lat: Double,
+    val lng: Double
+
 
 )

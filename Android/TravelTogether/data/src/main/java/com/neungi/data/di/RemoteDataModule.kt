@@ -1,9 +1,18 @@
 package com.neungi.data.di
 
+import com.neungi.data.api.AiPlanningApi
 import com.neungi.data.api.AlbumsApi
+import com.neungi.data.api.FestivalApi
+import com.neungi.data.api.AuthApi
 import com.neungi.data.api.TripsApi
+import com.neungi.data.repository.aiplanning.datasource.AiPlanningDataSource
+import com.neungi.data.repository.aiplanning.datasource.AiPlanningDataSourceImpl
+import com.neungi.data.repository.festival.datasource.FestivalRemoteDataSource
+import com.neungi.data.repository.festival.datasource.FestivalRemoteDataSourceImpl
 import com.neungi.data.repository.albums.AlbumsRemoteDataSource
 import com.neungi.data.repository.albums.AlbumsRemoteDataSourceImpl
+import com.neungi.data.repository.auth.AuthRemoteDataSource
+import com.neungi.data.repository.auth.AuthRemoteDataSourceImpl
 import com.neungi.data.repository.trips.TripsRemoteDataSource
 import com.neungi.data.repository.trips.TripsRemoteDataSourceImpl
 import dagger.Module
@@ -26,5 +35,24 @@ object RemoteDataModule {
     @Singleton
     fun provideTripsRemoteDataSource(tripsApi: TripsApi): TripsRemoteDataSource {
         return TripsRemoteDataSourceImpl(tripsApi)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFestivalRemoteDataSource(festivalApi: FestivalApi): FestivalRemoteDataSource {
+        return FestivalRemoteDataSourceImpl(festivalApi)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideAuthRemoteDataSource(authApi: AuthApi): AuthRemoteDataSource {
+        return AuthRemoteDataSourceImpl(authApi)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAiPlanningDataSource(aiPlanningApi: AiPlanningApi): AiPlanningDataSource {
+        return AiPlanningDataSourceImpl(aiPlanningApi)
     }
 }

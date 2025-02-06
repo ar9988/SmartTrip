@@ -30,10 +30,10 @@ class SearchPlaceAdapter(private val viewModel: AIPlanningViewModel,
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Place) {
-            binding.tvPlaceName.text = item.title
-            binding.tvPlaceCategory.text = item.category
+            binding.tvPlaceName.text = item.placeName
+            binding.tvPlaceCategory.text = item.address
             binding.root.setOnClickListener {
-                viewModel.togglePlaceSelection(item.title)
+                viewModel.togglePlaceSelection(item.placeName)
                 viewModel.onClickPopBackToDestiination()
 
             }
@@ -42,7 +42,7 @@ class SearchPlaceAdapter(private val viewModel: AIPlanningViewModel,
     }
     class SearchPlaceDiffCallback : DiffUtil.ItemCallback<Place>() {
         override fun areItemsTheSame(oldItem: Place, newItem: Place): Boolean {
-            return oldItem.title == newItem.title
+            return oldItem.placeName == newItem.placeName
         }
 
         override fun areContentsTheSame(oldItem: Place, newItem: Place): Boolean {

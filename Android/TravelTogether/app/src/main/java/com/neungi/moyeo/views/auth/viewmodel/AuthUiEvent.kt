@@ -2,7 +2,7 @@ package com.neungi.moyeo.views.auth.viewmodel
 
 sealed class AuthUiEvent {
 
-    data object LoginSuccess : AuthUiEvent()
+    data class LoginSuccess(val name: String) : AuthUiEvent()
 
     data object LoginFail : AuthUiEvent()
 

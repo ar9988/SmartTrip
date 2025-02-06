@@ -3,22 +3,38 @@ package com.neungi.moyeo.views.auth.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.neungi.domain.model.ApiStatus
+import com.neungi.domain.model.User
+import com.neungi.domain.usecase.GetAuthUseCase
+import com.neungi.domain.usecase.GetUserInfoUseCase
+import com.neungi.domain.usecase.SetUserInfoUseCase
 import com.neungi.moyeo.util.CommonUtils.validateEmail
 import com.neungi.moyeo.util.CommonUtils.validatePassword
 import com.neungi.moyeo.util.CommonUtils.validatePhoneNumber
 import com.neungi.moyeo.util.InputValidState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    application: Application
+    application: Application,
+    private val getAuthUseCase: GetAuthUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val setUserInfoUseCase: SetUserInfoUseCase
 ) : AndroidViewModel(application), OnAuthClickListener {
 
     private val _authUiState = MutableStateFlow<AuthUiState>(AuthUiState())
@@ -51,8 +67,18 @@ class AuthViewModel @Inject constructor(
 
     override fun onClickLogin() {
         viewModelScope.launch {
-            // 추후 로그인 쪽 로직 추가 후 로그인 성공과 실패를 구분할 예정임.
-            _authUiEvent.emit(AuthUiEvent.LoginSuccess)
+            val response = getAuthUseCase.login(makeLoginRequestBody())
+            when (response.status) {
+                ApiStatus.SUCCESS -> {
+                    val data = response.data
+                    data?.let { saveUserInfo(it) }
+                    _authUiEvent.emit(AuthUiEvent.LoginSuccess(getUserName().first()))
+                }
+
+                else -> {
+                    _authUiEvent.emit(AuthUiEvent.LoginFail)
+                }
+            }
         }
     }
 
@@ -64,9 +90,70 @@ class AuthViewModel @Inject constructor(
 
     override fun onClickJoinFinish() {
         viewModelScope.launch {
-            // 추후 회원가입 쪽 로직 추가 후 회원가입 성공과 실패를 구분할 예정임.
-            _authUiEvent.emit(AuthUiEvent.JoinSuccess)
+            val response = getAuthUseCase.signUp(makeSignUpRequestBody())
+            when (response.status) {
+                ApiStatus.SUCCESS -> {
+                    initJoinInfo()
+                    _authUiEvent.emit(AuthUiEvent.JoinSuccess)
+                }
+
+                else -> {
+                    _authUiEvent.emit(AuthUiEvent.JoinFail)
+                }
+            }
         }
+    }
+
+    private fun makeSignUpRequestBody(): RequestBody {
+        val metadata = mapOf(
+            "email" to _joinEmail.value,
+            "password" to _joinPassword.value,
+            "name" to _joinName.value,
+            "created_at" to "",
+            "profile" to "",
+            "updated_at" to ""
+        )
+        val json = Gson().toJson(metadata)
+        return json.toRequestBody("application/json".toMediaTypeOrNull())
+    }
+
+    private fun makeLoginRequestBody(): RequestBody {
+        val metadata = mapOf(
+            "email" to _loginEmail.value,
+            "password" to _loginPassword.value
+        )
+        val json = Gson().toJson(metadata)
+        return json.toRequestBody("application/json".toMediaTypeOrNull())
+    }
+
+    private fun saveUserInfo(userInfo: Pair<User, String>) {
+        viewModelScope.launch {
+            setUserInfoUseCase.setJWT(userInfo.second.split(" ").last())
+            setUserInfoUseCase.setUserId(userInfo.first.id)
+            setUserInfoUseCase.setUserEmail(userInfo.first.email)
+            setUserInfoUseCase.setUserName(userInfo.first.nickname)
+            Timber.d("Name: ${userInfo.first.nickname}")
+            setUserInfoUseCase.setUserProfile(userInfo.first.profile)
+            initLoginInfo()
+        }
+    }
+
+    private fun initLoginInfo() {
+        _loginEmail.value = ""
+        _loginPassword.value = ""
+    }
+
+    private fun initJoinInfo() {
+        _joinEmail.value = ""
+        _joinPassword.value = ""
+        _joinPasswordAgain.value = ""
+        _joinName.value = ""
+        _joinPhoneNumber.value = ""
+    }
+
+    private fun getUserName(): Flow<String> = flow {
+        val name = getUserInfoUseCase.getUserName().first()
+        emit(name)
     }
 
     fun validateLoginEmail(email: CharSequence) {

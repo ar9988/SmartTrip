@@ -51,6 +51,13 @@
     <string name="message_comment_update">추억을 수정했습니다.</string>
     <string name="description_photo_upload">이미지 업로드</string>
     <string name="description_photo_tab_layout">이미지 ViewPager</string>
+    <string name="title_photo_place_classify">이미지 촬영 장소 편집</string>
+    <string name="text_place_classification_update">장소 편집하기</string>
+    <string name="text_hint_place_classification_input">직접 입력하기</string>
+    <string name="text_place_classification_change">장소 변경</string>
+
+    <!-- Setting -->
+    <string name="label_setting">Setting</string>
 
     <!-- Auth -->
     <string name="label_login">Login</string>
@@ -61,6 +68,7 @@
     <string name="text_join_description"> · 이메일은 이메일 형식에 맞춰 입력하세요. \n· 비밀번호는 영문, 숫자 혼합하여 8~16자리 이내로 입력하세요. 특수문자는 꼭 1자 이상 포함하세요.\n· 아이디와 같은 비밀번호, 생일, 학번, 전화번호 등 개인정보와 관련된 숫자, 연속된 숫자, 동일하게 반복된 숫자 등 다른 사람이 쉽게 알아낼 수 있는 비밀번호는 유출 위험이 높아요.</string>
     <string name="text_login_email">이메일</string>
     <string name="text_login_password">비밀번호</string>
+    <string name="text_login_success">님 어서오세요.</string>
     <string name="message_login_fail">로그인에 실패하였습니다.</string>
     <string name="text_hint_join_email">이메일을 입력해주세요.</string>
     <string name="text_hint_join_name">닉네임을 입력해주세요.</string>
@@ -107,8 +115,5 @@
     <string name="thur_calendar">목</string>
     <string name="fri_calendar">금</string>
     <string name="sat_calendar">토</string>
-
-
-
 
 </resources>

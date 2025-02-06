@@ -5,6 +5,7 @@ import com.neungi.data.entity.CommentEntity
 import com.neungi.data.entity.PhotoEntity
 import com.neungi.domain.model.Comment
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 
 interface AlbumsRemoteDataSource {
@@ -13,7 +14,7 @@ interface AlbumsRemoteDataSource {
 
     suspend fun getAlbumPhotos(albumId: String): Response<List<PhotoEntity>>
 
-    suspend fun postPhoto(body: MultipartBody.Part): Response<Boolean>
+    suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Response<Boolean>
 
     suspend fun deletePhoto(albumId: String, photoId: String): Response<Void>
 
