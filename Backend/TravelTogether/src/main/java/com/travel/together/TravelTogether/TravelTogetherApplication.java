@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 		"com.travel.together.TravelTogether.album.repository",
 		"com.travel.together.TravelTogether.trip.repository",
 		"com.travel.together.TravelTogether.auth.repository",
+		"com.travel.together.TravelTogether.firebase.repository",
 
 })
 
