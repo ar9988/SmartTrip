@@ -1,10 +1,14 @@
 package com.travel.together.TravelTogether.aiPlanning.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
 @NoArgsConstructor
+@Builder
 public class DirectionsRequestDto {
     private Double startLongitude; //시작 경도
     private Double startLatitude;  //시작 위도
@@ -17,4 +21,5 @@ public class DirectionsRequestDto {
         this.endLongitude = endLongitude;
         this.endLatitude = endLatitude;
     }
+
 }

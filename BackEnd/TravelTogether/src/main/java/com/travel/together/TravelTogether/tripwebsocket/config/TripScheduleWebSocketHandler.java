@@ -20,6 +20,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,7 +90,10 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
             // 모든 작업 캐시에 저장
 //            editCache.addEdit(tripId, editRequest);
-            editCache.addEdit(tripId.toString(), editRequest);
+//            editCache.addEdit(tripId.toString(), editRequest);
+            // 모든 작업 StateManager에서 관리
+            stateManager.addEdit(tripId, editRequest);
+
 
 
             switch (operation.getAction()) {
@@ -121,7 +125,25 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                             operation.getScheduleId(),
                             operation.getPositionPath()
                     );
-                    break;
+
+                    // path 정보 생성
+                    List<TripStateManager.PathInfo> paths = stateManager.generatePathInfo(tripId);
+
+                    // 응답 생성
+                    MoveResponse moveResponse = new MoveResponse(
+                            tripId,
+                            operation.getScheduleId(),
+                            operation.getPositionPath(),
+                            paths
+                    );
+
+                    // 응답 전송
+                    String jsonResponse = objectMapper.writeValueAsString(moveResponse);
+                    session.sendMessage(new TextMessage(jsonResponse));
+
+
+
+                break;
 
                 case "ADD":
                     break;

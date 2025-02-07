@@ -1,6 +1,14 @@
 package com.travel.together.TravelTogether.tripwebsocket.service;
 
+import com.travel.together.TravelTogether.aiPlanning.dto.DirectionsRequestDto;
+import com.travel.together.TravelTogether.aiPlanning.dto.DirectionsResponseDto;
+import com.travel.together.TravelTogether.aiPlanning.service.DirectionsService;
+import com.travel.together.TravelTogether.trip.entity.Schedule;
+import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +23,14 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class TripStateManager {
-    public TripStateManager() {
-        this.tripEditHistory = new ConcurrentHashMap<>();
-        this.tripSchedulePositions = new ConcurrentHashMap<>();
+    private final DirectionsService directionsService;
+    private final ScheduleRepository scheduleRepository;
+
+    public TripStateManager(DirectionsService directionsService, ScheduleRepository scheduleRepository, Map<Integer, List<EditRequest>> tripEditHistory, Map<Integer, Map<Integer, Integer>> tripSchedulePositions) {
+        this.directionsService = directionsService;
+        this.scheduleRepository = scheduleRepository;
+        this.tripEditHistory = tripEditHistory;
+        this.tripSchedulePositions = tripSchedulePositions;
     }
 
     // 전체 작업 내용 저장
@@ -79,6 +92,81 @@ public class TripStateManager {
         if (schedulePositions != null) {
             schedulePositions.remove(scheduleId);
         }
+    }
+
+
+    // Path 정보를 담을 클래스
+    @Getter
+    @Setter
+    public static class PathInfo {
+        private final Integer sourceScheduleId;
+        private final Integer targetScheduleId;
+        private final List<List<Double>> path;
+
+
+        public PathInfo(Integer sourceScheduleId, Integer targetScheduleId, List<List<Double>> path) {
+            this.sourceScheduleId = sourceScheduleId;
+            this.targetScheduleId = targetScheduleId;
+            this.path = path;
+
+        }
+    }
+
+    // position 기준으로 정렬된 schedule들의 path 정보 생성
+    public List<PathInfo> generatePathInfo(Integer tripId) {
+        Map<Integer, Integer> positions = tripSchedulePositions.get(tripId);
+        if (positions == null || positions.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // position 기준으로 정렬된 scheduleId 리스트 얻기
+        List<Integer> orderedScheduleIds = positions.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        List<PathInfo> paths = new ArrayList<>();
+        for (int i = 0; i < orderedScheduleIds.size() - 1; i++) {
+            Schedule source = scheduleRepository.findById(orderedScheduleIds.get(i)).orElse(null);
+            Schedule target = scheduleRepository.findById(orderedScheduleIds.get(i + 1)).orElse(null);
+
+            if (source != null && target != null) {
+                DirectionsRequestDto request = DirectionsRequestDto.builder()
+                        .startLongitude(source.getLng())
+                        .startLatitude(source.getLat())
+                        .endLongitude(target.getLng())
+                        .endLatitude(target.getLat())
+                        .build();
+
+                DirectionsResponseDto response = directionsService.getDrivingDirections(request);
+//                paths.add(new PathInfo(source.getId(), target.getId(), response.getPath()));
+            }
+
+        }
+
+        return paths;
+    }
+
+    private Schedule findScheduleById(List<Schedule> schedules, Integer scheduleId) {
+        return schedules.stream()
+                .filter(schedule -> schedule.getId().equals(scheduleId))
+                .findFirst()
+                .orElse(null);
+    }
+
+
+
+
+
+
+
+
+
+
+    // 웹소켓 연결이 끊기면 모든 작업내역 삭제
+    public synchronized void clearEditHistory(Integer tripId) {
+        tripEditHistory.remove(tripId);
+        tripSchedulePositions.remove(tripId);
     }
 
 
