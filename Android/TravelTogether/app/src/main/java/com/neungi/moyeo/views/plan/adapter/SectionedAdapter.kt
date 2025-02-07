@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerReceive
@@ -23,20 +24,16 @@ class SectionedAdapter(
     private val itemTouchHelper: ItemTouchHelper,
     private val onEditClick: (Int) -> Unit,
     private val onAddClick: () -> Unit,
-    var sections: MutableList<Section>
+    private val recyclerView: RecyclerView
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val VIEW_TYPE_SECTION_HEADER = 0
         private const val VIEW_TYPE_ITEM = 1
     }
-
+    var sections =  mutableListOf<Section>()
     var pathItems = mutableListOf<Path>()
     private var listItems = mutableListOf<ListItem>()
-
-    init {
-        buildListItems()
-    }
 
     fun buildRouteInfo() {
 
@@ -51,7 +48,14 @@ class SectionedAdapter(
             }
         }
         Timber.d(listItems.toString())
-        notifyDataSetChanged()  // 데이터가 변경된 후, RecyclerView를 갱신
+        if (!recyclerView.isComputingLayout) {
+            notifyDataSetChanged()
+        } else {
+            // 레이아웃 계산 중일 때는 다음에 처리하도록 Handler를 사용
+            Handler(Looper.getMainLooper()).post {
+                notifyDataSetChanged()
+            }
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -91,7 +95,6 @@ class SectionedAdapter(
     }
 
     fun rebuildSections() {
-
         val newSections = mutableListOf<Section>()
         var currentSection: MutableList<ScheduleData>? = null
 
@@ -148,11 +151,17 @@ class SectionedAdapter(
                 return oldList[oldItemPosition] == listItems[newItemPosition]
             }
         })
-
-        Handler(Looper.getMainLooper()).post {
+        // RecyclerView가 레이아웃을 계산 중인지 확인하고 안전하게 업데이트
+        if (!recyclerView.isComputingLayout) {
             diffResult.dispatchUpdatesTo(this)
+        } else {
+            // 레이아웃 계산 중일 때는 다음에 처리하도록 Handler를 사용
+            Handler(Looper.getMainLooper()).post {
+                diffResult.dispatchUpdatesTo(this)
+            }
         }
     }
+
 
 
     inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
@@ -170,7 +179,8 @@ class SectionedAdapter(
     inner class ItemViewHolder(private val binding: ItemScheduleBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(data: ScheduleData, path: Path?) {
-            binding.schedule = data
+            binding.titleSchedule.text = data.placeName
+            binding.typeSchedule.text = data.positionPath.toString()
             binding.cardSchedule.setOnLongClickListener { view ->
                 itemTouchHelper.startDrag(this)
                 true
@@ -186,6 +196,9 @@ class SectionedAdapter(
     }
 
     fun getItem(position: Int): ListItem {
+        if(position < 0 || position >= listItems.size) {
+            throw IndexOutOfBoundsException("Invalid position")
+        }
         return listItems[position]
     }
 
@@ -222,7 +235,6 @@ class SectionedAdapter(
             (listItems[position] as ListItem.Item).data.copy(positionPath = newPositionPath),
             (listItems[position] as ListItem.Item).sectionIndex
         )
-        notifyItemChanged(position)
     }
 
     fun setPosition(event: ServerReceive) {
@@ -230,7 +242,6 @@ class SectionedAdapter(
             if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
                 // positionPath 업데이트
                 item.data.positionPath = event.operation.positionPath
-                notifyItemChanged(position)
             }
         }
     }

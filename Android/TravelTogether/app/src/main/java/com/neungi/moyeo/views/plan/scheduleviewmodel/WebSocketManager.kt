@@ -50,20 +50,25 @@ class WebSocketManager @Inject constructor() {
                     .create()
 
                 // 먼저 String으로 들어온 JSON이 유효한지 체크
+                if (text == "SUCCESS") {
+//                    Timber.d("Success")
+                    return
+                }
                 val jsonObject = JsonParser.parseString(text).asJsonObject
-                Timber.d(jsonObject.toString())
 
                 when {
+
                     jsonObject.has("status") -> {
                         val serverReceive = gson.fromJson(text, ServerReceive::class.java)
+                        Timber.d(serverReceive.toString())
                         onServerEventReceived?.invoke(serverReceive)
                     }
-                    jsonObject.has("title") && jsonObject.has("tripId") && jsonObject.has("day") -> {
+                    jsonObject.has("title") -> {
                         val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
                         Timber.d(scheduleReceive.toString())
                         onScheduleEventReceived?.invoke(scheduleReceive)
                     }
-                    jsonObject.has("tripId") -> {
+                    jsonObject.has("paths") -> {
                         val routeReceive = gson.fromJson(text, PathReceive::class.java)
                         onRouteEventReceived?.invoke(routeReceive)
                     }

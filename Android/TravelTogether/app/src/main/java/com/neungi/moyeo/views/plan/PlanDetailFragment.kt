@@ -19,7 +19,6 @@ import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
-import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
@@ -30,8 +29,6 @@ import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
 import com.neungi.moyeo.util.Permissions
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.MainViewModel
-import com.neungi.moyeo.views.album.AlbumDetailFragment
-import com.neungi.moyeo.views.album.AlbumDetailFragment.Companion
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -68,7 +65,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             }
         }
         viewModel.scheduleSections.observe(viewLifecycleOwner) { sections ->
-            Timber.d(sections.toString())
+            Timber.d("start",sections.toString())
             sectionedAdapter.sections = sections.toMutableList()
             sectionedAdapter.buildListItems()
         }
@@ -89,7 +86,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         },
             { value ->
                 isUserDragging = value
-                if (!value) {
+                if (!isUserDragging) {
                     sectionedAdapter.rebuildSections()
                 }
             },
@@ -110,10 +107,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             onAddClick = {
                 findNavController().navigateSafely(R.id.action_schedule_add)
             },
-            mutableListOf()
+            binding.recyclerView
         )
         binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(requireContext())
             adapter = sectionedAdapter
             setHasFixedSize(true)
 //            itemAnimator = null // 애니메이션 비활성화
