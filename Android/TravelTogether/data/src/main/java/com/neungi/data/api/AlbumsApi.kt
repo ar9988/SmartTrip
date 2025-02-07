@@ -55,22 +55,21 @@ interface AlbumsApi {
     suspend fun postPhotoComments(
         @Path("albumId") albumId: String,
         @Path("photoId") photoId: String,
-        @Body body: Comment
-    ): Response<CommentEntity>
+        @Body body: RequestBody
+    ): Response<Boolean>
 
     @PUT("albums/{albumId}/photos/{photoId}/comments/{commentId}")
     suspend fun putPhotoComments(
         @Path("albumId") albumId: String,
         @Path("photoId") photoId: String,
-        @Path("commentId") commentID: String,
-        @Body body: Comment
-    ): Response<CommentEntity>
+        @Path("commentId") commentId: String,
+        @Body body: RequestBody
+    ): Response<Boolean>
 
     @DELETE("albums/{albumId}/photos/{photoId}/comments/{commentId}")
     suspend fun deletePhotoComments(
         @Path("albumId") albumId: String,
         @Path("photoId") photoId: String,
-        @Path("commentId") commentID: String,
-        @Body body: Comment
-    ): Response<Void>
+        @Path("commentId") commentId: String,
+    ): Response<Boolean>
 }

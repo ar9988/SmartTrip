@@ -12,11 +12,12 @@ object CommentsMapper {
             newComments.add(
                 Comment(
                     id = commentEntity.id.toString(),
-                    photoId = "",
-                    author = commentEntity.userId,
+                    albumId = commentEntity.albumId.toString(),
+                    photoId = commentEntity.photoId.toString(),
+                    userId = commentEntity.userId.toString(),
+                    author = commentEntity.userName,
                     content = commentEntity.content,
-                    createdAt = commentEntity.createdAt,
-                    updatedAt = ""
+                    createdAt = commentEntity.createdAt
                 )
             )
         }

@@ -25,20 +25,19 @@ interface AlbumsRemoteDataSource {
     suspend fun postPhotoComments(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): Response<CommentEntity>
+        body: RequestBody
+    ): Response<Boolean>
 
     suspend fun putPhotoComments(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): Response<CommentEntity>
+        body: RequestBody
+    ): Response<Boolean>
 
     suspend fun deletePhotoComments(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): Response<Void>
+        commentID: String
+    ): Response<Boolean>
 }

@@ -38,23 +38,22 @@ class AlbumsRemoteDataSourceImpl @Inject constructor(
     override suspend fun postPhotoComments(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): Response<CommentEntity> =
+        body: RequestBody
+    ): Response<Boolean> =
         albumsApi.postPhotoComments(albumId, photoId, body)
 
     override suspend fun putPhotoComments(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): Response<CommentEntity> =
+        body: RequestBody
+    ): Response<Boolean> =
         albumsApi.putPhotoComments(albumId, photoId, commentID, body)
 
     override suspend fun deletePhotoComments(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): Response<Void> =
-        albumsApi.deletePhotoComments(albumId, photoId, commentID, body)
+        commentID: String
+    ): Response<Boolean> =
+        albumsApi.deletePhotoComments(albumId, photoId, commentID)
 }

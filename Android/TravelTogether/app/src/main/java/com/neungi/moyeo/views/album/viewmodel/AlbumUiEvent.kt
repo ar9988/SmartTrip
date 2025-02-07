@@ -38,11 +38,17 @@ sealed class AlbumUiEvent {
 
     data object GetPhotoCommentsFail : AlbumUiEvent()
 
-    data object PhotoCommentSubmit : AlbumUiEvent()
+    data object PhotoCommentSubmitSuccess : AlbumUiEvent()
 
-    data object PhotoCommentUpdate : AlbumUiEvent()
+    data object PhotoCommentSubmitFail : AlbumUiEvent()
+
+    data object PhotoCommentUpdateSuccess : AlbumUiEvent()
+
+    data object PhotoCommentUpdateFail : AlbumUiEvent()
 
     data object PhotoCommentDelete : AlbumUiEvent()
 
     data object PhotoCommentDeleteFinish : AlbumUiEvent()
+
+    data object PhotoCommentDeleteFail : AlbumUiEvent()
 }
