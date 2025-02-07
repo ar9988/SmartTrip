@@ -2,34 +2,41 @@ package com.travel.together.TravelTogether.aiPlanning.service;
 
 import com.travel.together.TravelTogether.aiPlanning.dto.DirectionsRequestDto;
 import com.travel.together.TravelTogether.aiPlanning.dto.DirectionsResponseDto;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-
-import org.apache.http.HttpResponse;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DirectionsServiceTest {
 
     @Test
     void testGetDrivingDirections() throws Exception {
-        // Given: DirectionsRequestDto 객체 준비
-        DirectionsRequestDto requestDto = new DirectionsRequestDto(127.10023101886318, 37.51331105877401, 127.06302321147605, 37.508822740225305);
+        // Given: 출발지 & 도착지 설정
+        DirectionsRequestDto requestDto = new DirectionsRequestDto(
+                126.970606917394,
+                37.5546788388674,
+                129.04141918283216,
+                35.11510918247538
+        );
 
-        // HttpClient를 Mock 객체로 생성
-        HttpClient mockHttpClient = Mockito.mock(HttpClient.class);
+        // 실제 DirectionsService 인스턴스 생성
         DirectionsService directionsService = new DirectionsService();
 
-        // HttpClient의 execute 메서드가 호출될 때, 가짜 HttpResponse를 반환하도록 설정
-        HttpResponse mockResponse = Mockito.mock(HttpResponse.class);
-        Mockito.when(mockHttpClient.execute(Mockito.any(HttpGet.class))).thenReturn(mockResponse);
-
-        // When: 실제 서비스 호출 (모의된 HttpClient를 사용)
+        // When: 실제 서비스 호출
         DirectionsResponseDto responseDto = directionsService.getDrivingDirections(requestDto);
 
-        // Then: 응답에서 totalTime이 설정되어 있는지 확인
-        System.out.println(responseDto.getTotalTime());
+        // Then: 응답 값 검증
+        assertNotNull(responseDto, "응답 객체가 null이면 안 됩니다.");
+        assertNotNull(responseDto.getTotalTime(), "총 소요 시간이 설정되어 있어야 합니다.");
+        assertTrue(responseDto.getTotalTime() > 0, "소요 시간은 0보다 커야 합니다.");
+        assertNotNull(responseDto.getDirectionPath(), "DirectionPath가 null이면 안 됩니다.");
+        assertNotNull(responseDto.getDirectionPath().getPath(), "경로 리스트가 null이면 안 됩니다.");
+        assertFalse(responseDto.getDirectionPath().getPath().isEmpty(), "경로 리스트는 비어 있으면 안 됩니다.");
+
+        // 출력
+        System.out.println("총 소요 시간: " + responseDto.getTotalTime() + "분");
+        for (int i = 0; i < responseDto.getDirectionPath().getPath().size(); i++) {
+            DirectionsResponseDto.PathPoint point = responseDto.getDirectionPath().getPath().get(i);
+            System.out.println("[" + i + "] 경도: " + point.getLongitude() + ", 위도: " + point.getLatitude());
+        }
     }
 }
