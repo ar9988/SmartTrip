@@ -1,5 +1,6 @@
 package com.travel.together.TravelTogether.comment.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.travel.together.TravelTogether.album.entity.Photo;
 import com.travel.together.TravelTogether.auth.entity.User;
 import jakarta.persistence.*;
@@ -9,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Table(name = "comment")
 @Entity
 @Getter
 @Setter
@@ -20,11 +22,12 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "photo_id", nullable = false)
+    @JsonIgnore
     private Photo photo;
 
     @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(length = 200, nullable = false)
     private String content;

@@ -42,7 +42,7 @@ public class PhotoAlbumService {
             // 앨범에 속한 사진 조회
             List<Photo> photos = photoRepository.findByAlbumId(album.getId());
             if (!photos.isEmpty()) {
-                responseDto.setRepImage(photos.get(2).getFilePath()); // 첫 번째 사진의 경로를 대표 이미지로 사용
+                responseDto.setRepImage(photos.get(0).getFilePath()); // 첫 번째 사진의 경로를 대표 이미지로 사용
             } else {
                 responseDto.setRepImage(null); // 사진이 없을 경우 null 처리
             }

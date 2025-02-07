@@ -1,5 +1,5 @@
 -- Users
-INSERT INTO User (id, email, password, name, profile, created_at, updated_at) VALUES
+INSERT INTO user (id, email, password, name, profile, created_at, updated_at) VALUES
 (1, 'kim@email.com', 'hash1', '김여행러', '여행 좋아하는 직장인', '2024-01-01', '2024-01-01'),
 (2, 'lee@email.com', 'hash2', '이배낭', '배낭여행 전문가', '2024-01-01', '2024-01-01'),
 (3, 'park@email.com', 'hash3', '박포토', '사진작가', '2024-01-01', '2024-01-01'),
@@ -72,7 +72,7 @@ INSERT INTO route (id, trip_id, day_id, order_num, drive_duration, trans_duratio
 INSERT INTO trip_member (id, trip_id, user_id, is_owner) VALUES
 (1, 1, 1, true),
 (2, 1, 2, false),
-(3, 1, 4, false),
+(3, 1, 7, false),
 (4, 2, 3, true),
 (5, 2, 1, false),
 (6, 2, 5, false),
@@ -98,7 +98,7 @@ INSERT INTO photo (id, album_id, photo_place_id, user_id, file_path, latitude, l
 (4, 2, 4, 5, 'hallasan1.jpg', 33.3616, 126.5292, '2024-03-02 12:00:00', '2024-03-02 18:00:00');
 
 -- Comments
-INSERT INTO comment (id, photo_id, author_id, content, created_at, updated_at) VALUES
+INSERT INTO comment (id, photo_id, user_id, content, created_at, updated_at) VALUES
 (1, 1, 2, '해운대 날씨가 정말 좋네요!', '2024-02-01 21:00:00', '2024-02-01 21:00:00'),
 (2, 3, 5, '일출이 너무 아름다워요', '2024-03-01 11:00:00', '2024-03-01 11:00:00'),
 (3, 4, 6, '등산하느라 고생많으셨어요', '2024-03-02 19:00:00', '2024-03-02 19:00:00');
