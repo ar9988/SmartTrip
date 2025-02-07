@@ -2,6 +2,7 @@ package com.neungi.moyeo.views
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.LoginInfo
@@ -29,6 +30,7 @@ class MainViewModel @Inject constructor(
 
     init {
         login()
+        getFCMToken()
     }
 
     private val _bnvState = MutableStateFlow<Boolean>(true)
@@ -47,6 +49,10 @@ class MainViewModel @Inject constructor(
 
     private val _userLoginInfo = MutableStateFlow<LoginInfo?>(null)
     val userLoginInfo = _userLoginInfo.asStateFlow()
+
+    //firebase
+    private val _fcmToken = MutableStateFlow<String>("")
+    val fcmToken = _fcmToken.asStateFlow()
 
 
 
@@ -106,6 +112,20 @@ class MainViewModel @Inject constructor(
                 null
             }
         }
+    }
+
+    //firebase
+    fun getFCMToken(){
+        // FCM 토큰 가져오기
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val token = task.result
+                    Timber.d("FCMToken: "+token)
+                    // 서버에 토큰 전송
+//                    sendTokenToServer(token)
+                }
+            }
     }
 
 

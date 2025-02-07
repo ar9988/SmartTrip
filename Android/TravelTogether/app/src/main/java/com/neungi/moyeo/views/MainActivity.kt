@@ -1,13 +1,21 @@
 package com.neungi.moyeo.views
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.gms.location.LocationServices
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseActivity
 import com.neungi.moyeo.databinding.ActivityMainBinding
+import com.neungi.moyeo.util.Permissions
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import com.neungi.moyeo.views.auth.viewmodel.AuthViewModel
@@ -16,6 +24,7 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import com.neungi.moyeo.views.setting.viewmodel.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.jar.Manifest
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::inflate) {
@@ -41,8 +50,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         setBottomNavigationBar()
 
+        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) && !hasPermission()) {
+            requestNotificationPermission()
+        }
+
 
     }
+
+
+
 
     private fun setBottomNavigationBar() {
         navController = navHostFragment.navController
@@ -62,4 +78,31 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             }
         }
     }
+
+
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun hasPermission(): Boolean {
+        for (permission in Permissions.NOTIFICATION_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                return false
+            }
+        }
+        return true
+    }
+
+    private fun requestNotificationPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+            NOTIFICATION_PERMISSION_REQUEST_CODE
+        )
+    }
+
+    companion object {
+        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 100  // 임의의 고유 코드
+    }
+
 }
