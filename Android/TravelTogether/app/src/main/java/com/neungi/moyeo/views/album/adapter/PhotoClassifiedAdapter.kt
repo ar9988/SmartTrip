@@ -7,9 +7,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ListPhotoClassifiedBinding
 import com.neungi.moyeo.util.MarkerData
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
+import timber.log.Timber
 
 class PhotoClassifiedAdapter(
     private val place: Int,
@@ -19,7 +21,10 @@ class PhotoClassifiedAdapter(
     class PhotoClassifiedViewHolder(private val binding: ListPhotoClassifiedBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(marker: MarkerData, viewModel: AlbumViewModel, place: Int) {
-            binding.ivListPhotoClassified.load(marker.photo.filePath.toUri())
+            binding.ivListPhotoClassified.load(marker.photo.filePath.toUri()) {
+                placeholder(R.drawable.ic_theme_white)
+                error(R.drawable.ic_theme_white)
+            }
             binding.vm = viewModel
             binding.mcvPhotoClassified.setOnClickListener {
                 viewModel.onClickUpdatePhotoClassification(place, layoutPosition)

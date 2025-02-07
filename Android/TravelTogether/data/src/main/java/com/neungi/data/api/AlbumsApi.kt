@@ -31,13 +31,13 @@ interface AlbumsApi {
     suspend fun postPhoto(
         @Part files: List<MultipartBody.Part>,
         @Part("photoData") body: RequestBody
-    ): Response<Boolean>
+    ): Response<List<PhotoEntity>>
 
     @DELETE("albums/{albumId}/photos/{photoId}")
     suspend fun deletePhoto(
         @Path("albumId") albumId: String,
         @Path("photoId") photoId: String
-    ): Response<Void>
+    ): Response<Boolean>
 
     @PUT("albums/{albumId}/photos/{photoId}/location")
     suspend fun putLocationName(

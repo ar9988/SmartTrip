@@ -42,10 +42,11 @@ class PhotoClassificationUpdateDialogFragment :
     private fun initView() {
         with(binding) {
             ivPhotoClassificationUpdateDialog.setOnClickListener { dismiss() }
-            val places = viewModel.tempPlaces.value.map { it.first }
+            val places = viewModel.photoPlaces.value.filterNot { it.name == "전체" }
+                .map { it.name }.toMutableList().apply { add("직접 입력") }.toList()
             spinnerPhotoClassificationUpdateDialog.adapter =
-                ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, places).apply {
-                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                ArrayAdapter(requireContext(), R.layout.item_spinner, places).apply {
+                    setDropDownViewResource(R.layout.item_spinner_dropdown)
                 }
             spinnerPhotoClassificationUpdateDialog.onItemSelectedListener =
                 object : AdapterView.OnItemSelectedListener {

@@ -40,14 +40,17 @@
                     android:id="@+id/tv_title_list_album"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_medium"
+                    android:layout_marginEnd="@dimen/dp_medium"
                     android:layout_marginBottom="@dimen/dp_small"
                     android:fontFamily="@font/pretendardbold"
                     android:text="@{photoAlbum.title}"
                     android:textAlignment="viewStart"
-                    android:textColor="@color/neutral_white"
-                    android:textSize="@dimen/font_size_medium"
+                    android:textSize="@dimen/font_size_small"
+                    app:changeTextColor="@{photoAlbum.imageUrl}"
                     app:layout_constraintBottom_toTopOf="@id/tv_start_date_list_album"
-                    app:layout_constraintStart_toStartOf="@id/tv_start_date_list_album" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_start_date_list_album"
@@ -58,7 +61,7 @@
                     android:fontFamily="@font/pretendardregular"
                     android:text="@{photoAlbum.startDate}"
                     android:textColor="@color/neutral_50"
-                    android:textSize="@dimen/font_size_small"
+                    android:textSize="@dimen/font_size_smallest"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
@@ -70,7 +73,7 @@
                     android:fontFamily="@font/pretendardregular"
                     android:text="@string/text_range_center"
                     android:textColor="@color/neutral_50"
-                    android:textSize="@dimen/font_size_small"
+                    android:textSize="@dimen/font_size_smallest"
                     app:layout_constraintBottom_toBottomOf="@id/tv_start_date_list_album"
                     app:layout_constraintStart_toEndOf="@id/tv_start_date_list_album"
                     app:layout_constraintTop_toTopOf="@id/tv_start_date_list_album" />
@@ -83,7 +86,7 @@
                     android:fontFamily="@font/pretendardregular"
                     android:text="@{photoAlbum.endDate}"
                     android:textColor="@color/neutral_50"
-                    android:textSize="@dimen/font_size_small"
+                    android:textSize="@dimen/font_size_smallest"
                     app:layout_constraintBottom_toBottomOf="@id/tv_start_date_list_album"
                     app:layout_constraintStart_toEndOf="@id/tv_date_list_album"
                     app:layout_constraintTop_toTopOf="@id/tv_start_date_list_album" />
