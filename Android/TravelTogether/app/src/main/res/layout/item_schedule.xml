@@ -1,109 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_margin="15dp"
-    android:layout_width="match_parent"
-    android:layout_height="150dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Left Section (20% width) -->
+    <data>
+        <variable
+            name="schedule"
+            type="com.neungi.domain.model.ScheduleData" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/left_section"
-        android:clickable="false"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.8"
-        app:layout_constraintWidth_percent="0.2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_margin="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="150dp">
 
-        <ImageView
-            android:id="@+id/iv_type_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/baseline_flag_24"
-            android:scaleType="fitXY"
+        <!-- Left Section (20% width) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/left_section"
+            android:clickable="false"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.8"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_type_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/baseline_flag_24"
+                android:scaleType="fitXY"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_bias="0.3" />
+
+            <TextView
+                android:id="@+id/tv_from"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12:00~"
+                app:layout_constraintTop_toBottomOf="@+id/iv_type_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_to"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12:00"
+                app:layout_constraintTop_toBottomOf="@+id/tv_from"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Right Section (80% width) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_schedule"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/round_border"
+            app:layout_constraintHeight_percent="0.8"
+            app:layout_constraintWidth_percent="0.8"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/left_section">
+
+            <ImageView
+                android:id="@+id/iv_schedule_icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/baseline_insert_emoticon_24"
+                android:scaleType="fitXY"
+                app:layout_constraintHorizontal_bias="0.1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/title_schedule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{schedule.placeName}"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_schedule_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_margin="15dp" />
+
+            <TextView
+                android:id="@+id/type_schedule"
+                android:text="@{schedule.positionPath}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/title_schedule"
+                app:layout_constraintStart_toEndOf="@id/iv_schedule_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_margin="15dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/bottom_section"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.2"
+            app:layout_constraintTop_toBottomOf="@id/left_section"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintVertical_bias="0.3"/>
+            app:layout_constraintBottom_toBottomOf="parent">
 
-        <TextView
-            android:id="@+id/tv_from"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12:00~"
-            app:layout_constraintTop_toBottomOf="@+id/iv_type_icon"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <TextView
-            android:id="@+id/tv_to"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12:00"
-            app:layout_constraintTop_toBottomOf="@+id/tv_from"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            <ImageView
+                android:id="@+id/ic_bus"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_directions_bus_24"
+                android:contentDescription="@string/description_bus_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.3"/>
+            <ImageView
+                android:id="@+id/ic_car"
+                android:src="@drawable/baseline_directions_car_24"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_car_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.3"/>
+            <TextView
+                android:id="@+id/tv_travel_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintHorizontal_bias="0.7"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Right Section (80% width) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/card_schedule"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/round_border"
-        app:layout_constraintHeight_percent="0.8"
-        app:layout_constraintWidth_percent="0.8"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/left_section">
-
-        <ImageView
-            android:id="@+id/iv_schedule_icon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/baseline_insert_emoticon_24"
-            android:scaleType="fitXY"
-            app:layout_constraintHorizontal_bias="0.1"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <TextView
-            android:id="@+id/title_schedule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_schedule_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="15dp"/>
-
-        <TextView
-            android:id="@+id/type_schedule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/title_schedule"
-            app:layout_constraintStart_toEndOf="@id/iv_schedule_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="15dp"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/bottom_section"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintHeight_percent="0.2"
-        app:layout_constraintTop_toBottomOf="@id/left_section"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <TextView
-            android:id="@+id/tv_travel_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

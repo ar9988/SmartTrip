@@ -8,7 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.neungi.data.entity.RouteReceive
+import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerReceive
 import com.neungi.data.entity.ServerEvent
 import com.neungi.domain.model.*
@@ -28,7 +28,7 @@ class WebSocketManager @Inject constructor() {
 
     // 각 이벤트에 대한 콜백
     var onServerEventReceived: ((ServerReceive) -> Unit)? = null
-    var onRouteEventReceived: ((RouteReceive) -> Unit)? = null
+    var onRouteEventReceived: ((PathReceive) -> Unit)? = null
     var onScheduleEventReceived: ((ScheduleReceive) -> Unit)? = null
 
     private val webSocketListener = object : WebSocketListener() {
@@ -60,10 +60,11 @@ class WebSocketManager @Inject constructor() {
                     }
                     jsonObject.has("title") && jsonObject.has("tripId") && jsonObject.has("day") -> {
                         val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
+                        Timber.d(scheduleReceive.toString())
                         onScheduleEventReceived?.invoke(scheduleReceive)
                     }
                     jsonObject.has("tripId") -> {
-                        val routeReceive = gson.fromJson(text, RouteReceive::class.java)
+                        val routeReceive = gson.fromJson(text, PathReceive::class.java)
                         onRouteEventReceived?.invoke(routeReceive)
                     }
                 }

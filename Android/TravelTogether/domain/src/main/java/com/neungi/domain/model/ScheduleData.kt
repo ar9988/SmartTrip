@@ -8,5 +8,5 @@ data class ScheduleData(
     val type: Int,
     val lat: Double,
     val lng: Double,
-    val duration: Int,
+    var duration: Int,
 )

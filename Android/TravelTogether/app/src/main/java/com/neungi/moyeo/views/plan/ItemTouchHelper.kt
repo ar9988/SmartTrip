@@ -38,12 +38,6 @@ fun createItemTouchHelperCallback(
             val fromPosition = viewHolder.bindingAdapterPosition
             val toPosition = target.bindingAdapterPosition
 
-
-            // 현재 화면에 보이는 부분의 위치 저장
-            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-//            val firstVisible = layoutManager.findFirstVisibleItemPosition()
-//            val lastVisible = layoutManager.findLastVisibleItemPosition()
-
             // 드래그 제한 조건 처리
             val targetItem = adapter.getItem(toPosition)
             if (targetItem is ListItem.SectionHeader && targetItem.data.title == "1일차") {
