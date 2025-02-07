@@ -35,5 +35,7 @@ public class OpenaiResponseDto {
     public static class Activity {
         private String name;
         private int duration;
+        private int type;
+        private int positionPath;
     }
 }

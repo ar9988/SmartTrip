@@ -56,7 +56,7 @@ public class OdsayService {
             return new OdsayResponseDto(totalTime);
         } catch (Exception e) {
             e.printStackTrace();
-            return new OdsayResponseDto(-1); // 오류 발생 시 -1 반환
+            return new OdsayResponseDto(0); // 오류 발생 시 0 반환
         }
     }
 }

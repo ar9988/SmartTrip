@@ -60,6 +60,8 @@ public class OpenaiService {
                     "          {\n" +
                     "            \"name\": \"string\",\n" +
                     "            \"duration\": number\n" +
+                    "            \"type\": number\n" +
+                    "            \"positionPath\": number\n" +
                     "          }\n" +
                     "        ]\n" +
                     "      }\n" +
@@ -74,7 +76,9 @@ public class OpenaiService {
                     "- start_date, end_date는 \"YYYYMMDD\" 형식\n" +
                     "- date 는 \"YYYY-MM-DD\" 형식\n" +
                     "- name은 구체적인 장소명으로 작성 (예: \"북한산국립공원\", \"국립중앙박물관\")\n" +
-                    "- duration은 분 단위로 설정한다.\n";
+                    "- duration은 분 단위로 설정한다.\n" +
+                    "- type은 관광지는 1, 식사는 2로 설정한다.\n"  +
+                    "- positionPath는 '날짜*10000+1000*일정'으로 진행한다 (예: 첫날 10000,11000,12000 / 둘째날 20000, 21000, 22000)";
 
             JSONArray messages = new JSONArray();
             JSONObject message = new JSONObject();
@@ -163,6 +167,8 @@ public class OpenaiService {
                     OpenaiResponseDto.Activity activity = new OpenaiResponseDto.Activity();
                     activity.setName(activityJson.getString("name"));
                     activity.setDuration(activityJson.getInt("duration"));
+                    activity.setType(activityJson.getInt("type"));
+                    activity.setPositionPath(activityJson.getInt("positionPath"));
                     activities.add(activity);
                 }
 
