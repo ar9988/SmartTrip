@@ -50,21 +50,17 @@ class AlbumsRepositoryImpl @Inject constructor(
             }
 
             val body = response.body()
-            Log.d("AlbumsRepositoryImpl", "Response: $body")
             if (response.isSuccessful && (body != null)) {
-                Log.d("AlbumsRepositoryImpl", "Response Success: $body")
                 ApiResult.success(PhotosMapper(body))
             } else {
-                Log.d("AlbumsRepositoryImpl", "Response Fail: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
 
         } catch (e: Exception) {
-            Log.d("AlbumsRepositoryImpl", "Fail: ${e.message}")
             ApiResult.fail()
         }
 
-    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<Boolean> =
+    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<List<Photo>> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 albumsRemoteDataSource.postPhoto(photos, body)
@@ -72,7 +68,7 @@ class AlbumsRepositoryImpl @Inject constructor(
 
             val responseBody = response.body()
             if (response.isSuccessful && (responseBody != null)) {
-                ApiResult.success(responseBody)
+                ApiResult.success(PhotosMapper(responseBody))
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
@@ -81,20 +77,24 @@ class AlbumsRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Void> =
+    override suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Boolean> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 albumsRemoteDataSource.deletePhoto(albumId, photoId)
             }
 
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(body)
+            val responseBody = response.body()
+            Log.d("AlbumsRepositoryImpl", "Response: $responseBody")
+            if (response.isSuccessful && (responseBody != null)) {
+                Log.d("AlbumsRepositoryImpl", "Response Success: $responseBody")
+                ApiResult.success(responseBody)
             } else {
+                Log.d("AlbumsRepositoryImpl", "Response Fail: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
 
         } catch (e: Exception) {
+            Log.d("AlbumsRepositoryImpl", "Fail: ${e.message}")
             ApiResult.fail()
         }
 

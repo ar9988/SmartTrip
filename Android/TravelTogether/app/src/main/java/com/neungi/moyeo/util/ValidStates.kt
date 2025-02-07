@@ -7,3 +7,7 @@ enum class EmptyState {
 enum class InputValidState {
     VALID, INIT, BLANK, NONE
 }
+
+enum class EnterState {
+    VALID, NONE
+}

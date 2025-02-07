@@ -30,12 +30,12 @@ class PhotoClassifiedFragment :
             val index = argument.getInt("placeId")
             lifecycleScope.launch {
                 with(binding.rvPhotoClassificationContent) {
-                    viewModel.tempPlaces.collectLatest { places ->
+                    viewModel.newMarkers.collectLatest { places ->
                         if (places.isNotEmpty()) {
                             recyclerViewState =
                                 binding.rvPhotoClassificationContent.layoutManager?.onSaveInstanceState()
                             adapter = PhotoClassifiedAdapter(index, viewModel).apply {
-                                submitList(viewModel.tempPlaces.value[index].second)
+                                submitList(viewModel.newMarkers.value[index].second)
                             }
                             setHasFixedSize(true)
                             layoutManager?.onRestoreInstanceState(recyclerViewState)
@@ -54,7 +54,7 @@ class PhotoClassifiedFragment :
                 ivPhotoClassificationContent.visibility = View.GONE
                 ivEditPhotoClassificationContent.visibility = View.VISIBLE
                 etPhotoClassificationContent.visibility = View.VISIBLE
-                etPhotoClassificationContent.setText(viewModel.tempPlaces.value[index].first)
+                etPhotoClassificationContent.setText(viewModel.newMarkers.value[index].first)
             }
             ivEditPhotoClassificationContent.setOnClickListener {
                 when (viewModel.tempPlacesName.value.isBlank()) {

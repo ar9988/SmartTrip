@@ -9,7 +9,7 @@ data class MarkerData(
     val id: Int,
     val photo: Photo,
     val body: MultipartBody.Part?,
-    val isVisible: Boolean
+    val isNewPhoto: Boolean
 ) : ClusteringKey {
 
     override fun getPosition(): LatLng = LatLng(photo.latitude, photo.longitude)

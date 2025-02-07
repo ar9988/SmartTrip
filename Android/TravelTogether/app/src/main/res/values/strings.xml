@@ -48,7 +48,11 @@
     <string name="text_hint_comment">100자 이내로 입력해주세요.</string>
     <string name="text_no_comment">아직 나눈 추억이 없어요.</string>
     <string name="message_photo_duplicated">이미 업로드하기로 결정한 사진입니다.</string>
+    <string name="message_photo_upload">이미지를 업로드했습니다.</string>
+    <string name="message_fail_to_upload_photo">이미지 업로드에 실패했습니다.</string>
     <string name="message_fail_to_get_photo_comments">남긴 추억 불러오기에 실패했습니다.</string>
+    <string name="message_success_to_delete_photo">이미지를 삭제했습니다.</string>
+    <string name="message_fail_to_delete_photo">이미지 삭제에 실패했습니다.</string>
     <string name="title_comment_delete">추억 삭제하기</string>
     <string name="text_comment_delete">남긴 추억을 삭제하시겠습니까?</string>
     <string name="text_delete">삭제하기</string>
@@ -120,5 +124,10 @@
     <string name="thur_calendar">목</string>
     <string name="fri_calendar">금</string>
     <string name="sat_calendar">토</string>
+
+    <!-- firebase-->
+    <string name="default_notification_channel_id">fcm_default_channel</string>
+
+
 
 </resources>

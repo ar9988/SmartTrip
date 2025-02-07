@@ -39,6 +39,15 @@ class PhotoDetailFragment :
                 showToastMessage(resources.getString(R.string.message_fail_to_get_photo_comments))
             }
 
+            is AlbumUiEvent.DeletePhotoSuccess -> {
+                showToastMessage(resources.getString(R.string.message_success_to_delete_photo))
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+
+            is AlbumUiEvent.DeletePhotoFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_delete_photo))
+            }
+
             is AlbumUiEvent.BackToAlbumDetail -> {
                 requireActivity().supportFragmentManager.popBackStack()
             }

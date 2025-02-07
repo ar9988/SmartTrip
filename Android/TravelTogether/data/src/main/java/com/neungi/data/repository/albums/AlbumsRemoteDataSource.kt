@@ -14,9 +14,9 @@ interface AlbumsRemoteDataSource {
 
     suspend fun getAlbumPhotos(albumId: String): Response<List<PhotoEntity>>
 
-    suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Response<Boolean>
+    suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Response<List<PhotoEntity>>
 
-    suspend fun deletePhoto(albumId: String, photoId: String): Response<Void>
+    suspend fun deletePhoto(albumId: String, photoId: String): Response<Boolean>
 
     suspend fun putLocationName(albumId: String, photoId: String): Response<Void>
 

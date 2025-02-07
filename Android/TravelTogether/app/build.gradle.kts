@@ -6,6 +6,7 @@ plugins {
     id("com.google.dagger.hilt.android")
 
     kotlin("plugin.serialization") version "1.5.0"
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -94,6 +95,7 @@ dependencies {
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
     implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.palette.ktx)
     kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     // Coil
@@ -115,6 +117,11 @@ dependencies {
     implementation("com.kizitonwose.calendar:view:2.4.1")
 
     //Websocket
+
+    //firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
+    implementation ("com.google.firebase:firebase-messaging-ktx")
+
 
 
 }

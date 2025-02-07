@@ -13,9 +13,9 @@ interface AlbumsRepository {
 
     suspend fun getAlbumPhotos(albumId: String): ApiResult<List<Photo>>
 
-    suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<Boolean>
+    suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<List<Photo>>
 
-    suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Void>
+    suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Boolean>
 
     suspend fun putLocationName(albumId: String, photoId: String): ApiResult<Void>
 
