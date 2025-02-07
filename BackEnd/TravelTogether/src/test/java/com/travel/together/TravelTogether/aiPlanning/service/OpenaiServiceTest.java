@@ -53,6 +53,8 @@ class OpenaiServiceTest {
                 OpenaiResponseDto.Activity activity = activities.get(j);
                 System.out.println("name : " + activity.getName()); // 장소명
                 System.out.println("duration : " + activity.getDuration()); // 소요시간
+                System.out.println("type: " + activity.getType()); // 타입(관광지:1, 식사:2)
+                System.out.println("positionPath: " + activity.getPositionPath()); // 첫날 10000~19999
             }
             System.out.println("-----------------------------------------------------");
         }

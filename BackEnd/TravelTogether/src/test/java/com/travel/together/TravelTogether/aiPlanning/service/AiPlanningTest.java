@@ -61,24 +61,36 @@ public class AiPlanningTest {
         String keyword2 = activity2.getName(); // 첫 번째 활동의 장소명
 
         //API 테스트 (추천된 장소 검색)
-        double[] coordinates1 = testKakaoPlaceSearch(keyword1);
-        double[] coordinates2 = testKakaoPlaceSearch(keyword2);
+        KakaoDto place1 = testKakaoPlaceSearch(keyword1);
+        KakaoDto place2 = testKakaoPlaceSearch(keyword2);
         System.out.println("장소1:" + keyword1);
-        System.out.println("위도: " + coordinates1[0]);
-        System.out.println("경도: " + coordinates1[1]);
+        System.out.println("경도: " + place1.getLongitude());
+        System.out.println("위도: " + place1.getLatitude());
         System.out.println("장소2:" + keyword2);
-        System.out.println("위도: " + coordinates2[0]);
-        System.out.println("경도: " + coordinates2[1]);
+        System.out.println("경도: " + place2.getLongitude());
+        System.out.println("위도: " + place2.getLatitude());
 
-        int totaltimeOdsay = testOdsay(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1]);
+        OdsayResponseDto odsayResponse = testOdsay(place1.getLongitude(), place1.getLatitude(), place2.getLongitude(), place2.getLatitude());
+        int totaltimeOdsay = 0;
+        if (odsayResponse != null) {
+            totaltimeOdsay = odsayResponse.getTotalTime(); // totalTime 추출하여 할당
+        }
         System.out.println("대중교통 시간:" + totaltimeOdsay);
 
-        int totaltimeDirections = testDirections(coordinates1[0], coordinates1[1], coordinates2[0], coordinates2[1]);
-        System.out.println("자가용 시간:" + totaltimeDirections);
+        // testDirections 메서드 호출 후, totalTime을 추출하여 할당
+        DirectionsResponseDto directionsResponse = testDirections(place1.getLongitude(), place1.getLatitude(), place2.getLongitude(), place2.getLatitude());
+
+        int totaltimeDirections = 0;
+        if (directionsResponse != null) {
+            totaltimeDirections = directionsResponse.getTotalTime(); // totalTime 추출하여 할당
+        }
+
+        System.out.println("자가용 소요 시간: " + totaltimeDirections + "분");
+
     }
 
     // 2. Kakao API 테스트
-    double[] testKakaoPlaceSearch(String keyword) {
+    KakaoDto testKakaoPlaceSearch(String keyword) {
         try {
             // Given: OpenAI에서 받은 장소 이름 (테스트용 데이터)
             KakaoRequestDto kakaoRequestDto = new KakaoRequestDto(keyword);
@@ -92,20 +104,18 @@ public class AiPlanningTest {
 
             // 검색된 장소 목록 확인
             List<KakaoDto> places = kakaoResponse.getPlaces();
-            KakaoDto place = places.get(0);
+            KakaoDto place = places.get(0); // 첫 번째 장소를 사용
 
-            return new double[] {
-                    place.getLongitude(),
-                    place.getLatitude()
-            };
+            // KakaoDto 객체 반환
+            return place;
         } catch (Exception e) {
             e.printStackTrace();
-            return new double[] {0.0, 0.0};
+            return null;  // 에러 발생 시 null 반환
         }
     }
 
     // 3. Odsay 테스트
-    int testOdsay(Double startLongitude, Double startLatitude, Double endLongitude, Double endLatitude){
+    OdsayResponseDto testOdsay(Double startLongitude, Double startLatitude, Double endLongitude, Double endLatitude){
         try {
             // Given: OpenAI에서 받은 장소 이름 (테스트용 데이터)
             OdsayRequestDto odsayRequestDto = new OdsayRequestDto(startLongitude, startLatitude, endLongitude, endLatitude);
@@ -117,30 +127,30 @@ public class AiPlanningTest {
             assertNotNull(odsayResponse, "odsay API 응답이 null이면 안 됩니다.");
 
             // 검색된 장소 목록 확인
-            return odsayResponse.getTotalTime();
+            return odsayResponse;
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return null;
         }
     }
 
     // 4. Directions 테스트
-    int testDirections(Double startLongitude, Double startLatitude, Double endLongitude, Double endLatitude){
+    DirectionsResponseDto testDirections(Double startLongitude, Double startLatitude, Double endLongitude, Double endLatitude){
         try {
             // Given: OpenAI에서 받은 장소 이름 (테스트용 데이터)
             DirectionsRequestDto directionsRequestDto = new DirectionsRequestDto(startLongitude, startLatitude, endLongitude, endLatitude);
 
-            // When: Kakao API 호출하여 해당 장소 검색
+            // When: Directions API 호출하여 해당 경로의 운전 정보 검색
             DirectionsResponseDto directionsResponse = directionsService.getDrivingDirections(directionsRequestDto);
 
             // Then: 응답 검증
-            assertNotNull(directionsResponse, "directions API 응답이 null이면 안 됩니다.");
+            assertNotNull(directionsResponse, "Directions API 응답이 null이면 안 됩니다.");
 
-            // 검색된 장소 목록 확인
-            return directionsResponse.getTotalTime();
+            // 경로의 총 소요 시간과 경로 정보 반환
+            return directionsResponse; // DirectionsResponseDto 객체 반환 (총 소요 시간과 경로 정보 포함)
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return null; // 오류가 발생하면 null 반환
         }
     }
 }
