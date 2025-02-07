@@ -20,10 +20,10 @@ class AlbumsRemoteDataSourceImpl @Inject constructor(
     override suspend fun getAlbumPhotos(albumId: String): Response<List<PhotoEntity>> =
         albumsApi.getAlbumPhotos(albumId)
 
-    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Response<Boolean> =
+    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Response<List<PhotoEntity>> =
         albumsApi.postPhoto(photos, body)
 
-    override suspend fun deletePhoto(albumId: String, photoId: String): Response<Void> =
+    override suspend fun deletePhoto(albumId: String, photoId: String): Response<Boolean> =
         albumsApi.deletePhoto(albumId, photoId)
 
     override suspend fun putLocationName(albumId: String, photoId: String): Response<Void> =

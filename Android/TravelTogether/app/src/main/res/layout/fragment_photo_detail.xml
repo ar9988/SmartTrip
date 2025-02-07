@@ -115,6 +115,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginEnd="@dimen/dp_small"
+                android:onClick="@{() -> vm.onClickDeletePhoto()}"
                 android:src="@drawable/ic_photo_delete"
                 app:layout_constraintBottom_toBottomOf="@id/tv_name_photo_detail"
                 app:layout_constraintDimensionRatio="1:1"

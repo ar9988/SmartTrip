@@ -1,16 +1,11 @@
 package com.neungi.moyeo.views.album
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -19,10 +14,6 @@ import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.tabs.TabLayoutMediator
@@ -37,11 +28,11 @@ import com.naver.maps.map.clustering.ClusterMarkerInfo
 import com.naver.maps.map.clustering.Clusterer
 import com.naver.maps.map.clustering.DefaultClusterMarkerUpdater
 import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPhotoClassificationBinding
+import com.neungi.moyeo.util.CommonUtils.initPlaceNumber
 import com.neungi.moyeo.util.MarkerData
 import com.neungi.moyeo.util.Permissions
 import com.neungi.moyeo.views.album.adapter.PhotoClassificationAdapter
@@ -53,7 +44,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 @AndroidEntryPoint
 class PhotoClassificationFragment :
@@ -121,7 +111,7 @@ class PhotoClassificationFragment :
 
                     val cameraUpdate = CameraUpdate.scrollTo(LatLng(it.latitude, it.longitude))
                     naverMap.moveCamera(cameraUpdate)
-                    setMapToFitAllMarkers(viewModel.tempMarkers.value)
+                    setMapToFitAllMarkers(viewModel.tempPhotos.value)
                     initClusterer()
                 }
             }
@@ -158,10 +148,12 @@ class PhotoClassificationFragment :
     private fun initNaverMap() {
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map_photo_classification) as MapFragment?
-            ?: MapFragment.newInstance().also {
-                childFragmentManager.beginTransaction().add(R.id.map_photo_classification, it).commit()
-            }
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.map_photo_classification) as MapFragment?
+                ?: MapFragment.newInstance().also {
+                    childFragmentManager.beginTransaction().add(R.id.map_photo_classification, it)
+                        .commit()
+                }
         mapFragment.getMapAsync(this)
     }
 
@@ -179,24 +171,31 @@ class PhotoClassificationFragment :
     private fun initClusterer() {
         markerBuilder = Clusterer.ComplexBuilder<MarkerData>()
         lifecycleScope.launch {
-            viewModel.tempMarkers.collectLatest { markers ->
+            viewModel.tempPhotos.collectLatest { markers ->
                 tags.clear()
                 val newClusterer = makeMarker(
                     markers,
                     markerBuilder
                 ) {
                     val newMarkers = mutableListOf<List<MarkerData>>()
-                    tags.forEach { tag ->
+                    var photoIndex = initPlaceNumber(viewModel.photoPlaces.value.map { it.name })
+                    tags.forEachIndexed { index, tag ->
                         val newLocations = mutableListOf<MarkerData>()
                         tag.split(",").forEach { id ->
                             newLocations.add(markers[id.toInt() - 1])
                         }
-                        calculateRepresentativeCoordinate(newLocations)
-                        newMarkers.add(newLocations)
-                    }
-                    addClusterMarkers(newMarkers)
 
-                    viewModel.initTempPlaces(tags, newMarkers)
+                        val placeName = newLocations.filterNot { it.photo.photoPlace == "" }
+                            .groupBy { it.photo.photoPlace }.entries
+                            .sortedWith(compareByDescending<Map.Entry<String, List<MarkerData>>> { it.value.size }
+                                .thenBy { it.key }).firstOrNull()?.key ?: "장소 ${photoIndex++}"
+                        tags[index] = placeName
+
+                        calculateRepresentativeCoordinate(newLocations)
+                        newMarkers.add(newLocations.filter { it.isNewPhoto })
+                    }
+
+                    viewModel.initNewMarkers(tags, newMarkers)
                     initTabLayout()
                     clusterer.map = null
                 }
@@ -222,8 +221,6 @@ class PhotoClassificationFragment :
                 clusterMarkerUpdater(object : DefaultClusterMarkerUpdater() {
 
                     override fun updateClusterMarker(info: ClusterMarkerInfo, marker: Marker) {
-
-                        Timber.d("Tag: ${info.tag.toString()}")
                         tags.add(info.tag.toString())
 
                         markerManager.releaseMarker(info, marker)
@@ -240,7 +237,6 @@ class PhotoClassificationFragment :
 
         withContext(Dispatchers.Default) {
             markers.forEach { item ->
-                Timber.d("ID: ${item.id}")
                 cluster.add(item, "${item.id}")
             }
         }
@@ -254,45 +250,20 @@ class PhotoClassificationFragment :
         return LatLng(averageLatitude, averageLongitude)
     }
 
-    @SuppressLint("InflateParams")
-    private fun addClusterMarkers(clusterGroups: List<List<MarkerData>>) {
-        clusterGroups.forEach { cluster ->
-            val representativeCoordinate = calculateRepresentativeCoordinate(cluster)
-
-            val marker = Marker()
-            marker.position = representativeCoordinate
-            val customView = LayoutInflater.from(requireContext()).inflate(
-                R.layout.marker_cluster_icon, null
-            )
-            val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
-            Glide.with(requireContext())
-                .asBitmap()
-                .apply(RequestOptions.circleCropTransform())
-                .circleCrop()
-                .override(144, 144)
-                .load(R.drawable.ic_profile)
-                .into(object : CustomTarget<Bitmap>() {
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                        imageView.setImageBitmap(resource)
-                        marker.icon = OverlayImage.fromView(customView)
-                    }
-
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                        imageView.setImageDrawable(placeholder)
-                    }
-                })
-            marker.map = naverMap
-        }
-    }
-
     private fun initTabLayout() {
         lifecycleScope.launch {
-            viewModel.tempPlaces.collectLatest { places ->
+            viewModel.newMarkers.collectLatest { places ->
                 with(binding.vpPhotoClassification) {
-                    adapter = PhotoClassificationAdapter(requireActivity(), viewModel.tempPlaces.value.size)
+                    adapter = PhotoClassificationAdapter(
+                        requireActivity(),
+                        viewModel.newMarkers.value.size
+                    )
                     setCurrentItem(START_POSITION, true)
                 }
-                TabLayoutMediator(binding.tlPhotoClassification, binding.vpPhotoClassification) { tab, position ->
+                TabLayoutMediator(
+                    binding.tlPhotoClassification,
+                    binding.vpPhotoClassification
+                ) { tab, position ->
                     tab.text = places[position].first
                 }.attach()
                 for (i in 0 until resources.getStringArray(R.array.local_big).size) {
@@ -312,6 +283,15 @@ class PhotoClassificationFragment :
         when (event) {
             is AlbumUiEvent.UpdatePhotoClassification -> {
                 findNavController().navigateSafely(R.id.action_photo_classification_to_photo_classification_update)
+            }
+
+            is AlbumUiEvent.FinishPhotoUpload -> {
+                showToastMessage(resources.getString(R.string.message_photo_upload))
+                findNavController().popBackStack(R.id.fragment_album_detail, false)
+            }
+
+            is AlbumUiEvent.PhotoUploadFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_upload_photo))
             }
 
             else -> {}
