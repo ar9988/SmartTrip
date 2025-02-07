@@ -6,6 +6,7 @@ plugins {
     id("com.google.dagger.hilt.android")
 
     kotlin("plugin.serialization") version "1.5.0"
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -115,6 +116,11 @@ dependencies {
     implementation("com.kizitonwose.calendar:view:2.4.1")
 
     //Websocket
+
+    //firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
+    implementation ("com.google.firebase:firebase-messaging-ktx")
+
 
 
 }

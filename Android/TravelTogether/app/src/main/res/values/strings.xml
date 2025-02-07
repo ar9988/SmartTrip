@@ -119,4 +119,9 @@
     <string name="fri_calendar">금</string>
     <string name="sat_calendar">토</string>
 
+    <!-- firebase-->
+    <string name="default_notification_channel_id">fcm_default_channel</string>
+
+
+
 </resources>
