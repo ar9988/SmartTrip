@@ -20,16 +20,21 @@ import com.neungi.domain.usecase.GetAlbumsUseCase
 import com.neungi.domain.usecase.GetCommentsUseCase
 import com.neungi.domain.usecase.GetPhotoLocationsUseCase
 import com.neungi.domain.usecase.GetPhotosUseCase
+import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.moyeo.util.CommonUtils.convertToDegree
+import com.neungi.moyeo.util.CommonUtils.formatLongToDateTime
 import com.neungi.moyeo.util.EmptyState
 import com.neungi.moyeo.util.EnterState
 import com.neungi.moyeo.util.InputValidState
 import com.neungi.moyeo.util.MarkerData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -50,7 +55,8 @@ class AlbumViewModel @Inject constructor(
     private val getAlbumsUseCase: GetAlbumsUseCase,
     private val getCommentsUseCase: GetCommentsUseCase,
     private val getPhotoLocationsUseCase: GetPhotoLocationsUseCase,
-    private val getPhotosUseCase: GetPhotosUseCase
+    private val getPhotosUseCase: GetPhotosUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : AndroidViewModel(application), OnAlbumClickListener {
 
     /****** UiState, UiEvent ******/
@@ -266,7 +272,6 @@ class AlbumViewModel @Inject constructor(
                 val metadataPart = prepareMetadataPart(chunk)
 
                 val response = getPhotosUseCase.submitPhoto(photoParts, metadataPart)
-                Timber.d("Status: ${response.status}")
                 when (response.status == ApiStatus.SUCCESS) {
                     false -> {
                         _albumUiEvent.emit(AlbumUiEvent.PhotoUploadFail)
@@ -303,17 +308,44 @@ class AlbumViewModel @Inject constructor(
 
     override fun onClickCommentSubmit() {
         viewModelScope.launch {
-            submitComment()
-            initComments()
-            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmit)
+            val response = getCommentsUseCase.submitPhotoComment(
+                albumId = _selectedPhotoAlbum.value?.id ?: "",
+                photoId = _selectedPhoto.value?.id ?: "",
+                body = prepareComment(_commentInput.value)
+            )
+            when ((response.status == ApiStatus.SUCCESS) && (response.data == true)) {
+                true -> {
+                    _commentInput.value = ""
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmitSuccess)
+                    initComments()
+                }
+
+                else -> {
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmitFail)
+                }
+            }
         }
     }
 
     override fun onClickCommentUpdate(comment: Comment) {
         viewModelScope.launch {
-            updateComment(comment)
-            initComments()
-            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentUpdate)
+            val response = getCommentsUseCase.modifyPhotoComment(
+                albumId = _selectedPhotoAlbum.value?.id ?: "",
+                photoId = _selectedPhoto.value?.id ?: "",
+                commentID = comment.id,
+                body = prepareComment(_commentUpdateInput.value)
+            )
+            when ((response.status == ApiStatus.SUCCESS) && (response.data == true)) {
+                true -> {
+                    initComments()
+                    _commentUpdateInput.value = ""
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentUpdateSuccess)
+                }
+
+                else -> {
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentUpdateFail)
+                }
+            }
         }
     }
 
@@ -327,7 +359,23 @@ class AlbumViewModel @Inject constructor(
 
     override fun onClickCommentDeleteFinish() {
         viewModelScope.launch {
-            deleteComment()
+            _selectedPhotoComment.value?.let { comment ->
+                val response = getCommentsUseCase.deletePhotoComment(
+                    albumId = _selectedPhotoAlbum.value?.id ?: "",
+                    photoId = _selectedPhoto.value?.id ?: "",
+                    commentID = comment.id
+                )
+                when ((response.status == ApiStatus.SUCCESS) && (response.data == true)) {
+                    true -> {
+                        initComments()
+                        _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDeleteFinish)
+                    }
+
+                    else -> {
+                        _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDeleteFail)
+                    }
+                }
+            }
             _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDeleteFinish)
         }
     }
@@ -543,7 +591,7 @@ class AlbumViewModel @Inject constructor(
                 uploadPhoto.photoUri.toString(),
                 uploadPhoto.latitude,
                 uploadPhoto.longitude,
-                "",
+                formatLongToDateTime(uploadPhoto.takenAt),
                 ""
             )
             newTempMarkers.add(MarkerData(index, photo, uploadPhoto.body, true))
@@ -594,47 +642,11 @@ class AlbumViewModel @Inject constructor(
         _tempClassifiedPhotoIndex.value = Pair(-1, -1)
     }
 
-    private suspend fun getComments() {
-        getCommentsUseCase.getPhotoComments(
-            albumId = _selectedPhotoAlbum.value?.id ?: "",
-            photoId = _selectedPhoto.value?.id ?: ""
-        )
-    }
+    private fun prepareComment(content: String): RequestBody {
+        val metadata = mapOf("content" to content)
+        val json = Gson().toJson(metadata)
 
-    private suspend fun submitComment() {
-        getCommentsUseCase.submitPhotoComment(
-            albumId = _selectedPhotoAlbum.value?.id ?: "",
-            photoId = _selectedPhoto.value?.id ?: "",
-            body = Comment(
-                id = "",
-                photoId = _selectedPhoto.value?.id ?: "",
-                author = "",
-                content = _commentInput.value,
-                createdAt = "",
-                updatedAt = ""
-            )
-        )
-    }
-
-    private suspend fun updateComment(comment: Comment) {
-        getCommentsUseCase.modifyPhotoComment(
-            albumId = _selectedPhotoAlbum.value?.id ?: "",
-            photoId = _selectedPhoto.value?.id ?: "",
-            commentID = comment.id,
-            body = comment
-        )
-    }
-
-    private suspend fun deleteComment() {
-        _selectedPhotoComment.value?.let { comment ->
-            getCommentsUseCase.deletePhotoComment(
-                albumId = _selectedPhotoAlbum.value?.id ?: "",
-                photoId = _selectedPhoto.value?.id ?: "",
-                commentID = comment.id,
-                body = comment
-            )
-            getComments()
-        }
+        return json.toRequestBody("application/json".toMediaTypeOrNull())
     }
 
     fun initPhotoPlaces() {
@@ -737,5 +749,10 @@ class AlbumViewModel @Inject constructor(
         _uploadPhotos.value = newPhotos
         initTempMarkers()
         validUploadPhotos()
+    }
+
+    fun getUserId(): Flow<String?> = flow {
+        val id = getUserInfoUseCase.getUserId().first()
+        emit(id)
     }
 }

@@ -27,7 +27,10 @@ class PhotoCommentDeleteDialogFragment :
         lifecycleScope.launch {
             viewModel.albumUiEvent.collectLatest { uiEvent ->
                 when (uiEvent) {
-                    is AlbumUiEvent.PhotoCommentDeleteFinish -> dismiss()
+                    is AlbumUiEvent.PhotoCommentDeleteFinish -> {
+                        showToastMessage(resources.getString(R.string.message_comment_delete))
+                        dismiss()
+                    }
 
                     else -> {}
                 }

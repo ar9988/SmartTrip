@@ -9,7 +9,8 @@ data class AuthUiState(
     val joinNameValidState: InputValidState = InputValidState.INIT,
     val joinPhoneNumberValidState: InputValidState = InputValidState.INIT,
     val joinPasswordValidState: InputValidState = InputValidState.INIT,
-    val joinPasswordAgainValidState: InputValidState = InputValidState.INIT
+    val joinPasswordAgainValidState: InputValidState = InputValidState.INIT,
+    val joinProfileMessageValidState: InputValidState = InputValidState.INIT
 ) {
     val isLoginBtnEnable: Boolean =
         ((loginEmailValidState == InputValidState.VALID) && (loginPasswordValidState == InputValidState.VALID))

@@ -3,6 +3,7 @@ package com.neungi.domain.usecase
 import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.Comment
 import com.neungi.domain.repository.AlbumsRepository
+import okhttp3.RequestBody
 import javax.inject.Inject
 
 class GetCommentsUseCase @Inject constructor(
@@ -16,8 +17,8 @@ class GetCommentsUseCase @Inject constructor(
     suspend fun submitPhotoComment(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): ApiResult<Comment> {
+        body: RequestBody
+    ): ApiResult<Boolean> {
         return albumsRepository.postPhotoComments(albumId, photoId, body)
     }
 
@@ -25,17 +26,16 @@ class GetCommentsUseCase @Inject constructor(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): ApiResult<Comment> {
+        body: RequestBody
+    ): ApiResult<Boolean> {
         return albumsRepository.putPhotoComments(albumId, photoId, commentID, body)
     }
 
     suspend fun deletePhotoComment(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): ApiResult<Void> {
-        return albumsRepository.deletePhotoComments(albumId, photoId, commentID, body)
+        commentID: String
+    ): ApiResult<Boolean> {
+        return albumsRepository.deletePhotoComments(albumId, photoId, commentID)
     }
 }

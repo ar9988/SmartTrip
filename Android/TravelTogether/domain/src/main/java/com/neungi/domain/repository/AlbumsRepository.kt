@@ -24,20 +24,19 @@ interface AlbumsRepository {
     suspend fun postPhotoComments(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): ApiResult<Comment>
+        body: RequestBody
+    ): ApiResult<Boolean>
 
     suspend fun putPhotoComments(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): ApiResult<Comment>
+        body: RequestBody
+    ): ApiResult<Boolean>
 
     suspend fun deletePhotoComments(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): ApiResult<Void>
+        commentID: String
+    ): ApiResult<Boolean>
 }

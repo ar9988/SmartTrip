@@ -13,8 +13,10 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.TextView
 import androidx.palette.graphics.Palette
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 object CommonUtils {
@@ -66,6 +68,13 @@ object CommonUtils {
 
         val dateTime = LocalDateTime.parse(input, inputFormatter)
         return dateTime.format(outputFormatter)
+    }
+
+    fun formatLongToDateTime(timestamp: Long): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+            .withZone(ZoneId.systemDefault())
+
+        return formatter.format(Instant.ofEpochMilli(timestamp))
     }
 
     fun drawableToBitmap(drawable: Drawable, size: Int = 144): Bitmap {
