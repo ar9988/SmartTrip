@@ -1,5 +1,6 @@
 package com.travel.together.TravelTogether.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.travel.together.TravelTogether.album.entity.Photo;
 import com.travel.together.TravelTogether.trip.entity.Trip;
 import com.travel.together.TravelTogether.trip.entity.TripMember;
@@ -50,6 +51,7 @@ public class User implements UserDetails {
     private List<TripMember> tripMemberships;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Photo> photos;
 
     @PrePersist

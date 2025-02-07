@@ -182,13 +182,14 @@ public class PhotoService {
     }
 
     @Transactional
-    public void deletePhoto(int albumId, Integer photoId) {
+    public boolean deletePhoto(int albumId, Integer photoId) {
         Photo photo = photoRepository.findById(photoId)
                 .orElseThrow(() -> new IllegalArgumentException("Photo not found"));
 
         int albumIdFromPhoto = (photo.getAlbum() != null) ? photo.getAlbum().getId() : -1;
         if (albumIdFromPhoto != albumId) {
-            throw new IllegalArgumentException("Photo does not belong to the album");
+//            throw new IllegalArgumentException("Photo does not belong to the album");
+            return false;
         }
 
         // 1. S3에서 사진 삭제
@@ -197,6 +198,8 @@ public class PhotoService {
 
         // 2. 데이터베이스에서 삭제
         photoRepository.delete(photo);
+
+        return true;
     }
 
     private String extractFileKeyFromUrl(String imageUrl) {
