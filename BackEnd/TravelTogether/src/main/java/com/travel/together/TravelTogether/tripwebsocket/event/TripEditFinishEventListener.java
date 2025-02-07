@@ -37,7 +37,7 @@ public class TripEditFinishEventListener {
         Integer tripId = event.getTripId();
         log.info("processing edit history for tripID: {}", tripId);
 
-        // 캐시에서 해당 trip의 모든 편집내용 가져오기
+        // 메모리에서 해당 trip의 모든 편집내용 가져오기
         List<EditRequest> edits = stateManager.getEditHistory(tripId);
 
         if (edits == null || edits.isEmpty()) {
@@ -46,20 +46,28 @@ public class TripEditFinishEventListener {
         }
 
         try {
-            // 편집 내역 순서대로 처리
             for (EditRequest edit : edits) {
-                if ("MOVE".equals(edit.getOperation().getAction())) {
-                    // position_path받아서 DB업데이트
-                    updateScheduleOrder(edit);
-                    log.info("Updated schedule order: scheduleId={}, toPosition={}",
-                            edit.getOperation().getScheduleId(),
-                            edit.getOperation().getPositionPath());
-
+                switch (edit.getOperation().getAction()) {
+                    case "MOVE":
+                        updateSchedulePosition(edit);
+                        break;
+                    case "DELETE":
+                        deleteSchedule(edit);
+                        break;
+                    default:
+                        log.warn("Unknown operation: {}", edit.getOperation().getAction());
                 }
 
                 log.info("Successfully processed {} edits for tripId: {}", Optional.of(edits.size()), tripId);
 
             }
+            // 모든 처리가 끝난 후 캐시 정리
+            stateManager.clearEditHistory(tripId);
+
+            log.info("Successfully processed {} edits for tripId: {}", edits.size(), tripId);
+
+
+
 
         } catch (Exception e) {
             log.error("Error processing edits for tripId: {}", tripId, e);
@@ -69,30 +77,22 @@ public class TripEditFinishEventListener {
     }
 
 
-    private void updateScheduleOrder(EditRequest edit) {
+    private void updateSchedulePosition(EditRequest edit) {
         Integer scheduleId = edit.getOperation().getScheduleId();
-        Integer positionPath = edit.getOperation().getPositionPath();
+        Integer newPosition = edit.getOperation().getPositionPath();
 
         // 이동할 스케줄 가져오기
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found: " + scheduleId));
 
 
-        // 같은 날의 모든 스케쥴 가져오기
-        List<Schedule> schedules = scheduleRepository.findAllByDayIdOrderByOrderNumAsc(schedule.getDay().getId());
-
-
-
         // 모든 변경사항 저장
-        schedule.setPositionPath(positionPath);
+        schedule.setPositionPath(newPosition);
         scheduleRepository.save(schedule);
 //        scheduleRepository.saveAll(schedules);
 
-        // 변경된 모든 스케줄의 순서 로깅
-        for (Schedule s : schedules) {
-            log.info("Schedule id={} now has orderNum={}", s.getId(), s.getOrderNum());
-        }
-        log.info("Updated schedule order: scheduleId={}, finalPosition={}", scheduleId, positionPath);
+
+        log.info("Updated schedule position: scheduleId={}, newPosition={}", scheduleId, newPosition);
     }
 
 
@@ -102,6 +102,8 @@ public class TripEditFinishEventListener {
         // 스케줄이 존재하는지 확인
         if (scheduleRepository.existsById(scheduleId)) {
             scheduleRepository.deleteById(scheduleId);
+            log.info("Deleted schedule: {}", scheduleId);
+
         } else {
             log.warn("Attempted to delete non-existent schedule: {}", scheduleId);
         }
