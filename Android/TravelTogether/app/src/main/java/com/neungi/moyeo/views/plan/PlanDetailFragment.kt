@@ -71,6 +71,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             sectionedAdapter.buildListItems()
         }
         viewModel.pathEvent.observe(viewLifecycleOwner) { path ->
+            Timber.d(path.sourceScheduleId.toString())
             if(!isUserDragging){
                 sectionedAdapter.updatePathInfo(path)
                 paths[path.sourceScheduleId] = convertToLatLngList(path.path)
@@ -88,6 +89,9 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun paintPathToMap(){
+        if(paths.isEmpty()){
+            return
+        }
         multipartPathOverlay.map = null
         val pathList = paths.values.toList()
         multipartPathOverlay.coordParts = pathList
