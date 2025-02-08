@@ -4,7 +4,7 @@ import ScheduleReceive
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.neungi.data.entity.RouteReceive
+import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.*
@@ -28,8 +28,8 @@ class ScheduleViewModel @Inject constructor(
     private val _serverEvents = MutableLiveData<ServerReceive>()
     val serverEvents: LiveData<ServerReceive> get() = _serverEvents
 
-    private val _routeEvents = MutableLiveData<RouteReceive>()
-    val routeEvents: LiveData<RouteReceive> get() = _routeEvents
+    private val _pathEvents = MutableLiveData<Path>()
+    val pathEvent: LiveData<Path> get() = _pathEvents
 
     private val _scheduleSections = MutableLiveData<List<Section>>()
     val scheduleSections: LiveData<List<Section>> get() = _scheduleSections
@@ -41,12 +41,14 @@ class ScheduleViewModel @Inject constructor(
             _serverEvents.postValue(event)
         }
 
-        webSocketManager.onRouteEventReceived = { routeReceive :RouteReceive->
-            _routeEvents.postValue(routeReceive)
+        webSocketManager.onRouteEventReceived = { pathReceive :PathReceive->
+            pathReceive.paths.forEach {
+                _pathEvents.postValue(it)
+            }
         }
 
         webSocketManager.onScheduleEventReceived = { scheduleReceive:ScheduleReceive ->
-            val sections = convertToSections(scheduleReceive)
+            val sections = convertToSections(scheduleReceive,trip)
             _scheduleSections.postValue(sections)
         }
     }

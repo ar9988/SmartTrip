@@ -5,15 +5,16 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerReceive
+import com.neungi.domain.model.Path
 import com.neungi.domain.model.ScheduleData
-import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemSectionHeaderBinding
+import com.neungi.moyeo.databinding.ItemScheduleBinding
 import com.neungi.moyeo.util.ListItem
 import com.neungi.moyeo.util.ScheduleHeader
 import com.neungi.moyeo.util.Section
@@ -23,7 +24,7 @@ class SectionedAdapter(
     private val itemTouchHelper: ItemTouchHelper,
     private val onEditClick: (Int) -> Unit,
     private val onAddClick: () -> Unit,
-    var sections: MutableList<Section>
+    private val recyclerView: RecyclerView
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -31,22 +32,31 @@ class SectionedAdapter(
         private const val VIEW_TYPE_ITEM = 1
     }
 
+    var sections = mutableListOf<Section>()
+    var pathItems = mutableListOf<Path>()
     private var listItems = mutableListOf<ListItem>()
 
-    init {
-        buildListItems()
+    fun buildRouteInfo() {
+
     }
 
     fun buildListItems() {
         listItems.clear()
         sections.forEachIndexed { sectionIndex, section ->
             listItems.add(ListItem.SectionHeader(section.head))
-            section.items.forEach { item : ScheduleData ->
+            section.items.forEach { item: ScheduleData ->
                 listItems.add(ListItem.Item(item, sectionIndex))
             }
         }
         Timber.d(listItems.toString())
-        notifyDataSetChanged()  // 데이터가 변경된 후, RecyclerView를 갱신
+        if (!recyclerView.isComputingLayout) {
+            notifyDataSetChanged()
+        } else {
+            // 레이아웃 계산 중일 때는 다음에 처리하도록 Handler를 사용
+            Handler(Looper.getMainLooper()).post {
+                notifyDataSetChanged()
+            }
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -62,9 +72,9 @@ class SectionedAdapter(
                 ItemSectionHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             return SectionHeaderViewHolder(binding)
         } else {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_schedule, parent, false)
-            ItemViewHolder(view)
+            val binding =
+                ItemScheduleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return ItemViewHolder(binding)
         }
     }
 
@@ -72,7 +82,10 @@ class SectionedAdapter(
         when (val item = listItems[position]) {
             is ListItem.SectionHeader -> (holder as SectionHeaderViewHolder).bind(item.data)
             is ListItem.Item -> {
-                (holder as ItemViewHolder).bind(item.data)
+                (holder as ItemViewHolder).bind(
+                    item.data,
+                    pathItems.getOrNull(item.data.scheduleId)
+                )
             }
         }
     }
@@ -86,7 +99,6 @@ class SectionedAdapter(
     }
 
     fun rebuildSections() {
-
         val newSections = mutableListOf<Section>()
         var currentSection: MutableList<ScheduleData>? = null
 
@@ -143,9 +155,14 @@ class SectionedAdapter(
                 return oldList[oldItemPosition] == listItems[newItemPosition]
             }
         })
-
-        Handler(Looper.getMainLooper()).post {
+        // RecyclerView가 레이아웃을 계산 중인지 확인하고 안전하게 업데이트
+        if (!recyclerView.isComputingLayout) {
             diffResult.dispatchUpdatesTo(this)
+        } else {
+            // 레이아웃 계산 중일 때는 다음에 처리하도록 Handler를 사용
+            Handler(Looper.getMainLooper()).post {
+                diffResult.dispatchUpdatesTo(this)
+            }
         }
     }
 
@@ -154,28 +171,37 @@ class SectionedAdapter(
         RecyclerView.ViewHolder(binding.root) {
         //        private val textView: TextView = view.findViewById(R.id.tv_section_header)
         fun bind(data: ScheduleHeader) {
-            binding.tvSectionHeaderIconText.text = data.title
+            binding.dayInfo = data
+//            binding.tvSectionHeaderIconText.text = data.title
             binding.onClick = View.OnClickListener {
                 onAddClick()
             }
         }
     }
 
-    inner class ItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val titleTextView: TextView = view.findViewById(R.id.title_schedule)
-        private val textView2 :TextView = view.findViewById(R.id.type_schedule)
-        private val cardSchedule : ConstraintLayout = view.findViewById(R.id.card_schedule)
-        fun bind(data: ScheduleData) {
-            titleTextView.text = data.placeName
-            textView2.text = data.positionPath.toString()
-            cardSchedule.setOnLongClickListener { view ->
+    inner class ItemViewHolder(private val binding: ItemScheduleBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(data: ScheduleData, path: Path?) {
+            binding.titleSchedule.text = data.placeName
+            binding.typeSchedule.text = data.positionPath.toString()
+            binding.cardSchedule.setOnLongClickListener { view ->
                 itemTouchHelper.startDrag(this)
                 true
             }
+            if (path == null) {
+                binding.bottomSection.visibility = View.GONE
+            } else {
+                binding.bottomSection.visibility = View.VISIBLE
+//                binding.tvTravelTime.text = path.duration
+            }
+
         }
     }
 
     fun getItem(position: Int): ListItem {
+        if (position < 0 || position >= listItems.size) {
+            throw IndexOutOfBoundsException("Invalid position")
+        }
         return listItems[position]
     }
 
@@ -185,17 +211,15 @@ class SectionedAdapter(
 
     fun updatePosition(event: ServerReceive) {
         Timber.d("Updating position of schedule ${event.operation.scheduleId} to ${event.operation.positionPath}")
-        if(event.operation.action=="DELETE"){
+        if (event.operation.action == "DELETE") {
             listItems.forEachIndexed { position, item ->
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId) {
                     removeItem(position)
                 }
             }
-        }
-        else if(event.operation.action=="ADD"){
+        } else if (event.operation.action == "ADD") {
 
-        }
-        else if(event.operation.action=="MOVE"){
+        } else if (event.operation.action == "MOVE") {
             listItems.forEachIndexed { position, item ->
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
                     item.data.positionPath = event.operation.positionPath
@@ -208,12 +232,12 @@ class SectionedAdapter(
         // 섹션을 재구성하여 순서를 반영
         rebuildSections()
     }
+
     fun updateValue(position: Int, newPositionPath: Int) {
         listItems[position] = ListItem.Item(
             (listItems[position] as ListItem.Item).data.copy(positionPath = newPositionPath),
             (listItems[position] as ListItem.Item).sectionIndex
         )
-        notifyItemChanged(position)
     }
 
     fun setPosition(event: ServerReceive) {
@@ -221,17 +245,37 @@ class SectionedAdapter(
             if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
                 // positionPath 업데이트
                 item.data.positionPath = event.operation.positionPath
-                notifyItemChanged(position)
             }
         }
     }
 
-    fun uiUpdate(position:Int){
+    fun uiUpdate(position: Int) {
         notifyItemChanged(position)
     }
 
     fun removeItem(position: Int) {
         sections.removeAt(position)  // 해당 position의 아이템 제거
         notifyItemRemoved(position)  // 리사이클러뷰에 변경사항 알림
+    }
+
+    fun updatePathInfo(path: Path) {
+//        pathEvent.paths.forEach { path: Path ->
+//            listItems.forEachIndexed { position, item ->
+//                if (item is ListItem.Item && item.data.scheduleId == path.sourceScheduleId) {
+////                    pathItems[item.data.scheduleId].duration = path.duration
+//                    notifyItemChanged(position)
+//                }
+//            }
+//        }
+    }
+
+    fun setPathInfo(path: Path) {
+//        pathEvent.paths.forEach { path: Path ->
+//            listItems.forEachIndexed { position, item ->
+//                if (item is ListItem.Item && item.data.scheduleId == path.sourceScheduleId) {
+////                    pathItems[item.data.scheduleId].duration = path.duration
+//                }
+//            }
+//        }
     }
 }

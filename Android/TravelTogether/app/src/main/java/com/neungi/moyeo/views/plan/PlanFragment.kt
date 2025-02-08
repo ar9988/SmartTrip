@@ -31,6 +31,8 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     }
 
+
+
     private fun handleUiEvent(event: TripUiEvent) {
         when (event) {
             is TripUiEvent -> {
@@ -42,7 +44,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     override fun onResume() {
         super.onResume()
-
+        tripViewModel.getTrip()
         mainViewModel.setBnvState(true)
     }
 
