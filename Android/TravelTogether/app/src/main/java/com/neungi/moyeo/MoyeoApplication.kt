@@ -16,6 +16,7 @@ class MoyeoApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+
         Timber.plant(Timber.DebugTree())
 
         NaverMapSdk.getInstance(this).client =
