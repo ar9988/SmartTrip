@@ -4,6 +4,7 @@ import com.neungi.data.api.AiPlanningApi
 import com.neungi.data.api.AlbumsApi
 import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
+import com.neungi.data.api.FCMApi
 import com.neungi.data.api.TripsApi
 import com.neungi.data.util.JwtInterceptor
 import com.squareup.moshi.Moshi
@@ -23,9 +24,9 @@ import javax.inject.Singleton
 object NetworkModule {
 
 //    private const val BASE_URL3 = "http://43.202.51.112:8081/"
-    private const val BASE_URL = "http://43.202.51.112:8081/"
+//    private const val BASE_URL = "http://43.202.51.112:8081/"
 //    private const val WEBSOCKET_URL = "ws://43.202.51.112:8080/"
-//    private const val BASE_URL = "http://10.0.2.2:8080/"
+    private const val BASE_URL = "http://10.0.2.2:8080/"
 
     @Provides
     @Singleton
@@ -85,5 +86,11 @@ object NetworkModule {
     @Singleton
     fun provideAiPlanningApiService(@Named("Moyeo") retrofit: Retrofit): AiPlanningApi {
         return retrofit.create(AiPlanningApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFCMApiService(@Named("Moyeo") retrofit: Retrofit): FCMApi {
+        return retrofit.create(FCMApi::class.java)
     }
 }
