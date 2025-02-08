@@ -80,4 +80,6 @@ class ScheduleViewModel @Inject constructor(
         webSocketManager.tripId = trip.id
         Timber.d(serverUrl+trip.id)
     }
+
+
 }
