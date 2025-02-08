@@ -1,8 +1,6 @@
 package com.neungi.data.repository.albums
 
-import android.util.Log
 import com.neungi.data.mapper.AlbumsMapper
-import com.neungi.data.mapper.CommentMapper
 import com.neungi.data.mapper.CommentsMapper
 import com.neungi.data.mapper.PhotosMapper
 import com.neungi.domain.model.ApiResult
@@ -28,20 +26,14 @@ class AlbumsRepositoryImpl @Inject constructor(
             }
 
             val body = response.body()
-            Log.d("AlbumsRepositoryImpl", "Response: $body")
             if (response.isSuccessful && (body != null)) {
-                Log.d("AlbumsRepositoryImpl", "Response Success: $body")
                 ApiResult.success(AlbumsMapper(body))
             } else {
-                Log.d("AlbumsRepositoryImpl", "Response Fail: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
-            Log.d("AlbumsRepositoryImpl", "Fail: ${e.message}")
             ApiResult.fail()
         }
-
 
     override suspend fun getAlbumPhotos(albumId: String): ApiResult<List<Photo>> =
         try {
@@ -50,24 +42,35 @@ class AlbumsRepositoryImpl @Inject constructor(
             }
 
             val body = response.body()
-            Log.d("AlbumsRepositoryImpl", "Response: $body")
             if (response.isSuccessful && (body != null)) {
-                Log.d("AlbumsRepositoryImpl", "Response Success: $body")
                 ApiResult.success(PhotosMapper(body))
             } else {
-                Log.d("AlbumsRepositoryImpl", "Response Fail: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
-            Log.d("AlbumsRepositoryImpl", "Fail: ${e.message}")
             ApiResult.fail()
         }
 
-    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<Boolean> =
+    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<List<Photo>> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 albumsRemoteDataSource.postPhoto(photos, body)
+            }
+
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(PhotosMapper(responseBody))
+            } else {
+                ApiResult.error(response.errorBody().toString(), null)
+            }
+        } catch (e: Exception) {
+            ApiResult.fail()
+        }
+
+    override suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Boolean> =
+        try {
+            val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                albumsRemoteDataSource.deletePhoto(albumId, photoId)
             }
 
             val responseBody = response.body()
@@ -76,24 +79,6 @@ class AlbumsRepositoryImpl @Inject constructor(
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
-        } catch (e: Exception) {
-            ApiResult.fail()
-        }
-
-    override suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Void> =
-        try {
-            val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                albumsRemoteDataSource.deletePhoto(albumId, photoId)
-            }
-
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(body)
-            } else {
-                ApiResult.error(response.errorBody().toString(), null)
-            }
-
         } catch (e: Exception) {
             ApiResult.fail()
         }
@@ -104,13 +89,12 @@ class AlbumsRepositoryImpl @Inject constructor(
                 albumsRemoteDataSource.putLocationName(albumId, photoId)
             }
 
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(body)
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(responseBody)
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
             ApiResult.fail()
         }
@@ -124,13 +108,12 @@ class AlbumsRepositoryImpl @Inject constructor(
                 albumsRemoteDataSource.getPhotoComments(albumId, photoId)
             }
 
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(CommentsMapper(body))
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(CommentsMapper(responseBody))
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
             ApiResult.fail()
         }
@@ -138,20 +121,19 @@ class AlbumsRepositoryImpl @Inject constructor(
     override suspend fun postPhotoComments(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): ApiResult<Comment> =
+        body: RequestBody
+    ): ApiResult<Boolean> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 albumsRemoteDataSource.postPhotoComments(albumId, photoId, body)
             }
 
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(CommentMapper(body))
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(responseBody)
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
             ApiResult.fail()
         }
@@ -160,20 +142,19 @@ class AlbumsRepositoryImpl @Inject constructor(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): ApiResult<Comment> =
+        body: RequestBody
+    ): ApiResult<Boolean> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 albumsRemoteDataSource.putPhotoComments(albumId, photoId, commentID, body)
             }
 
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(CommentMapper(body))
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(responseBody)
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
             ApiResult.fail()
         }
@@ -181,21 +162,19 @@ class AlbumsRepositoryImpl @Inject constructor(
     override suspend fun deletePhotoComments(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): ApiResult<Void> =
+        commentID: String
+    ): ApiResult<Boolean> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                albumsRemoteDataSource.deletePhotoComments(albumId, photoId, commentID, body)
+                albumsRemoteDataSource.deletePhotoComments(albumId, photoId, commentID)
             }
 
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(body)
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(responseBody)
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
             ApiResult.fail()
         }

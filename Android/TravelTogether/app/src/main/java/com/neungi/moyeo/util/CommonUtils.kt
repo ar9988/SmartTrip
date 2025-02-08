@@ -1,14 +1,47 @@
 package com.neungi.moyeo.util
 
+import android.content.ContentResolver
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapShader
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.ImageDecoder
+import android.graphics.Paint
+import android.graphics.Shader
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.widget.TextView
+import androidx.palette.graphics.Palette
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 object CommonUtils {
 
     private val emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$".toRegex()
     private val passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()\\-_=+{}\\[\\]|;:'\",.<>?/]).{8,16}$".toRegex()
     private val phoneNumberRegex = "^010-\\d{4}-\\d{4}\$".toRegex()
+
+    private fun calculateLuminance(color: Int): Double {
+        val r = Color.red(color) / 255.0
+        val g = Color.green(color) / 255.0
+        val b = Color.blue(color) / 255.0
+
+        return 0.299 * r + 0.587 * g + 0.114 * b
+    }
+
+    private fun uriToBitmap(contentResolver: ContentResolver, uri: Uri): Bitmap? {
+        return try {
+            val source = ImageDecoder.createSource(contentResolver, uri)
+            ImageDecoder.decodeBitmap(source)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
     fun validateEmail(email: CharSequence): Boolean = emailRegex.matches(email)
 
@@ -26,5 +59,63 @@ object CommonUtils {
     }
 
     fun convertToYYYYMMDD(date: LocalDate?): String =
-        (date ?: LocalDate.now()).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+        (date ?: LocalDate.now()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+    fun formatDateTime(input: String): String {
+        if (input == "") return "1970.01.01"
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+        val outputFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+
+        val dateTime = LocalDateTime.parse(input, inputFormatter)
+        return dateTime.format(outputFormatter)
+    }
+
+    fun formatLongToDateTime(timestamp: Long): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+            .withZone(ZoneId.systemDefault())
+
+        return formatter.format(Instant.ofEpochMilli(timestamp))
+    }
+
+    fun drawableToBitmap(drawable: Drawable, size: Int = 144): Bitmap {
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        val paint = Paint().apply {
+            isAntiAlias = true
+            shader = BitmapShader(
+                Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also {
+                    val tempCanvas = Canvas(it)
+                    drawable.setBounds(0, 0, size, size)
+                    drawable.draw(tempCanvas)
+                },
+                Shader.TileMode.CLAMP, Shader.TileMode.CLAMP
+            )
+        }
+
+        val radius = size / 2F
+        canvas.drawCircle(radius, radius, radius, paint)
+
+        return bitmap
+    }
+
+    fun adjustTextColorFromBackgroundUri(context: Context, uri: Uri, textView: TextView) {
+        val bitmap = uriToBitmap(context.contentResolver, uri) ?: return
+
+        Palette.from(bitmap).generate { palette ->
+            val dominantColor = palette?.getDominantColor(Color.WHITE) ?: Color.WHITE
+            val luminance = calculateLuminance(dominantColor)
+
+            textView.setTextColor(if (luminance < 0.4) Color.WHITE else Color.BLACK)
+        }
+    }
+
+    fun initPlaceNumber(places: List<String>): Int {
+        var number = 1
+        places.sortedBy { it }.forEach { place ->
+            if (place == "장소 $number") { number++ }
+        }
+
+        return number
+    }
 }

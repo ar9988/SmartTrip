@@ -8,7 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.neungi.data.entity.RouteReceive
+import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerReceive
 import com.neungi.data.entity.ServerEvent
 import com.neungi.domain.model.*
@@ -28,7 +28,7 @@ class WebSocketManager @Inject constructor() {
 
     // 각 이벤트에 대한 콜백
     var onServerEventReceived: ((ServerReceive) -> Unit)? = null
-    var onRouteEventReceived: ((RouteReceive) -> Unit)? = null
+    var onRouteEventReceived: ((PathReceive) -> Unit)? = null
     var onScheduleEventReceived: ((ScheduleReceive) -> Unit)? = null
 
     private val webSocketListener = object : WebSocketListener() {
@@ -50,20 +50,27 @@ class WebSocketManager @Inject constructor() {
                     .create()
 
                 // 먼저 String으로 들어온 JSON이 유효한지 체크
+                if (text == "SUCCESS") {
+//                    Timber.d("Success")
+                    return
+                }
                 val jsonObject = JsonParser.parseString(text).asJsonObject
-                Timber.d(jsonObject.toString())
 
                 when {
+
                     jsonObject.has("status") -> {
                         val serverReceive = gson.fromJson(text, ServerReceive::class.java)
+//                        Timber.d(serverReceive.toString())
                         onServerEventReceived?.invoke(serverReceive)
                     }
-                    jsonObject.has("title") && jsonObject.has("tripId") && jsonObject.has("day") -> {
+                    jsonObject.has("title") -> {
                         val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
+//                        Timber.d(scheduleReceive.toString())
                         onScheduleEventReceived?.invoke(scheduleReceive)
                     }
-                    jsonObject.has("tripId") -> {
-                        val routeReceive = gson.fromJson(text, RouteReceive::class.java)
+                    jsonObject.has("paths") -> {
+                        val routeReceive = gson.fromJson(text, PathReceive::class.java)
+//                        Timber.d(routeReceive.toString())
                         onRouteEventReceived?.invoke(routeReceive)
                     }
                 }

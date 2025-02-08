@@ -4,10 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapShader
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Shader
 import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Bundle
@@ -45,6 +41,7 @@ import com.neungi.domain.model.Photo
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAlbumDetailBinding
+import com.neungi.moyeo.util.CommonUtils.drawableToBitmap
 import com.neungi.moyeo.util.MarkerData
 import com.neungi.moyeo.util.Permissions
 import com.neungi.moyeo.views.MainViewModel
@@ -195,6 +192,7 @@ class AlbumDetailFragment :
     private fun calculateRepresentativeCoordinate(cluster: List<MarkerData>): LatLng {
         val averageLatitude = cluster.map { it.photo.latitude }.average()
         val averageLongitude = cluster.map { it.photo.longitude }.average()
+
         return LatLng(averageLatitude, averageLongitude)
     }
 
@@ -207,7 +205,15 @@ class AlbumDetailFragment :
             marker.position = representativeCoordinate
             val customView = LayoutInflater.from(requireContext()).inflate(
                 R.layout.marker_cluster_icon, null
-            )
+            ).apply {
+                when (index % 3) {
+                    0 -> setBackgroundResource(R.drawable.ic_marker_red)
+
+                    1 -> setBackgroundResource(R.drawable.ic_marker_blue)
+
+                    2 -> setBackgroundResource(R.drawable.ic_marker_green)
+                }
+            }
             val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
             val firstPhotoUrl = cluster.second.first().photo.filePath
             Glide.with(requireContext())
@@ -248,27 +254,6 @@ class AlbumDetailFragment :
             }
             marker.map = naverMap
         }
-    }
-
-    fun drawableToBitmap(drawable: Drawable, size: Int = 144): Bitmap {
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-
-        val paint = Paint().apply {
-            isAntiAlias = true
-            shader = BitmapShader(
-                Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).also {
-                    val tempCanvas = Canvas(it)
-                    drawable.setBounds(0, 0, size, size)
-                    drawable.draw(tempCanvas)
-                },
-                Shader.TileMode.CLAMP, Shader.TileMode.CLAMP
-            )
-        }
-
-        val radius = size / 2f
-        canvas.drawCircle(radius, radius, radius, paint)
-        return bitmap
     }
 
     private fun initViews() {

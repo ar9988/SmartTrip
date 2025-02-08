@@ -19,7 +19,6 @@ class TripViewModel @Inject constructor(
     private val getTripUseCase: GetTripUseCase,
 
 ): ViewModel(){
-    private val BASE_URL = "http://43.202.51.112:8080/"
 
     private val _tripUiState = MutableStateFlow<TripUiState>(TripUiState())
     val tripUiState = _tripUiState.asStateFlow()
@@ -34,7 +33,7 @@ class TripViewModel @Inject constructor(
 
     }
 
-    init {
+    fun getTrip(){
         viewModelScope.launch {
             val result = getTripUseCase.getTrips(1)
             Timber.d(result.toString())

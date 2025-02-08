@@ -1,6 +1,7 @@
 package com.neungi.data.mapper
 
 import com.neungi.data.entity.AlbumEntity
+import com.neungi.data.util.CommonUtils.formatDateTime
 import com.neungi.domain.model.PhotoAlbum
 
 object AlbumsMapper {
@@ -15,8 +16,8 @@ object AlbumsMapper {
                     tripId = albumEntity.tripId.toString(),
                     title = albumEntity.tripTitle,
                     imageUrl = albumEntity.repImage,
-                    startDate = albumEntity.startDate,
-                    endDate = albumEntity.endDate
+                    startDate = formatDateTime(albumEntity.startDate),
+                    endDate = formatDateTime(albumEntity.endDate)
                 )
             )
         }

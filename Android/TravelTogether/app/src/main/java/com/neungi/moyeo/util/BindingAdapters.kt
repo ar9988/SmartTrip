@@ -9,19 +9,22 @@ import android.os.Build
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.transform.CircleCropTransformation
+import coil.transform.RoundedCornersTransformation
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.textfield.TextInputLayout
 import com.neungi.moyeo.R
+import com.neungi.moyeo.util.CommonUtils.adjustTextColorFromBackgroundUri
 import com.neungi.moyeo.views.auth.viewmodel.AuthUiState
 import java.time.LocalDate
 
@@ -50,12 +53,26 @@ fun ImageView.bindUriPhotoImage(uri: Uri?) {
     scaleType = ImageView.ScaleType.CENTER_CROP
 }
 
+@BindingAdapter("app:uriProfileImage")
+fun ImageView.bindUriProfileImage(uri: Uri?) {
+    if (uri != null) {
+        load(uri) {
+            error(R.drawable.ic_profile_empty)
+            transformations(CircleCropTransformation())
+        }
+    } else {
+        this.setImageResource(R.drawable.ic_profile_empty)
+    }
+    scaleType = ImageView.ScaleType.CENTER_CROP
+}
+
 /*** ConstraintLayout ***/
 @BindingAdapter("app:backgroundAlbumImage")
 fun ConstraintLayout.bindBackgroundAlbumImage(url: String) {
     Glide.with(this)
         .asBitmap()
         .placeholder(R.drawable.ic_theme_white)
+        .error(R.drawable.ic_theme_white)
         .load(url)
         .centerCrop()
         .into(object : CustomTarget<Bitmap>() {
@@ -66,16 +83,26 @@ fun ConstraintLayout.bindBackgroundAlbumImage(url: String) {
                 background = BitmapDrawable(resources, resource)
             }
 
+            override fun onLoadFailed(errorDrawable: Drawable?) {
+                background = errorDrawable
+            }
+
             override fun onLoadCleared(placeholder: Drawable?) {
                 background = placeholder
             }
         })
 }
 
+/*** TextView ***/
+@BindingAdapter("app:changeTextColor")
+fun TextView.bindChangeTextColor(uri: String) {
+    adjustTextColorFromBackgroundUri(context, uri.toUri(), this)
+}
+
 /*** EditText ***/
-@RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:normalEditText")
 fun EditText.bindEditTextCustomTheme(text: String) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     highlightColor = resources.getColor(R.color.colorPrimary, context.theme)
     textCursorDrawable = ContextCompat.getDrawable(context, R.drawable.shape_edit_text_cursor)
     val customTextSelectHandle = ContextCompat.getDrawable(context, R.drawable.shape_edit_text_handle)
@@ -93,9 +120,9 @@ fun EditText.bindEditTextCustomTheme(text: String) {
 }
 
 /*** TextInputLayout ***/
-@RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:validateEmail")
 fun TextInputLayout.bindValidateEmail(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
     cursorColor = color
     when (authUiState.loginEmailValidState) {
@@ -117,9 +144,9 @@ fun TextInputLayout.bindValidateEmail(authUiState: AuthUiState) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:validatePassword")
 fun TextInputLayout.bindValidatePassword(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
     cursorColor = color
     when (authUiState.loginPasswordValidState) {
@@ -141,9 +168,9 @@ fun TextInputLayout.bindValidatePassword(authUiState: AuthUiState) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:validateJoinEmail")
 fun TextInputLayout.bindValidateJoinEmail(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
     cursorColor = color
     when (authUiState.joinEmailValidState) {
@@ -166,9 +193,9 @@ fun TextInputLayout.bindValidateJoinEmail(authUiState: AuthUiState) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:validateJoinName")
 fun TextInputLayout.bindValidateJoinName(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
     cursorColor = color
     when (authUiState.joinNameValidState) {
@@ -191,9 +218,9 @@ fun TextInputLayout.bindValidateJoinName(authUiState: AuthUiState) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:validateJoinPhoneNumber")
 fun TextInputLayout.bindValidateJoinPhoneNumber(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
     cursorColor = color
     when (authUiState.joinPhoneNumberValidState) {
@@ -216,9 +243,9 @@ fun TextInputLayout.bindValidateJoinPhoneNumber(authUiState: AuthUiState) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:validateJoinPassword")
 fun TextInputLayout.bindValidateJoinPassword(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
     cursorColor = color
     when (authUiState.joinPasswordValidState) {
@@ -241,9 +268,9 @@ fun TextInputLayout.bindValidateJoinPassword(authUiState: AuthUiState) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
 @BindingAdapter("app:validateJoinPasswordAgain")
 fun TextInputLayout.bindValidateJoinPasswordAgain(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
     cursorColor = color
     when (authUiState.joinPasswordAgainValidState) {
@@ -264,6 +291,13 @@ fun TextInputLayout.bindValidateJoinPasswordAgain(authUiState: AuthUiState) {
 
         else -> {}
     }
+}
+
+@BindingAdapter("app:validateJoinProfileMessage")
+fun TextInputLayout.bindValidateJoinProfileMessage(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+    val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
+    cursorColor = color
 }
 
 /*** CardView ***/

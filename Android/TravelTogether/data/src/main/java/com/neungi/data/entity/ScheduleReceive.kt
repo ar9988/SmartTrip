@@ -18,5 +18,5 @@ data class Member(
 
 data class Day(
     val startTime: LocalDateTime,
-    val schedules: List<ScheduleData>  // 'schedule'이 아닌 'schedules'로 변경
+    val schedules: List<ScheduleData>
 )

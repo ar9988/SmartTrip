@@ -8,6 +8,8 @@ sealed class AuthUiEvent {
 
     data object GoToJoin : AuthUiEvent()
 
+    data object GetProfileImage : AuthUiEvent()
+
     data object JoinSuccess : AuthUiEvent()
 
     data object JoinFail : AuthUiEvent()

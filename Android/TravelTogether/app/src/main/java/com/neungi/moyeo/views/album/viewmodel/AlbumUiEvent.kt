@@ -14,16 +14,6 @@ sealed class AlbumUiEvent {
 
     data object SelectPhoto : AlbumUiEvent()
 
-    data object GetPhotoCommentsFail : AlbumUiEvent()
-
-    data object PhotoCommentSubmit : AlbumUiEvent()
-
-    data object PhotoCommentUpdate : AlbumUiEvent()
-
-    data object PhotoCommentDelete : AlbumUiEvent()
-
-    data object PhotoCommentDeleteFinish : AlbumUiEvent()
-
     data object BackToAlbumDetail : AlbumUiEvent()
 
     data object PhotoDuplicated : AlbumUiEvent()
@@ -38,5 +28,27 @@ sealed class AlbumUiEvent {
 
     data object FinishPhotoClassificationUpdate : AlbumUiEvent()
 
+    data object PhotoUploadFail : AlbumUiEvent()
+
     data object FinishPhotoUpload : AlbumUiEvent()
+
+    data object DeletePhotoSuccess : AlbumUiEvent()
+
+    data object DeletePhotoFail : AlbumUiEvent()
+
+    data object GetPhotoCommentsFail : AlbumUiEvent()
+
+    data object PhotoCommentSubmitSuccess : AlbumUiEvent()
+
+    data object PhotoCommentSubmitFail : AlbumUiEvent()
+
+    data object PhotoCommentUpdateSuccess : AlbumUiEvent()
+
+    data object PhotoCommentUpdateFail : AlbumUiEvent()
+
+    data object PhotoCommentDelete : AlbumUiEvent()
+
+    data object PhotoCommentDeleteFinish : AlbumUiEvent()
+
+    data object PhotoCommentDeleteFail : AlbumUiEvent()
 }

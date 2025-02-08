@@ -20,10 +20,10 @@ class AlbumsRemoteDataSourceImpl @Inject constructor(
     override suspend fun getAlbumPhotos(albumId: String): Response<List<PhotoEntity>> =
         albumsApi.getAlbumPhotos(albumId)
 
-    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Response<Boolean> =
+    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Response<List<PhotoEntity>> =
         albumsApi.postPhoto(photos, body)
 
-    override suspend fun deletePhoto(albumId: String, photoId: String): Response<Void> =
+    override suspend fun deletePhoto(albumId: String, photoId: String): Response<Boolean> =
         albumsApi.deletePhoto(albumId, photoId)
 
     override suspend fun putLocationName(albumId: String, photoId: String): Response<Void> =
@@ -38,23 +38,22 @@ class AlbumsRemoteDataSourceImpl @Inject constructor(
     override suspend fun postPhotoComments(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): Response<CommentEntity> =
+        body: RequestBody
+    ): Response<Boolean> =
         albumsApi.postPhotoComments(albumId, photoId, body)
 
     override suspend fun putPhotoComments(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): Response<CommentEntity> =
+        body: RequestBody
+    ): Response<Boolean> =
         albumsApi.putPhotoComments(albumId, photoId, commentID, body)
 
     override suspend fun deletePhotoComments(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): Response<Void> =
-        albumsApi.deletePhotoComments(albumId, photoId, commentID, body)
+        commentID: String
+    ): Response<Boolean> =
+        albumsApi.deletePhotoComments(albumId, photoId, commentID)
 }

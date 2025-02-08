@@ -31,6 +31,8 @@ interface OnAlbumClickListener {
 
     fun onClickFinishPhotoUpload()
 
+    fun onClickDeletePhoto()
+
     fun onClickCommentSubmit()
 
     fun onClickCommentUpdate(comment: Comment)

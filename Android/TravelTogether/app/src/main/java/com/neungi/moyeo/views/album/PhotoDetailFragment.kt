@@ -30,7 +30,7 @@ class PhotoDetailFragment :
 
     private fun initRecyclerView() {
         binding.adapter = PhotoCommentAdapter(viewModel)
-        binding.rvPhotoDetail.setHasFixedSize(true)
+        binding.rvPhotoDetail.setHasFixedSize(false)
     }
 
     private fun handleUiEvent(event: AlbumUiEvent) {
@@ -39,20 +39,41 @@ class PhotoDetailFragment :
                 showToastMessage(resources.getString(R.string.message_fail_to_get_photo_comments))
             }
 
+            is AlbumUiEvent.DeletePhotoSuccess -> {
+                showToastMessage(resources.getString(R.string.message_success_to_delete_photo))
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+
+            is AlbumUiEvent.DeletePhotoFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_delete_photo))
+            }
+
             is AlbumUiEvent.BackToAlbumDetail -> {
                 requireActivity().supportFragmentManager.popBackStack()
             }
 
-            is AlbumUiEvent.PhotoCommentSubmit -> {
+            is AlbumUiEvent.PhotoCommentSubmitSuccess -> {
                 showToastMessage(resources.getString(R.string.message_comment_submit))
             }
 
-            is AlbumUiEvent.PhotoCommentUpdate -> {
+            is AlbumUiEvent.PhotoCommentSubmitFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_comment_submit))
+            }
+
+            is AlbumUiEvent.PhotoCommentUpdateSuccess -> {
                 showToastMessage(resources.getString(R.string.message_comment_update))
+            }
+
+            is AlbumUiEvent.PhotoCommentUpdateFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_comment_update))
             }
 
             is AlbumUiEvent.PhotoCommentDelete -> {
                 findNavController().navigateSafely(R.id.action_photo_detail_to_photo_comment_delete)
+            }
+
+            is AlbumUiEvent.PhotoCommentDeleteFail -> {
+                showToastMessage(resources.getString(R.string.message_fail_to_comment_delete))
             }
 
             else -> {}

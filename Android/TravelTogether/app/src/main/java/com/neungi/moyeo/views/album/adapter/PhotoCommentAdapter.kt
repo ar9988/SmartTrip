@@ -9,6 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.neungi.domain.model.Comment
 import com.neungi.moyeo.databinding.ListPhotoCommentBinding
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class PhotoCommentAdapter(
     private val viewModel: AlbumViewModel
@@ -19,6 +23,19 @@ class PhotoCommentAdapter(
         fun bind(comment: Comment, viewModel: AlbumViewModel) {
             binding.comment = comment
             binding.vm = viewModel
+
+            CoroutineScope(Dispatchers.IO).launch {
+                viewModel.getUserId().collectLatest { id ->
+                    if (comment.userId != id) {
+                        with(binding) {
+                            ivModifyPhotoComment.visibility = View.GONE
+                            ivDeletePhotoComment.visibility = View.GONE
+                            ivUpdatePhotoComment.visibility = View.GONE
+                            ivCancelPhotoComment.visibility = View.GONE
+                        }
+                    }
+                }
+            }
 
             // 수정
             binding.ivModifyPhotoComment.setOnClickListener {

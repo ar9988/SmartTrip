@@ -31,13 +31,13 @@ interface AlbumsApi {
     suspend fun postPhoto(
         @Part files: List<MultipartBody.Part>,
         @Part("photoData") body: RequestBody
-    ): Response<Boolean>
+    ): Response<List<PhotoEntity>>
 
     @DELETE("albums/{albumId}/photos/{photoId}")
     suspend fun deletePhoto(
         @Path("albumId") albumId: String,
         @Path("photoId") photoId: String
-    ): Response<Void>
+    ): Response<Boolean>
 
     @PUT("albums/{albumId}/photos/{photoId}/location")
     suspend fun putLocationName(
@@ -55,22 +55,21 @@ interface AlbumsApi {
     suspend fun postPhotoComments(
         @Path("albumId") albumId: String,
         @Path("photoId") photoId: String,
-        @Body body: Comment
-    ): Response<CommentEntity>
+        @Body body: RequestBody
+    ): Response<Boolean>
 
     @PUT("albums/{albumId}/photos/{photoId}/comments/{commentId}")
     suspend fun putPhotoComments(
         @Path("albumId") albumId: String,
         @Path("photoId") photoId: String,
-        @Path("commentId") commentID: String,
-        @Body body: Comment
-    ): Response<CommentEntity>
+        @Path("commentId") commentId: String,
+        @Body body: RequestBody
+    ): Response<Boolean>
 
     @DELETE("albums/{albumId}/photos/{photoId}/comments/{commentId}")
     suspend fun deletePhotoComments(
         @Path("albumId") albumId: String,
         @Path("photoId") photoId: String,
-        @Path("commentId") commentID: String,
-        @Body body: Comment
-    ): Response<Void>
+        @Path("commentId") commentId: String,
+    ): Response<Boolean>
 }

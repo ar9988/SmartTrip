@@ -130,7 +130,7 @@
 
                 <!-- Map Fragment -->
                 <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/map_fragment"
+                    android:id="@+id/detail_map_fragment"
                     android:layout_marginHorizontal="15dp"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"

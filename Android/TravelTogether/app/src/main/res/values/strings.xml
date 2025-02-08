@@ -16,6 +16,8 @@
     <string name="text_trip_title">일정 이름</string>
     <string name="text_trip_start_date">여행 시작 날짜</string>
     <string name="text_trip_end_date">여행 종료 날짜</string>
+    <string name="description_bus_icon">bus image</string>
+    <string name="description_car_icon">car image</string>
 
     <!-- Album -->
     <string name="label_album">Album</string>
@@ -46,12 +48,20 @@
     <string name="text_hint_comment">100자 이내로 입력해주세요.</string>
     <string name="text_no_comment">아직 나눈 추억이 없어요.</string>
     <string name="message_photo_duplicated">이미 업로드하기로 결정한 사진입니다.</string>
+    <string name="message_photo_upload">이미지를 업로드했습니다.</string>
+    <string name="message_fail_to_upload_photo">이미지 업로드에 실패했습니다.</string>
     <string name="message_fail_to_get_photo_comments">남긴 추억 불러오기에 실패했습니다.</string>
+    <string name="message_success_to_delete_photo">이미지를 삭제했습니다.</string>
+    <string name="message_fail_to_delete_photo">이미지 삭제에 실패했습니다.</string>
     <string name="title_comment_delete">추억 삭제하기</string>
     <string name="text_comment_delete">남긴 추억을 삭제하시겠습니까?</string>
     <string name="text_delete">삭제하기</string>
     <string name="message_comment_submit">추억을 남겼습니다.</string>
+    <string name="message_fail_to_comment_submit">추억 남기기에 실패했습니다.</string>
     <string name="message_comment_update">추억을 수정했습니다.</string>
+    <string name="message_fail_to_comment_update">추억 수정에 실패했습니다.</string>
+    <string name="message_comment_delete">추억을 삭제했습니다.</string>
+    <string name="message_fail_to_comment_delete">추억 삭제에 실패했습니다.</string>
     <string name="description_photo_upload">이미지 업로드</string>
     <string name="description_photo_tab_layout">이미지 ViewPager</string>
     <string name="title_photo_place_classify">이미지 촬영 장소 편집</string>
@@ -61,6 +71,18 @@
 
     <!-- Setting -->
     <string name="label_setting">Setting</string>
+    <string name="text_my_travel">내 여행</string>
+    <string name="text_my_album">내 사진첩</string>
+    <string name="text_my_tour">관광지 찜 목록</string>
+    <string name="text_tour_search">관광지 검색</string>
+    <string name="text_settings">환경설정</string>
+    <string name="text_update_profile">프로필 수정</string>
+    <string name="text_permission_setting">권한 설정</string>
+    <string name="text_notification_setting">알림 설정</string>
+    <string name="text_logout">로그아웃</string>
+    <string name="text_information">고객 지원</string>
+    <string name="text_version">버전 정보</string>
+    <string name="text_version_value">v1.0.1</string>
 
     <!-- Auth -->
     <string name="label_login">Login</string>
@@ -78,8 +100,9 @@
     <string name="text_hint_join_phone_number">전화번호를 입력해주세요.</string>
     <string name="text_hint_join_password">비밀번호를 입력해주세요.</string>
     <string name="text_hint_join_password_again">비밀번호를 다시 입력해주세요.</string>
+    <string name="text_hint_join_profile_message">상태메시지를 입력해주세요.</string>
     <string name="message_join_fail">회원가입에 실패하였습니다.</string>
-
+    <string name="text_login_notice">로그인해주세요.</string>
 
     <!--AiPlanning-->
     <string name="local_planning">지역</string>

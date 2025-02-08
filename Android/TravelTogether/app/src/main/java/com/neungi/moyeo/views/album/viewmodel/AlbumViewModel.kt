@@ -10,7 +10,6 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
-import com.naver.maps.geometry.LatLng
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Comment
 import com.neungi.domain.model.Photo
@@ -21,15 +20,21 @@ import com.neungi.domain.usecase.GetAlbumsUseCase
 import com.neungi.domain.usecase.GetCommentsUseCase
 import com.neungi.domain.usecase.GetPhotoLocationsUseCase
 import com.neungi.domain.usecase.GetPhotosUseCase
+import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.moyeo.util.CommonUtils.convertToDegree
+import com.neungi.moyeo.util.CommonUtils.formatLongToDateTime
 import com.neungi.moyeo.util.EmptyState
+import com.neungi.moyeo.util.EnterState
 import com.neungi.moyeo.util.InputValidState
 import com.neungi.moyeo.util.MarkerData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -50,7 +55,8 @@ class AlbumViewModel @Inject constructor(
     private val getAlbumsUseCase: GetAlbumsUseCase,
     private val getCommentsUseCase: GetCommentsUseCase,
     private val getPhotoLocationsUseCase: GetPhotoLocationsUseCase,
-    private val getPhotosUseCase: GetPhotosUseCase
+    private val getPhotosUseCase: GetPhotosUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase
 ) : AndroidViewModel(application), OnAlbumClickListener {
 
     /****** UiState, UiEvent ******/
@@ -67,11 +73,11 @@ class AlbumViewModel @Inject constructor(
     private val _markers = MutableStateFlow<List<Pair<String, List<MarkerData>>>>(emptyList())
     val markers = _markers.asStateFlow()
 
-    private val _tempMarkers = MutableStateFlow<List<MarkerData>>(emptyList())
-    val tempMarkers = _tempMarkers.asStateFlow()
+    private val _tempPhotos = MutableStateFlow<List<MarkerData>>(emptyList())
+    val tempPhotos = _tempPhotos.asStateFlow()
 
-    private val _tempPlaces = MutableStateFlow<List<Pair<String, List<MarkerData>>>>(emptyList())
-    val tempPlaces = _tempPlaces.asStateFlow()
+    private val _newMarkers = MutableStateFlow<List<Pair<String, List<MarkerData>>>>(emptyList())
+    val newMarkers = _newMarkers.asStateFlow()
 
     private val _tempPlacesName = MutableStateFlow<String>("")
     val tempPlacesName = _tempPlacesName
@@ -129,7 +135,7 @@ class AlbumViewModel @Inject constructor(
     override fun onClickAlbum(photoAlbum: PhotoAlbum) {
         viewModelScope.launch {
             _selectedPhotoAlbum.value = photoAlbum
-            initPhotos() // 추후 Album ID로 Photo를 전부 가져오는 비즈니스 로직 작성
+            initPhotos()
         }
     }
 
@@ -221,9 +227,9 @@ class AlbumViewModel @Inject constructor(
     }
 
     override fun onClickUpdatePlaceName(index: Int) {
-        val newTempPlaces = _tempPlaces.value.toMutableList()
+        val newTempPlaces = _newMarkers.value.toMutableList()
         newTempPlaces[index] = Pair(_tempPlacesName.value, newTempPlaces[index].second)
-        _tempPlaces.value = newTempPlaces.toList()
+        _newMarkers.value = newTempPlaces.toList()
     }
 
     override fun onClickUpdatePhotoClassification(place: Int, index: Int) {
@@ -243,7 +249,7 @@ class AlbumViewModel @Inject constructor(
     override fun onClickFinishPhotoUpload() {
         viewModelScope.launch {
             val photos = mutableListOf<PhotoEntity>()
-            _tempPlaces.value.forEach { place ->
+            _newMarkers.value.forEach { place ->
                 place.second.forEach { photo ->
                     photos.add(
                         PhotoEntity(
@@ -265,57 +271,111 @@ class AlbumViewModel @Inject constructor(
 
                 val metadataPart = prepareMetadataPart(chunk)
 
-                getPhotosUseCase.submitPhoto(photoParts, metadataPart)
+                val response = getPhotosUseCase.submitPhoto(photoParts, metadataPart)
+                when (response.status == ApiStatus.SUCCESS) {
+                    false -> {
+                        _albumUiEvent.emit(AlbumUiEvent.PhotoUploadFail)
+                        return@launch
+                    }
+
+                    else -> {}
+                }
             }
             _albumUiEvent.emit(AlbumUiEvent.FinishPhotoUpload)
+            initPhotos()
+            initMarkers()
         }
     }
 
-    private fun prepareMetadataPart(photoEntities: List<PhotoEntity>): RequestBody {
-        val metadataList = photoEntities.map {
-            mapOf(
-                "place" to it.place,
-                "latitude" to it.latitude,
-                "longitude" to it.longitude,
-                "takenAt" to it.takenAt,
-                "albumId" to 1,
-                "userId" to 9,
-                "filePath" to "",
-            )
+    override fun onClickDeletePhoto() {
+        viewModelScope.launch {
+            val albumId = _selectedPhotoAlbum.value?.id ?: "-1"
+            val photoId = _selectedPhoto.value?.id ?: "-1"
+            val response = getPhotosUseCase.deletePhoto(albumId, photoId)
+            when ((response.status == ApiStatus.SUCCESS) && (response.data == true)) {
+                true -> {
+                    _albumUiEvent.emit(AlbumUiEvent.DeletePhotoSuccess)
+                    initPhotos()
+                    initMarkers()
+                }
+
+                false -> {
+                    _albumUiEvent.emit(AlbumUiEvent.DeletePhotoFail)
+                }
+            }
         }
-
-        val json = Gson().toJson(mapOf("photos" to metadataList))
-
-        Timber.d("Json: $json")
-        return json.toRequestBody("application/json".toMediaTypeOrNull())
     }
 
     override fun onClickCommentSubmit() {
         viewModelScope.launch {
-            submitComment()
-            getComments()
-            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmit)
+            val response = getCommentsUseCase.submitPhotoComment(
+                albumId = _selectedPhotoAlbum.value?.id ?: "",
+                photoId = _selectedPhoto.value?.id ?: "",
+                body = prepareComment(_commentInput.value)
+            )
+            when ((response.status == ApiStatus.SUCCESS) && (response.data == true)) {
+                true -> {
+                    _commentInput.value = ""
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmitSuccess)
+                    initComments()
+                }
+
+                else -> {
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmitFail)
+                }
+            }
         }
     }
 
     override fun onClickCommentUpdate(comment: Comment) {
         viewModelScope.launch {
-            updateComment(comment)
-            getComments()
-            _albumUiEvent.emit(AlbumUiEvent.PhotoCommentUpdate)
+            val response = getCommentsUseCase.modifyPhotoComment(
+                albumId = _selectedPhotoAlbum.value?.id ?: "",
+                photoId = _selectedPhoto.value?.id ?: "",
+                commentID = comment.id,
+                body = prepareComment(_commentUpdateInput.value)
+            )
+            when ((response.status == ApiStatus.SUCCESS) && (response.data == true)) {
+                true -> {
+                    initComments()
+                    _commentUpdateInput.value = ""
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentUpdateSuccess)
+                }
+
+                else -> {
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentUpdateFail)
+                }
+            }
         }
     }
 
     override fun onClickCommentDelete(comment: Comment) {
         viewModelScope.launch {
             _selectedPhotoComment.value = comment
+            initComments()
             _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDelete)
         }
     }
 
     override fun onClickCommentDeleteFinish() {
         viewModelScope.launch {
-            deleteComment()
+            _selectedPhotoComment.value?.let { comment ->
+                val response = getCommentsUseCase.deletePhotoComment(
+                    albumId = _selectedPhotoAlbum.value?.id ?: "",
+                    photoId = _selectedPhoto.value?.id ?: "",
+                    commentID = comment.id
+                )
+                when ((response.status == ApiStatus.SUCCESS) && (response.data == true)) {
+                    true -> {
+                        initComments()
+                        _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDeleteFinish)
+                    }
+
+                    else -> {
+                        _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDeleteFail)
+                    }
+                }
+            }
             _albumUiEvent.emit(AlbumUiEvent.PhotoCommentDeleteFinish)
         }
     }
@@ -342,12 +402,12 @@ class AlbumViewModel @Inject constructor(
 
     private fun initPhotos() {
         viewModelScope.launch {
-            val response = getPhotosUseCase.getPhotos(_selectedPhotoAlbum.value?.tripId ?: "-1")
+            val albumId = _selectedPhotoAlbum.value?.tripId ?: "-1"
+            val response = getPhotosUseCase.getPhotos(albumId)
             when (response.status) {
                 ApiStatus.SUCCESS -> {
                     val photos = response.data ?: emptyList()
                     _photos.value = photos
-                    Timber.d("Photos: ${_photos.value}")
                     _selectedPhotos.value = _photos.value
                     initMarkers()
                     _albumUiEvent.emit(AlbumUiEvent.GoToAlbumDetail)
@@ -363,19 +423,17 @@ class AlbumViewModel @Inject constructor(
     private fun initMarkers() {
         val newMarkers = mutableListOf<MarkerData>()
         _selectedPhotos.value.forEachIndexed { index, photo ->
-            newMarkers.add(MarkerData(index + 1, photo, null, true))
+            newMarkers.add(MarkerData(index + 1, photo, null, false))
         }
         _markers.value = newMarkers.groupBy { it.photo.photoPlace }
             .map { (place, markerList) -> place to markerList }
-        Timber.d("Markers: ${_markers.value}")
     }
 
     private fun initComments() {
         viewModelScope.launch {
-            val response = getCommentsUseCase.getPhotoComments(
-                _selectedPhoto.value?.albumId ?: "-1",
-                _selectedPhoto.value?.id ?: "-1"
-            )
+            val albumId = _selectedPhotoAlbum.value?.id ?: "-1"
+            val photoId = _selectedPhoto.value?.id ?: "-1"
+            val response = getCommentsUseCase.getPhotoComments(albumId, photoId)
             when (response.status) {
                 ApiStatus.SUCCESS -> {
                     val comments = response.data ?: emptyList()
@@ -500,26 +558,46 @@ class AlbumViewModel @Inject constructor(
         return Pair(0.0, 0.0)
     }
 
+    private fun prepareMetadataPart(photoEntities: List<PhotoEntity>): RequestBody {
+        val metadataList = photoEntities.map {
+            mapOf(
+                "place" to it.place,
+                "latitude" to it.latitude,
+                "longitude" to it.longitude,
+                "takenAt" to it.takenAt,
+                "albumId" to 1,
+                "userId" to 9,
+                "filePath" to "",
+            )
+        }
+        val json = Gson().toJson(mapOf("photos" to metadataList))
+
+        return json.toRequestBody("application/json".toMediaTypeOrNull())
+    }
+
     private fun initTempMarkers() {
         val newTempMarkers = mutableListOf<MarkerData>()
-        var index = 1
+        _selectedPhotos.value.forEachIndexed { index, photo ->
+            newTempMarkers.add(MarkerData(index + 1, photo, null, false))
+        }
+        var index = _selectedPhotos.value.size + 1
         for (i in 1 until _uploadPhotos.value.size) {
             val uploadPhoto = _uploadPhotos.value[i] as PhotoUploadUiState.UploadedPhoto
             val photo = Photo(
                 index.toString(),
-                "",
+                _selectedPhotoAlbum.value?.id ?: "",
                 "",
                 "",
                 uploadPhoto.photoUri.toString(),
                 uploadPhoto.latitude,
                 uploadPhoto.longitude,
-                "",
+                formatLongToDateTime(uploadPhoto.takenAt),
                 ""
             )
-            newTempMarkers.add(MarkerData(index, photo, uploadPhoto.body, false))
+            newTempMarkers.add(MarkerData(index, photo, uploadPhoto.body, true))
             index++
         }
-        _tempMarkers.value = newTempMarkers
+        _tempPhotos.value = newTempMarkers
     }
 
     /*** 로직 수정이 필요함 ***/
@@ -537,7 +615,7 @@ class AlbumViewModel @Inject constructor(
     }
 
     private fun updatePhotoPlace() {
-        val nowTempPlaces = _tempPlaces.value.toMutableList()
+        val nowTempPlaces = _newMarkers.value.toMutableList()
         val newTempPlaces = mutableListOf<Pair<String, List<MarkerData>>>()
         var flag = false
         val photo =
@@ -560,51 +638,15 @@ class AlbumViewModel @Inject constructor(
             newTempPlaces.add(Pair(_tempNewPlaceName.value, listOf(photo)))
         }
 
-        _tempPlaces.value = newTempPlaces
+        _newMarkers.value = newTempPlaces
         _tempClassifiedPhotoIndex.value = Pair(-1, -1)
     }
 
-    private suspend fun getComments() {
-        getCommentsUseCase.getPhotoComments(
-            albumId = _selectedPhotoAlbum.value?.id ?: "",
-            photoId = _selectedPhoto.value?.id ?: ""
-        )
-    }
+    private fun prepareComment(content: String): RequestBody {
+        val metadata = mapOf("content" to content)
+        val json = Gson().toJson(metadata)
 
-    private suspend fun submitComment() {
-        getCommentsUseCase.submitPhotoComment(
-            albumId = _selectedPhotoAlbum.value?.id ?: "",
-            photoId = _selectedPhoto.value?.id ?: "",
-            body = Comment(
-                id = "",
-                photoId = _selectedPhoto.value?.id ?: "",
-                author = "",
-                content = _commentInput.value,
-                createdAt = "",
-                updatedAt = ""
-            )
-        )
-    }
-
-    private suspend fun updateComment(comment: Comment) {
-        getCommentsUseCase.modifyPhotoComment(
-            albumId = _selectedPhotoAlbum.value?.id ?: "",
-            photoId = _selectedPhoto.value?.id ?: "",
-            commentID = comment.id,
-            body = comment
-        )
-    }
-
-    private suspend fun deleteComment() {
-        _selectedPhotoComment.value?.let { comment ->
-            getCommentsUseCase.deletePhotoComment(
-                albumId = _selectedPhotoAlbum.value?.id ?: "",
-                photoId = _selectedPhoto.value?.id ?: "",
-                commentID = comment.id,
-                body = comment
-            )
-            getComments()
-        }
+        return json.toRequestBody("application/json".toMediaTypeOrNull())
     }
 
     fun initPhotoPlaces() {
@@ -633,7 +675,17 @@ class AlbumViewModel @Inject constructor(
     }
 
     fun selectedPlace(placeName: String) {
-        _tempNewPlaceName.value = placeName
+        when (placeName == "직접 입력") {
+            true -> {
+                _tempNewPlaceName.value = ""
+                _albumUiState.update { it.copy(enterDirectlyState = EnterState.VALID) }
+            }
+
+            else -> {
+                _tempNewPlaceName.value = placeName
+                _albumUiState.update { it.copy(enterDirectlyState = EnterState.NONE) }
+            }
+        }
     }
 
     fun validNewPlaceName(placeName: CharSequence) {
@@ -680,13 +732,15 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    fun initTempPlaces(tags: List<String>, markers: List<List<MarkerData>>) {
-        val newTempPlaces = mutableListOf<Pair<String, List<MarkerData>>>()
-        tags.forEachIndexed { index, _ ->
-            newTempPlaces.add(Pair("장소 ${index + 1}", markers[index]))
+    fun initNewMarkers(tags: List<String>, markers: List<List<MarkerData>>) {
+        val newNewMarkers = mutableListOf<Pair<String, List<MarkerData>>>()
+        tags.forEachIndexed { index, tag ->
+            if (markers[index].isNotEmpty()) {
+                newNewMarkers.add(Pair(tag, markers[index]))
+            }
         }
 
-        _tempPlaces.value = newTempPlaces.toList()
+        _newMarkers.value = newNewMarkers.toList()
     }
 
     fun deleteUploadPhoto(index: Int) {
@@ -695,5 +749,10 @@ class AlbumViewModel @Inject constructor(
         _uploadPhotos.value = newPhotos
         initTempMarkers()
         validUploadPhotos()
+    }
+
+    fun getUserId(): Flow<String?> = flow {
+        val id = getUserInfoUseCase.getUserId().first()
+        emit(id)
     }
 }
