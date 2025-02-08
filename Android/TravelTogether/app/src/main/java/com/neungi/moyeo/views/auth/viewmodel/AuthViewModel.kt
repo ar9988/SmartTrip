@@ -1,6 +1,7 @@
 package com.neungi.moyeo.views.auth.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
@@ -65,14 +67,23 @@ class AuthViewModel @Inject constructor(
     private val _joinPasswordAgain = MutableStateFlow<String>("")
     val joinPasswordAgain = _joinPasswordAgain
 
+    private val _joinProfileMessage = MutableStateFlow<String>("")
+    val joinProfileMessage = _joinProfileMessage
+
+    private val _joinProfileImageUri = MutableStateFlow<Uri?>(null)
+    val joinProfileImageUri = _joinProfileImageUri.asStateFlow()
+
+    private val _joinProfileImageFile = MutableStateFlow<MultipartBody.Part?>(null)
+    val joinProfileImageFile = _joinProfileImageFile.asStateFlow()
+
     override fun onClickLogin() {
         viewModelScope.launch {
             val response = getAuthUseCase.login(makeLoginRequestBody())
-            when (response.status) {
-                ApiStatus.SUCCESS -> {
-                    val data = response.data
-                    data?.let { saveUserInfo(it) }
-                    _authUiEvent.emit(AuthUiEvent.LoginSuccess(getUserName().first()?:""))
+            val status = response.status
+            val data = response.data
+            when (status == ApiStatus.SUCCESS && data != null) {
+                true -> {
+                    saveUserInfo(data)
                 }
 
                 else -> {
@@ -85,6 +96,12 @@ class AuthViewModel @Inject constructor(
     override fun onClickJoin() {
         viewModelScope.launch {
             _authUiEvent.emit(AuthUiEvent.GoToJoin)
+        }
+    }
+
+    override fun onClickProfile() {
+        viewModelScope.launch {
+            _authUiEvent.emit(AuthUiEvent.GetProfileImage)
         }
     }
 
@@ -135,6 +152,7 @@ class AuthViewModel @Inject constructor(
             Timber.d("Name: ${userInfo.first.nickname}")
             setUserInfoUseCase.setUserProfile(userInfo.first.profile)
             initLoginInfo()
+            _authUiEvent.emit(AuthUiEvent.LoginSuccess(getUserName().first() ?: ""))
         }
     }
 
@@ -246,5 +264,22 @@ class AuthViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun validJoinProfileMessage(profileMessage: CharSequence) {
+        when (profileMessage.isBlank()) {
+            true -> {
+                _authUiState.update { it.copy(joinProfileMessageValidState = InputValidState.NONE) }
+            }
+
+            else -> {
+                _authUiState.update { it.copy(joinProfileMessageValidState = InputValidState.VALID) }
+            }
+        }
+    }
+
+    fun initProfile(uri: Uri?, file: MultipartBody.Part?) {
+        _joinProfileImageUri.value = uri
+        _joinProfileImageFile.value = file
     }
 }
