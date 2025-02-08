@@ -28,8 +28,8 @@ class ScheduleViewModel @Inject constructor(
     private val _serverEvents = MutableLiveData<ServerReceive>()
     val serverEvents: LiveData<ServerReceive> get() = _serverEvents
 
-    private val _pathEvents = MutableLiveData<PathReceive>()
-    val pathEvent: LiveData<PathReceive> get() = _pathEvents
+    private val _pathEvents = MutableLiveData<Path>()
+    val pathEvent: LiveData<Path> get() = _pathEvents
 
     private val _scheduleSections = MutableLiveData<List<Section>>()
     val scheduleSections: LiveData<List<Section>> get() = _scheduleSections
@@ -42,7 +42,9 @@ class ScheduleViewModel @Inject constructor(
         }
 
         webSocketManager.onRouteEventReceived = { pathReceive :PathReceive->
-            _pathEvents.postValue(pathReceive)
+            pathReceive.paths.forEach {
+                _pathEvents.postValue(it)
+            }
         }
 
         webSocketManager.onScheduleEventReceived = { scheduleReceive:ScheduleReceive ->

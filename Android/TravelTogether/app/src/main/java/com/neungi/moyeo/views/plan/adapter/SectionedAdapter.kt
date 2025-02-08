@@ -31,7 +31,8 @@ class SectionedAdapter(
         private const val VIEW_TYPE_SECTION_HEADER = 0
         private const val VIEW_TYPE_ITEM = 1
     }
-    var sections =  mutableListOf<Section>()
+
+    var sections = mutableListOf<Section>()
     var pathItems = mutableListOf<Path>()
     private var listItems = mutableListOf<ListItem>()
 
@@ -81,7 +82,10 @@ class SectionedAdapter(
         when (val item = listItems[position]) {
             is ListItem.SectionHeader -> (holder as SectionHeaderViewHolder).bind(item.data)
             is ListItem.Item -> {
-                (holder as ItemViewHolder).bind(item.data,pathItems.getOrNull(item.data.scheduleId))
+                (holder as ItemViewHolder).bind(
+                    item.data,
+                    pathItems.getOrNull(item.data.scheduleId)
+                )
             }
         }
     }
@@ -163,7 +167,6 @@ class SectionedAdapter(
     }
 
 
-
     inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
         RecyclerView.ViewHolder(binding.root) {
         //        private val textView: TextView = view.findViewById(R.id.tv_section_header)
@@ -185,9 +188,9 @@ class SectionedAdapter(
                 itemTouchHelper.startDrag(this)
                 true
             }
-            if(path == null){
+            if (path == null) {
                 binding.bottomSection.visibility = View.GONE
-            }else{
+            } else {
                 binding.bottomSection.visibility = View.VISIBLE
 //                binding.tvTravelTime.text = path.duration
             }
@@ -196,7 +199,7 @@ class SectionedAdapter(
     }
 
     fun getItem(position: Int): ListItem {
-        if(position < 0 || position >= listItems.size) {
+        if (position < 0 || position >= listItems.size) {
             throw IndexOutOfBoundsException("Invalid position")
         }
         return listItems[position]
@@ -255,15 +258,24 @@ class SectionedAdapter(
         notifyItemRemoved(position)  // 리사이클러뷰에 변경사항 알림
     }
 
-    fun updatePathInfo(pathEvent: PathReceive){
-        pathEvent.paths.forEach {
-            path: Path ->
-            listItems.forEachIndexed { position, item ->
-                if (item is ListItem.Item && item.data.scheduleId == path.sourceScheduleId) {
-//                    pathItems[item.data.scheduleId].duration = path.duration
-                    notifyItemChanged(position)
-                }
-            }
-        }
+    fun updatePathInfo(path: Path) {
+//        pathEvent.paths.forEach { path: Path ->
+//            listItems.forEachIndexed { position, item ->
+//                if (item is ListItem.Item && item.data.scheduleId == path.sourceScheduleId) {
+////                    pathItems[item.data.scheduleId].duration = path.duration
+//                    notifyItemChanged(position)
+//                }
+//            }
+//        }
+    }
+
+    fun setPathInfo(path: Path) {
+//        pathEvent.paths.forEach { path: Path ->
+//            listItems.forEachIndexed { position, item ->
+//                if (item is ListItem.Item && item.data.scheduleId == path.sourceScheduleId) {
+////                    pathItems[item.data.scheduleId].duration = path.duration
+//                }
+//            }
+//        }
     }
 }

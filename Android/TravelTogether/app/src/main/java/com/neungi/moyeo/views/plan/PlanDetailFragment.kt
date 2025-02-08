@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.CameraUpdate
+import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
@@ -41,9 +41,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private lateinit var sectionedAdapter: SectionedAdapter
     private lateinit var naverMap: NaverMap
     private var isUserDragging = false  // 드래그 상태 추적
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationSource: FusedLocationSource
-
+    private val pathOverlays = mutableMapOf<Int, PathOverlay>()
 
     override fun onResume() {
         super.onResume()
@@ -69,13 +67,41 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             sectionedAdapter.sections = sections.toMutableList()
             sectionedAdapter.buildListItems()
         }
-        viewModel.pathEvent.observe(viewLifecycleOwner) { pathEvent ->
-//            sectionedAdapter.updatePathInfo(pathEvent)
+        viewModel.pathEvent.observe(viewLifecycleOwner) { path ->
+            if(!isUserDragging){
+                sectionedAdapter.updatePathInfo(path)
+                pathOverlays[path.sourceScheduleId]?.let { pathOverlay ->
+                    removePathOverlay(pathOverlay)
+                    pathOverlays.remove(path.sourceScheduleId)
+                }
+                val overlay = PathOverlay().apply {
+                    coords = convertToLatLngList(path.path)
+                    color = 0xff0000ff.toInt()
+                    width = 10
+                }
+                overlay.map = naverMap
+                pathOverlays[path.sourceScheduleId] = overlay
+                pathOverlays[path.sourceScheduleId]?.map = naverMap
+                adjustCameraToPath(overlay)
+            }else{
+                sectionedAdapter.setPathInfo(path)
+            }
         }
         setupRecyclerView()
-        initFusedLocationClient()
+        initNaverMap()
         binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
+    private fun removePathOverlay(path: PathOverlay){
+        path.map = null
+    }
+
+    fun convertToLatLngList(path: List<List<Double>>): List<LatLng> {
+        return path.map { coords ->
+            // 각 List<Double>을 LatLng으로 변환 (coords[0] = latitude, coords[1] = longitude)
+            LatLng(coords[1], coords[0])
         }
     }
 
@@ -113,7 +139,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             layoutManager = LinearLayoutManager(requireContext())
             adapter = sectionedAdapter
             setHasFixedSize(true)
-//            itemAnimator = null // 애니메이션 비활성화
         }
 
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
@@ -140,37 +165,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
     }
 
-    private fun initFusedLocationClient() {
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        if (!hasPermission()) {
-            requestLocationPermission()
-        } else {
-            initNaverMap()
-        }
-    }
-
-    private fun requestLocationPermission() {
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            LOCATION_PERMISSION_REQUEST_CODE
-        )
-    }
-
-    private fun hasPermission(): Boolean {
-        for (permission in Permissions.LOCATION_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(requireContext(), permission)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                return false
-            }
-        }
-        return true
-    }
 
     private fun initNaverMap() {
-        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.detail_map_fragment) as MapFragment?
                 ?: MapFragment.newInstance().also {
@@ -182,10 +178,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
-        naverMap.locationSource = locationSource
-        naverMap.locationTrackingMode = LocationTrackingMode.Follow
-        naverMap.uiSettings.isLocationButtonEnabled = true
-
+        this.naverMap.uiSettings.isZoomControlEnabled = false
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -197,34 +190,52 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             return
         }
 
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                location?.let {
-                    naverMap.locationOverlay.run {
-                        isVisible = true
-                        position = LatLng(it.latitude, it.longitude)
-                    }
-
-                    // 경로 그리기
-                    val path = PathOverlay()
-                    path.coords = listOf(
-                        LatLng(37.57152, 126.97714),  // 예시 경로
-                        LatLng(37.56607, 126.98268),  // 예시 경로
-                        LatLng(37.56445, 126.97707),  // 예시 경로
-                        LatLng(37.55855, 126.97822)   // 예시 경로
-                    )
-
-                    // 경로를 지도에 추가
-                    path.map = naverMap
-
-                    // 경로의 마지막 위치로 카메라 이동
-                    val lastPosition = path.coords.last() // 경로의 마지막 좌표
-                    Timber.d(lastPosition.toString())
-                    val cameraUpdate = CameraUpdate.scrollTo(lastPosition)
-                    naverMap.moveCamera(cameraUpdate)
-                }
-            }
     }
+
+    private fun adjustCameraToPath(path: PathOverlay) {
+        // 경로의 시작점과 끝점을 얻기
+        val startLatLng = path.coords.first()  // 경로의 첫 번째 좌표
+        val endLatLng = path.coords.last()    // 경로의 마지막 좌표
+
+        // 중간 지점을 계산 (경로의 중앙 위치)
+        val centerLat = (startLatLng.latitude + endLatLng.latitude) / 2
+        val centerLng = (startLatLng.longitude + endLatLng.longitude) / 2
+        val centerLatLng = LatLng(centerLat, centerLng)
+
+        // 카메라 줌 레벨 계산 (경로의 범위를 기준으로 줌을 설정)
+        var zoom = 16.0
+        var minLat = Double.MAX_VALUE
+        var maxLat = Double.MIN_VALUE
+        var minLng = Double.MAX_VALUE
+        var maxLng = Double.MIN_VALUE
+
+        // 경로의 범위 계산 (최소 및 최대 경도/위도)
+        path.coords.forEach {
+            minLat = minOf(minLat, it.latitude)
+            maxLat = maxOf(maxLat, it.latitude)
+            minLng = minOf(minLng, it.longitude)
+            maxLng = maxOf(maxLng, it.longitude)
+        }
+
+        // 경로가 지도에 맞게 보이도록 줌 레벨을 조정
+        while (zoom >= 1.0) {
+            val cameraPosition = CameraPosition(centerLatLng, zoom)
+            naverMap.setCameraPosition(cameraPosition)
+
+            // 지도에서 경로 범위 확인
+            val bounds = naverMap.contentBounds
+            if (startLatLng.latitude in bounds.southWest.latitude..bounds.northEast.latitude &&
+                startLatLng.longitude in bounds.southWest.longitude..bounds.northEast.longitude &&
+                endLatLng.latitude in bounds.southWest.latitude..bounds.northEast.latitude &&
+                endLatLng.longitude in bounds.southWest.longitude..bounds.northEast.longitude) {
+                return // 경로가 지도 범위에 들어오면 종료
+            }
+
+            zoom -= 0.5  // 줌 레벨을 0.5씩 감소시킴
+        }
+    }
+
+
 
     companion object {
 

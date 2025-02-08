@@ -60,16 +60,17 @@ class WebSocketManager @Inject constructor() {
 
                     jsonObject.has("status") -> {
                         val serverReceive = gson.fromJson(text, ServerReceive::class.java)
-                        Timber.d(serverReceive.toString())
+//                        Timber.d(serverReceive.toString())
                         onServerEventReceived?.invoke(serverReceive)
                     }
                     jsonObject.has("title") -> {
                         val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
-                        Timber.d(scheduleReceive.toString())
+//                        Timber.d(scheduleReceive.toString())
                         onScheduleEventReceived?.invoke(scheduleReceive)
                     }
                     jsonObject.has("paths") -> {
                         val routeReceive = gson.fromJson(text, PathReceive::class.java)
+//                        Timber.d(routeReceive.toString())
                         onRouteEventReceived?.invoke(routeReceive)
                     }
                 }
