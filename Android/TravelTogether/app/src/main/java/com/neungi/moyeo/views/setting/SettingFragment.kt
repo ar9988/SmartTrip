@@ -24,7 +24,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
         binding.vm = viewModel
 
         collectLatestFlow(viewModel.settingUiEvent) { handleUiEvent(it) }
-        collectLatestFlow(mainViewModel.userLoginInfo){
+        collectLatestFlow(mainViewModel.userLoginInfo) {
             viewModel.getUserInfo()
         }
     }
@@ -32,6 +32,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
     override fun onResume() {
         super.onResume()
 
+        viewModel.getUserInfo()
         mainViewModel.setBnvState(true)
     }
 
@@ -40,11 +41,10 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
             is SettingUiEvent.GoToLogin -> {
                 findNavController().navigateSafely(R.id.action_setting_to_login)
             }
-            is SettingUiEvent.Logout ->{
+
+            is SettingUiEvent.Logout -> {
                 mainViewModel.logout()
             }
-
-            else -> {}
         }
     }
 }
