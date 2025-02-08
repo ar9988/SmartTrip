@@ -4,6 +4,7 @@ import com.neungi.data.api.AiPlanningApi
 import com.neungi.data.api.AlbumsApi
 import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
+import com.neungi.data.api.FCMApi
 import com.neungi.data.api.TripsApi
 import com.neungi.data.util.JwtInterceptor
 import com.squareup.moshi.Moshi
@@ -85,5 +86,11 @@ object NetworkModule {
     @Singleton
     fun provideAiPlanningApiService(@Named("Moyeo") retrofit: Retrofit): AiPlanningApi {
         return retrofit.create(AiPlanningApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFCMApiService(@Named("Moyeo") retrofit: Retrofit): FCMApi {
+        return retrofit.create(FCMApi::class.java)
     }
 }
