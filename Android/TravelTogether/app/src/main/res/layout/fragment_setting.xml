@@ -19,40 +19,441 @@
         android:layout_height="match_parent"
         tools:context=".views.setting.SettingFragment">
 
-        <TextView
-            android:id="@+id/tv_temp_login_setting"
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_start_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/pretendardbold"
-            android:onClick="@{() -> vm.onClickLogin()}"
-            android:text="@string/title_login"
-            android:textSize="@dimen/font_size_large"
-            android:visibility="@{(vm.userName.isBlank() == true) ? View.VISIBLE : View.GONE}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_top_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_profile_setting"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="@dimen/dp_medium"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/gl_top_setting"
+            app:uriProfileImage="@{vm.userProfileImage}" />
 
         <TextView
             android:id="@+id/tv_name_setting"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
             android:fontFamily="@font/pretendardbold"
             android:text="@{vm.userName}"
+            android:textAlignment="viewStart"
+            android:textColor="@color/neutral_100"
             android:textSize="@dimen/font_size_large"
-            android:visibility="@{(vm.userName.isBlank() == true) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toTopOf="@id/tv_profile_message_setting"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_profile_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_profile_setting" />
 
         <TextView
-            android:id="@+id/tv_temp_logout"
+            android:id="@+id/tv_profile_message_setting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@{vm.userProfileMessage}"
+            android:textAlignment="viewStart"
+            android:textColor="@color/neutral_70"
+            android:textSize="@dimen/font_size_medium"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_profile_setting"
+            app:layout_constraintEnd_toEndOf="@id/tv_name_setting"
+            app:layout_constraintStart_toStartOf="@id/tv_name_setting"
+            app:layout_constraintTop_toBottomOf="@id/tv_name_setting" />
+
+        <TextView
+            android:id="@+id/tv_login_notice_setting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:onClick="@{() -> vm.onClickLogin()}"
+            android:text="@string/text_login_notice"
+            android:textAlignment="viewStart"
+            android:textColor="@color/neutral_70"
+            android:textSize="@dimen/font_size_larger"
+            android:visibility="@{(vm.userId == null) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_profile_setting"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_profile_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_profile_setting" />
+
+        <View
+            android:id="@+id/line_first_setting"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/dp_medium"
+            android:background="@color/neutral_60"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_profile_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_travel_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/dp_larger"
+            android:src="@drawable/ic_travel"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/line_first_setting" />
+
+        <TextView
+            android:id="@+id/tv_travel_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/pretendardbold"
-            android:text="로그아웃"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_my_travel"
+            android:textColor="@color/neutral_100"
             android:textSize="@dimen/font_size_large"
-            android:onClick="@{() -> vm.onClickLogout()}"
-            android:visibility="@{(vm.userName.isBlank() == true) ? View.GONE : View.VISIBLE}"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_travel_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_travel_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_travel_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_album_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_album"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_travel_setting"
+            app:layout_constraintStart_toStartOf="@id/iv_search_setting"
+            app:layout_constraintTop_toTopOf="@id/tv_travel_setting" />
+
+        <TextView
+            android:id="@+id/tv_album_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_my_album"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_album_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_album_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_album_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_tour_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/dp_medium"
+            android:src="@drawable/ic_tour"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/iv_travel_setting" />
+
+        <TextView
+            android:id="@+id/tv_tour_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_my_tour"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_tour_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_tour_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_tour_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_search_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="@dimen/dp_largest"
+            android:src="@drawable/ic_tour_search"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_tour_setting"
+            app:layout_constraintStart_toEndOf="@id/tv_tour_setting"
+            app:layout_constraintTop_toTopOf="@id/tv_tour_setting" />
+
+        <TextView
+            android:id="@+id/tv_search_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_tour_search"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_search_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_search_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_search_setting" />
+
+        <View
+            android:id="@+id/line_second_setting"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/dp_larger"
+            android:background="@color/neutral_60"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_name_setting" />
+            app:layout_constraintTop_toBottomOf="@id/iv_tour_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_setting"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/dp_medium"
+            android:src="@drawable/ic_settings"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/line_second_setting" />
+
+        <TextView
+            android:id="@+id/tv_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardbold"
+            android:text="@string/text_settings"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_larger"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_profile_update_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/dp_larger"
+            android:src="@drawable/ic_profile_update"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/tv_setting" />
+
+        <TextView
+            android:id="@+id/tv_profile_update_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_update_profile"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_profile_update_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_profile_update_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_profile_update_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_permission_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_album"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_profile_update_setting"
+            app:layout_constraintStart_toStartOf="@id/iv_search_setting"
+            app:layout_constraintTop_toTopOf="@id/tv_profile_update_setting" />
+
+        <TextView
+            android:id="@+id/tv_permission_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_permission_setting"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_permission_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_permission_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_permission_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_notification_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/dp_medium"
+            android:src="@drawable/ic_tour"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/iv_profile_update_setting" />
+
+        <TextView
+            android:id="@+id/tv_notification_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_notification_setting"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_notification_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_notification_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_notification_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_logout_setting"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:onClick="@{() -> vm.onClickLogout()}"
+            android:src="@drawable/ic_logout"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_notification_setting"
+            app:layout_constraintStart_toStartOf="@id/iv_search_setting"
+            app:layout_constraintTop_toTopOf="@id/tv_notification_setting" />
+
+        <TextView
+            android:id="@+id/tv_logout_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardsemibold"
+            android:onClick="@{() -> vm.onClickLogout()}"
+            android:text="@string/text_logout"
+            android:textColor="@color/red"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_logout_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_logout_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_logout_setting" />
+
+        <View
+            android:id="@+id/line_third_setting"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/dp_larger"
+            android:background="@color/neutral_60"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_notification_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_information_setting"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/dp_medium"
+            android:src="@drawable/ic_information"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/line_third_setting" />
+
+        <TextView
+            android:id="@+id/tv_information_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardbold"
+            android:text="@string/text_information"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_larger"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_information_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_information_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_information_setting" />
+
+        <TextView
+            android:id="@+id/tv_version_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardbold"
+            android:text="@string/text_version"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/iv_information_setting" />
+
+        <TextView
+            android:id="@+id/tv_version_value_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_version_value"
+            android:textColor="@color/neutral_70"
+            android:textSize="@dimen/font_size_medium"
+            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_version_setting"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_setting"
+            app:layout_constraintTop_toTopOf="@id/tv_version_setting" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_information_logout_setting"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/dp_medium"
+            android:src="@drawable/ic_information"
+            android:visibility="@{(vm.userId == null) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/line_first_setting" />
+
+        <TextView
+            android:id="@+id/tv_information_logout_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardbold"
+            android:text="@string/text_information"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_larger"
+            android:visibility="@{(vm.userId == null) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@id/iv_information_logout_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_information_logout_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_information_logout_setting" />
+
+        <TextView
+            android:id="@+id/tv_version_logout_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_medium"
+            android:fontFamily="@font/pretendardbold"
+            android:text="@string/text_version"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_large"
+            android:visibility="@{(vm.userId == null) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/iv_information_logout_setting" />
+
+        <TextView
+            android:id="@+id/tv_version_value_logout_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/pretendardsemibold"
+            android:text="@string/text_version_value"
+            android:textColor="@color/neutral_70"
+            android:textSize="@dimen/font_size_medium"
+            android:visibility="@{(vm.userId == null) ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="@id/tv_version_logout_setting"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_setting"
+            app:layout_constraintTop_toTopOf="@id/tv_version_logout_setting" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_end_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_bottom_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="@dimen/dp_medium" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

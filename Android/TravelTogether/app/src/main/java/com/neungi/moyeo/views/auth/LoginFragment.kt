@@ -11,6 +11,7 @@ import com.neungi.moyeo.databinding.FragmentLoginBinding
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.auth.viewmodel.AuthUiEvent
 import com.neungi.moyeo.views.auth.viewmodel.AuthViewModel
+import com.neungi.moyeo.views.setting.viewmodel.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -18,6 +19,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
 
     private val viewModel: AuthViewModel by activityViewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
+    private val settingViewModel: SettingViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,6 +72,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
         when (event) {
             is AuthUiEvent.LoginSuccess -> {
                 mainViewModel.login()
+                settingViewModel.getUserInfo()
                 showToastMessage("${event.name}${resources.getString(R.string.text_login_success)}")
                 requireActivity().supportFragmentManager.popBackStack()
             }

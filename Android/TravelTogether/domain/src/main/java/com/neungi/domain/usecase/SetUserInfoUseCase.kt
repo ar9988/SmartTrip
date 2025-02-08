@@ -15,6 +15,9 @@ class SetUserInfoUseCase @Inject constructor(
 
     suspend fun setUserName(name: String) = dataStoreRepository.setUserName(name)
 
+    suspend fun setUserProfileMessage(message: String) =
+        dataStoreRepository.setUserProfileMessage(message)
+
     suspend fun setUserProfile(profile: String) = dataStoreRepository.setUserProfile(profile)
 
     suspend fun logOut() = dataStoreRepository.logout()

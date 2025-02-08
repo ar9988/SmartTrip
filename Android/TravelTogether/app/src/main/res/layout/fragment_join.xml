@@ -53,16 +53,29 @@
                 android:id="@+id/tv_description_join"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_medium"
                 android:fontFamily="@font/pretendardsemibold"
                 android:text="@string/text_join_description"
                 android:textAlignment="viewStart"
                 android:textColor="@color/neutral_90"
                 android:textSize="@dimen/font_size_medium"
-                app:layout_constraintBottom_toTopOf="@id/til_email_join"
+                app:layout_constraintBottom_toTopOf="@id/iv_profile_join"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_join"
                 app:layout_constraintStart_toEndOf="@id/gl_start_join"
                 app:layout_constraintTop_toBottomOf="@id/tv_title_join"
                 app:layout_constraintVertical_chainStyle="packed" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_profile_join"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="@dimen/dp_medium"
+                android:onClick="@{() -> vm.onClickProfile()}"
+                app:layout_constraintBottom_toTopOf="@id/til_email_join"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_join"
+                app:layout_constraintStart_toEndOf="@id/gl_start_join"
+                app:layout_constraintTop_toBottomOf="@id/tv_description_join"
+                app:uriProfileImage="@{vm.joinProfileImageUri}" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_email_join"
@@ -76,7 +89,7 @@
                 app:layout_constraintBottom_toTopOf="@id/til_name_join"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_join"
                 app:layout_constraintStart_toEndOf="@id/gl_start_join"
-                app:layout_constraintTop_toBottomOf="@id/tv_description_join"
+                app:layout_constraintTop_toBottomOf="@id/iv_profile_join"
                 app:validateJoinEmail="@{vm.authUiState}">
 
                 <androidx.appcompat.widget.AppCompatEditText
@@ -197,6 +210,7 @@
                 app:errorEnabled="true"
                 app:errorIconDrawable="@null"
                 app:hintEnabled="false"
+                app:layout_constraintBottom_toTopOf="@id/til_profile_message_join"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_join"
                 app:layout_constraintStart_toEndOf="@id/gl_start_join"
                 app:layout_constraintTop_toBottomOf="@id/til_password_join"
@@ -211,10 +225,42 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true"
                     android:hint="@string/text_hint_join_password_again"
-                    android:imeOptions="actionDone"
+                    android:imeOptions="actionNext"
                     android:inputType="textPassword"
                     android:onTextChanged="@{(passwordAgain, s, b, c) -> vm.validJoinPasswordAgain(passwordAgain)}"
                     android:text="@={vm.joinPasswordAgain}"
+                    android:textColor="@color/neutral_70"
+                    app:normalEditText="@{``}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_profile_message_join"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_medium"
+                app:errorEnabled="true"
+                app:errorIconDrawable="@null"
+                app:hintEnabled="false"
+                app:layout_constraintBottom_toTopOf="@id/btn_join"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_join"
+                app:layout_constraintStart_toEndOf="@id/gl_start_join"
+                app:layout_constraintTop_toBottomOf="@id/til_password_again_join"
+                app:validateJoinProfileMessage="@{vm.authUiState}">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/et_profile_message_join"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/shape_edit_text"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/text_hint_join_profile_message"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:onTextChanged="@{(profileMessage, s, b, c) -> vm.validJoinProfileMessage(profileMessage)}"
+                    android:text="@={vm.joinProfileMessage}"
                     android:textColor="@color/neutral_70"
                     app:normalEditText="@{``}" />
 
@@ -235,7 +281,7 @@
                 app:layout_constraintBottom_toTopOf="@id/gl_bottom_join"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_join"
                 app:layout_constraintStart_toEndOf="@id/gl_start_join"
-                app:layout_constraintTop_toBottomOf="@id/til_password_again_join" />
+                app:layout_constraintTop_toBottomOf="@id/til_profile_message_join" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/gl_end_join"

@@ -17,6 +17,8 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.transform.CircleCropTransformation
+import coil.transform.RoundedCornersTransformation
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -47,6 +49,19 @@ fun ImageView.bindUriPhotoImage(uri: Uri?) {
         }
     } else {
         this.setImageResource(R.drawable.ic_theme_white)
+    }
+    scaleType = ImageView.ScaleType.CENTER_CROP
+}
+
+@BindingAdapter("app:uriProfileImage")
+fun ImageView.bindUriProfileImage(uri: Uri?) {
+    if (uri != null) {
+        load(uri) {
+            error(R.drawable.ic_profile_empty)
+            transformations(CircleCropTransformation())
+        }
+    } else {
+        this.setImageResource(R.drawable.ic_profile_empty)
     }
     scaleType = ImageView.ScaleType.CENTER_CROP
 }
@@ -276,6 +291,13 @@ fun TextInputLayout.bindValidateJoinPasswordAgain(authUiState: AuthUiState) {
 
         else -> {}
     }
+}
+
+@BindingAdapter("app:validateJoinProfileMessage")
+fun TextInputLayout.bindValidateJoinProfileMessage(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+    val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
+    cursorColor = color
 }
 
 /*** CardView ***/

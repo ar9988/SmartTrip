@@ -21,6 +21,10 @@ interface DataStoreRepository {
 
     fun getUserName(): Flow<String?>
 
+    suspend fun setUserProfileMessage(message: String)
+
+    fun getUserProfileMessage(): Flow<String?>
+
     suspend fun setUserProfile(profile: String)
 
     fun getUserProfile(): Flow<String?>
@@ -28,6 +32,4 @@ interface DataStoreRepository {
     fun getLoginInfo():Flow<LoginInfo?>
 
     suspend fun logout()
-
-
 }

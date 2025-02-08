@@ -32,7 +32,7 @@ class DataStoreRepositoryImpl @Inject constructor(
                 throw it
             }
         }.map { preferences ->
-            preferences[JWT_TOKEN].toString()
+            preferences[JWT_TOKEN]
         }
 
     override suspend fun setUserId(id: String) {
@@ -50,7 +50,7 @@ class DataStoreRepositoryImpl @Inject constructor(
                 throw it
             }
         }.map { preferences ->
-            preferences[USER_ID].toString()
+            preferences[USER_ID]
         }
 
     override suspend fun setUserEmail(email: String) {
@@ -68,7 +68,7 @@ class DataStoreRepositoryImpl @Inject constructor(
                 throw it
             }
         }.map { preferences ->
-            preferences[USER_EMAIL].toString()
+            preferences[USER_EMAIL]
         }
 
     override suspend fun setUserName(name: String) {
@@ -86,7 +86,25 @@ class DataStoreRepositoryImpl @Inject constructor(
                 throw it
             }
         }.map { preferences ->
-            preferences[USER_NAME] ?: ""
+            preferences[USER_NAME]
+        }
+
+    override suspend fun setUserProfileMessage(message: String) {
+        dataStore.edit { preferences ->
+            preferences[USER_PROFILE_MESSAGE] = message
+        }
+    }
+
+    override fun getUserProfileMessage(): Flow<String?> =
+        dataStore.data.catch {
+            if (it is IOException) {
+                it.printStackTrace()
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            preferences[USER_PROFILE_MESSAGE]
         }
 
     override suspend fun setUserProfile(profile: String) {
@@ -104,7 +122,7 @@ class DataStoreRepositoryImpl @Inject constructor(
                 throw it
             }
         }.map { preferences ->
-            preferences[USER_PROFILE].toString()
+            preferences[USER_PROFILE]
         }
 
     override fun getLoginInfo(): Flow<LoginInfo?> =
@@ -119,14 +137,16 @@ class DataStoreRepositoryImpl @Inject constructor(
             val userId = preferences[USER_ID]
             val userEmail = preferences[USER_EMAIL]
             val userName = preferences[USER_NAME]
+            val userProfileMessage = preferences[USER_PROFILE_MESSAGE]
             val userProfile = preferences[USER_PROFILE]
 
-            // userId, userEmail, userName 중 하나라도 null이면 null 리턴
-            if (userId != null && userEmail != null && userName != null) {
+            // userId, userEmail, userName, userProfileMessage 중 하나라도 null이면 null 리턴
+            if (userId != null && userEmail != null && userName != null && userProfileMessage != null) {
                 LoginInfo(
                     userId = userId,
                     userEmail = userEmail,
                     userName = userName,
+                    userProfileMessage = userProfileMessage,
                     userProfileImg = userProfile
                 )
             } else {
@@ -144,13 +164,13 @@ class DataStoreRepositoryImpl @Inject constructor(
         }
     }
 
-
     companion object {
 
         private val JWT_TOKEN = stringPreferencesKey("jwt_token")
         private val USER_ID = stringPreferencesKey("user_id")
         private val USER_EMAIL = stringPreferencesKey("user_email")
         private val USER_NAME = stringPreferencesKey("user_name")
+        private val USER_PROFILE_MESSAGE = stringPreferencesKey("user_profile_message")
         private val USER_PROFILE = stringPreferencesKey("user_profile")
     }
 }
