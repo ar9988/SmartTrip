@@ -4,5 +4,5 @@ data class Path(
     val sourceScheduleId:Int,
     val targetScheduleId:Int,
     val path : List<List<Double>>,
-    var duration : Int?
+    var totalTime : Int?
 )

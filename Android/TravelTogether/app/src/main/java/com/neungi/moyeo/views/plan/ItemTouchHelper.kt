@@ -38,12 +38,6 @@ fun createItemTouchHelperCallback(
             val fromPosition = viewHolder.bindingAdapterPosition
             val toPosition = target.bindingAdapterPosition
 
-
-            // 현재 화면에 보이는 부분의 위치 저장
-            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-//            val firstVisible = layoutManager.findFirstVisibleItemPosition()
-//            val lastVisible = layoutManager.findLastVisibleItemPosition()
-
             // 드래그 제한 조건 처리
             val targetItem = adapter.getItem(toPosition)
             if (targetItem is ListItem.SectionHeader && targetItem.data.title == "1일차") {
@@ -56,16 +50,15 @@ fun createItemTouchHelperCallback(
             val upsideItem =
                 if (toPosition == 0) adapter.getItem(0) else adapter.getItem(toPosition - 1)
             val upsidePositionPath =
-                if (upsideItem is ListItem.SectionHeader) upsideItem.data.positionPath else (upsideItem as ListItem.Item).data.positionPath
+                if (upsideItem is ListItem.SectionHeader) upsideItem.data.positionPath+1 else (upsideItem as ListItem.Item).data.positionPath
 
             val downsidePositionPath = if (toPosition == adapter.itemCount - 1) {
                 val tmp = adapter.getItem(toPosition - 1)
                 if (tmp is ListItem.SectionHeader) {
                     // SectionHeader 처리
                     when (val fromItem = adapter.getItem(fromPosition)) {
-                        is ListItem.SectionHeader -> fromItem.data.positionPath + 1000
+                        is ListItem.SectionHeader -> fromItem.data.positionPath +1+ 1000
                         is ListItem.Item -> fromItem.data.positionPath + 1000
-                        else -> throw IllegalStateException("Unexpected item type")
                     }
                 } else if (tmp is ListItem.Item) {
                     tmp.data.positionPath + 1000
@@ -76,10 +69,10 @@ fun createItemTouchHelperCallback(
                 val tmp = adapter.getItem(toPosition + 1)
                 if (tmp is ListItem.SectionHeader) {
                     // SectionHeader 처리
-                    ((adapter.getItem(toPosition + 1) as ListItem.SectionHeader).data.positionPath)
+                    ((adapter.getItem(toPosition + 1) as ListItem.SectionHeader).data.positionPath+1)
                 } else if (tmp is ListItem.Item) {
                     // Item 처리
-                    (tmp as ListItem.Item).data.positionPath
+                    tmp.data.positionPath
                 } else {
                     // 다른 타입 처리 (예: ListItem이 아닌 경우)
                     throw IllegalStateException("Unexpected item type")
@@ -93,8 +86,6 @@ fun createItemTouchHelperCallback(
             )
             adapter.updateValue(toPosition, newPositionPath)
 
-
-//            layoutManager.scrollToPosition(fromPosition)
 
             Timber.d("onMove: $fromPosition -> $toPosition, ${((upsidePositionPath + downsidePositionPath) / 2)}")
             return true

@@ -47,12 +47,10 @@ class SectionedAdapter(
                     item.data.toTime = from.plusMinutes(item.data.duration.toLong())
                 } else {
                     val from = (listItems[position-1] as ListItem.Item).data.toTime
-                    if (from != null) {
-                        from.plusMinutes(pathItems[item.data.scheduleId]?.toLong() ?: 0)
-                    }
-                    item.data.fromTime = from
-                    if (from != null) {
-                        item.data.toTime = from.plusMinutes(item.data.duration.toLong())
+                    val adjustedFrom = from?.plusMinutes(pathItems[(listItems[position-1] as ListItem.Item).data.scheduleId]?.toLong() ?: 0)
+                    item.data.fromTime = adjustedFrom
+                    if (adjustedFrom != null) {
+                        item.data.toTime = adjustedFrom.plusMinutes(item.data.duration.toLong())
                     }
                 }
             }
@@ -122,12 +120,26 @@ class SectionedAdapter(
         var currentSection: MutableList<ScheduleData>? = null
 
         // positionPath로 정렬
-        val sortedItems = listItems.sortedBy {
-            when (it) {
-                is ListItem.SectionHeader -> it.data.positionPath
-                is ListItem.Item -> it.data.positionPath
+//        val sortedItems = listItems.sortedBy {
+//            when (it) {
+//                is ListItem.SectionHeader -> it.data.positionPath
+//                is ListItem.Item -> it.data.positionPath
+//            }
+//        }
+
+        val sortedItems = listItems.sortedWith(
+            compareBy<ListItem> {
+                when (it) {
+                    is ListItem.SectionHeader -> it.data.positionPath
+                    is ListItem.Item -> it.data.positionPath
+                }
+            }.thenByDescending {
+                when (it) {
+                    is ListItem.SectionHeader -> it.data.positionPath
+                    is ListItem.Item -> it.data.timeStamp
+                }
             }
-        }
+        )
 
         // 섹션별로 아이템 재구성
         sortedItems.forEach { item ->
@@ -175,6 +187,7 @@ class SectionedAdapter(
             }
         })
         // RecyclerView가 레이아웃을 계산 중인지 확인하고 안전하게 업데이트
+        buildTimeInfo()
         if (!recyclerView.isComputingLayout) {
             diffResult.dispatchUpdatesTo(this)
         } else {
@@ -183,7 +196,6 @@ class SectionedAdapter(
                 diffResult.dispatchUpdatesTo(this)
             }
         }
-        buildTimeInfo()
     }
 
 
@@ -276,8 +288,9 @@ class SectionedAdapter(
     }
 
     fun updatePathInfo(path: Path, isUserDragging: Boolean) {
-        pathItems[path.sourceScheduleId] = path.duration!!
+        pathItems[path.sourceScheduleId] = path.totalTime!!
         if(!isUserDragging) rebuildSections()
+
     }
 
 }
