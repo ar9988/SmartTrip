@@ -57,28 +57,30 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         binding.trip = viewModel.trip
         initNaverMap()
         viewModel.serverEvents.observe(viewLifecycleOwner) { event: ServerReceive ->
-            if (!isUserDragging) {
-                Timber.d("Received external event: $event")
-                sectionedAdapter.updatePosition(event)
-            } else {
-                sectionedAdapter.setPosition(event)
-                Timber.d("Ignoring external event during user drag")
-            }
+            sectionedAdapter.updatePosition(event,isUserDragging)
+//            if (!isUserDragging) {
+//                Timber.d("Received external event: $event")
+//                sectionedAdapter.updatePosition(event)
+//            } else {
+//                sectionedAdapter.setPosition(event)
+//                Timber.d("Ignoring external event during user drag")
+//            }
         }
         viewModel.scheduleSections.observe(viewLifecycleOwner) { sections ->
             Timber.d("start",sections.toString())
             sectionedAdapter.sections = sections.toMutableList()
             sectionedAdapter.buildListItems()
+            sectionedAdapter.rebuildSections()
         }
         viewModel.pathEvent.observe(viewLifecycleOwner) { path ->
             Timber.d(path.sourceScheduleId.toString())
+            paths[path.sourceScheduleId] = convertToLatLngList(path.path)
+            sectionedAdapter.updatePathInfo(path, isUserDragging)
             if(!isUserDragging){
-                sectionedAdapter.updatePathInfo(path)
-                paths[path.sourceScheduleId] = convertToLatLngList(path.path)
+//                sectionedAdapter.updatePathInfo(path)
                 paintPathToMap()
             }else{
-                sectionedAdapter.setPathInfo(path)
-                paths[path.sourceScheduleId] = convertToLatLngList(path.path)
+//                sectionedAdapter.setPathInfo(path)
             }
         }
         setupRecyclerView()

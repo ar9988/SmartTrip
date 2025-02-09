@@ -103,22 +103,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
-            <ImageView
-                android:id="@+id/ic_bus"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/baseline_directions_bus_24"
-                android:contentDescription="@string/description_bus_icon"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.3"/>
+<!--            <ImageView-->
+<!--                android:id="@+id/ic_bus"-->
+<!--                android:visibility="gone"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:src="@drawable/baseline_directions_bus_24"-->
+<!--                android:contentDescription="@string/description_bus_icon"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintHorizontal_bias="0.3"/>-->
             <ImageView
                 android:id="@+id/ic_car"
                 android:src="@drawable/baseline_directions_car_24"
-                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/description_car_icon"

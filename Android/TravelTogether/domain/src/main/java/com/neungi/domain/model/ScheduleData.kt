@@ -1,5 +1,7 @@
 package com.neungi.domain.model
 
+import java.time.LocalTime
+
 data class ScheduleData(
     val scheduleId: Int,
     val placeName: String,
@@ -9,4 +11,6 @@ data class ScheduleData(
     val lat: Double,
     val lng: Double,
     var duration: Int,
+    var fromTime : LocalTime?,
+    var toTime : LocalTime?
 )

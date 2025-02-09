@@ -19,6 +19,8 @@ import com.neungi.moyeo.util.ListItem
 import com.neungi.moyeo.util.ScheduleHeader
 import com.neungi.moyeo.util.Section
 import timber.log.Timber
+import java.sql.Time
+import java.time.LocalTime
 
 class SectionedAdapter(
     private val itemTouchHelper: ItemTouchHelper,
@@ -33,11 +35,28 @@ class SectionedAdapter(
     }
 
     var sections = mutableListOf<Section>()
-    var pathItems = mutableListOf<Path>()
+    val pathItems = mutableMapOf<Int, Int>()
     private var listItems = mutableListOf<ListItem>()
 
-    fun buildRouteInfo() {
-
+    private fun buildTimeInfo() {
+        listItems.forEachIndexed { position, item ->
+            if (item is ListItem.Item) {
+                if(listItems[position-1] is ListItem.SectionHeader){
+                    val from = LocalTime.of(9, 0)
+                    item.data.fromTime = from
+                    item.data.toTime = from.plusMinutes(item.data.duration.toLong())
+                } else {
+                    val from = (listItems[position-1] as ListItem.Item).data.toTime
+                    if (from != null) {
+                        from.plusMinutes(pathItems[item.data.scheduleId]?.toLong() ?: 0)
+                    }
+                    item.data.fromTime = from
+                    if (from != null) {
+                        item.data.toTime = from.plusMinutes(item.data.duration.toLong())
+                    }
+                }
+            }
+        }
     }
 
     fun buildListItems() {
@@ -84,7 +103,7 @@ class SectionedAdapter(
             is ListItem.Item -> {
                 (holder as ItemViewHolder).bind(
                     item.data,
-                    pathItems.getOrNull(item.data.scheduleId)
+                    pathItems[item.data.scheduleId]
                 )
             }
         }
@@ -164,6 +183,7 @@ class SectionedAdapter(
                 diffResult.dispatchUpdatesTo(this)
             }
         }
+        buildTimeInfo()
     }
 
 
@@ -181,9 +201,11 @@ class SectionedAdapter(
 
     inner class ItemViewHolder(private val binding: ItemScheduleBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: ScheduleData, path: Path?) {
+        fun bind(data: ScheduleData, path: Int?) {
             binding.titleSchedule.text = data.placeName
             binding.typeSchedule.text = data.positionPath.toString()
+            binding.tvFrom.text = data.fromTime.toString()
+            binding.tvTo.text = data.toTime.toString()
             binding.cardSchedule.setOnLongClickListener { view ->
                 itemTouchHelper.startDrag(this)
                 true
@@ -192,9 +214,8 @@ class SectionedAdapter(
                 binding.bottomSection.visibility = View.GONE
             } else {
                 binding.bottomSection.visibility = View.VISIBLE
-//                binding.tvTravelTime.text = path.duration
+                binding.tvTravelTime.text = path.toString()+"분"
             }
-
         }
     }
 
@@ -205,11 +226,16 @@ class SectionedAdapter(
         return listItems[position]
     }
 
-    fun getSectionTitle(sectionIndex: Int): String {
-        return sections[sectionIndex].head.title
-    }
+//    fun setPosition(event: ServerReceive) {
+//        listItems.forEachIndexed { position, item ->
+//            if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
+//                // positionPath 업데이트
+//                item.data.positionPath = event.operation.positionPath
+//            }
+//        }
+//    }
 
-    fun updatePosition(event: ServerReceive) {
+    fun updatePosition(event: ServerReceive, isUserDragging: Boolean) {
         Timber.d("Updating position of schedule ${event.operation.scheduleId} to ${event.operation.positionPath}")
         if (event.operation.action == "DELETE") {
             listItems.forEachIndexed { position, item ->
@@ -224,13 +250,13 @@ class SectionedAdapter(
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
                     item.data.positionPath = event.operation.positionPath
                     // 텍스트뷰 갱신을 위해 해당 위치의 아이템을 갱신
-                    notifyItemChanged(position)
+                    if(!isUserDragging) notifyItemChanged(position)
                 }
             }
 
         }
         // 섹션을 재구성하여 순서를 반영
-        rebuildSections()
+        if(!isUserDragging) rebuildSections()
     }
 
     fun updateValue(position: Int, newPositionPath: Int) {
@@ -238,15 +264,6 @@ class SectionedAdapter(
             (listItems[position] as ListItem.Item).data.copy(positionPath = newPositionPath),
             (listItems[position] as ListItem.Item).sectionIndex
         )
-    }
-
-    fun setPosition(event: ServerReceive) {
-        listItems.forEachIndexed { position, item ->
-            if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
-                // positionPath 업데이트
-                item.data.positionPath = event.operation.positionPath
-            }
-        }
     }
 
     fun uiUpdate(position: Int) {
@@ -258,24 +275,9 @@ class SectionedAdapter(
         notifyItemRemoved(position)  // 리사이클러뷰에 변경사항 알림
     }
 
-    fun updatePathInfo(path: Path) {
-//        pathEvent.paths.forEach { path: Path ->
-//            listItems.forEachIndexed { position, item ->
-//                if (item is ListItem.Item && item.data.scheduleId == path.sourceScheduleId) {
-////                    pathItems[item.data.scheduleId].duration = path.duration
-//                    notifyItemChanged(position)
-//                }
-//            }
-//        }
+    fun updatePathInfo(path: Path, isUserDragging: Boolean) {
+        pathItems[path.sourceScheduleId] = path.duration!!
+        if(!isUserDragging) rebuildSections()
     }
 
-    fun setPathInfo(path: Path) {
-//        pathEvent.paths.forEach { path: Path ->
-//            listItems.forEachIndexed { position, item ->
-//                if (item is ListItem.Item && item.data.scheduleId == path.sourceScheduleId) {
-////                    pathItems[item.data.scheduleId].duration = path.duration
-//                }
-//            }
-//        }
-    }
 }
