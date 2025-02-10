@@ -6,16 +6,12 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,29 +24,6 @@ public class OpenaiService {
     private static final String API_KEY = dotenv.get("OPENAI_API_KEY");
     private static final int MAX_TOKENS = 4096; // 최대 토큰 수 설정
 
-    // 프롬프트를 외부 파일에서 읽어오기
-    private String loadPromptTemplate() {
-        try {
-            // resources 폴더에서 텍스트 파일 읽기
-            String filePath = ResourceUtils.getFile("classpath:promptTemplate.txt").getAbsolutePath();
-            return new String(Files.readAllBytes(Paths.get(filePath)));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    // List<String>을 JSON 배열 형태로 변환하는 메서드
-    private String listToJsonArray(List<String> list) {
-        if (list != null && !list.isEmpty()) {
-            // org.json.JSONArray를 사용하여 List<String>을 JSON 배열 형식으로 변환
-            JSONArray jsonArray = new JSONArray(list);
-            return jsonArray.toString(); // JSON 배열 문자열 반환
-        }
-        return "[]"; // 비어있으면 빈 배열 반환
-    }
-
-
     public OpenaiResponseDto callOpenaiApi(OpenaiRequestDto requestDTO) {
         OpenaiResponseDto openaiResponseDto = null;
         try {
@@ -61,19 +34,51 @@ public class OpenaiService {
             requestBody.put("model", "gpt-4o-mini");
             requestBody.put("max_tokens", MAX_TOKENS);
 
-            // 외부 파일에서 프롬프트 템플릿을 로드
-            String promptTemplate = loadPromptTemplate();
-
-            // 요청 데이터로 프롬프트 템플릿을 동적으로 생성
-            String prompt = promptTemplate
-                    .replace("{startDate}", requestDTO.getStartDate())
-                    .replace("{startTime}", requestDTO.getStartTime())
-                    .replace("{endDate}", requestDTO.getEndDate())
-                    .replace("{endTime}", requestDTO.getEndTime())
-                    .replace("{destination}", listToJsonArray(requestDTO.getDestination())) // List<String>을 JSON 배열로 변환
-                    .replace("{places}", listToJsonArray(requestDTO.getPreferences().getPlaces())) // Preferences의 places 변환
-                    .replace("{theme}", listToJsonArray(requestDTO.getPreferences().getTheme())); // Preferences의 theme 변환
-
+            // 프롬프트에 공백을 제거.
+            String prompt = ""
+                    // 입력값 프롬프트
+                    + "startDate:" + requestDTO.getStartDate()
+                    + "startTime:" + requestDTO.getStartTime()
+                    + "endDate:" + requestDTO.getEndDate()
+                    + "endTime:" + requestDTO.getEndTime()
+                    + "destination:" +  requestDTO.getDestination()
+                    + "places:" + requestDTO.getPreferences().getPlaces()
+                    + "theme:" + requestDTO.getPreferences().getTheme()
+                    // 프롬프트 조건
+                    +
+                    "출력 데이터 형식\n" +
+                    "{\n" +
+                    "  \"title\": \"string\",        \n" +
+                    "  \"start_date\": \"string\",   \n" +
+                    "  \"end_date\": \"string\", \n" +
+                    "  \"destination\": [\"string\"],\n" +
+                    "  \"schedule\": {\n" +
+                    "    \"days\": [\n" +
+                    "      {\n" +
+                    "        \"date\": \"string\",\n" +
+                    "        \"activities\": [\n" +
+                    "          {\n" +
+                    "            \"name\": \"string\",\n" +
+                    "            \"duration\": number\n" +
+                    "            \"type\": number\n" +
+                    "            \"positionPath\": number\n" +
+                    "          }\n" +
+                    "        ]\n" +
+                    "      }\n" +
+                    "    ]\n" +
+                    "  }\n" +
+                    "}\n" +
+                    // 프롬프트 조건 작성
+                    "일정 생성 규칙은 아래와 같다.\n" +
+                    "1. 응답 형식\n" +
+                    "- JSON 형식으로만 응답\n" +
+                    "- 부가 설명 없이 JSON 데이터만 제공\n" +
+                    "- start_date, end_date는 \"YYYYMMDD\" 형식\n" +
+                    "- date 는 \"YYYY-MM-DD\" 형식\n" +
+                    "- name은 구체적인 장소명으로 작성 (예: \"북한산국립공원\", \"국립중앙박물관\")\n" +
+                    "- duration은 분 단위로 설정한다.\n" +
+                    "- type은 관광지는 1, 식사는 2로 설정한다.\n"  +
+                    "- positionPath는 '날짜*10000+1000*일정'으로 진행한다 (예: 첫날 10000,11000,12000 / 둘째날 20000, 21000, 22000)";
 
             JSONArray messages = new JSONArray();
             JSONObject message = new JSONObject();
