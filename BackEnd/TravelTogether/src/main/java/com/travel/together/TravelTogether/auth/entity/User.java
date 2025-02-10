@@ -36,6 +36,9 @@ public class User implements UserDetails {
     private String name;
 
     @Column(length = 200)
+    private String profile_image;
+
+    @Column(length = 200)
     private String profile;
 
     @Column(name = "created_at")

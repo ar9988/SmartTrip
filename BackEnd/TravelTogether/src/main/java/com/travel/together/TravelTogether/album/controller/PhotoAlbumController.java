@@ -5,6 +5,8 @@ import com.travel.together.TravelTogether.album.dto.*;
 import com.travel.together.TravelTogether.album.service.PhotoAlbumService;
 import com.travel.together.TravelTogether.album.service.PhotoService;
 import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.jwt.JwtTokenProvider;
+import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,20 +25,31 @@ public class PhotoAlbumController {
 
     private final PhotoAlbumService photoAlbumService;
     private final PhotoService photoService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userRepository;
 
-    public PhotoAlbumController(PhotoAlbumService photoAlbumService, PhotoService photoService) {
+    public PhotoAlbumController(PhotoAlbumService photoAlbumService,
+                                PhotoService photoService,
+                                JwtTokenProvider jwtTokenProvider,
+                                UserRepository userRepository) {
         this.photoAlbumService = photoAlbumService;
         this.photoService = photoService;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userRepository = userRepository;
     }
 
 
     // [GET] /albums
     // 전체 앨범 목록 조회
     @GetMapping
-    public ResponseEntity<List<PhotoAlbumResponseDto>> getUserAlbums(@AuthenticationPrincipal User user, HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        log.info("현재 로그인한 유저 ID: {}", user.getId());
-        log.info(token);
+    public ResponseEntity<List<PhotoAlbumResponseDto>> getUserAlbums(@RequestHeader("Authorization") String token) {
+
+        String jwtToken = token.replace("Bearer", "").trim();
+
+        String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
         List<PhotoAlbumResponseDto> albumList = photoAlbumService.getUserAlbums(user.getUserId());
         return ResponseEntity.ok(albumList);
     }
@@ -56,7 +69,13 @@ public class PhotoAlbumController {
             @PathVariable("albumId") int albumId,
             @RequestPart(value = "photoData") String photoDataJson,
             @RequestPart("files") List<MultipartFile> files,
-            @AuthenticationPrincipal User user) {
+            @RequestHeader("Authorization") String token) {
+
+        String jwtToken = token.replace("Bearer", "").trim();
+
+        String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         BatchPhotoRequestDto batchPhotoRequestDto = null;
         if (photoDataJson != null && !photoDataJson.isEmpty()) {
@@ -90,8 +109,14 @@ public class PhotoAlbumController {
     public ResponseEntity<Boolean> deletePhoto(
             @PathVariable int albumId,
             @PathVariable Integer photoId,
-            @AuthenticationPrincipal User user
+            @RequestHeader("Authorization") String token
     ) {
+        String jwtToken = token.replace("Bearer", "").trim();
+
+        String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
         Boolean isDeleted = photoService.deletePhoto(albumId, photoId, user.getId().longValue());
         return ResponseEntity.ok(isDeleted);
     }
