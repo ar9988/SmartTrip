@@ -104,4 +104,32 @@ public class CommentService {
         commentRepository.save(comment);
         return true;
     }
+
+    @Transactional
+    public Boolean deleteComment(int albumId, int photoId,  String userEmail, int commentId) {
+        // Photo 엔티티 조회
+        Photo photo = photoRepository.findById(photoId)
+                .orElseThrow(() -> new RuntimeException("Photo not found with id: " + photoId));
+
+        // Photo에 앨범 정보가 있고 검증이 필요하다면 아래와 같이 albumId 일치 여부를 체크합니다.
+        if (photo.getAlbum() == null || photo.getAlbum().getId() != albumId) {
+            throw new RuntimeException("Photo with id " + photoId + " does not belong to album " + albumId);
+        }
+
+        // User 엔티티 조회 (JWT에서 전달받은 userId 사용)
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
+
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not the owner of this comment");
+        }
+
+
+        // DB에 저장 후 반환
+        commentRepository.delete(comment);
+        return true;
+    }
 }

@@ -69,4 +69,18 @@ public class CommentController {
 
         return ResponseEntity.ok(isComplete);
     }
+
+    // [DELETE]
+    // 댓글 삭제
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Boolean> deleteComment(
+            @PathVariable int albumId,
+            @PathVariable Integer photoId,
+            @PathVariable int commentId,
+            @AuthenticationPrincipal User user)
+     {
+         String userEmail = user.getEmail();
+         Boolean isDeleted = commentService.deleteComment(albumId, photoId, userEmail, commentId);
+         return ResponseEntity.ok(isDeleted);
+    }
 }
