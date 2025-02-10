@@ -21,7 +21,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     private val tripViewModel: TripViewModel by activityViewModels()
     private val mainViewModel : MainViewModel by activityViewModels()
-    private val scheduleViewModel: ScheduleViewModel by activityViewModels()
     private lateinit var tripAdapter: TripAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -51,7 +50,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
     private fun setupRecyclerView() {
         tripAdapter = TripAdapter(
             onItemClick = { trip ->
-                scheduleViewModel.trip = trip
+                tripViewModel.trip = trip
                 Timber.d(trip.title)
                 findNavController().navigateSafely(R.id.action_plan_to_planDetail)
             },

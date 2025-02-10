@@ -29,6 +29,8 @@ class TripViewModel @Inject constructor(
     private val _trips = MutableStateFlow<List<Trip>>(emptyList())
     val trips = _trips.asStateFlow()
 
+    lateinit var trip:Trip
+
     fun deleteTrip(trip: Trip){
 
     }

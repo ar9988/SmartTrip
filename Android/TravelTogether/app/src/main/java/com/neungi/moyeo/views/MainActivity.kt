@@ -35,7 +35,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     private val aiPlanningViewModel: AIPlanningViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
     private val tripViewModel: TripViewModel by viewModels()
-    private val scheduleViewModel: ScheduleViewModel by viewModels()
     private val albumViewModel: AlbumViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
     private val settingViewModel: SettingViewModel by viewModels()

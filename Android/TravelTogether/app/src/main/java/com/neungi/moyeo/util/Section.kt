@@ -19,7 +19,7 @@ fun convertToSections(scheduleReceive: ScheduleReceive, trip: Trip): MutableList
         val sectionHeader = ScheduleHeader(
             dayId = index, // dayId는 0부터 시작
             title = (index+1).toString()+"일차 ("+trip.startDate.plusDays(((index+1).toLong())).format(formatter)+")",
-            positionPath = (index + 1)*10000
+            positionPath = ((index + 1)*10000-1)
         )
 
         // 각 Day의 schedule을 items로 설정
