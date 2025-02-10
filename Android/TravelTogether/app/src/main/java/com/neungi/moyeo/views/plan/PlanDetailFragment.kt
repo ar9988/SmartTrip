@@ -67,7 +67,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 //            }
         }
         viewModel.scheduleSections.observe(viewLifecycleOwner) { sections ->
-            Timber.d("start",sections.toString())
             sectionedAdapter.sections = sections.toMutableList()
             sectionedAdapter.buildListItems()
             sectionedAdapter.rebuildSections()
