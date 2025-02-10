@@ -1,8 +1,8 @@
 package com.travel.together.TravelTogether.aiPlanning.service;
 
 import com.travel.together.TravelTogether.aiPlanning.dto.*;
-import com.travel.together.TravelTogether.aiPlanning.entity.Aiplanning;
-import com.travel.together.TravelTogether.aiPlanning.repository.AiplanningRepository;
+import com.travel.together.TravelTogether.trip.entity.Schedule;
+import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AiplanningService {
-    private final AiplanningRepository aiplanningRepository;
+    private final ScheduleRepository scheduleRepository;
     private final KakaoService kakaoService;
 
     @Transactional
@@ -58,8 +58,11 @@ public class AiplanningService {
 
             KakaoDto place = kakaoResponse.getPlaces().get(0);
 
-            Aiplanning planningData = Aiplanning.builder()
+            Schedule planningData = Schedule.builder()
+                    .day(null)
+                    .trip(null)
                     .placeName(activity.getName())
+                    .orderNum(1)
                     .lat(place.getLatitude() != null ? place.getLatitude() : 0.0)  // 기본값 설정
                     .lng(place.getLongitude() != null ? place.getLongitude() : 0.0)
                     .type(activity.getType())
@@ -68,7 +71,7 @@ public class AiplanningService {
                     .build();
 
             System.out.println("Saving planning data: " + planningData);
-            aiplanningRepository.save(planningData);
+            scheduleRepository.save(planningData);
         } catch (Exception e) {
             System.out.println("Error processing activity " + activity.getName() + ": " + e.getMessage());
             e.printStackTrace();
