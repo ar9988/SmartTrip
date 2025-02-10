@@ -28,8 +28,9 @@ public class AiPlanningController {
 
     // POST 요청을 통해 prompt를 받아 OpenAI API 호출
     @PostMapping("/ai/generate")
-    public OpenaiResponseDto callOpenaiApi(@RequestBody OpenaiRequestDto requestDTO) {
-        return openaiService.callOpenaiApi(requestDTO); // 응답을 클라이언트에게 전달
+    public boolean callOpenaiApi(@RequestBody OpenaiRequestDto requestDTO) {
+        openaiService.callOpenaiApi(requestDTO);
+        return true; // 예외 처리 해야된다.
     }
 
     // 네이버 directions API 호출
