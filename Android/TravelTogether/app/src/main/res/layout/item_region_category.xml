@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
+        <variable
+            name="categoryName"
+            type="String" />
+    </data>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_region_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@{categoryName}"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+        app:rippleColor="@null"
+        android:elevation="0dp"
+        android:textSize="@dimen/font_size_large"
+        android:paddingHorizontal="@dimen/dp_small"
+        app:backgroundTint="@color/selector_chip_background"
+        android:textColor="@color/selector_chip_text"/>
+</layout>

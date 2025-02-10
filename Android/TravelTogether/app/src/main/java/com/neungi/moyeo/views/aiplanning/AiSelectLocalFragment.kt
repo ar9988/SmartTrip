@@ -1,18 +1,25 @@
 package com.neungi.moyeo.views.aiplanning
 
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.chip.Chip
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAiSelectLocalBinding
+import com.neungi.moyeo.databinding.ItemRegionCategoryBinding
 import com.neungi.moyeo.databinding.ItemSelectedLocalChipBinding
-import com.neungi.moyeo.views.aiplanning.adapters.RegionPagerAdapter
+import com.neungi.moyeo.views.aiplanning.adapters.LocationItemAdapter
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +31,10 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
 
     private val viewModel: AIPlanningViewModel by activityViewModels()
 
+    lateinit var locationItemAdapter: LocationItemAdapter
+
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -32,58 +43,58 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
         binding.toolbarAiLocalSelect.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
-//        binding.btnNext.setOnClickListener {
-//            findNavController().navigateSafely(R.id.action_ai_select_local_to_ai_destinaation)
-//        }
-//        binding.rvLocalBig.adapter = LocalAdapter(resources.getStringArray(R.array.local_big).toList())
-        setupViewPager()
+        setupToggleGroup()
+        setAdapter()
         observeStates()
 
     }
-    private fun setupViewPager() {
-        val viewPagerAdapter = RegionPagerAdapter(requireContext(),viewModel,viewLifecycleOwner)
-
-        binding.vpLocalDetail.adapter = viewPagerAdapter
-
-        // TabLayout과 ViewPager 연결
-        TabLayoutMediator(binding.tablayoutLocalBig, binding.vpLocalDetail) { tab, position ->
-            // Custom Chip View 생성 및 설정
-            val chip = layoutInflater.inflate(R.layout.item_local_big_chip, null) as Chip
-            chip.text = resources.getStringArray(R.array.local_big)[position]
-            tab.customView = chip
-        }.attach()
-
-        // 첫 번째 탭 선택 상태로 설정
-        val firstTab = binding.tablayoutLocalBig.getTabAt(0)?.customView as? Chip
-        firstTab?.isChecked = true
-        binding.tablayoutLocalBig.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                (tab?.customView as? Chip)?.isChecked = true
-
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                (tab?.customView as? Chip)?.isChecked = false
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-
-            }
-        })
+    private fun setAdapter() {
+        locationItemAdapter = LocationItemAdapter(viewModel,viewLifecycleOwner)
+        binding.rvDetailSelectLocal.adapter = locationItemAdapter
     }
 
 
 
-//    private fun setupRecyclerViews() {
-//        binding.rvLocalBig.adapter = headerAdapter
-//        binding.contentRecyclerView.adapter = contentAdapter
-//    }
+    private fun setupToggleGroup() {
+        val regions = resources.getStringArray(R.array.local_big).toList()
+        regions.forEach { categoryName ->
+            val buttonBinding = ItemRegionCategoryBinding.inflate(
+                LayoutInflater.from(requireContext()),
+                binding.toggleButtongroupCategory,
+                false
+            ).apply {
+                vm = viewModel
+                this.categoryName = categoryName
+                root.id = View.generateViewId()
+                executePendingBindings()
+            }
+
+
+            binding.toggleButtongroupCategory.addView(buttonBinding.root)
+        }
+        binding.toggleButtongroupCategory.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                val selectedButton = group.findViewById<MaterialButton>(checkedId)
+                viewModel.selectLocalTab(selectedButton.text.toString())
+            }
+        }
+        binding.toggleButtongroupCategory.check(binding.toggleButtongroupCategory.getChildAt(0).id)
+
+
+    }
 
     private fun observeStates() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.selectedLocations.collect { locations ->
                 updateSelectedLocationChips(locations)
             }
+        }
+        collectLatestFlow(viewModel.selectedLocalTab){ tab->
+            val regionId = viewModel.getRegionCategoryId(tab)
+            val localDetailList = resources.getStringArray(regionId)
+            locationItemAdapter.submitList(localDetailList.toList())
+
+
         }
         collectEvent()
     }
@@ -101,7 +112,7 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
 
             val chip = chipBinding.root
 
-            chip.setOnClickListener {  // closeIcon 대신 일반 클릭 리스너 사용
+            chip.setOnClickListener {
                 Timber.d(location)
                 viewModel.toggleLocationSelection(location)
             }
@@ -110,16 +121,11 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
         }
     }
 
-//    private fun updateLayout(state: RegionUiState) {
-//        binding.rvLocalBig.layoutManager = when(state.layoutType) {
-//            LayoutType.GRID -> GridLayoutManager(context, 3)
-//            else-> GridLayoutManager(context, 3)
-//        }
-////        binding.contentRecyclerView.visibility = when(state) {
-////            is RegionUiState.Grid -> View.GONE
-////            is RegionUiState.Horizontal -> View.VISIBLE
-////        }
-//    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+//        viewModel.selectLocalTab("특별")
+    }
+
 private fun collectEvent() {
     viewLifecycleOwner.lifecycleScope.launch {
         viewModel.aiPlanningUiEvent.collect { event ->

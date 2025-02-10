@@ -7,6 +7,7 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -27,6 +28,9 @@ class NotificationFragment: BaseFragment<FragmentNotificationBinding>(R.layout.f
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
+        binding.toolbarNotification.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
         setAdapter()
         collectLatestFlow(viewModel.notificationHistory){ history ->
             notificationAdapter.submitList(history)

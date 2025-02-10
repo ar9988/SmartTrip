@@ -10,10 +10,15 @@ import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import kotlinx.coroutines.launch
 
 class LocationItemAdapter(
-    private val locations: List<String>,
     private val viewModel: AIPlanningViewModel,
     private val lifecycleOwner: LifecycleOwner
 ) : RecyclerView.Adapter<LocationItemAdapter.ViewHolder>() {
+    private var locations: List<String> = emptyList()
+
+    fun submitList(data:List<String>){
+        locations = data
+        notifyDataSetChanged()
+    }
 
     class ViewHolder(val binding: ItemLocationBinding) : RecyclerView.ViewHolder(binding.root) {
 //        fun bind(location: String, onItemClick: (String) -> Unit) {
@@ -53,7 +58,6 @@ class LocationItemAdapter(
             viewModel.toggleLocationSelection(location)
             notifyItemChanged(position)
         }
-//            , onItemClick)
     }
 
     override fun getItemCount() = locations.size
