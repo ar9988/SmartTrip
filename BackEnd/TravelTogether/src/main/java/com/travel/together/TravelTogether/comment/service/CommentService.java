@@ -42,6 +42,7 @@ public class CommentService {
             responseDto.setPhotoId(comment.getPhoto().getId());
             responseDto.setAlbumId(comment.getPhoto().getAlbum().getId());
             responseDto.setContent(comment.getContent());
+            responseDto.setProfileImage(comment.getUser().getProfile_image());
             responseDto.setCreatedAt(comment.getCreatedAt());
             responseDto.setUpdatedAt(comment.getUpdatedAt());
             return responseDto;
