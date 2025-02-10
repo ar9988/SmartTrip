@@ -13,6 +13,7 @@ object TokenMapper {
                 passwordHash = "",
                 nickname = tokenEntity.name,
                 profile = tokenEntity.profile ?: "",
+                profileImage = tokenEntity.profileImage ?: "",
                 createdAt = "",
                 updatedAt = ""
             ),

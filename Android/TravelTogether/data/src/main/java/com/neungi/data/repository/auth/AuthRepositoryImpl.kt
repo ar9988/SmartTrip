@@ -8,6 +8,7 @@ import com.neungi.domain.repository.AuthRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import javax.inject.Inject
 
@@ -15,10 +16,10 @@ class AuthRepositoryImpl @Inject constructor(
     private val authRemoteDataSource: AuthRemoteDataSource
 ) : AuthRepository {
 
-    override suspend fun postSignUp(body: RequestBody): ApiResult<User> =
+    override suspend fun postSignUp(photoImage: MultipartBody.Part?, body: RequestBody): ApiResult<User> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                authRemoteDataSource.postSignUp(body)
+                authRemoteDataSource.postSignUp(photoImage, body)
             }
 
             val responseBody = response.body()

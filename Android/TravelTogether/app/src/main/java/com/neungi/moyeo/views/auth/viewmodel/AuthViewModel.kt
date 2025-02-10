@@ -109,7 +109,7 @@ class AuthViewModel @Inject constructor(
 
     override fun onClickJoinFinish() {
         viewModelScope.launch {
-            val response = getAuthUseCase.signUp(makeSignUpRequestBody())
+            val response = getAuthUseCase.signUp(_joinProfileImageFile.value, makeSignUpRequestBody())
             when (response.status) {
                 ApiStatus.SUCCESS -> {
                     initJoinInfo()
@@ -128,9 +128,7 @@ class AuthViewModel @Inject constructor(
             "email" to _joinEmail.value,
             "password" to _joinPassword.value,
             "name" to _joinName.value,
-            "created_at" to "",
-            "profile" to "",
-            "updated_at" to ""
+            "profile" to _joinProfileMessage.value
         )
         val json = Gson().toJson(metadata)
         return json.toRequestBody("application/json".toMediaTypeOrNull())
@@ -151,8 +149,8 @@ class AuthViewModel @Inject constructor(
             setUserInfoUseCase.setUserId(userInfo.first.id)
             setUserInfoUseCase.setUserEmail(userInfo.first.email)
             setUserInfoUseCase.setUserName(userInfo.first.nickname)
-            Timber.d("Name: ${userInfo.first.nickname}")
-            setUserInfoUseCase.setUserProfile(userInfo.first.profile)
+            setUserInfoUseCase.setUserProfile(userInfo.first.profileImage)
+            setUserInfoUseCase.setUserProfileMessage(userInfo.first.profile)
             initLoginInfo()
             _authUiEvent.emit(AuthUiEvent.LoginSuccess(getUserName().first() ?: ""))
         }
