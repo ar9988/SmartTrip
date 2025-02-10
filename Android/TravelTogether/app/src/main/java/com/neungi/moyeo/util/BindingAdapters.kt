@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
-import coil.transform.RoundedCornersTransformation
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -26,6 +25,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.neungi.moyeo.R
 import com.neungi.moyeo.util.CommonUtils.adjustTextColorFromBackgroundUri
 import com.neungi.moyeo.views.auth.viewmodel.AuthUiState
+import com.neungi.moyeo.views.setting.viewmodel.SettingUiState
 import java.time.LocalDate
 
 /*** ImageView***/
@@ -295,6 +295,38 @@ fun TextInputLayout.bindValidateJoinPasswordAgain(authUiState: AuthUiState) {
 
 @BindingAdapter("app:validateJoinProfileMessage")
 fun TextInputLayout.bindValidateJoinProfileMessage(authUiState: AuthUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+    val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
+    cursorColor = color
+}
+
+@BindingAdapter("app:validateUpdateName")
+fun TextInputLayout.bindValidateUpdateName(settingUiState: SettingUiState) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
+    val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
+    cursorColor = color
+    when (settingUiState.updateUserNameValidState) {
+        InputValidState.VALID -> {
+            helperText = "올바른 닉네임 형식입니다."
+            error = ""
+            defaultHintTextColor = color
+            setHelperTextColor(color)
+        }
+
+        InputValidState.BLANK -> {
+            error = "닉네임을 입력해주세요."
+        }
+
+        InputValidState.NONE -> {
+            error = "올바른 닉네임 형식이 아닙니다."
+        }
+
+        else -> {}
+    }
+}
+
+@BindingAdapter("app:validateUpdateProfileMessage")
+fun TextInputLayout.bindValidateUpdateProfileMessage(settingUiState: SettingUiState) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
     val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
     cursorColor = color

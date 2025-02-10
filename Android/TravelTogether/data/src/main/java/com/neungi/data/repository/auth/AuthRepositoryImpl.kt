@@ -1,5 +1,6 @@
 package com.neungi.data.repository.auth
 
+import android.util.Log
 import com.neungi.data.mapper.TokenMapper
 import com.neungi.data.mapper.UserMapper
 import com.neungi.domain.model.ApiResult
@@ -28,7 +29,6 @@ class AuthRepositoryImpl @Inject constructor(
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
             ApiResult.fail()
         }
@@ -45,8 +45,31 @@ class AuthRepositoryImpl @Inject constructor(
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
-
         } catch (e: Exception) {
+            ApiResult.fail()
+        }
+
+    override suspend fun patchProfile(
+        photoImage: MultipartBody.Part?,
+        body: RequestBody
+    ): ApiResult<User> =
+        try {
+            val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                authRemoteDataSource.patchProfile(photoImage, body)
+            }
+
+            Log.d("AuthRepositoryImpl", "file: $photoImage")
+            val responseBody = response.body()
+            Log.d("AuthRepositoryImpl", "postPhoto: $responseBody")
+            if (response.isSuccessful && (responseBody != null)) {
+                Log.d("AuthRepositoryImpl", "postPhoto Success: $responseBody")
+                ApiResult.success(UserMapper(responseBody))
+            } else {
+                Log.d("AuthRepositoryImpl", "postPhoto Not Success: ${response.errorBody().toString()}")
+                ApiResult.error(response.errorBody().toString(), null)
+            }
+        } catch (e: Exception) {
+            Log.d("AuthRepositoryImpl", "Fail: ${e.message}")
             ApiResult.fail()
         }
 

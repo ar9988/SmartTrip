@@ -42,9 +42,15 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
                 findNavController().navigateSafely(R.id.action_setting_to_login)
             }
 
+            is SettingUiEvent.GoToUpdateProfile -> {
+                findNavController().navigateSafely(R.id.action_setting_to_profile_update)
+            }
+
             is SettingUiEvent.Logout -> {
                 mainViewModel.logout()
             }
+
+            else -> {}
         }
     }
 }

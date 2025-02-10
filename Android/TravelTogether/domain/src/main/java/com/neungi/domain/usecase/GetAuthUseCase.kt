@@ -18,4 +18,8 @@ class GetAuthUseCase @Inject constructor(
     suspend fun login(body: RequestBody): ApiResult<Pair<User, String>> {
         return authRepository.postLogin(body)
     }
+
+    suspend fun updateProfile(photoImage: MultipartBody.Part?, body: RequestBody): ApiResult<User> {
+        return authRepository.patchProfile(photoImage, body)
+    }
 }

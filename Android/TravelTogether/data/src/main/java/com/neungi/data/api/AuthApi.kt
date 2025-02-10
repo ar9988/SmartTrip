@@ -7,6 +7,7 @@ import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
 
@@ -23,6 +24,13 @@ interface AuthApi {
     suspend fun postLogin(
         @Body body: RequestBody
     ): Response<TokenEntity>
+
+    @Multipart
+    @PATCH("auth/profile")
+    suspend fun patchProfile(
+        @Part files: MultipartBody.Part?,
+        @Part("profile_data") body: RequestBody
+    ): Response<UserEntity>
 
     @POST("auth/social/login")
     suspend fun postSocialLogin(
