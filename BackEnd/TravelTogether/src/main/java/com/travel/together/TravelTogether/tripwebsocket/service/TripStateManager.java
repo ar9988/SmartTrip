@@ -5,7 +5,9 @@ import com.travel.together.TravelTogether.aiPlanning.dto.DirectionsResponseDto;
 import com.travel.together.TravelTogether.aiPlanning.service.DirectionsService;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
-import com.travel.together.TravelTogether.tripwebsocket.dto.*;
+import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
+import com.travel.together.TravelTogether.tripwebsocket.dto.PathGenerationCallback;
+import com.travel.together.TravelTogether.tripwebsocket.dto.PathInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,49 +42,6 @@ public class TripStateManager {
     // schedule position 관리 (tripId -> (scheduleId -> position))
     private final Map<Integer, Map<Integer, Integer>> tripSchedulePositions;
 
-    // DB 초기상태 저장용 Map (tripId -> (scheduleId -> ScheduleDTO))
-    private final Map<Integer, Map<Integer, ScheduleDTO>> tripScheduleMap = new ConcurrentHashMap<>();
-
-
-    // DB에서 읽어온 tripDetail 저장
-    private final Map<Integer, TripDetailDTO> tripDetailMap = new ConcurrentHashMap<>();
-
-    // getter 추가
-    public TripDetailDTO getTripDetail(Integer tripId) {
-        log.info("getTripDetail called with tripId: {} -> result: {}",
-                tripId, tripDetailMap.get(tripId));  // 로그 추가
-
-        return tripDetailMap.get(tripId);
-    }
-
-    public void initializeFromTripDetail(Integer tripId, TripDetailDTO tripDetail) {
-
-        // tripDetail 저장
-        tripDetailMap.put(tripId, tripDetail);
-
-        Map<Integer, ScheduleDTO> scheduleMap = new ConcurrentHashMap<>();
-
-        // DayDto에서 모든 schedule 추출하여 Map으로 저장 (scheduleId를 key로)
-        for (DayDto dayDto : tripDetail.getDayDtos()) {
-            for (ScheduleDTO schedule : dayDto.getSchedules()) {
-                scheduleMap.put(schedule.getId(), schedule);
-            }
-        }
-
-        tripScheduleMap.put(tripId, scheduleMap);
-        log.info("Initialized schedules for tripId {}: {} schedules",
-                tripId, scheduleMap.size());
-    }
-
-    // tripScheduleMap의 getter 추가
-    public Map<Integer, Map<Integer, ScheduleDTO>> getTripScheduleMap() {
-        return tripScheduleMap;
-    }
-
-
-
-
-
 
     // 작업 내용 추가
     public synchronized void addEdit(Integer tripId, EditRequest editRequest) {
@@ -99,14 +58,6 @@ public class TripStateManager {
         Map<Integer, Integer> schedulePositions = tripSchedulePositions.computeIfAbsent(tripId,
                 k -> new ConcurrentHashMap<>());
         schedulePositions.put(scheduleId, positionPath);
-
-        // scheduleMap의 DTO도 업데이트
-        Map<Integer, ScheduleDTO> scheduleMap = tripScheduleMap.get(tripId);
-        if (scheduleMap != null && scheduleMap.containsKey(scheduleId)) {
-            ScheduleDTO schedule = scheduleMap.get(scheduleId);
-            schedule.setPositionPath(positionPath);
-        }
-
     }
 
     // 특정 trip의 전체 작업 내역 조회
@@ -146,6 +97,24 @@ public class TripStateManager {
         }
     }
 
+
+//    // Path 정보를 담을 클래스
+//    @Getter
+//    @Setter
+//    public static class PathInfo {
+//        private final Integer sourceScheduleId;
+//        private final Integer targetScheduleId;
+//        private final List<List<Double>> path;
+//        private Integer totalTime;
+//
+//
+//        public PathInfo(Integer sourceScheduleId, Integer targetScheduleId, List<List<Double>> path, Integer totalTime) {
+//            this.sourceScheduleId = sourceScheduleId;
+//            this.targetScheduleId = targetScheduleId;
+//            this.path = path;
+//            this.totalTime = totalTime;
+//        }
+//    }
     public boolean hasPositions(Integer tripId) {
         Map<Integer, Integer> positions = tripSchedulePositions.get(tripId);
         return positions != null && !positions.isEmpty();
@@ -201,22 +170,15 @@ public class TripStateManager {
 
             // 연속된 일정 간의 모든 경로 생성
             for (int i = 0; i < orderedScheduleIds.size() - 1; i++) {
-                int currentPosition = positions.get(orderedScheduleIds.get(i));
-                int nextPosition = positions.get(orderedScheduleIds.get(i + 1));
+                Schedule source = scheduleMap.get(orderedScheduleIds.get(i));
+                Schedule target = scheduleMap.get(orderedScheduleIds.get(i + 1));
 
-                if (currentPosition / 10000 == nextPosition / 10000) {
-                    Schedule source = scheduleMap.get(orderedScheduleIds.get(i));
-                    Schedule target = scheduleMap.get(orderedScheduleIds.get(i + 1));
+                PathInfo pathInfo = generatePath(source, target);
+                if (pathInfo != null) {
+                    paths.add(pathInfo);
+                    log.info("Successfully added path between {} and {}", source.getId(), target.getId());
 
-                    PathInfo pathInfo = generatePath(source, target);
-                    if (pathInfo != null) {
-                        paths.add(pathInfo);
-                        log.info("Successfully added path between {} and {}", source.getId(), target.getId());
-
-                    }
                 }
-
-
             }
 
             log.info("Generated paths count: {}", paths.size());

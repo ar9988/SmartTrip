@@ -1,11 +1,8 @@
 package com.travel.together.TravelTogether.tripwebsocket.dto;
 
-import com.travel.together.TravelTogether.trip.entity.Schedule;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -13,6 +10,8 @@ import java.util.List;
 public class AddRequest {
     // tripId, dayId, placeName, type,action
     private String action;
-    private List<Schedule> Schedule;
+    private Integer tripId;
+    private Integer dayId;
+    private Integer type;   // 0번 점심, 1번 일정
 
 }
