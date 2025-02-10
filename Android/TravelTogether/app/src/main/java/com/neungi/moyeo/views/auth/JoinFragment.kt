@@ -35,7 +35,7 @@ class JoinFragment : BaseFragment<FragmentJoinBinding>(R.layout.fragment_join) {
                 path?.let {
                     val file = File(path)
                     val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
+                    val body = MultipartBody.Part.createFormData("profile_image", file.name, requestBody)
                     viewModel.initProfile(uri, body)
                 }
             } ?: showToastMessage(resources.getString(R.string.message_select_picture))
@@ -55,7 +55,7 @@ class JoinFragment : BaseFragment<FragmentJoinBinding>(R.layout.fragment_join) {
                     val path = absolutelyPath(uri)
                     val file = File(path.toString())
                     val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
+                    val body = MultipartBody.Part.createFormData("profile_image", file.name, requestBody)
                     viewModel.initProfile(uri, body)
                 } ?: showToastMessage(resources.getString(R.string.message_select_picture))
             }
