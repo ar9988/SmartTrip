@@ -150,6 +150,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             for (DayDto day : currentTripDetail.getDayDtos()) {
                 for (ScheduleDTO schedule : day.getSchedules()) {
                     Integer position = currentPositions.get(schedule.getId());
+                    log.info("Schedule ID: {}, Current Position: {}", schedule.getId(), position);
+
                     if (position != null) {
                         schedule.setPositionPath(position);
                     }
