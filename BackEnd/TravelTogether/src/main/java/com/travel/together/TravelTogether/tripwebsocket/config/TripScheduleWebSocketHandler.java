@@ -3,6 +3,8 @@ package com.travel.together.TravelTogether.tripwebsocket.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.trip.entity.Schedule;
+import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripScheduleCache;
 import com.travel.together.TravelTogether.tripwebsocket.dto.*;
@@ -14,16 +16,18 @@ import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 @Slf4j
 @Component
@@ -36,6 +40,9 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     private final TripScheduleCache scheduleCache;
     private final TripStateManager stateManager;
     private final TripService tripService;
+    private final ScheduleRepository scheduleRepository;
+    private final ExecutorService executorService;
+
 
 
     // tripId를 키로 하고, 해당 여행의 접속자들의 세션을 값으로 가지는 Map
@@ -86,62 +93,65 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             log.info("Operation received: {}", operation.getAction());
 
 
-
-
-            // 모든 작업 캐시에 저장
-//            editCache.addEdit(tripId, editRequest);
-//            editCache.addEdit(tripId.toString(), editRequest);
-            // 모든 작업 StateManager에서 관리
             stateManager.addEdit(tripId, editRequest);
 
 
 
             switch (operation.getAction()) {
                 case "START":
-                    try {
-                        log.info("GET START");
-                        TripDetailDTO tripDetail = tripService.getTripDetailById(tripId);
-                        TripDetailResponse response = new TripDetailResponse(
-                                tripId,
-                                tripDetail.getTitle(),
-                                tripDetail.getMembers(),
-                                tripDetail.getDayDtos(),
-                                tripDetail.getCreatedAt(),
-                                tripDetail.getUpdatedAt()
-                        );
-                        String jsonResponse = objectMapper.writeValueAsString(response);
-                        session.sendMessage(new TextMessage(jsonResponse));
-                    } catch (Exception e) {
-                        log.error("Error processing START action", e);
-                        session.sendMessage(new TextMessage("{\"error\": \"Failed to process START action\"}"));
-                    }
+                    handleStartOperation(session, tripId);
+//                    try {
+//                        log.info("GET START");
+//                        TripDetailDTO tripDetail = tripService.getTripDetailById(tripId);
+//                        TripDetailResponse response = new TripDetailResponse(
+//                                tripId,
+//                                tripDetail.getTitle(),
+//                                tripDetail.getMembers(),
+//                                tripDetail.getDayDtos(),
+//                                tripDetail.getCreatedAt(),
+//                                tripDetail.getUpdatedAt()
+//                        );
+//                        String jsonResponse = objectMapper.writeValueAsString(response);
+//                        session.sendMessage(new TextMessage(jsonResponse));
+//                    } catch (Exception e) {
+//                        log.error("Error processing START action", e);
+//                        session.sendMessage(new TextMessage("{\"error\": \"Failed to process START action\"}"));
+//                    }
                     break;
                 case "MOVE":
-                    // 작업 내용 저장
-                    stateManager.addEdit(tripId, editRequest);
-                    // position 업데이트
-                    stateManager.updateState(
-                            tripId,
-                            operation.getScheduleId(),
-                            operation.getPositionPath()
-                    );
-
-                    // path 정보 생성
-                    List<TripStateManager.PathInfo> paths = stateManager.generatePathInfo(tripId);
-
-                    // 응답 생성
-                    MoveResponse moveResponse = new MoveResponse(
-                            tripId,
-                            operation.getScheduleId(),
-                            operation.getPositionPath(),
-                            paths
-                    );
-
-                    // 응답 전송
-                    String jsonResponse = objectMapper.writeValueAsString(moveResponse);
-                    session.sendMessage(new TextMessage(jsonResponse));
-
-
+                    handleMoveOperation(tripId, operation);
+//
+//                    // schedulePositions가 비어있다면 초기화
+//                    if (!stateManager.hasPositions(tripId)) {
+//                        List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+//                        stateManager.initializeSchedulePositions(tripId, schedules);
+//                    }
+//
+//                    // 작업 내용 저장
+//                    stateManager.addEdit(tripId, editRequest);
+//                    // position 업데이트
+//                    stateManager.updateState(
+//                            tripId,
+//                            operation.getScheduleId(),
+//                            operation.getPositionPath()
+//                    );
+//
+//                    // path 정보 생성
+//                    List<TripStateManager.PathInfo> paths = stateManager.generatePathInfo(tripId);
+//
+//                    // 응답 생성
+//                    MoveResponse moveResponse = new MoveResponse(
+//                            tripId,
+//                            operation.getScheduleId(),
+//                            operation.getPositionPath(),
+//                            paths
+//                    );
+//
+//                    // 응답 전송
+//                    String jsonResponse = objectMapper.writeValueAsString(moveResponse);
+//
+//                    // 현재 세선에게 응답
+//                    session.sendMessage(new TextMessage(jsonResponse));
 
                 break;
 
@@ -272,5 +282,176 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             throw new RuntimeException(e);
         }
     }
+
+
+
+
+
+    private void handleStartOperation(WebSocketSession session, Integer tripId) {
+        try {
+            log.info("=== START handleStartOperation for tripId: {} ===", tripId);
+
+            // 1. Get trip details
+            TripDetailDTO tripDetail = tripService.getTripDetailById(tripId);
+
+            // 2. Initialize schedule positions if not already initialized
+            if (!stateManager.hasPositions(tripId)) {
+                List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+                stateManager.initializeSchedulePositions(tripId, schedules);
+            }
+
+            // 3. Create and send initial response with trip details
+            TripDetailResponse initialResponse = new TripDetailResponse(
+                    tripId,
+                    tripDetail.getTitle(),
+                    tripDetail.getMembers(),
+                    tripDetail.getDayDtos(),
+                    tripDetail.getCreatedAt(),
+                    tripDetail.getUpdatedAt()
+            );
+            String jsonResponse = objectMapper.writeValueAsString(initialResponse);
+            session.sendMessage(new TextMessage(jsonResponse));
+
+            // 경로정보 전송
+            stateManager.generateAllPaths(tripId, paths -> {
+                if (paths != null && !paths.isEmpty()) {
+                    try {
+                        Schedule firstSchedule = scheduleRepository.findFirstByTripIdOrderByPositionPathAsc(tripId);
+
+                        log.info("Preparing MoveResponse - paths size: {}", paths.size());
+                        log.info("Paths to be sent: {}", paths);
+
+                        MoveResponse pathResponse = new MoveResponse(
+                                tripId,
+                                firstSchedule.getId(),
+                                firstSchedule.getPositionPath(),
+                                paths
+                        );
+                        String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
+                        session.sendMessage(new TextMessage(pathJsonResponse));
+
+                        log.info("Generated JSON response: {}", pathJsonResponse);
+
+                    } catch (Exception e) {
+                        log.error("Error sending initial paths for tripId: {}", tripId, e);
+                    }
+                }
+            });
+            log.info("=== END handleStartOperation for tripId: {} ===", tripId);
+        } catch (Exception e) {
+            log.error("Error in handleStartOperation for tripId: {}", tripId, e);
+            try {
+                session.sendMessage(new TextMessage("{\"error\": \"Failed to process START action\"}"));
+            } catch (IOException | java.io.IOException ex) {
+                log.error("Failed to send error message", ex);
+            }
+        }
+    }
+
+
+
+
+
+    // MOVE 비동기처리
+private void handleMoveOperation(Integer tripId, EditRequest.Operation operation) throws JsonProcessingException {
+    log.info("=== START handleMoveOperation for tripId: {} ===", tripId);
+
+    try {
+        // 1. schedulePositions 초기화 체크
+        log.info("Checking schedulePositions initialization for tripId: {}", tripId);
+        if (!stateManager.hasPositions(tripId)) {
+            List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+            stateManager.initializeSchedulePositions(tripId, schedules);
+        }
+
+        // 2. position 상태 업데이트
+        log.info("Updating state for tripId: {}, scheduleId: {}", tripId, operation.getScheduleId());
+
+        stateManager.updateState(
+                tripId,
+                operation.getScheduleId(),
+                operation.getPositionPath()
+        );
+
+        // 3. 현재 상태를 모든 클라이언트에게 전송
+        EditRequest.Operation newOperation = new EditRequest.Operation();
+        newOperation.setAction("MOVE");  // Action 명시적 설정
+        newOperation.setScheduleId(operation.getScheduleId());
+        newOperation.setPositionPath(operation.getPositionPath());
+
+        EditRequest newEditRequest = new EditRequest();
+        newEditRequest.setTripId(tripId);
+        newEditRequest.setOperation(newOperation);
+
+        EditResponse response = EditResponse.createSuccess(newEditRequest, 1);
+        broadcastToTripSessions(tripId, objectMapper.writeValueAsString(response));
+
+        // 4. path 생성은 콜백으로 비동기 처리
+        stateManager.generatePathsForSchedule(tripId, operation.getScheduleId(), paths -> {
+            if (paths != null) {
+                try {
+                    MoveResponse pathResponse = new MoveResponse(
+                            tripId,
+                            operation.getScheduleId(),
+                            operation.getPositionPath(),
+                            paths
+                    );
+                    String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
+                    broadcastToTripSessions(tripId, pathJsonResponse);
+                } catch (Exception e) {
+                    log.error("Error broadcasting path for tripId: {}", tripId, e);
+                }
+            }
+        });
+
+        log.info("=== END handleMoveOperation for tripId: {} ===", tripId);
+
+    } catch (Exception e) {
+        log.error("Error in handleMoveOperation for tripId: {}", tripId, e);
+        // 에러 로깅에 더 자세한 정보 추가
+        log.error("Operation details - scheduleId: {}, positionPath: {}",
+                operation.getScheduleId(), operation.getPositionPath());
+    }
+}
+
+
+
+
+
+
+
+
+    private void broadcastToTripSessions(Integer tripId, String message) {
+        Set<WebSocketSession> sessions = tripSessions.get(tripId.toString());
+        if (sessions != null) {
+            sessions.forEach(session -> {
+                try {
+                    if (session.isOpen()) {
+                        try {
+                            session.sendMessage(new TextMessage(message));
+                        } catch (java.io.IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                } catch (IOException e) {
+                    log.error("Error sending message to session for tripId: {}", tripId, e);
+                }
+            });
+        }
+    }
+
+
+    private String createErrorResponse(Throwable e) {
+        try {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Path calculation failed: " + e.getMessage());
+            return objectMapper.writeValueAsString(errorResponse);
+        } catch (JsonProcessingException ex) {
+            return "{\"error\": \"Internal server error\"}";
+        }
+    }
+
+
+
 
 }

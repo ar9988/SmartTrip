@@ -13,9 +13,9 @@ public class MoveResponse {
     private final Integer tripId;
     private final Integer scheduleId;
     private final Integer newPosition;
-    private final List<TripStateManager.PathInfo> paths;
+    private final List<PathInfo> paths;
 
-    public MoveResponse(Integer tripId, Integer scheduleId, Integer newPosition, List<TripStateManager.PathInfo> paths) {
+    public MoveResponse(Integer tripId, Integer scheduleId, Integer newPosition, List<PathInfo> paths) {
         this.tripId = tripId;
         this.scheduleId = scheduleId;
         this.newPosition = newPosition;

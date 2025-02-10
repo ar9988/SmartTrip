@@ -13,4 +13,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     List<Schedule> findAllByDayIdOrderByOrderNumAsc(Integer id);
 
     List<Schedule> findAllByDayIdOrderByPositionPathAsc(Integer id);
+
+    List<Schedule> findAllByTripId(Integer tripId);
+
+    Schedule findFirstByTripIdOrderByPositionPathAsc(Integer tripId);
 }

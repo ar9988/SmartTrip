@@ -1,6 +1,7 @@
 package com.travel.together.TravelTogether.tripwebsocket.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripScheduleCache;
@@ -14,32 +15,44 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final TripEditCache tripEditCache;
+    private final ObjectMapper objectMapper;
+    private final ScheduleService scheduleService;
+    private final TripScheduleCache tripScheduleCache;
+    private final TripStateManager tripStateManager;
+    private final TripService tripService;
+    private final ScheduleRepository scheduleRepository;
+    private final ExecutorService executorService;
 
     @Autowired
-    private TripEditCache tripEditCache;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private ScheduleService scheduleService;
-
-    @Autowired
-    private TripScheduleCache tripScheduleCache;
-
-    @Autowired
-    private TripStateManager tripStateManager;
-
-    @Autowired
-    private TripService tripService;
-
-
+    public WebSocketConfig(
+            ApplicationEventPublisher applicationEventPublisher,
+            TripEditCache tripEditCache,
+            ObjectMapper objectMapper,
+            ScheduleService scheduleService,
+            TripScheduleCache tripScheduleCache,
+            TripStateManager tripStateManager,
+            TripService tripService,
+            ScheduleRepository scheduleRepository,
+            ExecutorService executorService) {
+        this.applicationEventPublisher = applicationEventPublisher;
+        this.tripEditCache = tripEditCache;
+        this.objectMapper = objectMapper;
+        this.scheduleService = scheduleService;
+        this.tripScheduleCache = tripScheduleCache;
+        this.tripStateManager = tripStateManager;
+        this.tripService = tripService;
+        this.scheduleRepository = scheduleRepository;
+        this.executorService = executorService;
+    }
 
     @Bean
     public TripScheduleWebSocketHandler tripScheduleWebSocketHandler() {
@@ -50,7 +63,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 scheduleService,
                 tripScheduleCache,
                 tripStateManager,
-                tripService
+                tripService,
+                scheduleRepository,
+                executorService
 
         );  // 직접 생성
     }
