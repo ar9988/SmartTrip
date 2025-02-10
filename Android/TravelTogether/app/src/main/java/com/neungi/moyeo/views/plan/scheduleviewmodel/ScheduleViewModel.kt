@@ -75,14 +75,15 @@ class ScheduleViewModel @Inject constructor(
         webSocketManager.sendMessage(AddEvent(
             tripId = schedule.tripId,
             dayId = schedule.day,
+            timeStamp = 0,
             schedule = schedule
         ))
     }
 
-    fun startEvent() {
-        val event = ServerEvent("MOVE123", trip.id, Operation("START", 0, 0), 111231)
-//        webSocketManager.sendMessage(event)
-    }
+//    fun startEvent() {
+//        val event = ServerEvent("MOVE123", trip.id, Operation("START", 0, 0), 111231)
+////        webSocketManager.sendMessage(event)
+//    }
 
 
     // WebSocket 종료
@@ -94,7 +95,7 @@ class ScheduleViewModel @Inject constructor(
 
         webSocketManager.connect(serverUrl+trip.id)
         webSocketManager.tripId = trip.id
-        startEvent()
+//        startEvent()
         Timber.d(serverUrl+trip.id)
     }
 

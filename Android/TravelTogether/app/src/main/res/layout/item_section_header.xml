@@ -25,7 +25,7 @@
                 android:id="@+id/tv_section_header_icon_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{dayInfo.dayId+1}"
+                android:text="@{dayInfo.dayId}"
                 android:textColor="@color/white"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"

@@ -23,7 +23,8 @@ fun createItemTouchHelperCallback(
                 0 // 섹션 헤더는 드래그 불가
             } else {
                 val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-                makeMovementFlags(dragFlags, 0)
+                val swipeFlags = ItemTouchHelper.RIGHT
+                makeMovementFlags(dragFlags, swipeFlags)
             }
         }
         override fun isLongPressDragEnabled() = false
@@ -99,8 +100,6 @@ fun createItemTouchHelperCallback(
                 adapter.removeItem(position)
                 // 삭제 콜백 실행
                 delete(position)
-            } else {
-                // 스와이프 동작이 왼쪽일 때의 동작을 추가할 수 있습니다.
             }
         }
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {

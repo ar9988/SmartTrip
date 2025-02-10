@@ -3,6 +3,7 @@ package com.neungi.moyeo.views.plan.adapter
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -41,13 +42,16 @@ class SectionedAdapter(
     private fun buildTimeInfo() {
         listItems.forEachIndexed { position, item ->
             if (item is ListItem.Item) {
-                if(listItems[position-1] is ListItem.SectionHeader){
+                if (listItems[position - 1] is ListItem.SectionHeader) {
                     val from = LocalTime.of(9, 0)
                     item.data.fromTime = from
                     item.data.toTime = from.plusMinutes(item.data.duration.toLong())
                 } else {
-                    val from = (listItems[position-1] as ListItem.Item).data.toTime
-                    val adjustedFrom = from?.plusMinutes(pathItems[(listItems[position-1] as ListItem.Item).data.scheduleId]?.toLong() ?: 0)
+                    val from = (listItems[position - 1] as ListItem.Item).data.toTime
+                    val adjustedFrom = from?.plusMinutes(
+                        pathItems[(listItems[position - 1] as ListItem.Item).data.scheduleId]?.toLong()
+                            ?: 0
+                    )
                     item.data.fromTime = adjustedFrom
                     if (adjustedFrom != null) {
                         item.data.toTime = adjustedFrom.plusMinutes(item.data.duration.toLong())
@@ -206,10 +210,8 @@ class SectionedAdapter(
 
     inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        //        private val textView: TextView = view.findViewById(R.id.tv_section_header)
         fun bind(data: ScheduleHeader) {
             binding.dayInfo = data
-//            binding.tvSectionHeaderIconText.text = data.title
             binding.onClick = View.OnClickListener {
                 onAddClick(data.dayId)
             }
@@ -223,6 +225,11 @@ class SectionedAdapter(
             binding.typeSchedule.text = data.positionPath.toString()
             binding.tvFrom.text = data.fromTime.toString()
             binding.tvTo.text = data.toTime.toString()
+
+            binding.cardSchedule.setOnClickListener {
+                onEditClick(data.scheduleId)
+            }
+
             binding.cardSchedule.setOnLongClickListener { view ->
                 itemTouchHelper.startDrag(this)
                 true
@@ -231,7 +238,7 @@ class SectionedAdapter(
                 binding.bottomSection.visibility = View.GONE
             } else {
                 binding.bottomSection.visibility = View.VISIBLE
-                binding.tvTravelTime.text = path.toString()+"분"
+                binding.tvTravelTime.text = path.toString() + "분"
             }
         }
     }
@@ -243,16 +250,8 @@ class SectionedAdapter(
         return listItems[position]
     }
 
-//    fun setPosition(event: ServerReceive) {
-//        listItems.forEachIndexed { position, item ->
-//            if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
-//                // positionPath 업데이트
-//                item.data.positionPath = event.operation.positionPath
-//            }
-//        }
-//    }
-
     fun updatePosition(event: ServerReceive, isUserDragging: Boolean) {
+        //서버에서 입력받은 수정
         Timber.d("Updating position of schedule ${event.operation.scheduleId} to ${event.operation.positionPath}")
         if (event.operation.action == "DELETE") {
             listItems.forEachIndexed { position, item ->
@@ -260,20 +259,18 @@ class SectionedAdapter(
                     removeItem(position)
                 }
             }
-        } else if (event.operation.action == "ADD") {
-
         } else if (event.operation.action == "MOVE") {
             listItems.forEachIndexed { position, item ->
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
                     item.data.positionPath = event.operation.positionPath
                     // 텍스트뷰 갱신을 위해 해당 위치의 아이템을 갱신
-                    if(!isUserDragging) notifyItemChanged(position)
+                    if (!isUserDragging) notifyItemChanged(position)
                 }
             }
 
         }
         // 섹션을 재구성하여 순서를 반영
-        if(!isUserDragging) rebuildSections()
+        if (!isUserDragging) rebuildSections()
     }
 
     fun updateValue(position: Int, newPositionPath: Int) {
@@ -281,6 +278,7 @@ class SectionedAdapter(
             (listItems[position] as ListItem.Item).data.copy(positionPath = newPositionPath),
             (listItems[position] as ListItem.Item).sectionIndex
         )
+        //내가 수정할때 호출됨
     }
 
     fun uiUpdate(position: Int) {
@@ -294,25 +292,37 @@ class SectionedAdapter(
 
     fun updatePathInfo(path: Path, isUserDragging: Boolean) {
         pathItems[path.sourceScheduleId] = path.totalTime!!
-        if(!isUserDragging) rebuildSections()
+        if (!isUserDragging) rebuildSections()
 
     }
 
     fun addSchedule(event: AddEvent, isUserDragging: Boolean) {
         val schedule = event.schedule
         listItems.forEachIndexed { index, listItem ->
-            if(listItem is ListItem.SectionHeader && schedule.day - 1 == listItem.data.dayId){
-                listItems.add(ListItem.Item(
-                    ScheduleData(
-                        scheduleId = schedule.id,
-                        placeName = schedule.placeName,
-                        positionPath = schedule.positionPath,
-                        timeStamp = event.timeStamp,
+            if (listItem is ListItem.SectionHeader && schedule.day - 1 == listItem.data.dayId) {
+                listItems.add(
+                    index + 1,
+                    ListItem.Item(
+                        ScheduleData(
+                            scheduleId = schedule.id,
+                            placeName = schedule.placeName,
+                            positionPath = schedule.positionPath,
+                            timeStamp = event.timeStamp,
+                            duration = schedule.duration,
+                            type = schedule.type,
+                            fromTime = null,
+                            toTime = null,
+                            lat = schedule.lat,
+                            lng = schedule.lng,
+                        ),
+                        sectionIndex = schedule.day,
                     )
-                ))
+                )
+                if (!isUserDragging) notifyItemInserted(index + 1)
+                return
             }
         }
-        if(!isUserDragging) rebuildSections()
+
     }
 
 }

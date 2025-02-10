@@ -57,7 +57,7 @@ class ScheduleAddFragment : AiSearchPlaceFragment() {
             id = -1,
             placeName = place.placeName,
             tripId = tripId,
-            order = -1,
+            positionPath = -1,
             day = dayId,
             lat = place.lat,
             lng = place.lng,

@@ -38,8 +38,8 @@ class WebSocketManager @Inject constructor() {
             super.onOpen(webSocket, response)
             isConnected = true
             Timber.tag("WebSocket").d("onOpen: Connected")
-            val event = ServerEvent("MOVE123", tripId, Operation("START", 0, 0), 111231)
-            sendMessage(event)
+////            val event = ServerEvent("MOVE123", tripId, Operation("START", 0, 0), 111231)
+//            sendMessage(event)
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
@@ -52,7 +52,6 @@ class WebSocketManager @Inject constructor() {
 
                 // 먼저 String으로 들어온 JSON이 유효한지 체크
                 if (text == "SUCCESS") {
-//                    Timber.d("Success")
                     return
                 }
                 val jsonObject = JsonParser.parseString(text).asJsonObject
