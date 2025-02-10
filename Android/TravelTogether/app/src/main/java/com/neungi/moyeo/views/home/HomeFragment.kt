@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import coil.ImageLoader
 import coil.load
 import coil.request.ImageRequest
@@ -67,6 +68,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             is HomeUiEvent.ShowFestivalDialog->{
                 showFestivalDialog()
 
+            }
+            is HomeUiEvent.GoToNotification->{
+                findNavController().navigateSafely(R.id.action_home_to_Notification)
             }
         }
 

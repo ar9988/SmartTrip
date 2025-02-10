@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.User
 import com.neungi.domain.usecase.GetAuthUseCase
+import com.neungi.domain.usecase.SetFCMUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.domain.usecase.SetUserInfoUseCase
 import com.neungi.moyeo.util.CommonUtils.validateEmail
@@ -36,7 +37,8 @@ class AuthViewModel @Inject constructor(
     application: Application,
     private val getAuthUseCase: GetAuthUseCase,
     private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val setUserInfoUseCase: SetUserInfoUseCase
+    private val setUserInfoUseCase: SetUserInfoUseCase,
+    private val setFCMUseCase: SetFCMUseCase
 ) : AndroidViewModel(application), OnAuthClickListener {
 
     private val _authUiState = MutableStateFlow<AuthUiState>(AuthUiState())
