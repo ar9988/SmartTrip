@@ -182,9 +182,13 @@ public class PhotoService {
     }
 
     @Transactional
-    public boolean deletePhoto(int albumId, Integer photoId) {
+    public boolean deletePhoto(int albumId, Integer photoId, Long userId) {
         Photo photo = photoRepository.findById(photoId)
                 .orElseThrow(() -> new IllegalArgumentException("Photo not found"));
+
+        if (!photo.getUser().getId().equals(userId)) {
+            throw new RuntimeException("User not authorized to delete this photo");
+        }
 
         int albumIdFromPhoto = (photo.getAlbum() != null) ? photo.getAlbum().getId() : -1;
         if (albumIdFromPhoto != albumId) {

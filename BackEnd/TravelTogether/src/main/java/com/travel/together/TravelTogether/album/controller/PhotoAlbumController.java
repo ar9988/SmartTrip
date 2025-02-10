@@ -55,7 +55,8 @@ public class PhotoAlbumController {
     public ResponseEntity<List<PhotoResponseDto>> uploadPhotoToAlbum(
             @PathVariable("albumId") int albumId,
             @RequestPart(value = "photoData") String photoDataJson,
-            @RequestPart("files") List<MultipartFile> files) {
+            @RequestPart("files") List<MultipartFile> files,
+            @AuthenticationPrincipal User user) {
 
         BatchPhotoRequestDto batchPhotoRequestDto = null;
         if (photoDataJson != null && !photoDataJson.isEmpty()) {
@@ -76,6 +77,7 @@ public class PhotoAlbumController {
         for (int i = 0; i < files.size(); i++) {
             PhotoRequestDto photoDto = batchPhotoRequestDto.getPhotos().get(i);
             photoDto.setAlbumId(albumId);
+            photoDto.setUserId(user.getId().longValue());
             PhotoResponseDto response = photoService.uploadPhoto(photoDto, files.get(i));
             responses.add(response);
         }
@@ -87,9 +89,10 @@ public class PhotoAlbumController {
     @DeleteMapping("/{albumId}/photos/{photoId}")
     public ResponseEntity<Boolean> deletePhoto(
             @PathVariable int albumId,
-            @PathVariable Integer photoId
+            @PathVariable Integer photoId,
+            @AuthenticationPrincipal User user
     ) {
-        Boolean isDeleted = photoService.deletePhoto(albumId, photoId);
+        Boolean isDeleted = photoService.deletePhoto(albumId, photoId, user.getId().longValue());
         return ResponseEntity.ok(isDeleted);
     }
 }
