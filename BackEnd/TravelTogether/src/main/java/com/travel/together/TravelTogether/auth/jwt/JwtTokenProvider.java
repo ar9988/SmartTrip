@@ -37,6 +37,15 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
+    public Integer getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY) // 🔹 시크릿 키를 사용하여 JWT 검증
+                .parseClaimsJws(token)
+                .getBody();
+
+        return Integer.parseInt(claims.get("userId").toString()); // 🔹 userId 추출
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
