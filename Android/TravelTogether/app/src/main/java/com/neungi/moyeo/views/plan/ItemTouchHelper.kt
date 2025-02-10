@@ -2,7 +2,6 @@ package com.neungi.moyeo.views.plan
 
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.moyeo.R
 import com.neungi.moyeo.util.ListItem
@@ -13,7 +12,7 @@ fun createItemTouchHelperCallback(
     updatePosition: (scheduleId: Int, positionPath: Int) -> Unit,
     onDrag: (Boolean) -> Unit,
     uiUpdate: (position: Int) -> Unit,
-    delete: (position: Int)->Unit
+    delete: (position: Int) -> Unit
 ): ItemTouchHelper.Callback {
     return object : ItemTouchHelper.Callback() {
         override fun getMovementFlags(

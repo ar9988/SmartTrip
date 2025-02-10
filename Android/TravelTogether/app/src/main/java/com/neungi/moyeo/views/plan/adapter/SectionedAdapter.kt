@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.neungi.data.entity.PathReceive
+import com.neungi.data.entity.AddEvent
+import com.neungi.data.entity.ScheduleEntity
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.Path
 import com.neungi.domain.model.ScheduleData
@@ -19,13 +19,13 @@ import com.neungi.moyeo.util.ListItem
 import com.neungi.moyeo.util.ScheduleHeader
 import com.neungi.moyeo.util.Section
 import timber.log.Timber
-import java.sql.Time
 import java.time.LocalTime
 
 class SectionedAdapter(
     private val itemTouchHelper: ItemTouchHelper,
     private val onEditClick: (Int) -> Unit,
-    private val onAddClick: () -> Unit,
+    private val onAddClick: (Int) -> Unit,
+    private val pathDelete: (Int) -> Unit,
     private val recyclerView: RecyclerView
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -52,6 +52,11 @@ class SectionedAdapter(
                     if (adjustedFrom != null) {
                         item.data.toTime = adjustedFrom.plusMinutes(item.data.duration.toLong())
                     }
+                }
+                if (position + 1 < listItems.size && listItems[position + 1] is ListItem.SectionHeader || position + 1 == listItems.size) {
+                    pathItems.remove((listItems[position] as ListItem.Item).data.scheduleId)
+                    notifyItemChanged(position)
+                    pathDelete((listItems[position] as ListItem.Item).data.scheduleId)
                 }
             }
         }
@@ -206,7 +211,7 @@ class SectionedAdapter(
             binding.dayInfo = data
 //            binding.tvSectionHeaderIconText.text = data.title
             binding.onClick = View.OnClickListener {
-                onAddClick()
+                onAddClick(data.dayId)
             }
         }
     }
@@ -291,6 +296,11 @@ class SectionedAdapter(
         pathItems[path.sourceScheduleId] = path.totalTime!!
         if(!isUserDragging) rebuildSections()
 
+    }
+
+    fun addSchedule(schedule: ScheduleEntity, isUserDragging: Boolean) {
+        
+        if(!isUserDragging) rebuildSections()
     }
 
 }

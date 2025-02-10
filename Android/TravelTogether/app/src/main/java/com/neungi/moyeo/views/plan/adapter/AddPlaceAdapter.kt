@@ -2,49 +2,21 @@ package com.neungi.moyeo.views.plan.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.neungi.domain.model.Place
 import com.neungi.moyeo.databinding.ItemSearchPlaceBinding
+import com.neungi.moyeo.views.aiplanning.adapters.SearchPlaceAdapter
+import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 
 class AddPlaceAdapter(
-    private val onClick: (Place) -> Unit,
-) : ListAdapter<Place, AddPlaceAdapter.ViewHolder>(SearchPlaceDiffCallback()) {
-     
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(ItemSearchPlaceBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-    }
+    viewModel: AIPlanningViewModel,
+    private val onPlaceSelected: (Place) -> Unit // 콜백 등록
+) : SearchPlaceAdapter(viewModel) {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position))
-
-    }
-
-    inner class ViewHolder(
-        private val binding: ItemSearchPlaceBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(item: Place) {
-            binding.tvPlaceName.text = item.placeName
-            binding.tvPlaceCategory.text = item.address
-            binding.root.setOnClickListener {
-                onClick(item)
-            }
-
+        super.onBindViewHolder(holder, position)
+        val place = getItem(position)
+        holder.binding.root.setOnClickListener {
+            onPlaceSelected(place) // 콜백 호출
         }
     }
-    class SearchPlaceDiffCallback : DiffUtil.ItemCallback<Place>() {
-        override fun areItemsTheSame(oldItem: Place, newItem: Place): Boolean {
-            return oldItem.placeName == newItem.placeName
-        }
-
-        override fun areContentsTheSame(oldItem: Place, newItem: Place): Boolean {
-            return oldItem == newItem
-        }
-    }
-
-
-
 }
-

@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.neungi.data.entity.AddEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerReceive
 import com.neungi.data.entity.ServerEvent
@@ -30,7 +31,7 @@ class WebSocketManager @Inject constructor() {
     var onServerEventReceived: ((ServerReceive) -> Unit)? = null
     var onRouteEventReceived: ((PathReceive) -> Unit)? = null
     var onScheduleEventReceived: ((ScheduleReceive) -> Unit)? = null
-
+    var onAddEventReceived: ((AddEvent) -> Unit)? = null
     private val webSocketListener = object : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -72,6 +73,10 @@ class WebSocketManager @Inject constructor() {
                         val routeReceive = gson.fromJson(text, PathReceive::class.java)
 //                        Timber.d(routeReceive.toString())
                         onRouteEventReceived?.invoke(routeReceive)
+                    }
+                    jsonObject.has("action") -> {
+                        val add = gson.fromJson(text, AddEvent::class.java)
+                        onAddEventReceived?.invoke(add)
                     }
                 }
             } catch (e: Exception) {
