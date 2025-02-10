@@ -1,0 +1,72 @@
+startDate:{startDate}
+startTime:{startTime}
+endDate:{endDate}
+endTime:{endTime}
+destination:{destination}
+places:{places}
+theme:{theme}
+
+출력 데이터 형식:
+{
+  "title": "string",
+  "start_date": "string",
+  "end_date": "string",
+  "destination": ["string"],
+  "preferences": {
+    "activities": ["string"],
+    "interests": ["string"]
+  },
+  "schedule": {
+    "days": [
+      {
+        "date": "string",
+        "activities": [
+          {
+            "name": "string",
+            "duration": number,
+            "type": number,
+            "positionPath": number,
+            "description": "string",
+            "category": "string",
+            "location": {
+              "address": "string",
+              "coordinates": {
+                "latitude": number,
+                "longitude": number
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+
+응답 규칙:
+1. **하루 최소 7~8개 장소 방문 가능하도록 일정 구성**
+   - 기존보다 밀도 높은 일정 생성
+   - 점심~저녁(15:00~18:00) 사이 최소 3~4개 활동 포함
+   - 저녁 이후(19:30~) 추가 활동 배치 가능
+
+2. **기본 일정 구조**
+   - **시작 시간: `{startTime}`**
+   - **점심 시간: 13:30 - 15:00 (90분)**
+   - **활동 1: 15:00~15:50**
+   - **활동 2: 16:00~16:50**
+   - **활동 3: 17:00~18:00**
+   - **저녁 시간: 18:00~19:30 (90분)**
+   - **야간 활동 1: 19:30~21:00**
+   - **야간 활동 2: 21:00~22:30 (선택적)**
+
+3. **장소 우선순위**
+   - 여행자는 하루에 최소 7개 이상의 장소를 방문해야 함
+   - `preferences.activities` 및 `preferences.interests` 관련 장소 먼저 배치
+   - 동선 최적화를 고려하되, 이동 시간은 따로 계산하지 않음
+
+4. **장소 정보**
+   - **실제 존재하는 장소만 포함**
+   - **정확한 위도/경도 제공**
+   - **운영 시간이 확인된 장소만 포함**
+   - **하루 일정이 특정 지역(예: 홍대~망원동) 내에서 효율적으로 배치되도록 조정**
+   - 식사 일정은 '식사'로 표기
+   - name은 장소의 이름만 표기(예: 경복궁, 소양강댐)
