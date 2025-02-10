@@ -86,6 +86,11 @@
     <string name="text_information">고객 지원</string>
     <string name="text_version">버전 정보</string>
     <string name="text_version_value">v1.0.1</string>
+    <string name="text_hint_update_name">수정할 이름을 입력해주세요.</string>
+    <string name="text_hint_update_message">수정할 상태 메시지를 입력해주세요.</string>
+    <string name="text_profile_update">프로필 수정하기</string>
+    <string name="message_update_profile">프로필을 업데이트했습니다.</string>
+    <string name="message_fail_to_update_profile">프로필 업데이트에 실패했습니다.</string>
 
     <!-- Auth -->
     <string name="label_login">Login</string>
