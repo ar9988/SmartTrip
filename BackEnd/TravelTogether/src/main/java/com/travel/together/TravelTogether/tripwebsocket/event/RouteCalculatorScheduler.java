@@ -29,7 +29,7 @@ public class RouteCalculatorScheduler {
     private final RouteService routeService;
 
 
-    @Scheduled(fixedRate = 300000) // 5분마다
+//    @Scheduled(fixedRate = 300000) // 5분마다
     @Transactional(readOnly = true)
     public void processRouteInformation() {
         log.info("Starting route information processing");

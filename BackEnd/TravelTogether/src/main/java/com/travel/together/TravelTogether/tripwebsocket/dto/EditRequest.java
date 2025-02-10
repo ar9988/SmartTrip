@@ -15,6 +15,9 @@ public class EditRequest {
     private Operation operation;
     private String timestamp;
 
+    public EditRequest(Integer tripId, Operation operation) {
+    }
+
     @Getter
     @Setter
     @NoArgsConstructor

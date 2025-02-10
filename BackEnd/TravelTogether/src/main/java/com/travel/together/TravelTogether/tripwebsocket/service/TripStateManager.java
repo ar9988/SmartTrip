@@ -6,18 +6,21 @@ import com.travel.together.TravelTogether.aiPlanning.service.DirectionsService;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
+import com.travel.together.TravelTogether.tripwebsocket.dto.PathGenerationCallback;
+import com.travel.together.TravelTogether.tripwebsocket.dto.PathInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,57 +98,40 @@ public class TripStateManager {
     }
 
 
-    // Path 정보를 담을 클래스
-    @Getter
-    @Setter
-    public static class PathInfo {
-        private final Integer sourceScheduleId;
-        private final Integer targetScheduleId;
-        private final List<List<Double>> path;
-
-
-        public PathInfo(Integer sourceScheduleId, Integer targetScheduleId, List<List<Double>> path) {
-            this.sourceScheduleId = sourceScheduleId;
-            this.targetScheduleId = targetScheduleId;
-            this.path = path;
-
-        }
-    }
-
-    // position 기준으로 정렬된 schedule들의 path 정보 생성
-    public List<PathInfo> generatePathInfo(Integer tripId) {
+//    // Path 정보를 담을 클래스
+//    @Getter
+//    @Setter
+//    public static class PathInfo {
+//        private final Integer sourceScheduleId;
+//        private final Integer targetScheduleId;
+//        private final List<List<Double>> path;
+//        private Integer totalTime;
+//
+//
+//        public PathInfo(Integer sourceScheduleId, Integer targetScheduleId, List<List<Double>> path, Integer totalTime) {
+//            this.sourceScheduleId = sourceScheduleId;
+//            this.targetScheduleId = targetScheduleId;
+//            this.path = path;
+//            this.totalTime = totalTime;
+//        }
+//    }
+    public boolean hasPositions(Integer tripId) {
         Map<Integer, Integer> positions = tripSchedulePositions.get(tripId);
-        if (positions == null || positions.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        // position 기준으로 정렬된 scheduleId 리스트 얻기
-        List<Integer> orderedScheduleIds = positions.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        List<PathInfo> paths = new ArrayList<>();
-        for (int i = 0; i < orderedScheduleIds.size() - 1; i++) {
-            Schedule source = scheduleRepository.findById(orderedScheduleIds.get(i)).orElse(null);
-            Schedule target = scheduleRepository.findById(orderedScheduleIds.get(i + 1)).orElse(null);
-
-            if (source != null && target != null) {
-                DirectionsRequestDto request = DirectionsRequestDto.builder()
-                        .startLongitude(source.getLng())
-                        .startLatitude(source.getLat())
-                        .endLongitude(target.getLng())
-                        .endLatitude(target.getLat())
-                        .build();
-
-                DirectionsResponseDto response = directionsService.getDrivingDirections(request);
-//                paths.add(new PathInfo(source.getId(), target.getId(), response.getPath()));
-            }
-
-        }
-
-        return paths;
+        return positions != null && !positions.isEmpty();
     }
+
+
+    public void initializeSchedulePositions(Integer tripId, List<Schedule> schedules) {
+        Map<Integer, Integer> schedulePositions = tripSchedulePositions.computeIfAbsent(tripId,
+                k -> new ConcurrentHashMap<>());
+
+        for (Schedule schedule : schedules) {
+            schedulePositions.put(schedule.getId(), schedule.getPositionPath());
+        }
+        log.info("Initialized positions for tripId {}: {}", tripId, schedulePositions);
+    }
+
+
 
     private Schedule findScheduleById(List<Schedule> schedules, Integer scheduleId) {
         return schedules.stream()
@@ -153,6 +139,173 @@ public class TripStateManager {
                 .findFirst()
                 .orElse(null);
     }
+
+
+
+
+
+    @Async
+    public void generateAllPaths(Integer tripId, PathGenerationCallback callback) {
+        log.info("=== START generateAllPaths for tripId: {} ===", tripId);
+
+
+        Map<Integer, Integer> positions = tripSchedulePositions.get(tripId);
+        if (positions == null || positions.isEmpty()) {
+            callback.onPathGenerated(new ArrayList<>());
+            return;
+        }
+
+        try {
+            List<Integer> orderedScheduleIds = positions.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            // 한번에 모든 스케줄 정보 조회
+            List<Schedule> schedules = scheduleRepository.findAllById(orderedScheduleIds);
+            Map<Integer, Schedule> scheduleMap = schedules.stream()
+                    .collect(Collectors.toMap(Schedule::getId, schedule -> schedule));
+
+            List<PathInfo> paths = new ArrayList<>();
+
+            // 연속된 일정 간의 모든 경로 생성
+            for (int i = 0; i < orderedScheduleIds.size() - 1; i++) {
+                Schedule source = scheduleMap.get(orderedScheduleIds.get(i));
+                Schedule target = scheduleMap.get(orderedScheduleIds.get(i + 1));
+
+                PathInfo pathInfo = generatePath(source, target);
+                if (pathInfo != null) {
+                    paths.add(pathInfo);
+                    log.info("Successfully added path between {} and {}", source.getId(), target.getId());
+
+                }
+            }
+
+            log.info("Generated paths count: {}", paths.size());
+            log.info("Generated paths: {}", paths);
+
+            callback.onPathGenerated(paths);
+
+        } catch (Exception e) {
+            log.error("Error in generateAllPaths for tripId {}", tripId, e);
+            callback.onPathGenerated(new ArrayList<>());
+        }
+    }
+
+
+    // 특정 스케줄 이동에 대한 경로 생성 (MOVE 액션용)
+    @Async
+    public void generatePathsForSchedule(Integer tripId, Integer movedScheduleId, PathGenerationCallback callback) {
+        log.info("=== START generatePathsForSchedule for tripId: {}, scheduleId: {} ===",
+                tripId, movedScheduleId);
+
+        Map<Integer, Integer> positions = tripSchedulePositions.get(tripId);
+        if (positions == null || positions.isEmpty()) {
+            callback.onPathGenerated(new ArrayList<>());
+            return;
+        }
+
+        try {
+            // 현재 스케줄의 위치값 찾기
+            Integer currentPosition = positions.get(movedScheduleId);
+            log.info("2. 현재 포지션 찾음: {}", currentPosition);
+
+            if (currentPosition == null) {
+                callback.onPathGenerated(new ArrayList<>());
+                return;
+            }
+
+            // 이전/다음 스케줄 찾기
+            Integer prevScheduleId = null;
+            Integer nextScheduleId = null;
+            Integer prevPosition = Integer.MIN_VALUE;
+            Integer nextPosition = Integer.MAX_VALUE;
+
+            for (Map.Entry<Integer, Integer> entry : positions.entrySet()) {
+                int pos = entry.getValue(); // 현재 스케쥴의 위치값
+                if (pos < currentPosition && pos > prevPosition) {
+                    prevPosition = pos;
+                    prevScheduleId = entry.getKey();
+                }
+                if (pos > currentPosition && pos < nextPosition) {
+                    nextPosition = pos;
+                    nextScheduleId = entry.getKey();
+                }
+            }
+            log.info("3. 이전/다음 스케줄 ID 찾음 - prev: {}, next: {}", prevScheduleId, nextScheduleId);  // 추가
+
+
+            // 필요한 스케줄들만 조회
+            List<Integer> scheduleIds = Arrays.asList(prevScheduleId, movedScheduleId, nextScheduleId)
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            List<Schedule> schedules = scheduleRepository.findAllById(scheduleIds);
+            Map<Integer, Schedule> scheduleMap = schedules.stream()
+                    .collect(Collectors.toMap(Schedule::getId, schedule -> schedule));
+
+            List<PathInfo> paths = new ArrayList<>();
+            Schedule movedSchedule = scheduleMap.get(movedScheduleId);
+
+            // 이전 스케줄과의 경로
+            if (prevScheduleId != null && scheduleMap.containsKey(prevScheduleId)) {
+                PathInfo prevPath = generatePath(scheduleMap.get(prevScheduleId), movedSchedule);
+                if (prevPath != null) {
+                    paths.add(prevPath);
+                }
+            }
+
+            // 다음 스케줄과의 경로
+            if (nextScheduleId != null && scheduleMap.containsKey(nextScheduleId)) {
+                PathInfo nextPath = generatePath(movedSchedule, scheduleMap.get(nextScheduleId));
+                if (nextPath != null) {
+                    paths.add(nextPath);
+                }
+            }
+
+            callback.onPathGenerated(paths);
+
+        } catch (Exception e) {
+            log.error("Error in generatePathsForSchedule for tripId {}, scheduleId {}",
+                    tripId, movedScheduleId, e);
+            callback.onPathGenerated(new ArrayList<>());
+        }
+    }
+
+    // 경로 생성 헬퍼 메서드
+    private PathInfo generatePath(Schedule source, Schedule target) {
+        log.info("generatePath===========================");
+        try {
+            DirectionsRequestDto request = DirectionsRequestDto.builder()
+                    .startLongitude(source.getLng())
+                    .startLatitude(source.getLat())
+                    .endLongitude(target.getLng())
+                    .endLatitude(target.getLat())
+                    .build();
+
+            DirectionsResponseDto response = directionsService.getDrivingDirections(request);
+            log.info("directions 응답: {}", response);
+
+            if (response != null && response.getDirectionPath() != null) {
+                List<List<Double>> coordinates = response.getDirectionPath().getPath().stream()
+                        .map(point -> Arrays.asList(point.getLongitude(), point.getLatitude()))
+                        .collect(Collectors.toList());
+
+                return new PathInfo(
+                        source.getId(),
+                        target.getId(),
+                        coordinates,
+                        response.getTotalTime()
+                );
+            }
+        } catch (Exception e) {
+            log.error("Error generating path from schedule {} to {}",
+                    source.getId(), target.getId(), e);
+        }
+        return null;
+    }
+
 
 
 
@@ -168,6 +321,10 @@ public class TripStateManager {
         tripEditHistory.remove(tripId);
         tripSchedulePositions.remove(tripId);
     }
+
+
+
+
 
 
 
