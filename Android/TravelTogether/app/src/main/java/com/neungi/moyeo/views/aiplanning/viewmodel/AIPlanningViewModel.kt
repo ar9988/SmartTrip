@@ -1,15 +1,14 @@
 package com.neungi.moyeo.views.aiplanning.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
-import com.neungi.domain.model.Place
+import com.neungi.domain.model.LocationCategory
 import com.neungi.domain.model.ThemeItem
 import com.neungi.domain.usecase.GetFestivalOverview
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
+import com.neungi.moyeo.R
 import com.neungi.moyeo.util.CommonUtils
 import com.neungi.moyeo.util.EmptyState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +32,17 @@ class AIPlanningViewModel @Inject constructor(
     private val regionMapper: RegionMapper
 ) : ViewModel(),OnAIPlanningClickListener {
 
+
+    private val regions = mapOf(
+        "특별" to R.array.local_special,
+        "경기" to R.array.local_gyeonggi,
+        "강원" to R.array.local_gangwon,
+        "경북" to R.array.local_gyeongbuk,
+        "경남" to R.array.local_gyeongnam,
+        "전북" to R.array.local_jeonbuk,
+        "전남" to R.array.local_jeonnam,
+        "충북" to R.array.local_chungbuk,
+    )
 
 
     private val _aiDestinatiionUiState = MutableStateFlow<AIPlanningUiState>(AIPlanningUiState())
@@ -61,6 +71,12 @@ class AIPlanningViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RegionUiState())
     val uiState = _uiState.asStateFlow()
 
+    private val _locationCategoryState = MutableStateFlow<List<LocationCategory>>(emptyList())
+    val locationCategoryState = _locationCategoryState.asStateFlow()
+
+    private val _selectedLocalTab = MutableStateFlow<String>("특별")
+    val selectedLocalTab = _selectedLocalTab.asStateFlow()
+
     private val _selectedLocations = MutableStateFlow<List<String>>(emptyList())
     val selectedLocations = _selectedLocations.asStateFlow()
 
@@ -80,6 +96,8 @@ class AIPlanningViewModel @Inject constructor(
 
     private val _selectedTheme = MutableStateFlow<List<String>>(emptyList())
     val selectedThemeList = _selectedTheme.asStateFlow()
+
+
 
 
 
@@ -141,6 +159,29 @@ class AIPlanningViewModel @Inject constructor(
     selectLocation
     목적지 선택 토글
      */
+
+    fun selectLocalTab(categoryName:String){
+        _locationCategoryState.update { currentCategories ->
+            currentCategories.map { category ->
+                category.copy(isSelected = category.name == categoryName)
+            }
+        }
+        _selectedLocalTab.update {
+            categoryName
+        }
+    }
+
+    fun setCategories(categories: List<String>) {
+        val locationCategories = categories.mapIndexed { index, name ->
+            LocationCategory(name = name, isSelected = index == 0)
+        }
+        Timber.d(locationCategories.toString())
+        _locationCategoryState.update { locationCategories }
+    }
+
+    fun getRegionCategoryId(category: String):Int{
+        return regions[category]?:1
+    }
 
     fun toggleLocationSelection(location: String) {
         _selectedLocations.update { currentList ->
