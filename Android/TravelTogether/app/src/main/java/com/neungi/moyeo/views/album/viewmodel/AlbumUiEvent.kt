@@ -28,6 +28,10 @@ sealed class AlbumUiEvent {
 
     data object FinishPhotoClassificationUpdate : AlbumUiEvent()
 
+    data object UpdatePhotoPlaceName : AlbumUiEvent()
+
+    data object UpdatePhotoPlaceNameSuccess : AlbumUiEvent()
+
     data object PhotoUploadFail : AlbumUiEvent()
 
     data object FinishPhotoUpload : AlbumUiEvent()

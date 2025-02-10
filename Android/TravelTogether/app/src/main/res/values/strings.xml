@@ -68,6 +68,9 @@
     <string name="text_place_classification_update">장소 편집하기</string>
     <string name="text_hint_place_classification_input">직접 입력하기</string>
     <string name="text_place_classification_change">장소 변경</string>
+    <string name="text_update_place_name">장소 이름 변경</string>
+    <string name="text_update">변경</string>
+    <string name="text_description_update_place_name"> · 탭을 길게 누르면 장소 이름을 변경할 수 있습니다.</string>
 
     <!-- Setting -->
     <string name="label_setting">Setting</string>
@@ -144,7 +147,8 @@
 
     <!-- firebase-->
     <string name="default_notification_channel_id">fcm_default_channel</string>
-
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

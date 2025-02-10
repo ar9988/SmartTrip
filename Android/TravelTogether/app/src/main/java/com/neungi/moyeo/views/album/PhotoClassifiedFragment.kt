@@ -43,33 +43,6 @@ class PhotoClassifiedFragment :
                     }
                 }
             }
-
-            initView(index)
-        }
-    }
-
-    private fun initView(index: Int) {
-        with(binding) {
-            ivPhotoClassificationContent.setOnClickListener {
-                ivPhotoClassificationContent.visibility = View.GONE
-                ivEditPhotoClassificationContent.visibility = View.VISIBLE
-                etPhotoClassificationContent.visibility = View.VISIBLE
-                etPhotoClassificationContent.setText(viewModel.newMarkers.value[index].first)
-            }
-            ivEditPhotoClassificationContent.setOnClickListener {
-                when (viewModel.tempPlacesName.value.isBlank()) {
-                    true -> {
-                        showToastMessage("장소 이름을 입력해주세요.")
-                    }
-
-                    else -> {
-                        viewModel.onClickUpdatePlaceName(index)
-                        ivPhotoClassificationContent.visibility = View.VISIBLE
-                        ivEditPhotoClassificationContent.visibility = View.GONE
-                        etPhotoClassificationContent.visibility = View.GONE
-                    }
-                }
-            }
         }
     }
 

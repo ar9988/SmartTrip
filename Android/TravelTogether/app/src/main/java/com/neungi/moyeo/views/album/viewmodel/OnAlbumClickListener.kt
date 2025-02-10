@@ -23,7 +23,7 @@ interface OnAlbumClickListener {
 
     fun onClickGoToClassifyPlaces()
 
-    fun onClickUpdatePlaceName(index: Int)
+    fun onClickUpdatePlaceName()
 
     fun onClickUpdatePhotoClassification(place: Int, index: Int)
 

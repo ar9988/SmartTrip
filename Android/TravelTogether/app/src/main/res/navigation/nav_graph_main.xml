@@ -110,6 +110,10 @@
         tools:layout="@layout/fragment_photo_classification">
 
         <action
+            android:id="@+id/action_photo_classification_to_update_place_name"
+            app:destination="@id/fragment_update_place_name_dialog" />
+
+        <action
             android:id="@+id/action_photo_classification_to_photo_classification_update"
             app:destination="@id/fragment_photo_classification_update_dialog" />
 
@@ -194,6 +198,12 @@
         android:name="com.neungi.moyeo.views.album.PhotoClassificationUpdateDialogFragment"
         android:label="Photo Classification Update"
         tools:layout="@layout/fragment_photo_classification_update_dialog" />
+
+    <dialog
+        android:id="@+id/fragment_update_place_name_dialog"
+        android:name="com.neungi.moyeo.views.album.UpdatePlaceNameDialogFragment"
+        android:label="Update Place Name"
+        tools:layout="@layout/fragment_update_place_name_dialog" />
 
     <fragment
         android:id="@+id/fragment_ai_theme"

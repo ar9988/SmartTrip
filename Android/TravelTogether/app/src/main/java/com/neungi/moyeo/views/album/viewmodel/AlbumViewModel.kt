@@ -67,6 +67,9 @@ class AlbumViewModel @Inject constructor(
     val albumUiEvent = _albumUiEvent.asSharedFlow()
 
     /****** Datas ******/
+    private val _userId = MutableStateFlow<String?>(null)
+    val userId = _userId.asStateFlow()
+
     private val _photoAlbums = MutableStateFlow<List<PhotoAlbum>>(emptyList())
     val photoAlbums = _photoAlbums.asStateFlow()
 
@@ -79,8 +82,11 @@ class AlbumViewModel @Inject constructor(
     private val _newMarkers = MutableStateFlow<List<Pair<String, List<MarkerData>>>>(emptyList())
     val newMarkers = _newMarkers.asStateFlow()
 
-    private val _tempPlacesName = MutableStateFlow<String>("")
-    val tempPlacesName = _tempPlacesName
+    private val _updatePlaceIndex = MutableStateFlow<Int>(-1)
+    val updatePlaceIndex = _updatePlaceIndex.asStateFlow()
+
+    private val _updatePlaceName = MutableStateFlow<String>("")
+    val updatePlaceName = _updatePlaceName
 
     private val _tempNewPlaceName = MutableStateFlow<String>("")
     val tempNewPlaceName = _tempNewPlaceName
@@ -129,7 +135,10 @@ class AlbumViewModel @Inject constructor(
     val uploadMultiparts = _uploadMultiparts.asStateFlow()
 
     init {
-        initAlbums()
+        viewModelScope.launch {
+            _userId.value = getUserId().first()
+            initAlbums()
+        }
     }
 
     override fun onClickAlbum(photoAlbum: PhotoAlbum) {
@@ -226,10 +235,14 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    override fun onClickUpdatePlaceName(index: Int) {
-        val newTempPlaces = _newMarkers.value.toMutableList()
-        newTempPlaces[index] = Pair(_tempPlacesName.value, newTempPlaces[index].second)
-        _newMarkers.value = newTempPlaces.toList()
+    override fun onClickUpdatePlaceName() {
+        viewModelScope.launch {
+            val index = _updatePlaceIndex.value
+            val newTempPlaces = _newMarkers.value.toMutableList()
+            newTempPlaces[index] = Pair(_updatePlaceName.value, newTempPlaces[index].second)
+            _newMarkers.value = newTempPlaces.toList()
+            _albumUiEvent.emit(AlbumUiEvent.UpdatePhotoPlaceNameSuccess)
+        }
     }
 
     override fun onClickUpdatePhotoClassification(place: Int, index: Int) {
@@ -598,6 +611,7 @@ class AlbumViewModel @Inject constructor(
             index++
         }
         _tempPhotos.value = newTempMarkers
+        Timber.d("Marker: ${_tempPhotos.value}")
     }
 
     /*** 로직 수정이 필요함 ***/
@@ -688,6 +702,14 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
+    fun validUpdatePlaceName(placeName: CharSequence) {
+        when (placeName.isBlank()) {
+            true -> _albumUiState.update { it.copy(updatePlaceNameState = InputValidState.NONE) }
+
+            else -> _albumUiState.update { it.copy(updatePlaceNameState = InputValidState.VALID) }
+        }
+    }
+
     fun validNewPlaceName(placeName: CharSequence) {
         when (placeName.isBlank()) {
             true -> _albumUiState.update { it.copy(newPlaceNameState = InputValidState.NONE) }
@@ -749,6 +771,14 @@ class AlbumViewModel @Inject constructor(
         _uploadPhotos.value = newPhotos
         initTempMarkers()
         validUploadPhotos()
+    }
+
+    fun updatePlaceName(position: Int) {
+        viewModelScope.launch {
+            _updatePlaceIndex.value = position
+            _updatePlaceName.value = _newMarkers.value[position].first
+            _albumUiEvent.emit(AlbumUiEvent.UpdatePhotoPlaceName)
+        }
     }
 
     fun getUserId(): Flow<String?> = flow {

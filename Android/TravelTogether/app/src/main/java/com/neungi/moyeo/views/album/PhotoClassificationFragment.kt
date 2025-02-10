@@ -27,6 +27,8 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.clustering.ClusterMarkerInfo
 import com.naver.maps.map.clustering.Clusterer
 import com.naver.maps.map.clustering.DefaultClusterMarkerUpdater
+import com.naver.maps.map.clustering.DefaultLeafMarkerUpdater
+import com.naver.maps.map.clustering.LeafMarkerInfo
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.neungi.moyeo.R
@@ -44,6 +46,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 @AndroidEntryPoint
 class PhotoClassificationFragment :
@@ -179,6 +182,7 @@ class PhotoClassificationFragment :
                 ) {
                     val newMarkers = mutableListOf<List<MarkerData>>()
                     var photoIndex = initPlaceNumber(viewModel.photoPlaces.value.map { it.name })
+                    Timber.d("Clusters Size: ${tags.size}")
                     tags.forEachIndexed { index, tag ->
                         val newLocations = mutableListOf<MarkerData>()
                         tag.split(",").forEach { id ->
@@ -212,6 +216,7 @@ class PhotoClassificationFragment :
         onClusterComplete: () -> Unit
     ): Clusterer<MarkerData> {
         val totalMarkers = markers.size
+        Timber.d("Marker Size: $totalMarkers")
         var processedMarkers = 0
 
         val cluster: Clusterer<MarkerData> = builder.tagMergeStrategy { cluster ->
@@ -226,6 +231,19 @@ class PhotoClassificationFragment :
                         markerManager.releaseMarker(info, marker)
 
                         processedMarkers += info.size
+
+                        if (processedMarkers == totalMarkers) {
+                            onClusterComplete()
+                        }
+                    }
+                }).leafMarkerUpdater(object : DefaultLeafMarkerUpdater() {
+
+                    override fun updateLeafMarker(info: LeafMarkerInfo, marker: Marker) {
+                        tags.add(info.tag.toString())
+
+                        markerManager.releaseMarker(info, marker)
+
+                        processedMarkers++
 
                         if (processedMarkers == totalMarkers) {
                             onClusterComplete()
@@ -265,6 +283,10 @@ class PhotoClassificationFragment :
                     binding.vpPhotoClassification
                 ) { tab, position ->
                     tab.text = places[position].first
+                    tab.view.setOnLongClickListener {
+                        viewModel.updatePlaceName(position)
+                        true
+                    }
                 }.attach()
                 for (i in 0 until resources.getStringArray(R.array.local_big).size) {
                     val tabs = binding.tlPhotoClassification.getChildAt(0) as ViewGroup
@@ -283,6 +305,10 @@ class PhotoClassificationFragment :
         when (event) {
             is AlbumUiEvent.UpdatePhotoClassification -> {
                 findNavController().navigateSafely(R.id.action_photo_classification_to_photo_classification_update)
+            }
+
+            is AlbumUiEvent.UpdatePhotoPlaceName -> {
+                findNavController().navigateSafely(R.id.action_photo_classification_to_update_place_name)
             }
 
             is AlbumUiEvent.FinishPhotoUpload -> {

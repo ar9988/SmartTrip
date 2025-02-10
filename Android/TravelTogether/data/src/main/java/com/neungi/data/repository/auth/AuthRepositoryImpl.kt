@@ -1,6 +1,5 @@
 package com.neungi.data.repository.auth
 
-import android.util.Log
 import com.neungi.data.mapper.TokenMapper
 import com.neungi.data.mapper.UserMapper
 import com.neungi.domain.model.ApiResult
@@ -57,17 +56,13 @@ class AuthRepositoryImpl @Inject constructor(
             }
 
             val responseBody = response.body()
-            Log.d("AuthRepositoryImpl", "postPhoto: $responseBody")
             if (response.isSuccessful && (responseBody != null)) {
-                Log.d("AuthRepositoryImpl", "postPhoto Success: $responseBody")
                 ApiResult.success(responseBody)
             } else {
-                Log.d("AuthRepositoryImpl", "postPhoto Not Success: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
 
         } catch (e: Exception) {
-            Log.d("AuthRepositoryImpl", "Fail: $${e.message}")
             ApiResult.fail()
         }
 }

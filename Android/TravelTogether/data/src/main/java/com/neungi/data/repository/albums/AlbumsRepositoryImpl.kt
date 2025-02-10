@@ -1,5 +1,6 @@
 package com.neungi.data.repository.albums
 
+import android.util.Log
 import com.neungi.data.mapper.AlbumsMapper
 import com.neungi.data.mapper.CommentsMapper
 import com.neungi.data.mapper.PhotosMapper
@@ -25,9 +26,9 @@ class AlbumsRepositoryImpl @Inject constructor(
                 albumsRemoteDataSource.getAlbums()
             }
 
-            val body = response.body()
-            if (response.isSuccessful && (body != null)) {
-                ApiResult.success(AlbumsMapper(body))
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(AlbumsMapper(responseBody))
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }
@@ -58,12 +59,16 @@ class AlbumsRepositoryImpl @Inject constructor(
             }
 
             val responseBody = response.body()
+            Log.d("AlbumsRepositoryImpl", "postPhoto: $responseBody")
             if (response.isSuccessful && (responseBody != null)) {
+                Log.d("AlbumsRepositoryImpl", "postPhoto Success: $responseBody")
                 ApiResult.success(PhotosMapper(responseBody))
             } else {
+                Log.d("AlbumsRepositoryImpl", "postPhoto Not Success: ${response.errorBody().toString()}")
                 ApiResult.error(response.errorBody().toString(), null)
             }
         } catch (e: Exception) {
+            Log.d("AlbumsRepositoryImpl", "Fail: $${e.message}")
             ApiResult.fail()
         }
 
