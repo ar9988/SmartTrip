@@ -47,10 +47,10 @@ public class Schedule {
     @Column(name = "orderNum", nullable = false)
     private Integer orderNum;
 
-    @Column
+    @Column(nullable = false)
     private Double lat;
 
-    @Column
+    @Column(nullable = false)
     private Double lng;
 
     @Column(nullable = false)
