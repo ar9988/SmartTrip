@@ -22,4 +22,6 @@ class GetUserInfoUseCase @Inject constructor(
     fun getUserProfile(): Flow<String?> = dataStoreRepository.getUserProfile()
 
     fun getLoginInfo():Flow<LoginInfo?> = dataStoreRepository.getLoginInfo()
+
+    fun getDeviceId():Flow<String?> = dataStoreRepository.getDeviceId()
 }

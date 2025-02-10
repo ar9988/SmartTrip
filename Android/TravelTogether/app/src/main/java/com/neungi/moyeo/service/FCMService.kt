@@ -8,13 +8,28 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.neungi.domain.model.Notification
+import com.neungi.domain.usecase.SaveNotificationUseCase
+import com.neungi.moyeo.MoyeoApplication
 
 import com.neungi.moyeo.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.UUID
+import javax.inject.Inject
 
-class FCMService: FirebaseMessagingService(){
+class FCMService: FirebaseMessagingService (){
+
+    private val saveNotificationUseCase: SaveNotificationUseCase by lazy {
+        (application as MoyeoApplication).saveNotificationUseCase
+    }
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
+
+
 
         // 데이터 메시지 처리
         remoteMessage.data.isNotEmpty().let {
@@ -37,6 +52,7 @@ class FCMService: FirebaseMessagingService(){
     private fun createNotification(title: String?, body: String?) {
         val channelId = "default_notification_channel_id"
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        Timber.d("title"+title)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -66,9 +82,18 @@ class FCMService: FirebaseMessagingService(){
             System.currentTimeMillis().toInt(),
             notificationBuilder.build()
         )
+
+        title?.let { nonNullTitle ->
+            body?.let { nonNullBody ->
+                CoroutineScope(Dispatchers.IO).launch {
+                    saveNotificationUseCase.saveNotifiacation(
+                        Notification.create(title = nonNullTitle, body = nonNullBody)
+                    )
+                }
+            }
+        }
     }
 
     private fun sendTokenToServer(token: String) {
-        // 서버에 토큰 전송 구현
     }
 }

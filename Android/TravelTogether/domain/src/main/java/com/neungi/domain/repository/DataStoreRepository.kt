@@ -1,6 +1,7 @@
 package com.neungi.domain.repository
 
 import com.neungi.domain.model.LoginInfo
+import com.neungi.domain.model.Notification
 import kotlinx.coroutines.flow.Flow
 
 interface DataStoreRepository {
@@ -32,4 +33,14 @@ interface DataStoreRepository {
     fun getLoginInfo():Flow<LoginInfo?>
 
     suspend fun logout()
+
+
+    fun getDeviceId(): Flow<String?>
+    suspend fun setDeviceId(deviceID:String)
+
+    //notification관련
+    suspend fun saveNotification(newNotification: Notification)
+    fun getNotifications(): Flow<List<Notification>>
+    suspend fun deleteNotification(notificationId: String)
+    suspend fun clearNotifications()
 }
