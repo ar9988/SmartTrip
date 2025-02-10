@@ -9,6 +9,7 @@ public class TokenResponseDto {
     private Integer id;
     private String name;
     private String email;
+    private String profile_image;
     private String profile;
     private String token;
 }
