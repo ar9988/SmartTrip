@@ -75,7 +75,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             }
         }
         viewModel.addEvent.observe(viewLifecycleOwner) { event ->
-            sectionedAdapter.addSchedule(event.schedule)
+            sectionedAdapter.addSchedule(event,isUserDragging)
         }
         setupRecyclerView()
         initNaverMap()

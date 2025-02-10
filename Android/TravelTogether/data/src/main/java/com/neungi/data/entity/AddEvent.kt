@@ -4,5 +4,6 @@ data class AddEvent (
     val action: String = "ADD",
     val tripId:Int,
     val dayId:Int,
+    val timeStamp: Long,
     val schedule: ScheduleEntity
 )

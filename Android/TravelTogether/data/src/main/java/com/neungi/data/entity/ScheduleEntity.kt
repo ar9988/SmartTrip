@@ -18,8 +18,8 @@ data class ScheduleEntity(
     @Json(name = "trip_id")
     val tripId: Int,
 
-    @Json(name = "order")
-    val order: Int,
+    @Json(name = "positionPath")
+    val positionPath: Int,
 
     @Json(name = "day")
     val day: Int,

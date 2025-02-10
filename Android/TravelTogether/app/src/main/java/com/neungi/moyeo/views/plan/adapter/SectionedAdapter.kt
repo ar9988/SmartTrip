@@ -298,8 +298,20 @@ class SectionedAdapter(
 
     }
 
-    fun addSchedule(schedule: ScheduleEntity, isUserDragging: Boolean) {
-        
+    fun addSchedule(event: AddEvent, isUserDragging: Boolean) {
+        val schedule = event.schedule
+        listItems.forEachIndexed { index, listItem ->
+            if(listItem is ListItem.SectionHeader && schedule.day - 1 == listItem.data.dayId){
+                listItems.add(ListItem.Item(
+                    ScheduleData(
+                        scheduleId = schedule.id,
+                        placeName = schedule.placeName,
+                        positionPath = schedule.positionPath,
+                        timeStamp = event.timeStamp,
+                    )
+                ))
+            }
+        }
         if(!isUserDragging) rebuildSections()
     }
 
