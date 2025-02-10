@@ -12,5 +12,7 @@ interface AuthRemoteDataSource {
 
     suspend fun postLogin(body: RequestBody): Response<TokenEntity>
 
+    suspend fun patchProfile(photoImage: MultipartBody.Part?, body: RequestBody): Response<UserEntity>
+
     suspend fun postSocialLogin(body: RequestBody): Response<Void>
 }

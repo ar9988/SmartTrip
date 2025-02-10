@@ -11,5 +11,7 @@ interface AuthRepository {
 
     suspend fun postLogin(body: RequestBody): ApiResult<Pair<User, String>>
 
+    suspend fun patchProfile(photoImage: MultipartBody.Part?, body: RequestBody): ApiResult<User>
+
     suspend fun postSocialLogin(body: RequestBody): ApiResult<Void>
 }

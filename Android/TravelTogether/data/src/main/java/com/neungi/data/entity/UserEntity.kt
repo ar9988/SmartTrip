@@ -17,6 +17,9 @@ data class UserEntity(
     @Json(name = "profile")
     val profile: String?,
 
+    @Json(name = "profile_image")
+    val profileImage: String?,
+
     @Json(name = "createdAt")
     val createdAt: String?,
 

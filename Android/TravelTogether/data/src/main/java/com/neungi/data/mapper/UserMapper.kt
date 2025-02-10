@@ -12,7 +12,7 @@ object UserMapper {
             passwordHash = "",
             nickname = userEntity.name,
             profile = userEntity.profile ?: "",
-            profileImage = "",
+            profileImage = userEntity.profileImage ?: "",
             createdAt = userEntity.createdAt ?: "",
             updatedAt = userEntity.updatedAt ?: ""
         )
