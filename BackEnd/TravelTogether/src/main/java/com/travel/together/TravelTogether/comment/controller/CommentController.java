@@ -1,6 +1,8 @@
 package com.travel.together.TravelTogether.comment.controller;
 
 import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.jwt.JwtTokenProvider;
+import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import com.travel.together.TravelTogether.comment.dto.CommentRequestDto;
 import com.travel.together.TravelTogether.comment.dto.CommentResponseDto;
 import com.travel.together.TravelTogether.comment.entity.Comment;
@@ -22,9 +24,15 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public CommentController(CommentService commentService){
+    public CommentController(CommentService commentService,
+                             UserRepository userRepository,
+                             JwtTokenProvider jwtTokenProvider){
         this.commentService = commentService;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userRepository = userRepository;
     }
 
     // [GET]
@@ -42,10 +50,13 @@ public class CommentController {
             @PathVariable int albumId,
             @PathVariable int photoId,
             @RequestBody CommentRequestDto commentRequestDto,
-            @AuthenticationPrincipal User user) {
+            @RequestHeader("Authorization") String token) {
 
-        // JWT에서 사용자 정보를 추출하여 userId 획득
-        String userEmail = user.getEmail();
+        String jwtToken = token.replace("Bearer", "").trim();
+
+        String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         Boolean isComplete = commentService.createComment(albumId, photoId, userEmail, commentRequestDto.getContent());
 
@@ -60,10 +71,13 @@ public class CommentController {
             @PathVariable int photoId,
             @PathVariable int commentId,
             @RequestBody CommentRequestDto commentRequestDto,
-            @AuthenticationPrincipal User user) {
+            @RequestHeader("Authorization") String token) {
 
-        // JWT에서 사용자 정보를 추출하여 userId 획득
-        String userEmail = user.getEmail();
+        String jwtToken = token.replace("Bearer", "").trim();
+
+        String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         Boolean isComplete = commentService.updateComment(albumId, photoId, userEmail, commentId, commentRequestDto.getContent());
 
@@ -77,9 +91,14 @@ public class CommentController {
             @PathVariable int albumId,
             @PathVariable Integer photoId,
             @PathVariable int commentId,
-            @AuthenticationPrincipal User user)
+            @RequestHeader("Authorization") String token)
      {
-         String userEmail = user.getEmail();
+         String jwtToken = token.replace("Bearer", "").trim();
+
+         String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
+         User user = userRepository.findByEmail(userEmail)
+                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
          Boolean isDeleted = commentService.deleteComment(albumId, photoId, userEmail, commentId);
          return ResponseEntity.ok(isDeleted);
     }

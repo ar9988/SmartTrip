@@ -13,6 +13,7 @@ public class CommentResponseDto {
     private int albumId;
     private int photoId;
     private String content;
+    private String profileImage;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
