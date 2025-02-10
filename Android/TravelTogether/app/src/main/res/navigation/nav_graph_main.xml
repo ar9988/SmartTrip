@@ -168,6 +168,10 @@
             android:id="@+id/action_setting_to_login"
             app:destination="@id/fragment_login" />
 
+        <action
+            android:id="@+id/action_setting_to_profile_update"
+            app:destination="@id/fragment_profile_update" />
+
     </fragment>
 
     <fragment
@@ -190,6 +194,24 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/fragment_profile_update"
+        android:name="com.neungi.moyeo.views.setting.ProfileUpdateFragment"
+        android:label="Profile Update"
+        tools:layout="@layout/fragment_profile_update">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_ai_theme"
+        android:name="com.neungi.moyeo.views.aiplanning.AiSelectThemeFragment"
+        android:label="AiSelectThemeFragment" />
+
+    <fragment
+        android:id="@+id/fragment_notification"
+        android:name="com.neungi.moyeo.views.home.NotificationFragment"
+        android:label="NotificationFragment" />
+
     <dialog
         android:id="@+id/fragment_photo_comment_delete_dialog"
         android:name="com.neungi.moyeo.views.album.PhotoCommentDeleteDialogFragment"
@@ -207,14 +229,5 @@
         android:name="com.neungi.moyeo.views.album.UpdatePlaceNameDialogFragment"
         android:label="Update Place Name"
         tools:layout="@layout/fragment_update_place_name_dialog" />
-
-    <fragment
-        android:id="@+id/fragment_ai_theme"
-        android:name="com.neungi.moyeo.views.aiplanning.AiSelectThemeFragment"
-        android:label="AiSelectThemeFragment" />
-    <fragment
-        android:id="@+id/fragment_notification"
-        android:name="com.neungi.moyeo.views.home.NotificationFragment"
-        android:label="NotificationFragment" />
 
 </navigation>
