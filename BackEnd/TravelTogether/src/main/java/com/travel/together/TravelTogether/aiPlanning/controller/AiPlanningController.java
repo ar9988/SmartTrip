@@ -52,7 +52,7 @@ public class AiPlanningController {
             KakaoRequestDto requestDto = new KakaoRequestDto(keyword);
             KakaoResponseDto responseDto = kakaoService.searchByKeyword(requestDto);
             return ResponseEntity.ok(responseDto);
-        } catch (IOException e) {
+        } catch (Exception  e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(new KakaoResponseDto(null));
         }
