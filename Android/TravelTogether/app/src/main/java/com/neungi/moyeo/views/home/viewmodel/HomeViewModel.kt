@@ -4,15 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
+import com.neungi.domain.model.Notification
 import com.neungi.domain.model.Trip
 import com.neungi.domain.usecase.GetFestivalOverview
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
+import com.neungi.domain.usecase.SaveNotificationUseCase
 import com.neungi.moyeo.util.CommonUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -22,8 +25,9 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getRecommendFestivalUseCase: GetRecommendFestivalUseCase,
-    private val getFestivalOverview: GetFestivalOverview
-) : ViewModel() {
+    private val getFestivalOverview: GetFestivalOverview,
+    private val saveNotificationUseCase: SaveNotificationUseCase
+) : ViewModel(),onHomeClickListener {
 
     private val _homeUiState = MutableStateFlow<HomeUiState>(HomeUiState())
     val homeUiState = _homeUiState.asStateFlow()
@@ -41,6 +45,9 @@ class HomeViewModel @Inject constructor(
 
     private val _dialogFestival = MutableStateFlow<Festival?>(null)
     val dialogFestival = _dialogFestival.asStateFlow()
+
+    private val _notificationHistory = MutableStateFlow<List<Notification>>(emptyList())
+    val notificationHistory = _notificationHistory.asStateFlow()
 
     init{
         getFestivalList()
@@ -110,6 +117,36 @@ class HomeViewModel @Inject constructor(
 
 
     }
+    //Notification내역 가져오기
+    fun getNotification(){
+        viewModelScope.launch {
+            saveNotificationUseCase.getNotifiaacion().first() {notificationLsit ->
+                _notificationHistory.update { notificationLsit }
+                true
+            }
+        }
+    }
 
-    
+    fun deleteNotification(id:String){
+        viewModelScope.launch {
+            saveNotificationUseCase.deleteNotification(id)
+            getNotification()
+        }
+    }
+
+    override fun onClickToNotifcation() {
+        viewModelScope.launch {
+            _homeUiEvent.emit(HomeUiEvent.GoToNotification)
+        }
+    }
+
+    override fun onClickNotificationClear(){
+        viewModelScope.launch {
+            saveNotificationUseCase.clearNotification()
+            getNotification()
+        }
+
+    }
+
+
 }

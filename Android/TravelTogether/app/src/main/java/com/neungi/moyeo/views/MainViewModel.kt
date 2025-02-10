@@ -9,6 +9,9 @@ import com.neungi.domain.model.LoginInfo
 import com.neungi.domain.model.Place
 import com.neungi.domain.usecase.GetSearchPlaceUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
+import com.neungi.domain.usecase.SaveNotificationUseCase
+import com.neungi.domain.usecase.SetFCMUseCase
+import com.neungi.domain.usecase.SetUserInfoUseCase
 import com.neungi.moyeo.util.EmptyState
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
 import com.neungi.moyeo.views.aiplanning.viewmodel.SearchUiState
@@ -17,20 +20,29 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getSearchPlaceUseCase: GetSearchPlaceUseCase,
-    private val getUserInfoUseCase: GetUserInfoUseCase
+    private val getUserInfoUseCase: GetUserInfoUseCase,
+    private val setUserInfoUseCase: SetUserInfoUseCase,
+    private val setFCMUseCase: SetFCMUseCase,
+    private val saveNotificationUseCase: SaveNotificationUseCase
 ) : ViewModel() {
 
     init {
-        login()
+        getDeviceId()
         getFCMToken()
+        login()
+
+
     }
 
     private val _bnvState = MutableStateFlow<Boolean>(true)
@@ -53,6 +65,12 @@ class MainViewModel @Inject constructor(
     //firebase
     private val _fcmToken = MutableStateFlow<String>("")
     val fcmToken = _fcmToken.asStateFlow()
+
+    //deviceID
+    private val _deviceID = MutableStateFlow<String>("")
+    val deviceID = _deviceID.asStateFlow()
+
+
 
 
 
@@ -99,18 +117,23 @@ class MainViewModel @Inject constructor(
 
     fun login(){
         viewModelScope.launch {
-            getUserInfoUseCase.getLoginInfo().collect { loginInfo ->
+            getUserInfoUseCase.getLoginInfo().first() { loginInfo ->
                 _userLoginInfo.value = loginInfo
-                Timber.d("Login Info loaded: $loginInfo")
+                checkAndUpdateFCM()
+                true
             }
         }
     }
 
     fun logout(){
         viewModelScope.launch {
+            Timber.d("logout"+_userLoginInfo.value)
+            setFCMUseCase.deleteFCMToken(_userLoginInfo.value!!.userId,_deviceID.value)
             _userLoginInfo.update {
                 null
             }
+            saveNotificationUseCase.clearNotification()
+
         }
     }
 
@@ -122,11 +145,45 @@ class MainViewModel @Inject constructor(
                 if (task.isSuccessful) {
                     val token = task.result
                     Timber.d("FCMToken: "+token)
-                    // 서버에 토큰 전송
-//                    sendTokenToServer(token)
+                    _fcmToken.update { token }
+                    checkAndUpdateFCM()
                 }
             }
     }
+
+    fun getDeviceId(){
+        viewModelScope.launch {
+            try {
+                var dataStoreDeviceID = getUserInfoUseCase.getDeviceId().first()
+
+                if (dataStoreDeviceID.isNullOrEmpty()) {
+                    dataStoreDeviceID = UUID.randomUUID().toString()
+                    setUserInfoUseCase.setDeviceInfo(dataStoreDeviceID)
+                }
+                _deviceID.update { dataStoreDeviceID}
+                checkAndUpdateFCM()
+            } catch (e: Exception) {
+                Timber.e(e, "Error getting device ID")
+            }
+        }
+    }
+
+    private fun checkAndUpdateFCM() {
+        val loginInfo = _userLoginInfo.value
+        val deviceId = _deviceID.value
+        val token = _fcmToken.value
+        Timber.d("loginInfo : "+loginInfo.toString())
+        Timber.d("deviceId : "+ deviceId)
+        Timber.d("fcmToken : "+token)
+        if (loginInfo != null && deviceId.isNotEmpty() && token.isNotEmpty()) {
+            viewModelScope.launch {
+                setFCMUseCase.registFCMToken(loginInfo.userId, deviceId, token)
+            }
+        }
+    }
+
+
+
 
 
 }

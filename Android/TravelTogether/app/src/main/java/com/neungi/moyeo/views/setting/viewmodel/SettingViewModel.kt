@@ -58,6 +58,7 @@ class SettingViewModel @Inject constructor(
         viewModelScope.launch {
             setUserInfoUseCase.logOut()
             getUserInfo()
+            _settingUiEvent.emit(SettingUiEvent.Logout)
         }
     }
 

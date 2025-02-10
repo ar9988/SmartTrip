@@ -10,6 +10,9 @@
         android:name="com.neungi.moyeo.views.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_Notification"
+            app:destination="@id/fragment_notification" />
 
     </fragment>
 
@@ -209,5 +212,9 @@
         android:id="@+id/fragment_ai_theme"
         android:name="com.neungi.moyeo.views.aiplanning.AiSelectThemeFragment"
         android:label="AiSelectThemeFragment" />
+    <fragment
+        android:id="@+id/fragment_notification"
+        android:name="com.neungi.moyeo.views.home.NotificationFragment"
+        android:label="NotificationFragment" />
 
 </navigation>
