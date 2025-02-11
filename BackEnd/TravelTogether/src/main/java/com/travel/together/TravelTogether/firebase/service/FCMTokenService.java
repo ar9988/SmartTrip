@@ -39,7 +39,7 @@ public class FCMTokenService {
                     fcmTokenRepository.save(newToken);
                 }
         );
-        sendNotificationToUser(userId, "fcm 토큰 확인 deviceId"+deviceId,"fcm등록 완료");
+//        sendNotificationToUser(userId, "fcm 토큰 확인 deviceId"+deviceId,"fcm등록 완료");
     }
 
     public void updateFCMToken(Long userId, String deviceId, String newToken) {

@@ -4,22 +4,23 @@ import com.travel.together.TravelTogether.aiPlanning.dto.OpenaiRequestDto;
 import com.travel.together.TravelTogether.aiPlanning.dto.OpenaiResponseDto;
 import com.travel.together.TravelTogether.firebase.service.FCMTokenService;
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OpenaiService {
 
@@ -40,12 +41,31 @@ public class OpenaiService {
 
     // 프롬프트를 외부 파일에서 읽어오기
     private String loadPromptTemplate() {
+//        try {
+//            // resources 폴더에서 텍스트 파일 읽기
+//            String filePath = ResourceUtils.getFile("classpath:promptTemplate.txt").getAbsolutePath();
+//            log.info(filePath);
+//            return new String(Files.readAllBytes(Paths.get(filePath)));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
         try {
-            // resources 폴더에서 텍스트 파일 읽기
-            String filePath = ResourceUtils.getFile("classpath:promptTemplate.txt").getAbsolutePath();
-            return new String(Files.readAllBytes(Paths.get(filePath)));
+            // ClassPathResource를 사용하여 JAR 내부에서도 정상적으로 파일 읽기
+            ClassPathResource resource = new ClassPathResource("promptTemplate.txt");
+            InputStream inputStream = resource.getInputStream();
+
+            // BufferedReader로 파일 내용 읽기
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+                return content.toString();
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("프롬프트 템플릿 파일을 읽는 중 오류 발생", e);
             return null;
         }
     }
@@ -63,6 +83,35 @@ public class OpenaiService {
 
     public OpenaiResponseDto callOpenaiApi(OpenaiRequestDto requestDTO) {
         OpenaiResponseDto openaiResponseDto = null;
+//        try {
+//            String url = "https://api.openai.com/v1/chat/completions";
+//
+//            // API 요청 본문 생성
+//            JSONObject requestBody = new JSONObject();
+//            requestBody.put("model", "gpt-4o-mini");
+//            requestBody.put("max_tokens", MAX_TOKENS);
+//
+//            // 외부 파일에서 프롬프트 템플릿을 로드
+//            String promptTemplate = loadPromptTemplate();
+//
+//            // 요청 데이터로 프롬프트 템플릿을 동적으로 생성
+//            String prompt = promptTemplate
+//                    .replace("{startDate}", requestDTO.getStartDate())
+//                    .replace("{startTime}", requestDTO.getStartTime())
+//                    .replace("{endDate}", requestDTO.getEndDate())
+//                    .replace("{endTime}", requestDTO.getEndTime())
+//                    .replace("{destination}", listToJsonArray(requestDTO.getDestination())) // List<String>을 JSON 배열로 변환
+//                    .replace("{places}", listToJsonArray(requestDTO.getPreferences().getPlaces())) // Preferences의 places 변환
+//                    .replace("{theme}", listToJsonArray(requestDTO.getPreferences().getTheme())); // Preferences의 theme 변환
+//
+//
+//            JSONArray messages = new JSONArray();
+//            JSONObject message = new JSONObject();
+//            message.put("role", "user");
+//            message.put("content", prompt);
+//            messages.put(message);
+//
+//            requestBody.put("messages", messages);
         try {
             String url = "https://api.openai.com/v1/chat/completions";
 
@@ -73,6 +122,9 @@ public class OpenaiService {
 
             // 외부 파일에서 프롬프트 템플릿을 로드
             String promptTemplate = loadPromptTemplate();
+            if (promptTemplate == null) {
+                throw new RuntimeException("프롬프트 템플릿을 불러올 수 없습니다.");
+            }
 
             // 요청 데이터로 프롬프트 템플릿을 동적으로 생성
             String prompt = promptTemplate
@@ -80,10 +132,9 @@ public class OpenaiService {
                     .replace("{startTime}", requestDTO.getStartTime())
                     .replace("{endDate}", requestDTO.getEndDate())
                     .replace("{endTime}", requestDTO.getEndTime())
-                    .replace("{destination}", listToJsonArray(requestDTO.getDestination())) // List<String>을 JSON 배열로 변환
-                    .replace("{places}", listToJsonArray(requestDTO.getPreferences().getPlaces())) // Preferences의 places 변환
-                    .replace("{theme}", listToJsonArray(requestDTO.getPreferences().getTheme())); // Preferences의 theme 변환
-
+                    .replace("{destination}", listToJsonArray(requestDTO.getDestination()))
+                    .replace("{places}", listToJsonArray(requestDTO.getPreferences().getPlaces()))
+                    .replace("{theme}", listToJsonArray(requestDTO.getPreferences().getTheme()));
 
             JSONArray messages = new JSONArray();
             JSONObject message = new JSONObject();
