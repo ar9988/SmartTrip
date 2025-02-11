@@ -16,6 +16,8 @@ sealed class AiPlanningUiEvent {
 
     data object ShowFestivalDialog:AiPlanningUiEvent()
 
+    data object RequestPlanning:AiPlanningUiEvent()
+
 
 
 

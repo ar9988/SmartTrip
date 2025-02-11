@@ -57,7 +57,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val today = LocalDate.now()
             val endDate = today.plusDays(30)
-            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDD(today), CommonUtils.convertToYYYYMMDD(endDate), null)
+            Timber.d("?!?!?!??!!??")
+            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(today), CommonUtils.convertToYYYYMMDDwithHyphen(endDate), "-1")
             Timber.d("${result}")
             when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -66,7 +67,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 ApiStatus.ERROR -> {
-                    Timber.e(result.message)
+                    Timber.e("errormsg : "+result.message)
                     _recommendFestivals.value = emptyList()
                 }
                 ApiStatus.FAIL -> {

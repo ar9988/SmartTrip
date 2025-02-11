@@ -1,5 +1,6 @@
 package com.neungi.data.repository.festival
 
+import android.util.Log
 import com.neungi.data.mapper.FestivalMapper
 import com.neungi.data.repository.festival.datasource.FestivalRemoteDataSource
 import com.neungi.domain.model.ApiResult
@@ -38,6 +39,7 @@ class FestivalRepositoryImpl@Inject constructor(
     ): ApiResult<List<Festival>> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                Log.d("regionCode",regionNumber.toString())
                 festivalRemoteDataSource.getFestivals(startDate,endDate,regionNumber)
             }
 
