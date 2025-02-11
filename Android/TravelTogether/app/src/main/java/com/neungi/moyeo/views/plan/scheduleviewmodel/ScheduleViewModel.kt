@@ -15,7 +15,6 @@ import com.neungi.domain.usecase.GetScheduleUseCase
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.util.convertToSections
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -23,10 +22,10 @@ import javax.inject.Inject
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val getScheduleUseCase: GetScheduleUseCase,
-    val webSocketManager: WebSocketManager
+    private val webSocketManager: WebSocketManager
 ) : ViewModel() {
 
-    private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
+    private val serverUrl = "ws://43.202.51.112:8081/ws?tripId="
     lateinit var trip: Trip
 
     // 이벤트에 대한 LiveData를 ViewModel에서 관리
@@ -73,52 +72,44 @@ class ScheduleViewModel @Inject constructor(
 
     fun sendDeleteEvent(scheduleId: Int) {
         val event = ServerEvent("MOVE123", trip.id, Operation("DELETE", scheduleId, 0), 111231)
-        viewModelScope.launch {
-            webSocketManager.sendMessage(event)
-        }
+        webSocketManager.sendMessage(event)
     }
 
     fun sendEditEvent(schedule: ScheduleEntity) {
-        viewModelScope.launch {
-            webSocketManager.sendMessage(
-                ManipulationEvent(
-                    action = "EDIT",
-                    tripId = schedule.tripId,
-                    dayId = schedule.day,
-                    timeStamp = 0,
-                    schedule = schedule
-                )
+        webSocketManager.sendMessage(
+            ManipulationEvent(
+                action = "EDIT",
+                tripId = schedule.tripId,
+                dayOrder = schedule.day,
+                timeStamp = 0,
+                schedule = schedule
             )
-        }
+        )
+
 
     }
 
     fun sendAddEvent(schedule: ScheduleEntity) {
         Timber.d(schedule.toString())
-        viewModelScope.launch {
-            webSocketManager.sendMessage(
-                ManipulationEvent(
-                    action = "ADD",
-                    tripId = schedule.tripId,
-                    dayId = schedule.day,
-                    timeStamp = 0,
-                    schedule = schedule
-                )
+        webSocketManager.sendMessage(
+            ManipulationEvent(
+                action = "ADD",
+                tripId = schedule.tripId,
+                dayOrder = schedule.day,
+                timeStamp = 0,
+                schedule = schedule
             )
-        }
+        )
+
     }
-
-//    fun startEvent() {
-//        val event = ServerEvent("MOVE123", trip.id, Operation("START", 0, 0), 111231)
-////        webSocketManager.sendMessage(event)
-//    }
-
 
     fun startConnect() {
         webSocketManager.connect(serverUrl + trip.id)
         webSocketManager.tripId = trip.id
-        Timber.d(serverUrl + trip.id)
     }
 
+    fun closeWebSocket() {
+        webSocketManager.close()
+    }
 
 }

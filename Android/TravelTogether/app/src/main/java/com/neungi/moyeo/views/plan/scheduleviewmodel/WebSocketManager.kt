@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
+import com.neungi.data.entity.ScheduleEntity
 import com.neungi.data.entity.ServerReceive
 import com.neungi.moyeo.views.plan.adapter.LocalDateTimeAdapter
 import kotlinx.coroutines.CompletableDeferred
@@ -26,7 +27,6 @@ class WebSocketManager @Inject constructor() {
     var onRouteEventReceived: ((PathReceive) -> Unit)? = null
     var onScheduleEventReceived: ((ScheduleReceive) -> Unit)? = null
     var onAddEventReceived: ((ManipulationEvent) -> Unit)? = null
-    private val connectionDeferred = CompletableDeferred<Unit>() // Deferred object to track connection status.
 
     private val webSocketListener = object : WebSocketListener() {
 
@@ -48,7 +48,7 @@ class WebSocketManager @Inject constructor() {
                     return
                 }
                 val jsonObject = JsonParser.parseString(text).asJsonObject
-
+//                Timber.d(jsonObject.toString())
                 when {
 
                     jsonObject.has("status") -> {
@@ -59,7 +59,7 @@ class WebSocketManager @Inject constructor() {
                     jsonObject.has("title") -> {
                         isConnected = true
                         val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
-                        Timber.d(scheduleReceive.toString())
+//                        Timber.d(scheduleReceive.toString())
                         onScheduleEventReceived?.invoke(scheduleReceive)
                     }
                     jsonObject.has("paths") -> {
@@ -69,6 +69,7 @@ class WebSocketManager @Inject constructor() {
                     }
                     jsonObject.has("action") -> {
                         val add = gson.fromJson(text, ManipulationEvent::class.java)
+                        Timber.d(add.toString())
                         onAddEventReceived?.invoke(add)
                     }
                 }
@@ -86,7 +87,7 @@ class WebSocketManager @Inject constructor() {
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosed(webSocket, code, reason)
             isConnected = false
-            Log.d("WebSocket", "onClosed: Code=$code, Reason=$reason")
+            Timber.tag("WebSocket").d("onClosed: Code=$code, Reason=$reason")
         }
     }
 
@@ -96,12 +97,7 @@ class WebSocketManager @Inject constructor() {
 
     }
 
-    suspend fun sendMessage(message: Any) {
-        if (!isConnected) {
-            // Suspend until the WebSocket is connected
-            connectionDeferred.await()
-        }
-
+    fun sendMessage(message: Any) {
         if (isConnected) {
             val gson = Gson()
             val jsonMessage = gson.toJson(message)
