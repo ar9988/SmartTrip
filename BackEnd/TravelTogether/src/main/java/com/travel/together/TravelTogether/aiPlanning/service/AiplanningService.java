@@ -1,13 +1,17 @@
 package com.travel.together.TravelTogether.aiPlanning.service;
 
 import com.travel.together.TravelTogether.aiPlanning.dto.*;
+import com.travel.together.TravelTogether.album.entity.PhotoAlbum;
+import com.travel.together.TravelTogether.album.repository.PhotoAlbumRepository;
 import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import com.travel.together.TravelTogether.trip.entity.Day;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.entity.Trip;
+import com.travel.together.TravelTogether.trip.entity.TripMember;
 import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
+import com.travel.together.TravelTogether.trip.repository.TripMemberRepository;
 import com.travel.together.TravelTogether.trip.repository.TripRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +30,10 @@ public class AiplanningService {
     private final ScheduleRepository scheduleRepository;
     private final KakaoService kakaoService;
     private final TripRepository tripRepository;
+    private final TripMemberRepository tripMemberRepository;
     private final DayRepository dayRepository;
     private final UserRepository userRepository;
+    private final PhotoAlbumRepository photoAlbumRepository;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
@@ -41,9 +47,22 @@ public class AiplanningService {
         // 현재 사용자 정보 가져오기
         User user = getCurrentUser(); // 현재 사용자 정보 가져오기
 
-        // 여행(Trip) 생성 및 저장
+        // Trip 생성 및 저장
         Trip trip = createTrip(responseDto, user);
         tripRepository.save(trip);
+
+        // 앨범 생성
+        PhotoAlbum album = new PhotoAlbum();
+        album.setTrip(trip);
+        album.setImageUrl("default.jpg");  // 기본 앨범 커버 이미지 설정
+        photoAlbumRepository.save(album);
+
+        // TripMember 생성 및 저장
+        TripMember tripMember = new TripMember();
+        tripMember.setTrip(trip);
+        tripMember.setUser(user);
+        tripMember.setIsOwner(true);
+        tripMemberRepository.save(tripMember);
 
         List<OpenaiResponseDto.DateActivities> days = responseDto.getSchedule().getDays();
         if (days == null || days.isEmpty()) {
@@ -118,6 +137,14 @@ public class AiplanningService {
             }
 
             KakaoDto place = kakaoResponse.getPlaces().get(0);
+
+            if (place.getPlaceName().equals("식사")) {
+                Double lat = 0.0;
+                Double lng = 0.0;
+            } else {
+                Double lat = place.getLatitude();
+                Double lng = place.getLongitude();
+            }
 
             Schedule planningData = Schedule.builder()
                     .day(day)

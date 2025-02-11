@@ -191,7 +191,7 @@ public class OpenaiService {
             openaiResponseDto.setSchedule(schedule);
 
             aiplanningService.savePlanningData(openaiResponseDto);
-
+            fcmTokenService.sendNotificationToUser(requestDTO.getUserId(),"일정 생성 완료", "일정 생성이 완료되었습니다.");
             return openaiResponseDto; // API 응답을 반환
 
 

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "trip")
 @Getter
 @Setter
-@EntityListeners(TripEntityListener.class)
+//@EntityListeners(TripEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Trip {
 

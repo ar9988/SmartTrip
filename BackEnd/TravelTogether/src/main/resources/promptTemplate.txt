@@ -38,7 +38,7 @@ theme:{theme}
    - JSON 형식으로만 응답하며 부가 설명 제외
    - 날짜 형식:
      * `start_date`, `end_date`: "YYYYMMDD"
-     * `date`: "YYYY-MM-DD"
+     * `date`: "YYYYMMDD"
    - `type` 구분:
      * 1: 관광지
      * 2: 식사
