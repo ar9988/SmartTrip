@@ -44,6 +44,20 @@ public class TripStateManager {
     private final Map<Integer, Map<Integer, ScheduleDTO>> tripScheduleMap = new ConcurrentHashMap<>();
 
 
+    // ADD요청 관리용
+    private final Map<Integer, AddRequest> pendingAddRequests = new ConcurrentHashMap<>();
+
+    // TripStateManager에 메소드 추가
+    public void storePendingAddRequest(Integer tripId, AddRequest addRequest) {
+        pendingAddRequests.put(tripId, addRequest);
+    }
+
+    public AddRequest getPendingAddRequest(Integer tripId) {
+        return pendingAddRequests.remove(tripId);  // 조회 후 삭제
+    }
+
+
+
     // DB에서 읽어온 tripDetail 저장
     private final Map<Integer, TripDetailDTO> tripDetailMap = new ConcurrentHashMap<>();
 
