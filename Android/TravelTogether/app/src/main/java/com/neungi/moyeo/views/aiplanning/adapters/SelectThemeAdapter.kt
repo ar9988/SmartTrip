@@ -43,7 +43,9 @@ class SelectThemeAdapter(
         fun bind(item: ThemeSelectUiState) {
             with(binding) {
                 // 이미지 로딩 최적화
-                ivThemeItem.load(item.themeItem.imgId)
+                ivThemeItem.load(item.themeItem.imgId){
+                    placeholder(R.drawable.ic_placeholder)
+                }
                 tvThemeItem.text = item.themeItem.name
                 root.setOnClickListener {
                     onThemeClick(item.themeItem.name)

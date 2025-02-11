@@ -24,6 +24,7 @@ class AiRecommendFestivalAdapter(private val viewModel: AIPlanningViewModel) : L
             binding.uiState = item
             binding.ivFestivalImage.load(item.festival.imageUrl) {
                 error(R.drawable.image_noimg)
+                placeholder(R.drawable.ic_placeholder)
             }
             updateSelectedUI(item.isSelected)
             binding.root.setOnClickListener {

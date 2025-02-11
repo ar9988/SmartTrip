@@ -59,7 +59,7 @@ class HomeViewModel @Inject constructor(
             val endDate = today.plusDays(30)
             Timber.d("?!?!?!??!!??")
             val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(today), CommonUtils.convertToYYYYMMDDwithHyphen(endDate), "-1")
-            Timber.d("${result}")
+            Timber.d("홈 추천 축제 : ${result}")
             when (result.status) {
                 ApiStatus.SUCCESS -> {
                     result.data?.let { festivals ->

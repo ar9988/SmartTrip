@@ -75,6 +75,8 @@
                         viewModel.recommendFestivals,
                         viewModel.selectedPlaces
                     ) { festivals, selectedPlaces ->
+
+//                        binding.layoutFestivals.visibility = if(festivals.isEmpty()) View.GONE else View.VISIBLE
                         festivals.map { festival ->
                             FestivalSelectUiState(
                                 festival = festival,
@@ -148,7 +150,9 @@
             }
 
             with(dialogBinding) {
-                ivFestivalDialogImage.load(viewModel.dialogFestival.value!!.imageUrl)
+                ivFestivalDialogImage.load(viewModel.dialogFestival.value!!.imageUrl){
+                    placeholder(R.drawable.ic_placeholder)
+                }
                 btnFestivalDialogClose.setOnClickListener {
                     dialog.dismiss()
                 }

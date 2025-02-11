@@ -101,7 +101,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
 
         with(dialogBinding) {
-            ivFestivalDialogImage.load(viewModel.dialogFestival.value!!.imageUrl)
+            ivFestivalDialogImage.load(viewModel.dialogFestival.value!!.imageUrl){
+                placeholder(R.drawable.ic_placeholder)
+            }
             btnFestivalDialogClose.setOnClickListener {
                 dialog.dismiss()
             }

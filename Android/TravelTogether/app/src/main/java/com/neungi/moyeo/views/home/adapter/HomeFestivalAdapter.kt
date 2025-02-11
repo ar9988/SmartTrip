@@ -18,6 +18,7 @@ class HomeFestivalAdapter(private val viewModel: HomeViewModel) : ListAdapter<Fe
             binding.data = item
             binding.ivFestivalImage.load(item.imageUrl) {
                 error(R.drawable.image_noimg)
+                placeholder(R.drawable.ic_placeholder)
             }
             binding.root.setOnClickListener {
                 viewModel.selectFestival(item)

@@ -50,6 +50,9 @@ class CustomCalendarView (context: Context, attrs: AttributeSet) : CalendarView(
 
             init {
                 view.setOnClickListener {
+                    if (day.date < LocalDate.now() || day.position != DayPosition.MonthDate) {
+                        return@setOnClickListener
+                    }
                     if (selectedStartDate == null) {
                         selectedStartDate = day.date
                         selectedEndDate = null
@@ -76,6 +79,12 @@ class CustomCalendarView (context: Context, attrs: AttributeSet) : CalendarView(
             override fun bind(container: DayViewContainer, day: CalendarDay) {
                 container.day = day
                 container.binding.tvDay.text = day.date.dayOfMonth.toString()
+
+                if (day.date < LocalDate.now()) {
+                    container.binding.tvDay.setTextColor(Color.argb(128, 128, 128, 128))
+                    container.binding.tvDay.background = null
+                    return
+                }
 
                 when {
                     day.date == selectedStartDate && selectedEndDate == null -> {
