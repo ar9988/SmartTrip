@@ -80,7 +80,7 @@ class ScheduleViewModel @Inject constructor(
             ManipulationEvent(
                 action = "EDIT",
                 tripId = schedule.tripId,
-                dayId = schedule.day,
+                dayOrder = schedule.day,
                 timeStamp = 0,
                 schedule = schedule
             )
@@ -95,19 +95,13 @@ class ScheduleViewModel @Inject constructor(
             ManipulationEvent(
                 action = "ADD",
                 tripId = schedule.tripId,
-                dayId = schedule.day,
+                dayOrder = schedule.day,
                 timeStamp = 0,
                 schedule = schedule
             )
         )
 
     }
-
-//    fun startEvent() {
-//        val event = ServerEvent("MOVE123", trip.id, Operation("START", 0, 0), 111231)
-////        webSocketManager.sendMessage(event)
-//    }
-
 
     fun startConnect() {
         webSocketManager.connect(serverUrl + trip.id)
