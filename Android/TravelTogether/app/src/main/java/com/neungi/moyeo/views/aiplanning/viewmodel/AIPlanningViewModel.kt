@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -251,23 +252,25 @@ class AIPlanningViewModel @Inject constructor(
     fun updateFestivalsByLocation(firstLocation: String) {
         Timber.d("updateFestival!!"+regionMapper.getRegionCode(firstLocation))
         viewModelScope.launch {
-            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(startDate.value), CommonUtils.convertToYYYYMMDDwithHyphen(endDate.value), regionMapper.getRegionCode(firstLocation))
-            Timber.d("${result}")
-            when (result.status) {
-                ApiStatus.SUCCESS -> {
-                    result.data?.let { festivals ->
-                        _recommendFestivals.value = festivals.toList()
+            val resultFlow = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(startDate.value), CommonUtils.convertToYYYYMMDDwithHyphen(endDate.value), regionMapper.getRegionCode(firstLocation))
+
+            resultFlow.collectLatest { result ->
+                when (result.status) {
+                    ApiStatus.SUCCESS -> {
+                        result.data?.let { festivals ->
+                            _recommendFestivals.value = festivals.toList()
+                        }
                     }
-                }
-                ApiStatus.ERROR -> {
-                    Timber.e(result.message)
-                    _recommendFestivals.value = emptyList()
-                }
-                ApiStatus.FAIL -> {
-                    _recommendFestivals.value = emptyList()
-                }
-                ApiStatus.LOADING -> {
-                    // 로딩 상태 처리가 필요한 경우
+                    ApiStatus.ERROR -> {
+                        Timber.e(result.message)
+                        _recommendFestivals.value = emptyList()
+                    }
+                    ApiStatus.FAIL -> {
+                        _recommendFestivals.value = emptyList()
+                    }
+                    ApiStatus.LOADING -> {
+                        // 로딩 상태 처리가 필요한 경우
+                    }
                 }
             }
 

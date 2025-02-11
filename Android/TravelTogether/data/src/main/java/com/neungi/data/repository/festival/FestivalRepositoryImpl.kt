@@ -8,6 +8,8 @@ import com.neungi.domain.model.Festival
 import com.neungi.domain.repository.FestivalRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -36,23 +38,25 @@ class FestivalRepositoryImpl@Inject constructor(
         startDate: String,
         endDate: String,
         regionNumber: String?
-    ): ApiResult<List<Festival>> =
+    ): Flow<ApiResult<List<Festival>>> = flow {
+        emit(ApiResult.loading(null))
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                Log.d("regionCode",regionNumber.toString())
-                festivalRemoteDataSource.getFestivals(startDate,endDate,regionNumber)
+                Log.d("regionCode", regionNumber.toString())
+                festivalRemoteDataSource.getFestivals(startDate, endDate, regionNumber)
             }
 
             val body = response.body()
             if (response.isSuccessful && (body != null)) {
-                ApiResult.success(FestivalMapper(body.festivals))
+                emit(ApiResult.success(FestivalMapper(body.festivals)))
             } else {
-                ApiResult.error(response.errorBody().toString(), null)
+                emit(ApiResult.error(response.errorBody().toString(), null))
             }
 
         } catch (e: Exception) {
-            ApiResult.fail()
+            emit(ApiResult.fail())
         }
+    }
 
     override suspend fun getFestivalOverview(
         contentId: String

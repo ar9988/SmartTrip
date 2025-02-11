@@ -52,6 +52,13 @@ class MainViewModel @Inject constructor(
         _bnvState.value = isVisible
     }
 
+    private val _loadingState = MutableStateFlow<Boolean>(false)
+    val loadingState = _loadingState.asStateFlow()
+
+    fun setLoadingState(isLoading: Boolean){
+        _loadingState.update { isLoading }
+    }
+
     //관광지 검색 결과
     private val _placeSearchResult = MutableStateFlow<List<Place>>(emptyList())
     val placeSearchResult = _placeSearchResult.asStateFlow()

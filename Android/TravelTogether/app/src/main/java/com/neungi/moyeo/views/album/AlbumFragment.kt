@@ -35,15 +35,20 @@ class AlbumFragment : BaseFragment<FragmentAlbumBinding>(R.layout.fragment_album
             viewModel.albumsState.collectLatest { state ->
                 when (state.status) {
                     ApiStatus.LOADING -> {
-                        showLoading(true)
+                        mainViewModel.setLoadingState(true)
+//                        showLoading(true)
                     }
 
                     ApiStatus.ERROR -> {
-                        showLoading(false)
+                        mainViewModel.setLoadingState(false)
+//                        showLoading(false)
                         showToastMessage(resources.getString(R.string.message_fail_to_get_albums))
                     }
 
-                    else -> { showLoading(false) }
+                    else -> {
+//                        showLoading(false)
+                        mainViewModel.setLoadingState(false)
+                    }
                 }
             }
         }

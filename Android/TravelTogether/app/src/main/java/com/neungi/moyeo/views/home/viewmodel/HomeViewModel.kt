@@ -2,9 +2,11 @@ package com.neungi.moyeo.views.home.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.Notification
+import com.neungi.domain.model.PhotoAlbum
 import com.neungi.domain.model.Trip
 import com.neungi.domain.usecase.GetFestivalOverview
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -49,6 +52,10 @@ class HomeViewModel @Inject constructor(
     private val _notificationHistory = MutableStateFlow<List<Notification>>(emptyList())
     val notificationHistory = _notificationHistory.asStateFlow()
 
+    private val _festivalState =
+        MutableStateFlow<ApiResult<List<Festival>>>(ApiResult.success(emptyList()))
+    val festivalState = _festivalState.asStateFlow()
+
     init{
         getFestivalList()
     }
@@ -58,23 +65,12 @@ class HomeViewModel @Inject constructor(
             val today = LocalDate.now()
             val endDate = today.plusDays(30)
             Timber.d("?!?!?!??!!??")
-            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(today), CommonUtils.convertToYYYYMMDDwithHyphen(endDate), "-1")
-            Timber.d("홈 추천 축제 : ${result}")
-            when (result.status) {
-                ApiStatus.SUCCESS -> {
-                    result.data?.let { festivals ->
-                        _recommendFestivals.value = festivals.toList()
-                    }
-                }
-                ApiStatus.ERROR -> {
-                    Timber.e("errormsg : "+result.message)
-                    _recommendFestivals.value = emptyList()
-                }
-                ApiStatus.FAIL -> {
-                    _recommendFestivals.value = emptyList()
-                }
-                ApiStatus.LOADING -> {
-                    // 로딩 상태 처리가 필요한 경우
+            val resultFlow = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(today), CommonUtils.convertToYYYYMMDDwithHyphen(endDate), "-1")
+
+            resultFlow.collectLatest { result ->
+                _festivalState.value = result
+                if (_festivalState.value.status == ApiStatus.SUCCESS){
+                    _recommendFestivals.value = _festivalState.value.data?: emptyList()
                 }
             }
 

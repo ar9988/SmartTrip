@@ -8,11 +8,12 @@ import android.view.View
 import android.view.Window
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
-import coil.ImageLoader
 import coil.load
-import coil.request.ImageRequest
 import coil.transform.CircleCropTransformation
+import com.neungi.domain.model.ApiStatus
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.DialogFestivalInfoBinding
@@ -22,7 +23,8 @@ import com.neungi.moyeo.views.home.adapter.HomeFestivalAdapter
 import com.neungi.moyeo.views.home.viewmodel.HomeUiEvent
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
@@ -35,7 +37,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.vm = viewModel
-
+        mainViewModel.setLoadingState(true)
         setAdapter()
         collectLatestFlow(mainViewModel.userLoginInfo){ userInfo->
             binding.loginInfo = userInfo
@@ -45,10 +47,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 error(R.drawable.ic_profile)
             }
         }
-        collectLatestFlow(viewModel.homeUiEvent) { handleUiEvent(it) }
-        collectLatestFlow(viewModel.recommendFestivals){ festivals ->
-            homeFestivalAdapter.submitList(festivals)
-        }
+        observeStates()
     }
 
 //    private fun on
@@ -75,6 +74,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             }
         }
 
+    }
+
+    fun observeStates(){
+        collectLatestFlow(viewModel.homeUiEvent) { handleUiEvent(it) }
+        collectLatestFlow(viewModel.recommendFestivals){ festivals ->
+            if(festivals.isNotEmpty()) {
+                homeFestivalAdapter.submitList(festivals)
+            }
+        }
+        lifecycleScope.launch {
+            viewModel.festivalState.collectLatest { state ->
+                mainViewModel.setLoadingState(state.status==ApiStatus.LOADING)
+            }
+        }
     }
 
     fun showFestivalDialog(){

@@ -5,11 +5,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -26,6 +28,9 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import com.neungi.moyeo.views.setting.viewmodel.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.jar.Manifest
 
 @AndroidEntryPoint
@@ -54,6 +59,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) && !hasPermission()) {
             requestNotificationPermission()
+        }
+        lifecycleScope.launch {
+            viewModel.loadingState.collectLatest { isLoading ->
+                Timber.d("Loading : "+isLoading.toString())
+                if(isLoading) {
+                    binding.lottieLoading.isClickable = true
+                    binding.lottieLoading.isFocusable = true
+                    binding.loadingAnimation.playAnimation()
+                } else {
+                    binding.lottieLoading.isClickable = false
+                    binding.lottieLoading.isFocusable = false
+                    binding.loadingAnimation.cancelAnimation()
+                }
+
+            }
         }
 
 
