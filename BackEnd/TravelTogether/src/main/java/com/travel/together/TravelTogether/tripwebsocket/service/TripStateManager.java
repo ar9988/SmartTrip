@@ -61,15 +61,23 @@ public class TripStateManager {
         tripDetailMap.put(tripId, tripDetail);
 
         Map<Integer, ScheduleDTO> scheduleMap = new ConcurrentHashMap<>();
+        Map<Integer, Integer> positionMap = new ConcurrentHashMap<>(); // position 저장용
+
 
         // DayDto에서 모든 schedule 추출하여 Map으로 저장 (scheduleId를 key로)
         for (DayDto dayDto : tripDetail.getDayDtos()) {
             for (ScheduleDTO schedule : dayDto.getSchedules()) {
                 scheduleMap.put(schedule.getId(), schedule);
+                positionMap.put(schedule.getId(), schedule.getPositionPath()); // position 저장
+
             }
         }
 
         tripScheduleMap.put(tripId, scheduleMap);
+        tripSchedulePositions.putIfAbsent(tripId, positionMap);
+        log.info("Initialized schedules for tripId {}: {} schedules", tripId, scheduleMap.size());
+        log.info("Initialized schedule positions for tripId {}: {}", tripId, positionMap);
+
         log.info("Initialized schedules for tripId {}: {} schedules",
                 tripId, scheduleMap.size());
     }
@@ -116,7 +124,10 @@ public class TripStateManager {
 
     // 특정 trip의 schedule positions 조회
     public Map<Integer, Integer> getSchedulePositions(Integer tripId) {
-        return new HashMap<>(tripSchedulePositions.getOrDefault(tripId, new HashMap<>()));
+
+//        return new HashMap<>(tripSchedulePositions.getOrDefault(tripId, new HashMap<>()));
+        return tripSchedulePositions.get(tripId);
+
     }
 
 

@@ -2,6 +2,7 @@ package com.travel.together.TravelTogether.tripwebsocket.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travel.together.TravelTogether.trip.dto.ScheduleDto;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
@@ -46,16 +47,12 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     private final ExecutorService executorService;
 
 
-
     // tripId를 키로 하고, 해당 여행의 접속자들의 세션을 값으로 가지는 Map
     private final Map<String, Set<WebSocketSession>> tripSessions = new ConcurrentHashMap<>();
 
     // 세션 ID를 키로 하고, tripId를 값으로 가지는 Map (세션이 어느 여행에 속해있는지 추적)
     // "session123" -> "trip456", 하나의 trip에 여러 session이 매핑됨
     private final Map<String, String> sessionTripMapping = new ConcurrentHashMap<>();
-
-
-
 
 
     private void handleStartOperation(WebSocketSession session, Integer tripId) {
@@ -173,14 +170,12 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
         // 4. 경로 정보 전송 (있는 경우)
         if (stateManager.hasPositions(tripId)) {
+            log.info("hasPositions returned true for tripId: {}", tripId);
             sendPathInformation(session, tripId);
         }
 
         log.info("=== END Initial Sync for tripId: {} ===", tripId);
     }
-
-
-
 
 
     // 새로 들어온 유저한테 현재상테 전송
@@ -227,8 +222,6 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         String tripId = extractTripId(session);
 
 
-
-
         if (tripId != null) {
             // 해당 trip의 세션 목록에 현재 세션 추가
             tripSessions.computeIfAbsent(tripId, k -> ConcurrentHashMap.newKeySet())
@@ -253,7 +246,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 throw new RuntimeException(e);
             } catch (java.io.IOException e) {
                 throw new RuntimeException(e);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Error in afterConnectionEstablished for tripId: " + tripId, e);
 
             }
@@ -261,16 +254,34 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     }
 
 
-
-
-
-
-
     //실시간 편집 동기화
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
             log.info("Received message: {}", message.getPayload());
+
+
+
+            // ADD 액션 체크
+            JsonNode jsonNode = objectMapper.readTree(message.getPayload());
+            String action = jsonNode.get("action").asText();
+
+            if ("ADD".equals(action)) {
+                AddRequest addRequest = objectMapper.readValue(message.getPayload(), AddRequest.class);
+                Integer tripId = addRequest.getTripId();
+
+                if (tripId == null) {
+                    log.error("Trip ID is null");
+                    session.sendMessage(new TextMessage("{\"error\": \"Trip ID cannot be null\"}"));
+                    return;
+                }
+
+                handleAddOperation(tripId, addRequest);
+                return;  // ADD 처리 후 종료
+            }
+
+
+
 
             // 메시지를 EditRequest 객체로 변환
             EditRequest editRequest = objectMapper.readValue(message.getPayload(), EditRequest.class);
@@ -290,16 +301,16 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             stateManager.addEdit(tripId, editRequest);
 
 
-
             switch (operation.getAction()) {
                 case "START":
                     handleStartOperation(session, tripId);
                     break;
                 case "MOVE":
                     handleMoveOperation(tripId, operation);
-                break;
+                    break;
 
                 case "ADD":
+                    handleAddOperation(tripId, objectMapper.convertValue(message.getPayload(), AddRequest.class));
                     break;
                 case "DELETE":
 
@@ -318,8 +329,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             }
 
 
-
-                // 송신자에게 즉시 "SUCCESS" 메시지 전송(테스트용)
+            // 송신자에게 즉시 "SUCCESS" 메시지 전송(테스트용)
             session.sendMessage(new TextMessage("SUCCESS"));
 
             // EditResponse클래스의 팩토리 메서드 사용(일단 버전 관리는 생략)
@@ -343,13 +353,13 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 }
             }
 
-            } catch (IOException e) {
-                log.error("Error handling message", e);
-            } catch (JsonMappingException e) {
-                throw new RuntimeException(e);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            } catch (java.io.IOException e) {
+        } catch (IOException e) {
+            log.error("Error handling message", e);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (java.io.IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -428,78 +438,67 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     }
 
 
-
-
-
-
-
     // MOVE 비동기처리
-private void handleMoveOperation(Integer tripId, EditRequest.Operation operation) throws JsonProcessingException {
-    log.info("=== START handleMoveOperation for tripId: {} ===", tripId);
+    private void handleMoveOperation(Integer tripId, EditRequest.Operation operation) throws JsonProcessingException {
+        log.info("=== START handleMoveOperation for tripId: {} ===", tripId);
 
-    try {
-        // 1. schedulePositions 초기화 체크
-        log.info("Checking schedulePositions initialization for tripId: {}", tripId);
-        if (!stateManager.hasPositions(tripId)) {
-            List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
-            stateManager.initializeSchedulePositions(tripId, schedules);
-        }
-
-        // 2. position 상태 업데이트
-        log.info("Updating state for tripId: {}, scheduleId: {}", tripId, operation.getScheduleId());
-
-        stateManager.updateState(
-                tripId,
-                operation.getScheduleId(),
-                operation.getPositionPath()
-        );
-
-        // 3. 현재 상태를 모든 클라이언트에게 전송
-        EditRequest.Operation newOperation = new EditRequest.Operation();
-        newOperation.setAction("MOVE");  // Action 명시적 설정
-        newOperation.setScheduleId(operation.getScheduleId());
-        newOperation.setPositionPath(operation.getPositionPath());
-
-        EditRequest newEditRequest = new EditRequest();
-        newEditRequest.setTripId(tripId);
-        newEditRequest.setOperation(newOperation);
-
-        EditResponse response = EditResponse.createSuccess(newEditRequest, 1);
-        broadcastToTripSessions(tripId, objectMapper.writeValueAsString(response));
-
-        // 4. path 생성은 콜백으로 비동기 처리
-        stateManager.generatePathsForSchedule(tripId, operation.getScheduleId(), paths -> {
-            if (paths != null) {
-                try {
-                    MoveResponse pathResponse = new MoveResponse(
-                            tripId,
-                            operation.getScheduleId(),
-                            operation.getPositionPath(),
-                            paths
-                    );
-                    String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
-                    broadcastToTripSessions(tripId, pathJsonResponse);
-                } catch (Exception e) {
-                    log.error("Error broadcasting path for tripId: {}", tripId, e);
-                }
+        try {
+            // 1. schedulePositions 초기화 체크
+            log.info("Checking schedulePositions initialization for tripId: {}", tripId);
+            if (!stateManager.hasPositions(tripId)) {
+                List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+                stateManager.initializeSchedulePositions(tripId, schedules);
             }
-        });
 
-        log.info("=== END handleMoveOperation for tripId: {} ===", tripId);
+            // 2. position 상태 업데이트
+            log.info("Updating state for tripId: {}, scheduleId: {}", tripId, operation.getScheduleId());
 
-    } catch (Exception e) {
-        log.error("Error in handleMoveOperation for tripId: {}", tripId, e);
-        // 에러 로깅에 더 자세한 정보 추가
-        log.error("Operation details - scheduleId: {}, positionPath: {}",
-                operation.getScheduleId(), operation.getPositionPath());
+            stateManager.updateState(
+                    tripId,
+                    operation.getScheduleId(),
+                    operation.getPositionPath()
+            );
+
+            // 3. 현재 상태를 모든 클라이언트에게 전송
+            EditRequest.Operation newOperation = new EditRequest.Operation();
+            newOperation.setAction("MOVE");  // Action 명시적 설정
+            newOperation.setScheduleId(operation.getScheduleId());
+            newOperation.setPositionPath(operation.getPositionPath());
+
+            EditRequest newEditRequest = new EditRequest();
+            newEditRequest.setTripId(tripId);
+            newEditRequest.setOperation(newOperation);
+
+            EditResponse response = EditResponse.createSuccess(newEditRequest, 1);
+            broadcastToTripSessions(tripId, objectMapper.writeValueAsString(response));
+
+            // 4. path 생성은 콜백으로 비동기 처리
+            stateManager.generatePathsForSchedule(tripId, operation.getScheduleId(), paths -> {
+                if (paths != null) {
+                    try {
+                        MoveResponse pathResponse = new MoveResponse(
+                                tripId,
+                                operation.getScheduleId(),
+                                operation.getPositionPath(),
+                                paths
+                        );
+                        String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
+                        broadcastToTripSessions(tripId, pathJsonResponse);
+                    } catch (Exception e) {
+                        log.error("Error broadcasting path for tripId: {}", tripId, e);
+                    }
+                }
+            });
+
+            log.info("=== END handleMoveOperation for tripId: {} ===", tripId);
+
+        } catch (Exception e) {
+            log.error("Error in handleMoveOperation for tripId: {}", tripId, e);
+            // 에러 로깅에 더 자세한 정보 추가
+            log.error("Operation details - scheduleId: {}, positionPath: {}",
+                    operation.getScheduleId(), operation.getPositionPath());
+        }
     }
-}
-
-
-
-
-
-
 
 
     private void broadcastToTripSessions(Integer tripId, String message) {
@@ -522,16 +521,90 @@ private void handleMoveOperation(Integer tripId, EditRequest.Operation operation
     }
 
 
-    private String createErrorResponse(Throwable e) {
+    // ADD처리
+    private void handleAddOperation(Integer tripId, AddRequest addRequest) {
         try {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Path calculation failed: " + e.getMessage());
-            return objectMapper.writeValueAsString(errorResponse);
-        } catch (JsonProcessingException ex) {
-            return "{\"error\": \"Internal server error\"}";
+            log.info("Handling ADD operation for tripId: {}", tripId);
+
+            Integer dayId = addRequest.getDayId();
+            AddRequest.ScheduleDto receivedSchedule = addRequest.getSchedule();
+
+            // day 번호에 따른 positionPath 범위 계산
+            int dayBase = dayId * 10000;
+            int dayStart = dayBase + 1;
+            int dayEnd = dayBase + 9999;
+
+            // stateManager에서 현재 trip의 스케줄 positions 가져오기
+            Map<Integer, Integer> currentPositions = stateManager.getSchedulePositions(tripId);
+
+            // 현재 day의 마지막 positionPath 찾기
+            Optional<Integer> maxPosition = currentPositions.values().stream()
+                    .filter(pos -> pos >= dayStart && pos <= dayEnd)
+                    .max(Integer::compareTo);
+
+            // 새로운 positionPath 계산
+            int newPosition;
+            if (!maxPosition.isPresent()) {
+                newPosition = (dayStart + dayEnd) / 2;
+            } else {
+                newPosition = (maxPosition.get() + (dayBase + 10000)) / 2;
+            }
+
+            // 새로운 스케줄 ID 생성 (예: scheduleRepository를 통해)
+            // TODO: 스케줄 Id만들기
+//            Integer newScheduleId = scheduleRepository.generateNewScheduleId();
+            Integer newScheduleId = 1;
+
+            // ScheduleDTO 생성
+            ScheduleDTO newSchedule = new ScheduleDTO(
+                    newScheduleId,                    // 새로 생성된 ID
+                    receivedSchedule.getPlaceName(),
+                    addRequest.getTimestamp(),        // 클라이언트가 보낸 timestamp 사용
+                    newPosition,
+                    receivedSchedule.getDuration(),
+                    receivedSchedule.getLat(),
+                    receivedSchedule.getLng(),
+                    receivedSchedule.getType()
+            );
+
+            // stateManager에 상태 저장
+            EditRequest.Operation operation = new EditRequest.Operation();
+            operation.setAction("ADD");
+            operation.setScheduleId(newSchedule.getId());
+            operation.setPositionPath(newPosition);
+
+            EditRequest editRequest = new EditRequest(tripId, operation);
+            stateManager.addEdit(tripId, editRequest);
+            stateManager.updateState(tripId, newSchedule.getId(), newPosition);
+
+            // 현재 tripDetail 가져오기
+            TripDetailDTO currentTripDetail = stateManager.getTripDetail(tripId);
+
+            // dayId는 1부터 시작하므로 리스트 인덱스는 dayId - 1
+            int dayIndex = dayId - 1;
+            if (dayIndex >= 0 && dayIndex < currentTripDetail.getDayDtos().size()) {
+                DayDto targetDay = currentTripDetail.getDayDtos().get(dayIndex);
+                List<ScheduleDTO> schedules = targetDay.getSchedules();
+                schedules.add(newSchedule);
+
+                // positionPath 기준으로 정렬
+                schedules.sort(Comparator.comparing(ScheduleDTO::getPositionPath));
+            } else {
+                log.error("Invalid day index: {}", dayIndex);
+                return;
+            }
+
+            // 업데이트된 TripDetailDTO를 클라이언트들에게 브로드캐스트
+            String responseMessage = objectMapper.writeValueAsString(currentTripDetail);
+            broadcastToTripSessions(tripId, responseMessage);
+
+            log.info("Updated TripDetail sent for tripId: {}, dayId: {}, scheduleId: {}",
+                    tripId, dayId, newSchedule.getId());
+
+        } catch (Exception e) {
+            log.error("Error handling ADD operation", e);
         }
     }
-
 
 
 
