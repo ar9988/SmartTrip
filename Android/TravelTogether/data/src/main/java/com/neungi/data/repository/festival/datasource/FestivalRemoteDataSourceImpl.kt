@@ -13,7 +13,7 @@ class FestivalRemoteDataSourceImpl @Inject constructor(
         startDate: String,
         endDate: String,
         regionCode: String?
-    ): Response<FestivalResponse> =festivalApi.getFestivals(startDate,endDate,regionCode)
+    ): Response<FestivalResponse> = festivalApi.getFestivals(startDate,endDate,regionCode)
 
     override suspend fun getFestivalOverview(contentid: String): Response<OverViewEntity> = festivalApi.getFestivalOverView(contentid)
 }

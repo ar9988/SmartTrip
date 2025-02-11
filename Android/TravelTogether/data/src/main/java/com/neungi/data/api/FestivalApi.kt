@@ -12,8 +12,10 @@ interface FestivalApi {
     suspend fun getFestivals(
         @Query("startDate") startDate: String,
         @Query("endDate") endDate: String,
-        @Query("regionCode") regionCode: String? = null
+        @Query(value = "regionNumber") regionCode: String?
     ): Response<FestivalResponse>
+
+
 
     @GET("festivals/overview")
     suspend fun getFestivalOverView(

@@ -90,8 +90,8 @@ class MainViewModel @Inject constructor(
                 Timber.d("${result}")
                 when (result.status) {
                     ApiStatus.SUCCESS -> {
-                        result.data?.let { festivals ->
-                            _placeSearchResult.value = festivals.toList()
+                        result.data?.let { places ->
+                            _placeSearchResult.value = places.toList()
                         }
                     }
                     ApiStatus.ERROR -> {

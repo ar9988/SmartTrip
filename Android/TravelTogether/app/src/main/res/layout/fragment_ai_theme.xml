@@ -41,6 +41,7 @@
             android:id="@+id/btn_ai_select_local_next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="@{()->vm.requestAiPlanning()}"
             android:text="@string/next"
             android:backgroundTint="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"

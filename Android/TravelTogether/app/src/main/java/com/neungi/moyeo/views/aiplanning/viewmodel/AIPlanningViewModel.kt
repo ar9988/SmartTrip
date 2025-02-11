@@ -2,21 +2,28 @@ package com.neungi.moyeo.views.aiplanning.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.neungi.domain.model.AiPlanningRequest
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.LocationCategory
+import com.neungi.domain.model.Preferences
 import com.neungi.domain.model.ThemeItem
 import com.neungi.domain.usecase.GetFestivalOverview
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
+import com.neungi.domain.usecase.GetUserInfoUseCase
+import com.neungi.domain.usecase.RqeuestAiPlanningUseCase
 import com.neungi.moyeo.R
 import com.neungi.moyeo.util.CommonUtils
 import com.neungi.moyeo.util.EmptyState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -29,6 +36,8 @@ import javax.inject.Inject
 class AIPlanningViewModel @Inject constructor(
     private val getRecommendFestivalUseCase: GetRecommendFestivalUseCase,
     private val getFestivalOverview:GetFestivalOverview,
+    private val requestAiPlanningUseCase: RqeuestAiPlanningUseCase,
+    private val getUserInfoUseCase: GetUserInfoUseCase,
     private val regionMapper: RegionMapper
 ) : ViewModel(),OnAIPlanningClickListener {
 
@@ -240,9 +249,9 @@ class AIPlanningViewModel @Inject constructor(
 
     //축제 api통신 연결
     fun updateFestivalsByLocation(firstLocation: String) {
-        Timber.d("updateFestival!!")
+        Timber.d("updateFestival!!"+regionMapper.getRegionCode(firstLocation))
         viewModelScope.launch {
-            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDD(startDate.value), CommonUtils.convertToYYYYMMDD(endDate.value), regionMapper.getRegionCode(firstLocation))
+            val result = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(startDate.value), CommonUtils.convertToYYYYMMDDwithHyphen(endDate.value), regionMapper.getRegionCode(firstLocation))
             Timber.d("${result}")
             when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -302,9 +311,61 @@ class AIPlanningViewModel @Inject constructor(
 
 
     }
+    
+    //AiPlannig 요청
+    fun requestAiPlanning(){
+        viewModelScope.launch {
+            _aiPlanningUiEvent.emit(AiPlanningUiEvent.RequestPlanning)
+            getUserId().first(){userId ->
+                val requestBody = AiPlanningRequest(
+                    userId = userId!!,
+                    startDate = CommonUtils.convertToyyyyMMdd(_startDate.value),
+                    startTime = _startTime.value,
+                    endDate =  CommonUtils.convertToyyyyMMdd(_endDate.value),
+                    endTime = _endTime.value,
+                    destination = selectedLocations.value,
+                    preferences = Preferences(
+                        places = selectedPlaces.value,
+                        theme = selectedThemeList.value
+                    )
+                )
+                val response = requestAiPlanningUseCase(requestBody)
+                val status = response.status
+                val data = response.data
+                clearDatas()
+                when (status == ApiStatus.SUCCESS && data != null) {
+                    true -> {
+                        Timber.d("성공?")
+                    }
 
+                    else -> {
+                        Timber.d("실패 "+response.toString())
+                    }
+                }
+                true
 
+            }
+        }
 
+    }
+
+    private fun clearDatas() {
+        _calendarSelectState.value = 0
+        _startDate.value = null
+        _endDate.value = null
+        _startTime.value  = "오전 10:00"
+        _endTime.value = "오후 5:00"
+        _selectedLocations.value = emptyList()
+        _selectedPlaces.value = emptyList()
+        _recommendFestivals.value = emptyList()
+        _dialogSelectedFestival.value = null
+        _selectedTheme.value = emptyList()
+    }
+
+    fun getUserId(): Flow<String?> = flow {
+        val id = getUserInfoUseCase.getUserId().first()
+        emit(id)
+    }
 
 
     /*

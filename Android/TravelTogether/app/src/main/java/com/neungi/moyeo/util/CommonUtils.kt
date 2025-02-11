@@ -58,8 +58,10 @@ object CommonUtils {
         return degrees + (minutes / 60) + (seconds / 3600)
     }
 
-    fun convertToYYYYMMDD(date: LocalDate?): String =
+    fun convertToYYYYMMDDwithHyphen(date: LocalDate?): String =
         (date ?: LocalDate.now()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    fun convertToyyyyMMdd(date: LocalDate?): String =
+        (date ?: LocalDate.now()).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
     fun formatDateTime(input: String): String {
         if (input == "") return "1970.01.01"
@@ -76,6 +78,14 @@ object CommonUtils {
 
         return formatter.format(Instant.ofEpochMilli(timestamp))
     }
+    fun formatLongToyyyyMMddWithDot(timestamp: Long): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")
+            .withZone(ZoneId.systemDefault())
+
+        return formatter.format(Instant.ofEpochMilli(timestamp))
+    }
+
+
 
     fun drawableToBitmap(drawable: Drawable, size: Int = 144): Bitmap {
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
