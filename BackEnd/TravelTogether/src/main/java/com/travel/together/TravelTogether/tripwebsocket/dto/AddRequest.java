@@ -29,7 +29,7 @@ public class AddRequest {
         private Double lat;
         private Double lng;
         private Integer type;
-        private Integer positionPath; //이거 보내주는건가?
+        private Integer positionPath;
         private Integer duration;
     }
 }
