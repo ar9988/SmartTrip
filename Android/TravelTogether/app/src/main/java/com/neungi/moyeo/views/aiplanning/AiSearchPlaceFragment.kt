@@ -17,11 +17,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layout.fragment_ai_search_place) {
+open class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layout.fragment_ai_search_place) {
 
 
-    private val viewModel: AIPlanningViewModel by activityViewModels()
-    private val mainViewModel: MainViewModel by activityViewModels()
+    val viewModel: AIPlanningViewModel by activityViewModels()
+    val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var searchPlaceAdapter : SearchPlaceAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,7 +52,7 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
         observeState()
     }
 
-    private fun observeState() {
+    open fun observeState() {
         lifecycleScope.launch {
             mainViewModel.placeSearchResult.collect { places ->
                 searchPlaceAdapter.submitList(places)
@@ -75,7 +75,7 @@ class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.layou
         })
     }
 
-    private fun setAdapter() {
+    open fun setAdapter() {
         searchPlaceAdapter = SearchPlaceAdapter(viewModel)
         binding.rvAiSearchResult.adapter = searchPlaceAdapter
     }

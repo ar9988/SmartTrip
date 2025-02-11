@@ -4,7 +4,10 @@ import ScheduleReceive
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
+import com.neungi.data.entity.ScheduleEntity
 import com.neungi.data.entity.ServerEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.*
@@ -12,104 +15,110 @@ import com.neungi.domain.usecase.GetScheduleUseCase
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.util.convertToSections
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val getScheduleUseCase: GetScheduleUseCase,
-    private val webSocketManager: WebSocketManager
+    val webSocketManager: WebSocketManager
 ) : ViewModel() {
 
-    val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
-    lateinit var trip : Trip
+    private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
+    lateinit var trip: Trip
 
     // 이벤트에 대한 LiveData를 ViewModel에서 관리
     private val _serverEvents = MutableLiveData<ServerReceive>()
     val serverEvents: LiveData<ServerReceive> get() = _serverEvents
 
-    private val _pathEvents = MutableLiveData<Path>()
-    val pathEvent: LiveData<Path> get() = _pathEvents
+    private val _pathEvents = MutableLiveData<PathReceive>()
+    val pathEvent: LiveData<PathReceive> get() = _pathEvents
 
     private val _scheduleSections = MutableLiveData<List<Section>>()
     val scheduleSections: LiveData<List<Section>> get() = _scheduleSections
 
-    private val pathQueue = ArrayDeque<Path>()  // 경로를 처리할 큐
-    private var isProcessingPath = false  // 경로 처리 중 여부
+
+    private val _manipulationEvent = MutableLiveData<ManipulationEvent>()
+    val manipulationEvent: LiveData<ManipulationEvent> get() = _manipulationEvent
 
     init {
-//        webSocketManager.tripId = trip.id
-        // WebSocket으로부터 받은 이벤트를 ViewModel에 전달
-        webSocketManager.onServerEventReceived = { event :ServerReceive->
+        webSocketManager.onServerEventReceived = { event: ServerReceive ->
             _serverEvents.postValue(event)
         }
 
-        webSocketManager.onRouteEventReceived = { pathReceive :PathReceive->
-            pathReceive.paths.forEach {
-//                Timber.d(it.totalTime.toString())
-                addPathToQueue(it)
-//                _pathEvents.postValue(it)
-            }
+        webSocketManager.onRouteEventReceived = { pathReceive: PathReceive ->
+            _pathEvents.postValue(pathReceive)
         }
 
-        webSocketManager.onScheduleEventReceived = { scheduleReceive:ScheduleReceive ->
-            val sections = convertToSections(scheduleReceive,trip)
+        webSocketManager.onScheduleEventReceived = { scheduleReceive: ScheduleReceive ->
+            val sections = convertToSections(scheduleReceive, trip)
             _scheduleSections.postValue(sections)
+        }
+
+        webSocketManager.onAddEventReceived = { manipulationEvent: ManipulationEvent ->
+            _manipulationEvent.postValue(manipulationEvent)
         }
     }
 
     // WebSocket을 통한 메시지 전송
     fun sendMoveEvent(scheduleId: Int, newPosition: Int) {
-        val event = ServerEvent("MOVE123", trip.id, Operation("MOVE", scheduleId, newPosition), 111231)
-        webSocketManager.sendMessage(event)
+        val event =
+            ServerEvent("MOVE123", trip.id, Operation("MOVE", scheduleId, newPosition), 111231)
+        viewModelScope.launch {
+            webSocketManager.sendMessage(event)
+        }
     }
 
     fun sendDeleteEvent(scheduleId: Int) {
         val event = ServerEvent("MOVE123", trip.id, Operation("DELETE", scheduleId, 0), 111231)
-        webSocketManager.sendMessage(event)
+        viewModelScope.launch {
+            webSocketManager.sendMessage(event)
+        }
     }
 
-    fun startEvent() {
-        val event = ServerEvent("MOVE123", trip.id, Operation("START", 0, 0), 111231)
-        webSocketManager.sendMessage(event)
-    }
-
-    // WebSocket 종료
-    fun closeWebSocket() {
-        webSocketManager.close()
-    }
-
-    fun startConnect() {
-
-        webSocketManager.connect(serverUrl+trip.id)
-        webSocketManager.tripId = trip.id
-        startEvent()
-        Timber.d(serverUrl+trip.id)
-    }
-
-    // 경로를 큐에 추가하고 처리
-    private fun addPathToQueue(path: Path) {
-        pathQueue.add(path)  // 큐에 경로 추가
-        processNextPath()  // 큐에 경로가 추가될 때마다 처리 시작
-    }
-
-    // 큐에 있는 경로를 하나씩 처리
-    private fun processNextPath() {
-        if (isProcessingPath || pathQueue.isEmpty()) {
-            return  // 경로를 처리 중이거나 큐가 비어있으면 리턴
+    fun sendEditEvent(schedule: ScheduleEntity) {
+        viewModelScope.launch {
+            webSocketManager.sendMessage(
+                ManipulationEvent(
+                    action = "EDIT",
+                    tripId = schedule.tripId,
+                    dayId = schedule.day,
+                    timeStamp = 0,
+                    schedule = schedule
+                )
+            )
         }
 
-        val path = pathQueue.removeFirst()  // 큐에서 첫 번째 경로를 꺼냄
-        isProcessingPath = true  // 경로 처리 중
-
-        Timber.d("Processing path with scheduleId: ${path.sourceScheduleId}")
-
-        // 경로를 처리하는 로직 (예: 맵에 그리기 등)
-        _pathEvents.postValue(path)  // 경로 이벤트 업데이트
-
-        // 경로 처리가 끝난 후, 처리 플래그를 리셋하고 다음 경로를 처리
-        isProcessingPath = false
-        processNextPath()  // 다음 경로를 처리
     }
+
+    fun sendAddEvent(schedule: ScheduleEntity) {
+        Timber.d(schedule.toString())
+        viewModelScope.launch {
+            webSocketManager.sendMessage(
+                ManipulationEvent(
+                    action = "ADD",
+                    tripId = schedule.tripId,
+                    dayId = schedule.day,
+                    timeStamp = 0,
+                    schedule = schedule
+                )
+            )
+        }
+    }
+
+//    fun startEvent() {
+//        val event = ServerEvent("MOVE123", trip.id, Operation("START", 0, 0), 111231)
+////        webSocketManager.sendMessage(event)
+//    }
+
+
+    fun startConnect() {
+        webSocketManager.connect(serverUrl + trip.id)
+        webSocketManager.tripId = trip.id
+        Timber.d(serverUrl + trip.id)
+    }
+
 
 }

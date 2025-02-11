@@ -1,26 +1,34 @@
 package com.neungi.moyeo.views.plan
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.button.MaterialButton
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.MultipartPathOverlay
+import com.neungi.data.entity.ScheduleEntity
 import com.neungi.data.entity.ServerReceive
+import com.neungi.domain.model.ScheduleData
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
@@ -29,6 +37,8 @@ import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -42,7 +52,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private var isUserDragging = false  // 드래그 상태 추적
     private val paths = mutableMapOf<Int, List<LatLng>>()
     private val multipartPathOverlay = MultipartPathOverlay()
-
     override fun onResume() {
         super.onResume()
         mainViewModel.setBnvState(false)
@@ -57,29 +66,39 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         binding.trip = viewModel.trip
         initNaverMap()
         viewModel.serverEvents.observe(viewLifecycleOwner) { event: ServerReceive ->
-            sectionedAdapter.updatePosition(event,isUserDragging)
-//            if (!isUserDragging) {
-//                Timber.d("Received external event: $event")
-//                sectionedAdapter.updatePosition(event)
-//            } else {
-//                sectionedAdapter.setPosition(event)
-//                Timber.d("Ignoring external event during user drag")
-//            }
+            sectionedAdapter.updatePosition(event, isUserDragging)
         }
         viewModel.scheduleSections.observe(viewLifecycleOwner) { sections ->
             sectionedAdapter.sections = sections.toMutableList()
             sectionedAdapter.buildListItems()
             sectionedAdapter.rebuildSections()
         }
-        viewModel.pathEvent.observe(viewLifecycleOwner) { path ->
-            Timber.d(path.sourceScheduleId.toString())
-            paths[path.sourceScheduleId] = convertToLatLngList(path.path)
-            sectionedAdapter.updatePathInfo(path, isUserDragging)
-            if(!isUserDragging){
-//                sectionedAdapter.updatePathInfo(path)
-                paintPathToMap()
-            }else{
-//                sectionedAdapter.setPathInfo(path)
+        viewModel.pathEvent.observe(viewLifecycleOwner) { receive ->
+            receive.paths.forEach {
+                paths[it.sourceScheduleId] = convertToLatLngList(it.path)
+                sectionedAdapter.updatePathInfo(it, isUserDragging)
+                if (!isUserDragging) {
+                    paintPathToMap()
+                }
+            }
+        }
+        viewModel.manipulationEvent.observe(viewLifecycleOwner) { event ->
+            if(event.action.equals("ADD"))
+                sectionedAdapter.addSchedule(event, isUserDragging)
+            else {
+                val scheduleData = ScheduleData(
+                    scheduleId = event.schedule.id,
+                    placeName = event.schedule.placeName,
+                    positionPath = event.schedule.positionPath,
+                    timeStamp = event.timeStamp,
+                    type = event.schedule.type,
+                    lat = event.schedule.lat,
+                    lng = event.schedule.lng,
+                    duration = event.schedule.duration,
+                    fromTime = null,
+                    toTime = null,
+                )
+                sectionedAdapter.editItem(scheduleData, isUserDragging)
             }
         }
         setupRecyclerView()
@@ -87,10 +106,22 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+        setFragmentResultListener("add") { _, bundle ->
+            val schedule = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                bundle.getParcelable("schedule", ScheduleEntity::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                bundle.getParcelable("schedule")
+            }
+            schedule?.let {
+                Timber.d(schedule.toString())
+                viewModel.sendAddEvent(schedule)
+            }
+        }
     }
 
-    private fun paintPathToMap(){
-        if(paths.isEmpty()){
+    private fun paintPathToMap() {
+        if (paths.isEmpty()) {
             return
         }
         multipartPathOverlay.map = null
@@ -117,40 +148,77 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         moveCameraToShowAllPaths()
     }
 
-    fun convertToLatLngList(path: List<List<Double>>): List<LatLng> {
+    private fun convertToLatLngList(path: List<List<Double>>): List<LatLng> {
         return path.map { coords ->
             LatLng(coords[1], coords[0])
         }
     }
 
     private fun setupRecyclerView() {
-        val itemTouchHelperCallback = createItemTouchHelperCallback({ fromPosition, toPosition ->
-            // 이동 이벤트를 ViewModel로 전달
-            viewModel.sendMoveEvent(fromPosition, toPosition)
-        },
-            { value ->
+        val itemTouchHelperCallback = createItemTouchHelperCallback(
+            updatePosition = { fromPosition, toPosition ->
+                // 이동 이벤트를 ViewModel로 전달
+                viewModel.sendMoveEvent(fromPosition, toPosition)
+            },
+            onDrag = { value ->
                 isUserDragging = value
                 if (!isUserDragging) {
                     sectionedAdapter.rebuildSections()
                     paintPathToMap()
                 }
             },
-            { position: Int ->
+            uiUpdate = { position: Int ->
                 sectionedAdapter.uiUpdate(position)
-            },
-            { position: Int ->
-                viewModel.sendDeleteEvent(position)
             }
         )
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
         sectionedAdapter = SectionedAdapter(
             itemTouchHelper,
-            onEditClick = { scheduleId ->
-                println("Edit schedule with ID: $scheduleId")
+            onEditClick = { scheduleData: ScheduleData ->
+                val dialogView = layoutInflater.inflate(R.layout.dialog_schedule, null)
+                val titleTextView = dialogView.findViewById<EditText>(R.id.et_dialog_title)
+                val durationEditText = dialogView.findViewById<EditText>(R.id.et_duration)
+                val closeBtn = dialogView.findViewById<ImageButton>(R.id.button_dialog_edit_close)
+                titleTextView.setText(scheduleData.placeName)
+                durationEditText.setText(scheduleData.duration.toString())
+                val dialog = AlertDialog.Builder(requireContext())
+                    .setView(dialogView)
+                    .setCancelable(true)
+                    .create()
+                closeBtn.setOnClickListener {
+                    dialog.dismiss()
+                }
+                dialogView.findViewById<MaterialButton>(R.id.button_confirm)
+                    .setOnClickListener {
+                        val newDuration = durationEditText.text.toString().toIntOrNull() ?: 0
+                        val newPlaceName = titleTextView.text.toString()
+                        val data = scheduleData.copy(
+                            duration = newDuration,
+                            placeName = newPlaceName
+                        )
+                        sectionedAdapter.editItem(
+                            data,
+                            isUserDragging
+                        )
+//                        viewModel.sendEditEvent(data)
+                        dialog.dismiss()
+                    }
+
+                dialog.show()
             },
-            onAddClick = {
-                findNavController().navigateSafely(R.id.action_schedule_add)
+            onAddClick = { dayId ->
+                val bundle = Bundle().apply {
+                    putInt("tripId", viewModel.trip.id)
+                    putInt("dayId", dayId)
+                }
+                findNavController().navigate(
+                    R.id.action_schedule_add,
+                    bundle
+                )
+            },
+            { scheduleId: Int ->
+                removePathOverlay(scheduleId)
             },
             binding.recyclerView
         )
@@ -165,7 +233,12 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     override fun onStop() {
         super.onStop()
-        viewModel.closeWebSocket()
+//        viewModel.closeWebSocket()
+    }
+
+    private fun removePathOverlay(scheduleId: Int) {
+        paths.remove(scheduleId)
+        paintPathToMap()
     }
 
     @Deprecated("Deprecated in Java")
@@ -210,6 +283,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
 
     }
+
     private fun moveCameraToShowAllPaths() {
         // pathList에서 모든 LatLng 좌표를 가져옵니다.
         val pathList = paths.values.toList()
@@ -231,7 +305,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
 
         // 위도, 경도의 최소/최대 값으로 카메라의 범위를 설정합니다.
-        val bounds = com.naver.maps.geometry.LatLngBounds(
+        val bounds = LatLngBounds(
             LatLng(minLat, minLng), // 남서쪽
             LatLng(maxLat, maxLng)  // 북동쪽
         )
@@ -246,4 +320,5 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
     }
+
 }

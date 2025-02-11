@@ -18,6 +18,8 @@
     <string name="text_trip_end_date">여행 종료 날짜</string>
     <string name="description_bus_icon">bus image</string>
     <string name="description_car_icon">car image</string>
+    <string name="text_duration">체류 시간</string>
+
 
     <!-- Album -->
     <string name="label_album">Album</string>
@@ -46,7 +48,6 @@
     <string name="title_dialog_invite">같이 갈 사람 추가하기</string>
     <string name="text_link_title">초대 링크</string>
     <string name="string_link">초대 링크 복사하기</string>
-    <string name="title_dialog_add">체류 시간</string>
     <string name="text_comment_submit">등록</string>
     <string name="message_refresh_photo">추억 정보를 다시 불러왔습니다.</string>
     <string name="text_hint_comment">100자 이내로 입력해주세요.</string>
@@ -162,6 +163,5 @@
 
     <!--home-->
     <string name="festival_title_home">축제 정보를 확인해보세요!</string>
-
 
 </resources>

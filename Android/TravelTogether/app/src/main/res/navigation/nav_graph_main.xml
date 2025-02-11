@@ -34,13 +34,22 @@
         android:label="Plan Detail"
         tools:layout="@layout/fragment_plan_detail">
 
+        <action
+            android:id="@+id/action_schedule_add"
+            app:destination="@id/fragment_schedule_add" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_schedule_add"
+        android:name="com.neungi.moyeo.views.plan.ScheduleAddFragment"
+        android:label="Schedule Add"
+        tools:layout="@layout/fragment_ai_search_place">
         <argument
             android:name="tripId"
             app:argType="integer" />
-
-        <action
-            android:id="@+id/action_schedule_add"
-            app:destination="@id/fragment_ai_search_place" />
+        <argument
+            android:name="dayId"
+            app:argType="integer" />
     </fragment>
 
     <fragment

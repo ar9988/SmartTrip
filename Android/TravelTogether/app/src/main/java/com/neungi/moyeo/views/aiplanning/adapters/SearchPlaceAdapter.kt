@@ -13,7 +13,7 @@ import com.neungi.moyeo.databinding.ItemSearchPlaceBinding
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import kotlinx.coroutines.launch
 
-class SearchPlaceAdapter(private val viewModel: AIPlanningViewModel,
+open class SearchPlaceAdapter(private val viewModel: AIPlanningViewModel,
 ) : ListAdapter<Place, SearchPlaceAdapter.ViewHolder>(SearchPlaceDiffCallback()) {
      
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -26,7 +26,7 @@ class SearchPlaceAdapter(private val viewModel: AIPlanningViewModel,
     }
 
     inner class ViewHolder(
-        private val binding: ItemSearchPlaceBinding
+        val binding: ItemSearchPlaceBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: Place) {

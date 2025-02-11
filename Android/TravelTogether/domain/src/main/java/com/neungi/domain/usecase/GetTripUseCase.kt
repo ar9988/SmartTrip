@@ -8,11 +8,11 @@ import javax.inject.Inject
 class GetTripUseCase @Inject constructor(
     private val tripsRepository : TripsRepository
 ){
-    suspend fun getTrips(userId: Int): ApiResult<List<Trip>> {
+    suspend fun getTrips(userId: String): ApiResult<List<Trip>> {
         return tripsRepository.getTrips(userId)
     }
 
-    suspend fun removeTrip(userId: Int, trip: Trip): ApiResult<Boolean>{
+    suspend fun removeTrip(userId: String, trip: Trip): ApiResult<Boolean>{
         return tripsRepository.deleteTrip(userId,trip)
     }
 }

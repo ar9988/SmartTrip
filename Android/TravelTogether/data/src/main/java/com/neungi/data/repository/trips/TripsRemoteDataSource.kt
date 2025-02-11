@@ -5,5 +5,5 @@ import com.neungi.data.entity.TripsResponse
 import retrofit2.Response
 
 interface TripsRemoteDataSource {
-    suspend fun getTrips(userId: Int): Response<TripsResponse>
+    suspend fun getTrips(userId: String): Response<TripsResponse>
 }
