@@ -7,14 +7,15 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Builder
+@AllArgsConstructor
 @Entity
 @Table(name = "trip")
 @Getter
 @Setter
-@EntityListeners(TripEntityListener.class)
+//@EntityListeners(TripEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Trip {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

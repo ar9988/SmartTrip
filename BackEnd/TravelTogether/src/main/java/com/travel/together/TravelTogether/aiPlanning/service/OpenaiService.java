@@ -2,6 +2,7 @@ package com.travel.together.TravelTogether.aiPlanning.service;
 
 import com.travel.together.TravelTogether.aiPlanning.dto.OpenaiRequestDto;
 import com.travel.together.TravelTogether.aiPlanning.dto.OpenaiResponseDto;
+import com.travel.together.TravelTogether.firebase.service.FCMTokenService;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -27,6 +28,15 @@ public class OpenaiService {
             .load();
     private static final String API_KEY = dotenv.get("OPENAI_API_KEY");
     private static final int MAX_TOKENS = 4096; // 최대 토큰 수 설정
+
+    private final FCMTokenService fcmTokenService;
+    private final AiplanningService aiplanningService;
+
+    public OpenaiService(FCMTokenService fcmTokenService, AiplanningService aiplanningService) {
+        this.fcmTokenService = fcmTokenService;
+        this.aiplanningService = aiplanningService;
+    }
+
 
     // 프롬프트를 외부 파일에서 읽어오기
     private String loadPromptTemplate() {
@@ -105,6 +115,7 @@ public class OpenaiService {
                 }
             }
 
+
             // 응답 JSON 파싱
             String response = responseBuilder.toString();
             JSONObject responseJson = new JSONObject(response);
@@ -125,6 +136,7 @@ public class OpenaiService {
                     .replaceAll("\n","")
                     .trim();
 
+            System.out.println(promptResponse);
             // DTO 생성
             JSONObject promptJson = new JSONObject(promptResponse);
 
@@ -177,6 +189,10 @@ public class OpenaiService {
 
             // 전체 DTO에 schedule 설정
             openaiResponseDto.setSchedule(schedule);
+
+            aiplanningService.savePlanningData(openaiResponseDto);
+            fcmTokenService.sendNotificationToUser(requestDTO.getUserId(),"일정 생성 완료", "일정 생성이 완료되었습니다.");
+            return openaiResponseDto; // API 응답을 반환
 
 
         } catch (Exception e) {

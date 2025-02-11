@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class OpenaiRequestDto {
-    private String userId;
+    private Long userId;
     private String startDate;
     private String startTime;
     private String endDate;
