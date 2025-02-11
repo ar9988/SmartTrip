@@ -10,7 +10,7 @@ import javax.inject.Inject
 class TripsRemoteDataSourceImpl @Inject constructor(
     private val tripsApi: TripsApi
 ) : TripsRemoteDataSource {
-    override suspend fun getTrips(userId: Int): Response<TripsResponse> {
+    override suspend fun getTrips(userId: String): Response<TripsResponse> {
         // 요청을 보내기 전에 로그 출력
         Log.d("TripsRemoteDataSource", "Requesting trips for userId: $userId")
 

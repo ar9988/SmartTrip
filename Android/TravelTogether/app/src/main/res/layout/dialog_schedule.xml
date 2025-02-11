@@ -5,18 +5,21 @@
     android:background="@drawable/round_border"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tv_dialog_title"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/et_dialog_title"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:autofillHints="input schedule name"
+        android:labelFor="@+id/title"
+        android:inputType="text"
         android:textStyle="bold"
-        android:text="@string/title_dialog_add"
         android:textSize="32sp"
+        app:layout_constraintEnd_toStartOf="@+id/button_dialog_edit_close"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <ImageButton
-        android:id="@+id/button_dialog_invite_close"
+        android:id="@+id/button_dialog_edit_close"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@android:color/transparent"
@@ -28,13 +31,13 @@
 
     <!-- ✅ 체류 시간 입력 영역 -->
     <TextView
-        android:id="@+id/tv_schedule_title"
+        android:id="@+id/text_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="만장굴"
+        android:text="@string/text_duration"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tv_dialog_title"
+        app:layout_constraintTop_toBottomOf="@id/et_dialog_title"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"/>
 
@@ -43,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/tv_schedule_title"
+        app:layout_constraintTop_toBottomOf="@id/text_duration"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="8dp">
 

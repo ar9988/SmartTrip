@@ -3,14 +3,12 @@ package com.neungi.moyeo.views.plan.adapter
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.neungi.data.entity.AddEvent
-import com.neungi.data.entity.ScheduleEntity
+import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.Path
 import com.neungi.domain.model.ScheduleData
@@ -24,7 +22,7 @@ import java.time.LocalTime
 
 class SectionedAdapter(
     private val itemTouchHelper: ItemTouchHelper,
-    private val onEditClick: (Int) -> Unit,
+    private val onEditClick: (ScheduleData) -> Unit,
     private val onAddClick: (Int) -> Unit,
     private val pathDelete: (Int) -> Unit,
     private val recyclerView: RecyclerView
@@ -227,7 +225,7 @@ class SectionedAdapter(
             binding.tvTo.text = data.toTime.toString()
 
             binding.cardSchedule.setOnClickListener {
-                onEditClick(data.scheduleId)
+                onEditClick(data)
             }
 
             binding.cardSchedule.setOnLongClickListener { view ->
@@ -256,7 +254,10 @@ class SectionedAdapter(
         if (event.operation.action == "DELETE") {
             listItems.forEachIndexed { position, item ->
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId) {
-                    removeItem(position)
+//                    removeItem(position, isUserDragging)
+                    listItems.removeAt(position)
+                    if (!isUserDragging) notifyItemRemoved(position)
+                    return
                 }
             }
         } else if (event.operation.action == "MOVE") {
@@ -265,6 +266,7 @@ class SectionedAdapter(
                     item.data.positionPath = event.operation.positionPath
                     // 텍스트뷰 갱신을 위해 해당 위치의 아이템을 갱신
                     if (!isUserDragging) notifyItemChanged(position)
+                    return
                 }
             }
 
@@ -285,9 +287,19 @@ class SectionedAdapter(
         notifyItemChanged(position)
     }
 
-    fun removeItem(position: Int) {
-        sections.removeAt(position)  // 해당 position의 아이템 제거
-        notifyItemRemoved(position)  // 리사이클러뷰에 변경사항 알림
+    private fun removeItem(position: Int, isUserDragging: Boolean) {
+        if (position < 0 || position >= listItems.size) return
+
+        if (!isUserDragging) {
+            listItems.removeAt(position)
+            notifyItemRemoved(position)
+        } else {
+            Handler(Looper.getMainLooper()).post {
+                notifyDataSetChanged()
+            }
+        }
+        // 필요하다면 sections도 업데이트
+//        rebuildSections()
     }
 
     fun updatePathInfo(path: Path, isUserDragging: Boolean) {
@@ -296,7 +308,7 @@ class SectionedAdapter(
 
     }
 
-    fun addSchedule(event: AddEvent, isUserDragging: Boolean) {
+    fun addSchedule(event: ManipulationEvent, isUserDragging: Boolean) {
         val schedule = event.schedule
         listItems.forEachIndexed { index, listItem ->
             if (listItem is ListItem.SectionHeader && schedule.day - 1 == listItem.data.dayId) {
@@ -318,11 +330,22 @@ class SectionedAdapter(
                         sectionIndex = schedule.day,
                     )
                 )
-                if (!isUserDragging) notifyItemInserted(index + 1)
+                if (!isUserDragging) rebuildSections() //notifyItemInserted(index + 1) 최적화 여지 있음
                 return
             }
         }
 
+    }
+
+    fun editItem(item: ScheduleData, isUserDragging: Boolean) {
+        listItems.forEachIndexed { index, it ->
+            if (it is ListItem.Item && it.data.scheduleId == item.scheduleId) {
+                it.data.duration = item.duration
+                it.data.placeName = item.placeName
+                if(!isUserDragging) rebuildSections() // 최적화 여지 있음
+                return
+            }
+        }
     }
 
 }

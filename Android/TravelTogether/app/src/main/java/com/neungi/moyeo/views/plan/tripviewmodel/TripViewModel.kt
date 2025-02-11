@@ -35,9 +35,9 @@ class TripViewModel @Inject constructor(
 
     }
 
-    fun getTrip(){
+    fun getTrip(userId :String){
         viewModelScope.launch {
-            val result = getTripUseCase.getTrips(1)
+            val result = getTripUseCase.getTrips(userId)
             Timber.d(result.toString())
             when (result.status) {
                 ApiStatus.SUCCESS -> {

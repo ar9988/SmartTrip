@@ -9,7 +9,7 @@ import retrofit2.http.Path
 interface TripsApi {
     @GET("trips/{id}")
     suspend fun getTrips(
-        @Path("id") userId: Int
+        @Path("id") userId: String
     ): Response<TripsResponse>
 
 

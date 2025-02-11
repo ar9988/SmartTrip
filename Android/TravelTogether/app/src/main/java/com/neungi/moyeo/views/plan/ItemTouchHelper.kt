@@ -11,21 +11,21 @@ import timber.log.Timber
 fun createItemTouchHelperCallback(
     updatePosition: (scheduleId: Int, positionPath: Int) -> Unit,
     onDrag: (Boolean) -> Unit,
-    uiUpdate: (position: Int) -> Unit,
-    delete: (position: Int) -> Unit
+    uiUpdate: (position: Int) -> Unit
 ): ItemTouchHelper.Callback {
     return object : ItemTouchHelper.Callback() {
         override fun getMovementFlags(
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder
         ): Int {
-            return if (viewHolder is SectionedAdapter.SectionHeaderViewHolder) {
-                0 // 섹션 헤더는 드래그 불가
+            val flags = if (viewHolder is SectionedAdapter.SectionHeaderViewHolder) {
+                makeMovementFlags(0, 0)  // 섹션 헤더는 드래그 불가
             } else {
                 val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-                val swipeFlags = ItemTouchHelper.RIGHT
-                makeMovementFlags(dragFlags, swipeFlags)
+                makeMovementFlags(dragFlags, 0)
             }
+
+            return flags
         }
         override fun isLongPressDragEnabled() = false
 
@@ -92,16 +92,7 @@ fun createItemTouchHelperCallback(
         }
 
 
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.bindingAdapterPosition
-            val adapter = viewHolder.bindingAdapter as SectionedAdapter
-            if (direction == ItemTouchHelper.RIGHT) {  // 오른쪽 스와이프
-                // 해당 아이템 삭제
-                adapter.removeItem(position)
-                // 삭제 콜백 실행
-                delete(position)
-            }
-        }
+
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
             super.onSelectedChanged(viewHolder, actionState)
             when (actionState) {
@@ -130,5 +121,10 @@ fun createItemTouchHelperCallback(
                 card.setBackgroundResource(R.drawable.round_border)  // 기본 배경
             }
         }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            TODO("Not yet implemented")
+        }
+
     }
 }

@@ -13,7 +13,7 @@ class TripsRepositoryImpl @Inject constructor(
     private val tripsRemoteDataSource: TripsRemoteDataSource
 ) : TripsRepository {
 
-    override suspend fun getTrips(userId: Int): ApiResult<List<Trip>> =
+    override suspend fun getTrips(userId: String): ApiResult<List<Trip>> =
         try {
             // 네트워크 요청 시작 전 로그
             Log.d("TripRepository", "getTrips() - userId: $userId, 네트워크 요청 시작")
@@ -51,7 +51,7 @@ class TripsRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun deleteTrip(userId: Int, trip: Trip): ApiResult<Boolean> {
+    override suspend fun deleteTrip(userId: String, trip: Trip): ApiResult<Boolean> {
         TODO("Not yet implemented")
     }
 }

@@ -2,10 +2,11 @@ package com.neungi.moyeo.views.plan
 
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
@@ -66,20 +67,25 @@ class ScheduleAddFragment : AiSearchPlaceFragment() {
         )
         Timber.d(place.toString())
         // 다이어로그 생성
-        val dialogView = layoutInflater.inflate(R.layout.dialog_schedule_add, null)
-
+        val dialogView = layoutInflater.inflate(R.layout.dialog_schedule, null)
+        val titleTextView = dialogView.findViewById<EditText>(R.id.et_dialog_title)
         val durationEditText = dialogView.findViewById<EditText>(R.id.et_duration)
-
+        val closeBtn = dialogView.findViewById<ImageButton>(R.id.button_dialog_edit_close)
+        titleTextView.setText(place.placeName)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .setCancelable(true)
             .create()
 
         // 확인 버튼 클릭 시 동작
+        closeBtn.setOnClickListener {
+            dialog.dismiss()
+        }
         dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.button_confirm).setOnClickListener {
             val duration = durationEditText.text.toString().toIntOrNull() ?: 0
+
             scheduleEntity.duration = duration
-            setFragmentResult("scheduleKey", bundleOf("schedule" to scheduleEntity))
+            setFragmentResult("add", bundleOf("schedule" to scheduleEntity))
             // 이전 화면으로 돌아가기
             findNavController().popBackStack()
 
