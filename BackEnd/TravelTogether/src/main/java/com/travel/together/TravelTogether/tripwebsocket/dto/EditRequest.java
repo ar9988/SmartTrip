@@ -18,6 +18,8 @@ public class EditRequest {
     public EditRequest(Integer tripId, Operation operation) {
     }
 
+
+
     @Getter
     @Setter
     @NoArgsConstructor
