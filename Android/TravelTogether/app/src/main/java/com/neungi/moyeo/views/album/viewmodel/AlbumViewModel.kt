@@ -153,9 +153,7 @@ class AlbumViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _userId.value = fetchUserId().first()
-            if (getUserInfoUseCase.getJWT().first() != null) {
-                initAlbums()
-            }
+            initAlbums()
         }
     }
 
@@ -280,6 +278,7 @@ class AlbumViewModel @Inject constructor(
 
     override fun onClickFinishPhotoUpload() {
         viewModelScope.launch {
+            val albumId = _selectedPhotoAlbum.value?.id ?: "-1"
             val photos = mutableListOf<PhotoEntity>()
             _newMarkers.value.forEach { place ->
                 place.second.forEach { photo ->
@@ -303,7 +302,7 @@ class AlbumViewModel @Inject constructor(
 
                 val metadataPart = prepareMetadataPart(chunk)
 
-                val response = getPhotosUseCase.submitPhoto(photoParts, metadataPart)
+                val response = getPhotosUseCase.submitPhoto(albumId, photoParts, metadataPart)
                 response.collectLatest { result ->
                     _photoUploadState.value = result
                 }
@@ -406,7 +405,7 @@ class AlbumViewModel @Inject constructor(
 
     private fun initPhotos() {
         viewModelScope.launch {
-            val albumId = _selectedPhotoAlbum.value?.tripId ?: "-1"
+            val albumId = _selectedPhotoAlbum.value?.id ?: "-1"
             val response = getPhotosUseCase.getPhotos(albumId)
             when (response.status) {
                 ApiStatus.SUCCESS -> {
@@ -638,6 +637,12 @@ class AlbumViewModel @Inject constructor(
 
     fun initAlbums() {
         viewModelScope.launch {
+            _photoAlbums.value = emptyList()
+            if (getUserInfoUseCase.getJWT().first() == null) {
+                _albumUiEvent.emit(AlbumUiEvent.GetAlbumsFail)
+                return@launch
+            }
+
             val response = getAlbumsUseCase.getAlbums()
             response.collectLatest { result ->
                 _albumsState.value = result

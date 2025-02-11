@@ -58,12 +58,12 @@ class AlbumsRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Flow<ApiResult<List<Photo>>> = flow {
+    override suspend fun postPhoto(albumId: String, photos: List<MultipartBody.Part>, body: RequestBody): Flow<ApiResult<List<Photo>>> = flow {
         emit(ApiResult.loading(null))
 
         try {
             val response = withContext(Dispatchers.IO) {
-                albumsRemoteDataSource.postPhoto(photos, body)
+                albumsRemoteDataSource.postPhoto(albumId, photos, body)
             }
 
             val responseBody = response.body()

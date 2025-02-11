@@ -27,8 +27,9 @@ interface AlbumsApi {
     ): Response<List<PhotoEntity>>
 
     @Multipart
-    @POST("albums/1/photos")
+    @POST("albums/{albumId}/photos")
     suspend fun postPhoto(
+        @Path("albumId") albumId: String,
         @Part files: List<MultipartBody.Part>,
         @Part("photoData") body: RequestBody
     ): Response<List<PhotoEntity>>

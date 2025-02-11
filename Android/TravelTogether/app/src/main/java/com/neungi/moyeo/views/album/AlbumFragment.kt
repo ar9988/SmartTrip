@@ -54,6 +54,7 @@ class AlbumFragment : BaseFragment<FragmentAlbumBinding>(R.layout.fragment_album
     override fun onResume() {
         super.onResume()
 
+        viewModel.initAlbums()
         mainViewModel.setBnvState(true)
     }
 

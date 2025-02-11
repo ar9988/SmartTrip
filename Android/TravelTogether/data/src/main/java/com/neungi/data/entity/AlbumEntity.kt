@@ -15,7 +15,7 @@ data class AlbumEntity(
     val tripTitle: String,
 
     @Json(name = "repImage")
-    val repImage: String,
+    val repImage: String?,
 
     @Json(name = "startDate")
     val startDate: String,
