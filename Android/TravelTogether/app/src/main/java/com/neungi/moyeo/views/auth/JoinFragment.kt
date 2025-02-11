@@ -12,6 +12,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.isPhotoPickerAvailable
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.textfield.TextInputLayout
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentJoinBinding
@@ -66,6 +67,7 @@ class JoinFragment : BaseFragment<FragmentJoinBinding>(R.layout.fragment_join) {
 
         binding.vm = viewModel
 
+        binding.tilPasswordJoin.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
         setEditTextFocus()
         checkAndRequestPermissions()
 

@@ -15,7 +15,7 @@ object AlbumsMapper {
                     id = albumEntity.id.toString(),
                     tripId = albumEntity.tripId.toString(),
                     title = albumEntity.tripTitle,
-                    imageUrl = albumEntity.repImage,
+                    imageUrl = albumEntity.repImage ?: "",
                     startDate = formatDateTime(albumEntity.startDate),
                     endDate = formatDateTime(albumEntity.endDate)
                 )

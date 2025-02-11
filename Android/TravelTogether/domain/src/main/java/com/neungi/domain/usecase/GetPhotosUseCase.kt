@@ -16,8 +16,8 @@ class GetPhotosUseCase @Inject constructor(
         return albumsRepository.getAlbumPhotos(albumId)
     }
 
-    suspend fun submitPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Flow<ApiResult<List<Photo>>> {
-        return albumsRepository.postPhoto(photos, body)
+    suspend fun submitPhoto(albumId: String, photos: List<MultipartBody.Part>, body: RequestBody): Flow<ApiResult<List<Photo>>> {
+        return albumsRepository.postPhoto(albumId, photos, body)
     }
 
     suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Boolean> {
