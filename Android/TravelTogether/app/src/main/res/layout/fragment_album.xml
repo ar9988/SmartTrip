@@ -5,6 +5,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="vm"
             type="com.neungi.moyeo.views.album.viewmodel.AlbumViewModel" />
@@ -15,70 +17,126 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/fragment_album"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".views.album.AlbumFragment">
+        android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gl_start_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="@dimen/dp_medium" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".views.album.AlbumFragment">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gl_top_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="@dimen/dp_medium" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_start_album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
-        <TextView
-            android:id="@+id/tv_title_album"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/pretendardbold"
-            android:text="@string/title_album"
-            android:textAlignment="viewStart"
-            android:textColor="@color/neutral_100"
-            android:textSize="24sp"
-            app:layout_constraintEnd_toStartOf="@id/gl_end_album"
-            app:layout_constraintStart_toEndOf="@id/gl_start_album"
-            app:layout_constraintTop_toBottomOf="@id/gl_top_album" />
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_top_album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_album"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="@dimen/dp_medium"
-            android:adapter="@{adapter}"
-            android:orientation="vertical"
-            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            app:layout_constrainedHeight="true"
-            app:layout_constraintBottom_toTopOf="@id/gl_bottom_album"
-            app:layout_constraintEnd_toStartOf="@id/gl_end_album"
-            app:layout_constraintStart_toEndOf="@id/gl_start_album"
-            app:layout_constraintTop_toBottomOf="@id/tv_title_album"
-            app:spanCount="2"
-            app:submitData="@{vm.photoAlbums}"
-            tools:listitem="@layout/list_album" />
+            <TextView
+                android:id="@+id/tv_title_album"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendardbold"
+                android:text="@string/title_album"
+                android:textAlignment="viewStart"
+                android:textColor="@color/neutral_100"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toStartOf="@id/iv_refresh_album"
+                app:layout_constraintStart_toEndOf="@id/gl_start_album"
+                app:layout_constraintTop_toBottomOf="@id/gl_top_album" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gl_end_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_end="@dimen/dp_medium" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_refresh_album"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_refresh"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_album"
+                app:layout_constraintTop_toBottomOf="@id/gl_top_album" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/gl_bottom_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_end="@dimen/dp_medium" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_album"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/dp_medium"
+                android:adapter="@{adapter}"
+                android:orientation="vertical"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:layout_constrainedHeight="true"
+                app:layout_constraintBottom_toTopOf="@id/gl_bottom_album"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_album"
+                app:layout_constraintStart_toEndOf="@id/gl_start_album"
+                app:layout_constraintTop_toBottomOf="@id/tv_title_album"
+                app:spanCount="2"
+                app:submitData="@{vm.photoAlbums}"
+                tools:listitem="@layout/list_album" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tv_empty_album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendardsemibold"
+                android:text="@string/text_album_empty"
+                android:textColor="@color/neutral_70"
+                android:textSize="@dimen/font_size_larger"
+                android:visibility="@{(vm.photoAlbums.isEmpty() == true) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toTopOf="@id/gl_bottom_album"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_album"
+                app:layout_constraintStart_toEndOf="@id/gl_start_album"
+                app:layout_constraintTop_toBottomOf="@id/tv_title_album" />
+
+            <FrameLayout
+                android:visibility="gone"
+                android:id="@+id/lottie_loading"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <View
+                    android:id="@+id/view_loading"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.8"
+                    android:background="@color/neutral_80" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/loading_animation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:lottie_autoPlay="false"
+                    app:lottie_loop="true"
+                    app:lottie_rawRes="@raw/loading_animation" />
+
+            </FrameLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_end_album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_bottom_album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </layout>

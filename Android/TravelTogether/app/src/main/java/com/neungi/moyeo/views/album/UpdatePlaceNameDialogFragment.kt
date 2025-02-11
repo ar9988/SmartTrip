@@ -32,16 +32,14 @@ class UpdatePlaceNameDialogFragment :
         with(binding) {
             ivUpdatePlaceNameDialog.setOnClickListener { dismiss() }
             etUpdatePlaceNameDialog.setOnEditorActionListener { _, actionId, _ ->
-                when (actionId == EditorInfo.IME_ACTION_DONE) {
-                    true -> {
-                        if (btnUpdatePlaceNameDialog.isEnabled) {
-                            viewModel.onClickUpdatePlaceName()
-                        }
-                        true
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if (btnUpdatePlaceNameDialog.isEnabled) {
+                        viewModel.onClickUpdatePlaceName()
+                        etUpdatePlaceNameDialog.clearFocus()
+                        hideKeyboard(etUpdatePlaceNameDialog)
                     }
-
-                    else -> false
-                }
+                    true
+                } else false
             }
         }
         lifecycleScope.launch {

@@ -83,6 +83,11 @@ abstract class BaseFragment<T : ViewDataBinding>(private val layoutId: Int) : Fr
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
     }
 
+    protected fun hideKeyboard(editText: EditText) {
+        val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(editText.windowToken, 0)
+    }
+
     private fun setBackPressedCallback() {
         onBackPressedCallback = object : OnBackPressedCallback(true) {
 

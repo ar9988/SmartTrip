@@ -10,6 +10,7 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Comment
 import com.neungi.domain.model.Photo
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
@@ -65,6 +67,17 @@ class AlbumViewModel @Inject constructor(
 
     private val _albumUiEvent = MutableSharedFlow<AlbumUiEvent>()
     val albumUiEvent = _albumUiEvent.asSharedFlow()
+
+    private val _albumsState =
+        MutableStateFlow<ApiResult<List<PhotoAlbum>>>(ApiResult.success(emptyList()))
+    val albumsState = _albumsState.asStateFlow()
+
+    private val _photoUploadState =
+        MutableStateFlow<ApiResult<List<Photo>>>(ApiResult.success(emptyList()))
+    val photoUploadState = _photoUploadState.asStateFlow()
+
+    private val _commentSubmitState = MutableStateFlow<ApiResult<Boolean>>(ApiResult.success(false))
+    val commentSubmitState = _commentSubmitState.asStateFlow()
 
     /****** Datas ******/
     private val _userId = MutableStateFlow<String?>(null)
@@ -116,6 +129,9 @@ class AlbumViewModel @Inject constructor(
     private val _selectedPhoto = MutableStateFlow<Photo?>(null)
     val selectedPhoto = _selectedPhoto.asStateFlow()
 
+    private val _isSelectedPhotoRemove = MutableStateFlow<Boolean>(false)
+    val isSelectedPhotoRemove = _isSelectedPhotoRemove.asStateFlow()
+
     private val _selectedPhotoComments = MutableStateFlow<List<Comment>>(emptyList())
     val selectedPhotoComments = _selectedPhotoComments.asStateFlow()
 
@@ -136,8 +152,10 @@ class AlbumViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _userId.value = getUserId().first()
-            initAlbums()
+            _userId.value = fetchUserId().first()
+            if (getUserInfoUseCase.getJWT().first() != null) {
+                initAlbums()
+            }
         }
     }
 
@@ -206,6 +224,7 @@ class AlbumViewModel @Inject constructor(
     override fun onClickPhoto(photo: Photo) {
         viewModelScope.launch {
             _selectedPhoto.value = photo
+            _isSelectedPhotoRemove.value = (_userId.value == (_selectedPhoto.value?.userId ?: "-1"))
             initComments()
             _albumUiEvent.emit(AlbumUiEvent.SelectPhoto)
         }
@@ -285,13 +304,8 @@ class AlbumViewModel @Inject constructor(
                 val metadataPart = prepareMetadataPart(chunk)
 
                 val response = getPhotosUseCase.submitPhoto(photoParts, metadataPart)
-                when (response.status == ApiStatus.SUCCESS) {
-                    false -> {
-                        _albumUiEvent.emit(AlbumUiEvent.PhotoUploadFail)
-                        return@launch
-                    }
-
-                    else -> {}
+                response.collectLatest { result ->
+                    _photoUploadState.value = result
                 }
             }
             _albumUiEvent.emit(AlbumUiEvent.FinishPhotoUpload)
@@ -326,15 +340,12 @@ class AlbumViewModel @Inject constructor(
                 photoId = _selectedPhoto.value?.id ?: "",
                 body = prepareComment(_commentInput.value)
             )
-            when ((response.status == ApiStatus.SUCCESS) && (response.data == true)) {
-                true -> {
+            response.collectLatest { result ->
+                _commentSubmitState.value = result
+                if (_commentSubmitState.value.status == ApiStatus.SUCCESS) {
                     _commentInput.value = ""
                     _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmitSuccess)
                     initComments()
-                }
-
-                else -> {
-                    _albumUiEvent.emit(AlbumUiEvent.PhotoCommentSubmitFail)
                 }
             }
         }
@@ -393,26 +404,6 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    private fun initAlbums() {
-        viewModelScope.launch {
-            val response = getAlbumsUseCase.getAlbums()
-            when (response.status) {
-                ApiStatus.SUCCESS -> {
-                    val albums = response.data ?: emptyList()
-                    val newAlbums = mutableListOf<PhotoAlbum>()
-                    albums.forEach { album ->
-                        newAlbums.add(album)
-                    }
-                    _photoAlbums.value = newAlbums
-                }
-
-                else -> {
-                    _albumUiEvent.emit(AlbumUiEvent.GetAlbumsFail)
-                }
-            }
-        }
-    }
-
     private fun initPhotos() {
         viewModelScope.launch {
             val albumId = _selectedPhotoAlbum.value?.tripId ?: "-1"
@@ -440,24 +431,6 @@ class AlbumViewModel @Inject constructor(
         }
         _markers.value = newMarkers.groupBy { it.photo.photoPlace }
             .map { (place, markerList) -> place to markerList }
-    }
-
-    private fun initComments() {
-        viewModelScope.launch {
-            val albumId = _selectedPhotoAlbum.value?.id ?: "-1"
-            val photoId = _selectedPhoto.value?.id ?: "-1"
-            val response = getCommentsUseCase.getPhotoComments(albumId, photoId)
-            when (response.status) {
-                ApiStatus.SUCCESS -> {
-                    val comments = response.data ?: emptyList()
-                    _selectedPhotoComments.value = comments
-                }
-
-                else -> {
-                    _albumUiEvent.emit(AlbumUiEvent.GetPhotoCommentsFail)
-                }
-            }
-        }
     }
 
     private fun validUploadPhotos() {
@@ -663,17 +636,60 @@ class AlbumViewModel @Inject constructor(
         return json.toRequestBody("application/json".toMediaTypeOrNull())
     }
 
+    fun initAlbums() {
+        viewModelScope.launch {
+            val response = getAlbumsUseCase.getAlbums()
+            response.collectLatest { result ->
+                _albumsState.value = result
+                if (_albumsState.value.status == ApiStatus.SUCCESS) {
+                    val albums = _albumsState.value.data ?: emptyList()
+                    val newAlbums = mutableListOf<PhotoAlbum>()
+                    albums.forEach { album ->
+                        newAlbums.add(album)
+                    }
+                    _photoAlbums.value = newAlbums
+                    _albumUiEvent.emit(AlbumUiEvent.GetAlbumsSuccess)
+                }
+            }
+        }
+    }
+
     fun initPhotoPlaces() {
         val newPhotoPlaces = mutableListOf<PhotoPlace>()
 
         _selectedPhotoAlbum.value?.let { album ->
             newPhotoPlaces.add(PhotoPlace("0", album.id, "전체", true))
             _markers.value.forEachIndexed { index, marker ->
-                newPhotoPlaces.add(PhotoPlace((index + 1).toString(), album.id, marker.first, false))
+                newPhotoPlaces.add(
+                    PhotoPlace(
+                        (index + 1).toString(),
+                        album.id,
+                        marker.first,
+                        false
+                    )
+                )
             }
         }
 
         _photoPlaces.value = newPhotoPlaces
+    }
+
+    fun initComments() {
+        viewModelScope.launch {
+            val albumId = _selectedPhotoAlbum.value?.id ?: "-1"
+            val photoId = _selectedPhoto.value?.id ?: "-1"
+            val response = getCommentsUseCase.getPhotoComments(albumId, photoId)
+            when (response.status) {
+                ApiStatus.SUCCESS -> {
+                    val comments = response.data ?: emptyList()
+                    _selectedPhotoComments.value = comments
+                }
+
+                else -> {
+                    _albumUiEvent.emit(AlbumUiEvent.GetPhotoCommentsFail)
+                }
+            }
+        }
     }
 
     fun setPhotoPlace(index: Int) {
@@ -781,7 +797,7 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    fun getUserId(): Flow<String?> = flow {
+    fun fetchUserId(): Flow<String?> = flow {
         val id = getUserInfoUseCase.getUserId().first()
         emit(id)
     }

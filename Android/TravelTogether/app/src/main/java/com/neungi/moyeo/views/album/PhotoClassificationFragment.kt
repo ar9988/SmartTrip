@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
@@ -31,6 +31,7 @@ import com.naver.maps.map.clustering.DefaultLeafMarkerUpdater
 import com.naver.maps.map.clustering.LeafMarkerInfo
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import com.neungi.domain.model.ApiStatus
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPhotoClassificationBinding
@@ -54,6 +55,14 @@ class PhotoClassificationFragment :
     OnMapReadyCallback {
 
     private val viewModel: AlbumViewModel by activityViewModels()
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                initNaverMap()
+            } else {
+                showToastMessage(resources.getString(R.string.message_location_permission))
+            }
+        }
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationSource: FusedLocationSource
@@ -68,23 +77,24 @@ class PhotoClassificationFragment :
 
         initFusedLocationClient()
 
-        collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
-    }
+        lifecycleScope.launch {
+            viewModel.photoUploadState.collectLatest { state ->
+                when (state.status) {
+                    ApiStatus.LOADING -> {
+                        showLoading(true)
+                    }
 
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                initNaverMap()
-            } else {
-                Toast.makeText(requireContext(), "Permission denied!", Toast.LENGTH_SHORT).show()
+                    ApiStatus.ERROR -> {
+                        showLoading(false)
+                        showToastMessage(resources.getString(R.string.message_fail_to_upload_photo))
+                    }
+
+                    else -> { showLoading(false) }
+                }
             }
         }
+
+        collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
     }
 
     override fun onMapReady(naverMap: NaverMap) {
@@ -141,14 +151,15 @@ class PhotoClassificationFragment :
     }
 
     private fun requestLocationPermission() {
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            LOCATION_PERMISSION_REQUEST_CODE
-        )
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     private fun initNaverMap() {
+        if (!hasPermission()) {
+            requestLocationPermission()
+            return
+        }
+
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
 
         val mapFragment =
@@ -298,6 +309,20 @@ class PhotoClassificationFragment :
                     }
                 }
             }
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            binding.lottieLoading.visibility = View.VISIBLE
+            binding.lottieLoading.isClickable = true
+            binding.lottieLoading.isFocusable = true
+            binding.loadingAnimation.playAnimation()
+        } else {
+            binding.lottieLoading.visibility = View.GONE
+            binding.lottieLoading.isClickable = false
+            binding.lottieLoading.isFocusable = false
+            binding.loadingAnimation.cancelAnimation()
         }
     }
 
