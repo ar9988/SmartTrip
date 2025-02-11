@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -258,29 +259,44 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         try {
+            // ADD타입 따로 처리
             log.info("Received message: {}", message.getPayload());
-
-
-
-            // ADD 액션 체크
             JsonNode jsonNode = objectMapper.readTree(message.getPayload());
-            String action = jsonNode.get("action").asText();
+            if (jsonNode.has("action")) {
+                log.info("Action detected, processing ADD request");
 
-            if ("ADD".equals(action)) {
                 AddRequest addRequest = objectMapper.readValue(message.getPayload(), AddRequest.class);
                 Integer tripId = addRequest.getTripId();
-
-                if (tripId == null) {
-                    log.error("Trip ID is null");
-                    session.sendMessage(new TextMessage("{\"error\": \"Trip ID cannot be null\"}"));
-                    return;
-                }
-
+                log.info("AddRequest parsed: tripId={}, dayId={}", tripId, addRequest.getDayId());
                 handleAddOperation(tripId, addRequest);
-                return;  // ADD 처리 후 종료
+
+                EditRequest.Operation operation = new EditRequest.Operation();
+                operation.setAction("ADD");
+                operation.setScheduleId(scheduleIdCounter.get());
+                operation.setPositionPath(addRequest.getSchedule().getPositionPath());
+
+                EditRequest editRequest = new EditRequest(tripId, operation);
+
+                // 송신자에게 SUCCESS 메시지
+                session.sendMessage(new TextMessage("SUCCESS"));
+
+                // EditResponse 생성 및 브로드캐스트
+                EditResponse response = EditResponse.createSuccess(editRequest, 1);
+                String jsonResponse = objectMapper.writeValueAsString(response);
+
+                String tripIdStr = String.valueOf(tripId);
+                Set<WebSocketSession> tripSessionSet = tripSessions.get(tripIdStr);
+
+                if (tripSessionSet != null) {
+                    for (WebSocketSession tripSession : tripSessionSet) {
+                        if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
+                            tripSession.sendMessage(new TextMessage(jsonResponse));
+                        }
+                    }
+                }
+                return;
+
             }
-
-
 
 
             // 메시지를 EditRequest 객체로 변환
@@ -324,6 +340,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                             tripId,
                             operation.getScheduleId()
                     );
+                    log.info("DELETE SUCCESS");
                     break;
 
             }
@@ -522,6 +539,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
 
     // ADD처리
+    private AtomicInteger scheduleIdCounter = new AtomicInteger(16);  // 16부터 시작
+
     private void handleAddOperation(Integer tripId, AddRequest addRequest) {
         try {
             log.info("Handling ADD operation for tripId: {}", tripId);
@@ -552,8 +571,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
             // 새로운 스케줄 ID 생성 (예: scheduleRepository를 통해)
             // TODO: 스케줄 Id만들기
-//            Integer newScheduleId = scheduleRepository.generateNewScheduleId();
-            Integer newScheduleId = 1;
+            Integer newScheduleId = scheduleIdCounter.incrementAndGet();
+            log.info("Generated new scheduleId: {}", newScheduleId);
 
             // ScheduleDTO 생성
             ScheduleDTO newSchedule = new ScheduleDTO(
@@ -566,6 +585,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     receivedSchedule.getLng(),
                     receivedSchedule.getType()
             );
+            // EditRequest생성전에 AddRequest저장
+            stateManager.storePendingAddRequest(tripId, addRequest);
 
             // stateManager에 상태 저장
             EditRequest.Operation operation = new EditRequest.Operation();
@@ -574,6 +595,10 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             operation.setPositionPath(newPosition);
 
             EditRequest editRequest = new EditRequest(tripId, operation);
+//            editRequest.setTripId(tripId);
+//            editRequest.setOperation(operation);
+
+
             stateManager.addEdit(tripId, editRequest);
             stateManager.updateState(tripId, newSchedule.getId(), newPosition);
 
@@ -597,6 +622,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             // 업데이트된 TripDetailDTO를 클라이언트들에게 브로드캐스트
             String responseMessage = objectMapper.writeValueAsString(currentTripDetail);
             broadcastToTripSessions(tripId, responseMessage);
+
+
 
             log.info("Updated TripDetail sent for tripId: {}, dayId: {}, scheduleId: {}",
                     tripId, dayId, newSchedule.getId());

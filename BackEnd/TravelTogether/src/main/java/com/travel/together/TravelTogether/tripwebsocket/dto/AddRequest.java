@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class AddRequest {
-    private String action;
+    private String action;  // EDIT, ADD
     private Integer tripId;
     private Integer dayId;
     private ScheduleDto schedule;
@@ -22,7 +22,7 @@ public class AddRequest {
     @Setter
     @Getter
     @NoArgsConstructor
-    public static class ScheduleDto {
+    public static class ScheduleDto  {
         private Integer scheduleId;
         private String placeName;
         private Integer orderNum;
