@@ -35,7 +35,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         lifecycleScope.launch {
             mainViewModel.userLoginInfo.collect{
                 if (it != null) {
-                    tripViewModel.getTrip(it.userId)
+                    tripViewModel.getTrip("8")
                 }
             }
         }

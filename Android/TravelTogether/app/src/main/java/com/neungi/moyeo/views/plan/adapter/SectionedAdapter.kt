@@ -24,7 +24,7 @@ class SectionedAdapter(
     private val itemTouchHelper: ItemTouchHelper,
     private val onEditClick: (ScheduleData) -> Unit,
     private val onAddClick: (Int) -> Unit,
-    private val pathDelete: (Int) -> Unit,
+    private val onDeletePath: (Int) -> Unit,
     private val recyclerView: RecyclerView
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -37,7 +37,7 @@ class SectionedAdapter(
     val pathItems = mutableMapOf<Int, Int>()
     private var listItems = mutableListOf<ListItem>()
 
-    private fun buildTimeInfo() {
+    private fun buildTimeInfo() { // 활동 시간, 이동 시간 계산해서 표시
         listItems.forEachIndexed { position, item ->
             if (item is ListItem.Item) {
                 if (listItems[position - 1] is ListItem.SectionHeader) {
@@ -58,7 +58,7 @@ class SectionedAdapter(
                 if (position + 1 < listItems.size && listItems[position + 1] is ListItem.SectionHeader || position + 1 == listItems.size) {
                     pathItems.remove((listItems[position] as ListItem.Item).data.scheduleId)
                     notifyItemChanged(position)
-                    pathDelete((listItems[position] as ListItem.Item).data.scheduleId)
+                    onDeletePath((listItems[position] as ListItem.Item).data.scheduleId)
                 }
             }
         }
@@ -140,7 +140,7 @@ class SectionedAdapter(
                     is ListItem.SectionHeader -> it.data.positionPath
                     is ListItem.Item -> it.data.positionPath
                 }
-            }.thenByDescending {
+            }.thenByDescending { //path 값이 동일할 경우 시간순으로 정렬
                 when (it) {
                     is ListItem.SectionHeader -> it.data.positionPath
                     is ListItem.Item -> it.data.timeStamp
@@ -264,9 +264,6 @@ class SectionedAdapter(
             listItems.forEachIndexed { position, item ->
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
                     item.data.positionPath = event.operation.positionPath
-                    // 텍스트뷰 갱신을 위해 해당 위치의 아이템을 갱신
-                    if (!isUserDragging) notifyItemChanged(position)
-                    return
                 }
             }
 
