@@ -105,6 +105,7 @@ public class OpenaiService {
                 }
             }
 
+
             // 응답 JSON 파싱
             String response = responseBuilder.toString();
             JSONObject responseJson = new JSONObject(response);
@@ -125,6 +126,7 @@ public class OpenaiService {
                     .replaceAll("\n","")
                     .trim();
 
+            System.out.println(promptResponse);
             // DTO 생성
             JSONObject promptJson = new JSONObject(promptResponse);
 
