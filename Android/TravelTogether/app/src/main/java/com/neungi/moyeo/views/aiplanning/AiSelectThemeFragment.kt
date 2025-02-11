@@ -88,6 +88,10 @@ class AiSelectThemeFragment: BaseFragment<FragmentAiThemeBinding>(R.layout.fragm
                     is AiPlanningUiEvent.LimitToast ->{
                         showToastMessage(resources.getString(R.string.select_limit_toast_planning))
                     }
+                    is AiPlanningUiEvent.RequestPlanning ->{
+                        showToastMessage("모여가 여행 계획을 짜고 있어요")
+                        findNavController().popBackStack(R.id.fragment_select_period,true)
+                    }
 
                     else->{
 
