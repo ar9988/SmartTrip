@@ -85,6 +85,11 @@ abstract class BaseDialogFragment<T : ViewDataBinding>(private val layoutId: Int
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
     }
 
+    protected fun hideKeyboard(editText: EditText) {
+        val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(editText.windowToken, 0)
+    }
+
     protected fun showToastMessage(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }

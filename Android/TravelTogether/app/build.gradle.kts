@@ -70,6 +70,9 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
+    // Swipe Refresh Layout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
     // Preferences DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
@@ -113,17 +116,17 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    //Calendar
+    // Calendar
     implementation("com.kizitonwose.calendar:view:2.4.1")
+
+    // Lottie
+    implementation("com.airbnb.android:lottie:6.1.0")
 
     //Websocket
 
     //firebase
     implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
     implementation ("com.google.firebase:firebase-messaging-ktx")
-
-
-
 }
 
 kapt {

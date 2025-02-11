@@ -6,6 +6,7 @@ data class Comment(
     val photoId: String,
     val userId: String,
     val author: String,
+    val profileImage: String,
     val content: String,
     val createdAt: String
 )

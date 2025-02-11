@@ -2,6 +2,8 @@ package com.neungi.moyeo.views.album.viewmodel
 
 sealed class AlbumUiEvent {
 
+    data object GetAlbumsSuccess : AlbumUiEvent()
+
     data object GetAlbumsFail : AlbumUiEvent()
 
     data object GoToAlbumDetail : AlbumUiEvent()

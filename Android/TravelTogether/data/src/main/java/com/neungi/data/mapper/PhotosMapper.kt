@@ -1,6 +1,7 @@
 package com.neungi.data.mapper
 
 import com.neungi.data.entity.PhotoEntity
+import com.neungi.data.util.CommonUtils.formatDateTimeHourMinute
 import com.neungi.domain.model.Photo
 
 object PhotosMapper {
@@ -18,7 +19,7 @@ object PhotosMapper {
                     filePath = photoEntity.url,
                     latitude = photoEntity.latitude,
                     longitude = photoEntity.longitude,
-                    takenAt = photoEntity.takenAt ?: "",
+                    takenAt = formatDateTimeHourMinute(photoEntity.takenAt ?: ""),
                     uploadedAt = ""
                 )
             )

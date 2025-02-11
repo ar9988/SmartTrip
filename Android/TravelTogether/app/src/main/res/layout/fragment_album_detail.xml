@@ -115,14 +115,24 @@
                         android:textSize="24sp"
                         app:layout_collapseMode="pin"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/iv_upload_album_detail"
+                        app:layout_constraintEnd_toStartOf="@id/iv_refresh_album_detail"
                         app:layout_constraintStart_toEndOf="@id/iv_back_toolbar_album_detail"
                         app:layout_constraintTop_toBottomOf="@id/fl_album_detail" />
 
                     <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_refresh_album_detail"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_refresh"
+                        app:layout_constraintBottom_toBottomOf="@id/tv_title_album_detail"
+                        app:layout_constraintEnd_toStartOf="@id/iv_upload_album_detail"
+                        app:layout_constraintTop_toTopOf="@id/tv_title_album_detail" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_upload_album_detail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_marginEnd="16dp"
                         android:onClick="@{() -> vm.onClickPhotoUpload()}"
                         android:src="@drawable/ic_upload"

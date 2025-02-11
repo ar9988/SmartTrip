@@ -12,7 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
@@ -52,6 +52,7 @@ import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -60,6 +61,14 @@ class AlbumDetailFragment :
 
     private val viewModel: AlbumViewModel by activityViewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                initNaverMap()
+            } else {
+                showToastMessage(resources.getString(R.string.message_location_permission))
+            }
+        }
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationSource: FusedLocationSource
@@ -75,27 +84,10 @@ class AlbumDetailFragment :
         collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
     }
 
-
     override fun onResume() {
         super.onResume()
 
         mainViewModel.setBnvState(false)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                initNaverMap()
-            } else {
-                Toast.makeText(requireContext(), "Permission denied!", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     override fun onMapReady(naverMap: NaverMap) {
@@ -124,8 +116,12 @@ class AlbumDetailFragment :
 
                     val cameraUpdate = CameraUpdate.scrollTo(LatLng(it.latitude, it.longitude))
                     naverMap.moveCamera(cameraUpdate)
-                    setMapToFitAllMarkers(viewModel.photos.value)
-                    initClusterer()
+                    if (!this::naverMap.isInitialized) {
+                        initNaverMap()
+                    } else {
+                        setMapToFitAllMarkers(viewModel.photos.value)
+                        initClusterer()
+                    }
                 }
             }
     }
@@ -151,14 +147,15 @@ class AlbumDetailFragment :
     }
 
     private fun requestLocationPermission() {
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            LOCATION_PERMISSION_REQUEST_CODE
-        )
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     private fun initNaverMap() {
+        if (!hasPermission()) {
+            requestLocationPermission()
+            return
+        }
+
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment?
@@ -226,7 +223,10 @@ class AlbumDetailFragment :
                 .load(firstPhotoUrl)
                 .into(object : CustomTarget<Bitmap>() {
 
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
                         imageView.setImageBitmap(resource)
                         marker.icon = OverlayImage.fromView(customView)
                     }
@@ -269,11 +269,20 @@ class AlbumDetailFragment :
                     ivBackToolbarAlbumDetail.visibility = View.GONE
                 }
             }
+            ivBackAlbumDetail.bringToFront()
+            ivBackAlbumDetail.setOnClickListener {
+                Timber.d("터치")
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+            ivRefreshAlbumDetail.setOnClickListener {
+                initNaverMap()
+            }
         }
     }
 
     private fun initTabLayout() {
-        binding.photoPlaceAdapter = PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
+        binding.photoPlaceAdapter =
+            PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
         with(binding.vpAlbumDetail) {
             adapter = PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
             setCurrentItem(START_POSITION, true)

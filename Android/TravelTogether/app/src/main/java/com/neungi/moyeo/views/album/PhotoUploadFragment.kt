@@ -12,6 +12,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion.isPhotoPickerAvailable
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
@@ -20,6 +21,8 @@ import com.neungi.moyeo.views.album.adapter.PhotoUploadAdapter
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -32,16 +35,20 @@ class PhotoUploadFragment :
 
     private val viewModel: AlbumViewModel by activityViewModels()
     private val profileImagePicker =
-        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            uri?.let {
-                val path = absolutelyPath(uri)
-                path?.let {
-                    val file = File(path)
-                    val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
-                    viewModel.addUploadPhoto(uri, fetchPhotoTakenAt(uri), body)
+        registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
+            if (uris.isNotEmpty()) {
+                uris.forEach { uri ->
+                    val path = absolutelyPath(uri)
+                    path?.let {
+                        val file = File(path)
+                        val requestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+                        val body = MultipartBody.Part.createFormData("files", file.name, requestBody)
+                        viewModel.addUploadPhoto(uri, fetchPhotoTakenAt(uri), body)
+                    }
                 }
-            } ?: showToastMessage(resources.getString(R.string.message_select_picture))
+            } else {
+                showToastMessage(resources.getString(R.string.message_select_picture))
+            }
         }
     private val requestMultiPermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
