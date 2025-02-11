@@ -7,6 +7,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Builder
+@AllArgsConstructor
 @Entity
 @Table(name = "trip")
 @Getter
@@ -14,7 +16,6 @@ import java.time.LocalDateTime;
 @EntityListeners(TripEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Trip {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
