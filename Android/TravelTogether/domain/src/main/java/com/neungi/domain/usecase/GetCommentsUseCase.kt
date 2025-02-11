@@ -3,6 +3,7 @@ package com.neungi.domain.usecase
 import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.Comment
 import com.neungi.domain.repository.AlbumsRepository
+import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import javax.inject.Inject
 
@@ -18,7 +19,7 @@ class GetCommentsUseCase @Inject constructor(
         albumId: String,
         photoId: String,
         body: RequestBody
-    ): ApiResult<Boolean> {
+    ): Flow<ApiResult<Boolean>> {
         return albumsRepository.postPhotoComments(albumId, photoId, body)
     }
 

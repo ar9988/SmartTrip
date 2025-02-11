@@ -2,6 +2,7 @@ package com.neungi.moyeo.views.album
 
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.activityViewModels
@@ -64,6 +65,16 @@ class PhotoClassificationUpdateDialogFragment :
                         viewModel.selectedPlace("")
                     }
                 }
+            etPhotoClassificationUpdateDialog.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if (btnPhotoClassificationUpdateDialog.isEnabled) {
+                        viewModel.onClickFinishUpdatePhotoClassification()
+                        etPhotoClassificationUpdateDialog.clearFocus()
+                        hideKeyboard(etPhotoClassificationUpdateDialog)
+                    }
+                    true
+                } else false
+            }
         }
     }
 }

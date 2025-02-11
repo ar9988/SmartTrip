@@ -3,10 +3,14 @@ package com.neungi.moyeo.views.album.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.neungi.domain.model.Comment
+import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ListPhotoCommentBinding
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -23,9 +27,13 @@ class PhotoCommentAdapter(
         fun bind(comment: Comment, viewModel: AlbumViewModel) {
             binding.comment = comment
             binding.vm = viewModel
+            binding.ivProfilePhotoComment.load(comment.profileImage.toUri()) {
+                error(R.drawable.ic_profile_empty)
+                transformations(CircleCropTransformation())
+            }
 
             CoroutineScope(Dispatchers.IO).launch {
-                viewModel.getUserId().collectLatest { id ->
+                viewModel.fetchUserId().collectLatest { id ->
                     if (comment.userId != id) {
                         with(binding) {
                             ivModifyPhotoComment.visibility = View.GONE

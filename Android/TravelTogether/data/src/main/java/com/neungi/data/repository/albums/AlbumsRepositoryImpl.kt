@@ -11,6 +11,9 @@ import com.neungi.domain.model.PhotoAlbum
 import com.neungi.domain.repository.AlbumsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -20,7 +23,9 @@ class AlbumsRepositoryImpl @Inject constructor(
     private val albumsRemoteDataSource: AlbumsRemoteDataSource
 ) : AlbumsRepository {
 
-    override suspend fun getAlbums(): ApiResult<List<PhotoAlbum>> =
+    override suspend fun getAlbums(): Flow<ApiResult<List<PhotoAlbum>>> = flow {
+        emit(ApiResult.loading(null))
+
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 albumsRemoteDataSource.getAlbums()
@@ -28,13 +33,14 @@ class AlbumsRepositoryImpl @Inject constructor(
 
             val responseBody = response.body()
             if (response.isSuccessful && (responseBody != null)) {
-                ApiResult.success(AlbumsMapper(responseBody))
+                emit(ApiResult.success(AlbumsMapper(responseBody)))
             } else {
-                ApiResult.error(response.errorBody().toString(), null)
+                emit(ApiResult.error(response.errorBody().toString(), null))
             }
         } catch (e: Exception) {
-            ApiResult.fail()
+            emit(ApiResult.fail())
         }
+    }
 
     override suspend fun getAlbumPhotos(albumId: String): ApiResult<List<Photo>> =
         try {
@@ -52,9 +58,11 @@ class AlbumsRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): ApiResult<List<Photo>> =
+    override suspend fun postPhoto(photos: List<MultipartBody.Part>, body: RequestBody): Flow<ApiResult<List<Photo>>> = flow {
+        emit(ApiResult.loading(null))
+
         try {
-            val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+            val response = withContext(Dispatchers.IO) {
                 albumsRemoteDataSource.postPhoto(photos, body)
             }
 
@@ -62,15 +70,16 @@ class AlbumsRepositoryImpl @Inject constructor(
             Log.d("AlbumsRepositoryImpl", "postPhoto: $responseBody")
             if (response.isSuccessful && (responseBody != null)) {
                 Log.d("AlbumsRepositoryImpl", "postPhoto Success: $responseBody")
-                ApiResult.success(PhotosMapper(responseBody))
+                emit(ApiResult.success(PhotosMapper(responseBody)))
             } else {
                 Log.d("AlbumsRepositoryImpl", "postPhoto Not Success: ${response.errorBody().toString()}")
-                ApiResult.error(response.errorBody().toString(), null)
+                emit(ApiResult.error(response.errorBody().toString(), null))
             }
         } catch (e: Exception) {
             Log.d("AlbumsRepositoryImpl", "Fail: $${e.message}")
-            ApiResult.fail()
+            emit(ApiResult.fail())
         }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Boolean> =
         try {
@@ -127,7 +136,9 @@ class AlbumsRepositoryImpl @Inject constructor(
         albumId: String,
         photoId: String,
         body: RequestBody
-    ): ApiResult<Boolean> =
+    ): Flow<ApiResult<Boolean>> = flow {
+        emit(ApiResult.loading(null))
+
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 albumsRemoteDataSource.postPhotoComments(albumId, photoId, body)
@@ -135,13 +146,14 @@ class AlbumsRepositoryImpl @Inject constructor(
 
             val responseBody = response.body()
             if (response.isSuccessful && (responseBody != null)) {
-                ApiResult.success(responseBody)
+                emit(ApiResult.success(responseBody))
             } else {
-                ApiResult.error(response.errorBody().toString(), null)
+                emit(ApiResult.error(response.errorBody().toString(), null))
             }
         } catch (e: Exception) {
-            ApiResult.fail()
+            emit(ApiResult.fail())
         }
+    }
 
     override suspend fun putPhotoComments(
         albumId: String,

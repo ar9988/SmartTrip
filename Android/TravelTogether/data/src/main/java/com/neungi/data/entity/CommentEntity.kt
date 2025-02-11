@@ -20,6 +20,9 @@ data class CommentEntity(
     @Json(name = "userName")
     val userName: String,
 
+    @Json(name = "profileImage")
+    val profileImage: String?,
+
     @Json(name = "content")
     val content: String,
 

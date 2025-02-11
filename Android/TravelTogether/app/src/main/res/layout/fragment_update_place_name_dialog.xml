@@ -70,6 +70,7 @@
                 android:background="@drawable/shape_edit_text"
                 android:imeOptions="actionDone"
                 android:inputType="text"
+                android:maxLines="1"
                 android:onTextChanged="@{(placeName, s, b, c) -> vm.validUpdatePlaceName(placeName)}"
                 android:text="@={vm.updatePlaceName}"
                 android:textColor="@color/neutral_70"

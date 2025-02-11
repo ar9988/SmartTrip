@@ -54,11 +54,11 @@
                     android:id="@+id/iv_profile_photo_comment"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
+                    android:scaleType="centerCrop"
                     app:layout_constraintBottom_toBottomOf="@id/tv_nickname_photo_comment"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintStart_toEndOf="@id/gl_start_photo_comment"
-                    app:layout_constraintTop_toTopOf="@id/tv_nickname_photo_comment"
-                    app:urlPhotoImage="@{comment.content}" />
+                    app:layout_constraintTop_toTopOf="@id/tv_nickname_photo_comment" />
 
                 <TextView
                     android:id="@+id/tv_nickname_photo_comment"
@@ -108,8 +108,8 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_modify_photo_comment"
-                    android:layout_width="36dp"
-                    android:layout_height="0dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_marginTop="@dimen/dp_medium"
                     android:layout_marginEnd="@dimen/dp_smaller"
                     android:src="@drawable/baseline_mode_edit_24"
@@ -120,8 +120,8 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_delete_photo_comment"
-                    android:layout_width="36dp"
-                    android:layout_height="0dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_marginEnd="@dimen/dp_small"
                     android:src="@drawable/baseline_delete_24"
                     app:layout_constraintBottom_toBottomOf="@id/iv_modify_photo_comment"
@@ -149,8 +149,8 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_update_photo_comment"
-                    android:layout_width="36dp"
-                    android:layout_height="0dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_marginTop="@dimen/dp_medium"
                     android:layout_marginEnd="@dimen/dp_smaller"
                     android:src="@drawable/ic_check"
@@ -162,8 +162,8 @@
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_cancel_photo_comment"
-                    android:layout_width="36dp"
-                    android:layout_height="0dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_close"
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="@id/iv_update_photo_comment"
