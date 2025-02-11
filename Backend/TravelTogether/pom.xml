@@ -153,6 +153,12 @@
 			<version>2.18.0</version>
 		</dependency>
 
+	<!-- redis를 사용한 초대링크 생성을 위한 의존성 추가		-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
 
 	<!-- Testing Dependencies -->
 		<dependency>

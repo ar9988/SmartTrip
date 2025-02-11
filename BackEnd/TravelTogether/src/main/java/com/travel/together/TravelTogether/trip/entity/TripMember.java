@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Entity
 @Table(name = "trip_member")
 @Getter
@@ -27,36 +28,9 @@ public class TripMember {
     @Column(name = "is_owner")
     private Boolean isOwner;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Trip getTrip() {
-        return trip;
-    }
-
-    public void setTrip(Trip trip) {
+    public TripMember(Trip trip, User user){
         this.trip = trip;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
         this.user = user;
-    }
-
-    public Boolean getIsOwner() {
-        return isOwner;
-    }
-
-    public void setIsOwner(Boolean owner) {
-        isOwner = owner;
     }
 }
 
