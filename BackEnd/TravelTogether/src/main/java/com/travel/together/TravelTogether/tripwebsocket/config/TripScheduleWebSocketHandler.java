@@ -194,7 +194,6 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
                         if (firstSchedule != null) {
                             log.info("Preparing MoveResponse - paths size: {}", paths.size());
-                            log.info("Paths to be sent: {}", paths);
 
                             MoveResponse pathResponse = new MoveResponse(
                                     tripId,
@@ -205,7 +204,6 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                             String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
                             session.sendMessage(new TextMessage(pathJsonResponse));
 
-                            log.info("Generated JSON response: {}", pathJsonResponse);
                         }
                     }
                 } catch (Exception e) {
@@ -270,12 +268,25 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 log.info("AddRequest parsed: tripId={}, dayId={}", tripId, addRequest.getDayId());
                 handleAddOperation(tripId, addRequest);
 
+
                 EditRequest.Operation operation = new EditRequest.Operation();
                 operation.setAction("ADD");
                 operation.setScheduleId(scheduleIdCounter.get());
                 operation.setPositionPath(addRequest.getSchedule().getPositionPath());
 
-                EditRequest editRequest = new EditRequest(tripId, operation);
+                // operation이 초기화된 상태로 EditRequest 생성
+                EditRequest editRequest = new EditRequest();  // 기본 생성자 사용
+                editRequest.setTripId(tripId);
+                editRequest.setOperation(operation);
+                editRequest.setOperationId("ADD_OPERATION");
+
+                // 디버깅을 위한 로그 추가
+                log.info("Created EditRequest - tripId: {}, operation action: {}, scheduleId: {}",
+                        editRequest.getTripId(),
+                        editRequest.getOperation().getAction(),
+                        editRequest.getOperation().getScheduleId());
+
+
 
                 // 송신자에게 SUCCESS 메시지
                 session.sendMessage(new TextMessage("SUCCESS"));
@@ -595,9 +606,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             operation.setPositionPath(newPosition);
 
             EditRequest editRequest = new EditRequest(tripId, operation);
-//            editRequest.setTripId(tripId);
-//            editRequest.setOperation(operation);
-
+            editRequest.setOperationId("ADD_OPERATION");
+            editRequest.setOperation(operation);  // operation setter 추가
 
             stateManager.addEdit(tripId, editRequest);
             stateManager.updateState(tripId, newSchedule.getId(), newPosition);
@@ -611,9 +621,38 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 DayDto targetDay = currentTripDetail.getDayDtos().get(dayIndex);
                 List<ScheduleDTO> schedules = targetDay.getSchedules();
                 schedules.add(newSchedule);
-
-                // positionPath 기준으로 정렬
                 schedules.sort(Comparator.comparing(ScheduleDTO::getPositionPath));
+
+                // path 생성 응답 객체
+                Map<String, Object> responseMap = new HashMap<>();
+                responseMap.put("tripId", tripId);
+                responseMap.put("scheduleId", newScheduleId);
+                responseMap.put("newPosition", newPosition);
+
+
+                // 이전 schedule과의 path생성
+                if (schedules.size() > 1) {
+                    Schedule source = scheduleRepository.findById(schedules.get(schedules.size() - 2).getId()).orElse(null);
+                    Schedule target = scheduleRepository.findById(newScheduleId).orElse(null);
+
+                    if (source != null && target != null) {
+                        PathInfo path = stateManager.generatePath(source, target);
+                        log.info("pppppp=={}",path);
+                        if (path != null) {
+
+                            if (operation != null) {
+                                List<PathInfo> paths = new ArrayList<>();
+                                paths.add(path);
+                                responseMap.put("paths", Collections.singletonList(path));
+                            }
+
+                        }
+                    }
+                }
+
+                String responseMessage = objectMapper.writeValueAsString(responseMap);
+                broadcastToTripSessions(tripId, responseMessage);
+
             } else {
                 log.error("Invalid day index: {}", dayIndex);
                 return;
@@ -622,6 +661,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             // 업데이트된 TripDetailDTO를 클라이언트들에게 브로드캐스트
             String responseMessage = objectMapper.writeValueAsString(currentTripDetail);
             broadcastToTripSessions(tripId, responseMessage);
+
+
 
 
 

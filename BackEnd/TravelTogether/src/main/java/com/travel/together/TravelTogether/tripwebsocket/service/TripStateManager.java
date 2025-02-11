@@ -245,7 +245,6 @@ public class TripStateManager {
             }
 
             log.info("Generated paths count: {}", paths.size());
-            log.info("Generated paths: {}", paths);
 
             callback.onPathGenerated(paths);
 
@@ -337,7 +336,7 @@ public class TripStateManager {
     }
 
     // 경로 생성 헬퍼 메서드
-    private PathInfo generatePath(Schedule source, Schedule target) {
+    public PathInfo generatePath(Schedule source, Schedule target) {
         log.info("generatePath===========================");
         try {
             DirectionsRequestDto request = DirectionsRequestDto.builder()

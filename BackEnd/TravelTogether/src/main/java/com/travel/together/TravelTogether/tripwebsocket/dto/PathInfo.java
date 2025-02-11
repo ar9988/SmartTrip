@@ -5,6 +5,7 @@ import lombok.*;
 import java.util.List;
 
 // Path 정보를 담을 클래스
+@Getter
 @Data
 @AllArgsConstructor
 public class PathInfo {
