@@ -86,7 +86,7 @@
                         android:paddingVertical="16dp">
 
                         <TextView
-                            android:id="@+id/tv_title"
+                            android:id="@+id/tv_title_plan"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="16dp"
@@ -106,9 +106,9 @@
                             android:textColor="@color/blue"
                             android:textSize="@dimen/font_size_larger"
                             android:textStyle="bold"
-                            app:layout_constraintBottom_toBottomOf="@id/tv_title"
-                            app:layout_constraintStart_toEndOf="@id/tv_title"
-                            app:layout_constraintTop_toTopOf="@id/tv_title" />
+                            app:layout_constraintBottom_toBottomOf="@id/tv_title_plan"
+                            app:layout_constraintStart_toEndOf="@id/tv_title_plan"
+                            app:layout_constraintTop_toTopOf="@id/tv_title_plan" />
 
                         <ImageView
                             android:id="@+id/iv_calendar"
@@ -119,7 +119,7 @@
                             android:src="@drawable/ic_calendar"
                             app:tint="#666666"
                             app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
-                            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+                            app:layout_constraintTop_toBottomOf="@id/tv_title_plan" />
 
 
                         <TextView

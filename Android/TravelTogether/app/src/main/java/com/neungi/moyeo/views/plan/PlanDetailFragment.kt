@@ -30,6 +30,7 @@ import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import com.neungi.moyeo.views.plan.dialog.EditScheduleDialog
+import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleUiEvent
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,26 +53,42 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private lateinit var sectionedAdapter: SectionedAdapter
     private var isUserDragging = false
 
-    override fun onResume() {
-        super.onResume()
-        mainViewModel.setBnvState(false)
-        scheduleViewModel.startConnect()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         initializeViewBinding()
         initializeMap()
         setupObservers()
         setupRecyclerView()
         setupListeners()
+
+        collectLatestFlow(scheduleViewModel.scheduleUiEvent) { handleUiEvent(it) }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mainViewModel.setBnvState(false)
+        scheduleViewModel.startConnect()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        scheduleViewModel.closeWebSocket()
+    }
+
+    override fun onMapReady(map: NaverMap) {
+        this.naverMap = map.apply {
+            uiSettings.isZoomControlEnabled = false
+        }
+        checkLocationPermission()
     }
 
     private fun initializeViewBinding() {
-        binding.apply {
+        with(binding) {
             vm = scheduleViewModel
-            scheduleViewModel.trip = tripViewModel.trip
-            trip = scheduleViewModel.trip
+            scheduleViewModel.initTrip(tripViewModel.trip)
         }
     }
 
@@ -142,7 +159,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun setupListeners() {
-        binding.btnBack.setOnClickListener {
+        binding.btnBackPlanDetail.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
@@ -219,10 +236,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             onEditClick = { scheduleData -> showEditDialog(scheduleData) },
             onAddClick = { dayId -> navigateToAddSchedule(dayId) },
             onDeletePath = { scheduleId -> removePathOverlay(scheduleId) },
-            recyclerView = binding.recyclerView
+            recyclerView = binding.rvPlanDetail
         )
 
-        binding.recyclerView.apply {
+        binding.rvPlanDetail.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = sectionedAdapter
             setHasFixedSize(true)
@@ -280,7 +297,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun navigateToAddSchedule(dayId: Int) {
         val bundle = Bundle().apply {
-            putInt("tripId", scheduleViewModel.trip.id)
+            putInt("tripId", scheduleViewModel.selectedTrip.value?.id ?: -1)
             putInt("dayId", dayId)
         }
         findNavController().navigate(R.id.action_schedule_add, bundle)
@@ -292,20 +309,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun initializeMap() {
-        val mapFragment = childFragmentManager.findFragmentById(R.id.detail_map_fragment) as? MapFragment
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment_plan_detail) as? MapFragment
             ?: MapFragment.newInstance().also {
                 childFragmentManager.beginTransaction()
-                    .add(R.id.detail_map_fragment, it)
+                    .add(R.id.map_fragment_plan_detail, it)
                     .commit()
             }
         mapFragment.getMapAsync(this)
-    }
-
-    override fun onMapReady(map: NaverMap) {
-        this.naverMap = map.apply {
-            uiSettings.isZoomControlEnabled = false
-        }
-        checkLocationPermission()
     }
 
     private fun checkLocationPermission() {
@@ -345,9 +355,22 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         )
     }
 
+    private fun handleUiEvent(event: ScheduleUiEvent) {
+        when (event) {
+            is ScheduleUiEvent.ScheduleInvite -> {
+                findNavController().navigateSafely(R.id.action_plan_detail_to_invite)
+            }
+
+            else -> {}
+        }
+    }
+
+    companion object {
+
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
     override fun onStop() {
         super.onStop()
 //        scheduleViewModel.closeWebSocket()
     }
-
 }

@@ -37,6 +37,11 @@
         <action
             android:id="@+id/action_schedule_add"
             app:destination="@id/fragment_schedule_add" />
+
+        <action
+            android:id="@+id/action_plan_detail_to_invite"
+            app:destination="@id/fragment_invite_dialog" />
+
     </fragment>
 
     <fragment
@@ -238,5 +243,11 @@
         android:name="com.neungi.moyeo.views.album.UpdatePlaceNameDialogFragment"
         android:label="Update Place Name"
         tools:layout="@layout/fragment_update_place_name_dialog" />
+
+    <dialog
+        android:id="@+id/fragment_invite_dialog"
+        android:name="com.neungi.moyeo.views.plan.InviteDialogFragment"
+        android:label="Invite"
+        tools:layout="@layout/fragment_invite_dialog" />
 
 </navigation>
