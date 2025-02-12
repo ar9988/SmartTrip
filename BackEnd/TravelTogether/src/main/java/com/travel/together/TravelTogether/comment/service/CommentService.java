@@ -56,12 +56,12 @@ public class CommentService {
         Photo photo = photoRepository.findById(photoId)
                 .orElseThrow(() -> new RuntimeException("Photo not found with id: " + photoId));
 
-        // (선택사항) Photo에 앨범 정보가 있고 검증이 필요하다면 아래와 같이 albumId 일치 여부를 체크합니다.
+        // Photo에 앨범 정보가 있고 검증이 필요하다면 아래와 같이 albumId 일치 여부를 체크합니다.
         if (photo.getAlbum() == null || photo.getAlbum().getId() != albumId) {
             throw new RuntimeException("Photo with id " + photoId + " does not belong to album " + albumId);
         }
 
-        // User 엔티티 조회 (JWT에서 전달받은 userId 사용)
+        // User 엔티티 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
 
