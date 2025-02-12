@@ -369,4 +369,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
     }
+    override fun onStop() {
+        super.onStop()
+//        scheduleViewModel.closeWebSocket()
+    }
 }

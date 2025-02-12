@@ -45,10 +45,12 @@ class WebSocketManager @Inject constructor() {
 
                 // 먼저 String으로 들어온 JSON이 유효한지 체크
                 if (text == "SUCCESS") {
+                    Timber.d(text)
                     return
                 }
+
                 val jsonObject = JsonParser.parseString(text).asJsonObject
-//                Timber.d(jsonObject.toString())
+                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
                 when {
 
                     jsonObject.has("status") -> {
