@@ -54,7 +54,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     @SuppressLint("HardwareIds")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getHashKey()
         binding.vm = viewModel
         binding.lifecycleOwner = this
         val deviceId = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
@@ -126,20 +125,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         )
     }
 
-    fun getHashKey() {
-        var keyHash = ""
-        try {
-            val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-            for (signature in info.signatures) {
-                val md = MessageDigest.getInstance("SHA")
-                md.update(signature.toByteArray())
-                keyHash = Base64.encodeToString(md.digest(), Base64.DEFAULT)
-            }
-        } catch (e: Exception) {
-            Log.e("KeyHash", "Error: ${e.message}")
-        }
-        Log.d("KeyHash", keyHash)
-    }
 
     companion object {
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 100  // 임의의 고유 코드
