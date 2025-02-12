@@ -708,42 +708,77 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 responseMap.put("newPosition", newPosition);
                 responseMap.put("scheduleDTO", newSchedule);
 
+                // scheduleDTO를 responseMap에서 제거하고 따로 전송
+                ScheduleDTO scheduleToSend = (ScheduleDTO) responseMap.remove("scheduleDTO");
 
                 // 이전 schedule과의 path생성
                 if (schedules.size() > 1) {
                     Schedule source = scheduleRepository.findById(schedules.get(schedules.size() - 2).getId()).orElse(null);
 
                     if (source != null) {
-                        PathInfo path = stateManager.generatePath(source, savedSchedule);
-                        if (path != null) {
-                            responseMap.put("paths", Collections.singletonList(path));
-                        }
+                        // 먼저 기본 정보 브로드캐스트
+                        String responseMessage = objectMapper.writeValueAsString(responseMap);
+                        broadcastToTripSessions(tripId, responseMessage);
+
+                        // scheduleDTO 전송
+                        String scheduleMessage = objectMapper.writeValueAsString(scheduleToSend);
+                        broadcastToTripSessions(tripId, scheduleMessage);
+
+                        // TripDetail 전송
+                        String tripDetailMessage = objectMapper.writeValueAsString(currentTripDetail);
+                        broadcastToTripSessions(tripId, tripDetailMessage);
+
+                        // 경로 계산은 콜백으로 처리
+
+                        stateManager.generatePathWithCallback(source, savedSchedule, paths -> {
+                            try {
+                                if (!paths.isEmpty()) {
+                                    Map<String, Object> pathResponse = new HashMap<>();
+                                    pathResponse.put("tripId", tripId);
+                                    pathResponse.put("paths", paths);
+
+                                    String pathMessage = objectMapper.writeValueAsString(pathResponse);
+                                    broadcastToTripSessions(tripId, pathMessage);
+
+                                    log.info("Path info broadcasted for tripId: {}, schedules {} -> {}",
+                                            tripId, source.getId(), savedSchedule.getId());
+                                }
+                            } catch (JsonProcessingException e) {
+                                log.error("Error broadcasting path info", e);
+                            }
+                        });
+
+                        log.info("Path generation requested for tripId: {}", tripId);
                     }
 
+
+
+                    }
+
+
                 }
-                // scheduleDTO를 responseMap에서 제거하고 따로 전송
-                ScheduleDTO scheduleToSend = (ScheduleDTO) responseMap.remove("scheduleDTO");
+//                // scheduleDTO를 responseMap에서 제거하고 따로 전송
+//                ScheduleDTO scheduleToSend = (ScheduleDTO) responseMap.remove("scheduleDTO");
 
-                // paths와 position 정보 먼저 전송
-                String responseMessage = objectMapper.writeValueAsString(responseMap);
-                broadcastToTripSessions(tripId, responseMessage);
-
-                // scheduleDTO 따로 전송
-                String scheduleMessage = objectMapper.writeValueAsString(scheduleToSend);
-                broadcastToTripSessions(tripId, scheduleMessage);
-
-                // 업데이트된 TripDetailDTO 브로드캐스트
-                String tripDetailMessage = objectMapper.writeValueAsString(currentTripDetail);
-                broadcastToTripSessions(tripId, tripDetailMessage);
+//                // paths와 position 정보 먼저 전송
+//                String responseMessage = objectMapper.writeValueAsString(responseMap);
+//                broadcastToTripSessions(tripId, responseMessage);
+//
+//                // scheduleDTO 따로 전송
+//                String scheduleMessage = objectMapper.writeValueAsString(scheduleToSend);
+//                broadcastToTripSessions(tripId, scheduleMessage);
+//
+//                // 업데이트된 TripDetailDTO 브로드캐스트
+//                String tripDetailMessage = objectMapper.writeValueAsString(currentTripDetail);
+//                broadcastToTripSessions(tripId, tripDetailMessage);
 
                 log.info("Updated TripDetail sent for tripId: {}, dayId: {}, scheduleId: {}",
                         tripId, dayOrder, newScheduleId);
-            }
-
-
-        } catch (Exception e) {
-            log.error("Error handling ADD operation", e);
+            } catch (JsonProcessingException ex) {
+            throw new RuntimeException(ex);
         }
+
+
     }
 
 

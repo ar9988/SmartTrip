@@ -345,6 +345,7 @@ public class TripStateManager {
     }
 
     // 경로 생성 헬퍼 메서드
+    @Async
     public PathInfo generatePath(Schedule source, Schedule target) {
         log.info("generatePath===========================");
         try {
@@ -379,7 +380,22 @@ public class TripStateManager {
 
 
 
+    // ADD용 path생성
+    @Async
+    public void generatePathWithCallback(Schedule source, Schedule target, PathGenerationCallback callback) {
+        log.info("Starting path generation with callback for schedules {} -> {}",
+                source.getId(), target.getId());
 
+        PathInfo path = generatePath(source, target);  // 기존 메서드 활용
+        List<PathInfo> paths = new ArrayList<>();
+        if (path != null) {
+            paths.add(path);
+        }
+
+        callback.onPathGenerated(paths);
+        log.info("Path generation callback completed for schedules {} -> {}",
+                source.getId(), target.getId());
+    }
 
 
 
