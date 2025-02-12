@@ -139,6 +139,7 @@
             app:cv_dayViewResource="@layout/calendar_day_layout"
             app:cv_monthHeaderResource="@layout/calendar_month_header_layout"
             app:cv_outDateStyle="endOfGrid"
+            app:periodLength="7"
             app:startDate="@{vm.startDate}"
             app:endDate="@{vm.endDate}"
             app:layout_constraintEnd_toEndOf="parent"

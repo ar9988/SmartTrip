@@ -24,8 +24,11 @@ android {
 
         val naverClientId = project.findProperty("naver.client.id") as String?
             ?: throw GradleException("naver.client.id is not defined in local.properties")
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"${project.properties["kakao.native.app.key"]}\"")
 
         buildConfigField("String", "NAVER_CLIENT_ID", "\"$naverClientId\"")
+        manifestPlaceholders["kakaoKey"] = "kakao${project.properties["kakao.native.app.key"]}"
+
     }
 
     buildTypes {
@@ -127,6 +130,10 @@ dependencies {
     //firebase
     implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
     implementation ("com.google.firebase:firebase-messaging-ktx")
+
+    //kakaotalk
+    implementation(libs.kakao.share)
+
 }
 
 kapt {

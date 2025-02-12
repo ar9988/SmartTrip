@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Base64
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -31,6 +33,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.security.MessageDigest
 import java.util.jar.Manifest
 
 @AndroidEntryPoint
@@ -51,7 +54,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     @SuppressLint("HardwareIds")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        getHashKey()
         binding.vm = viewModel
         binding.lifecycleOwner = this
         val deviceId = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
@@ -121,6 +124,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
             NOTIFICATION_PERMISSION_REQUEST_CODE
         )
+    }
+
+    fun getHashKey() {
+        var keyHash = ""
+        try {
+            val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+            for (signature in info.signatures) {
+                val md = MessageDigest.getInstance("SHA")
+                md.update(signature.toByteArray())
+                keyHash = Base64.encodeToString(md.digest(), Base64.DEFAULT)
+            }
+        } catch (e: Exception) {
+            Log.e("KeyHash", "Error: ${e.message}")
+        }
+        Log.d("KeyHash", keyHash)
     }
 
     companion object {
