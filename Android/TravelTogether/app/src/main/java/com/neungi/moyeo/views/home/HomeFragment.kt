@@ -23,12 +23,14 @@ import com.kakao.sdk.template.model.Content
 import com.kakao.sdk.template.model.FeedTemplate
 import com.kakao.sdk.template.model.Link
 import com.neungi.domain.model.ApiStatus
+import com.neungi.domain.model.Place
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.DialogFestivalInfoBinding
 import com.neungi.moyeo.databinding.FragmentHomeBinding
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.home.adapter.HomeFestivalAdapter
+import com.neungi.moyeo.views.home.adapter.HomePlaceAdapter
 import com.neungi.moyeo.views.home.adapter.QuoteAdapter
 import com.neungi.moyeo.views.home.viewmodel.HomeUiEvent
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
@@ -41,10 +43,104 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
+    val placeList = listOf(
+        Place(
+            placeName = "강원랜드 카지노",
+            address = "강원특별자치도 정선군 사북읍 하이원길 265",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/91/1982091_image2_1.jpg"
+        ),
+        Place(
+            placeName = "남이섬유원지",
+            address = "강원특별자치도 춘천시 남이섬길 1 남이섬",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/62/3427362_image2_1.jpg"
+        ),
+        Place(
+            placeName = "설악산국립공원",
+            address = "강원특별자치도 양양군 서면 오색리",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/27/2739227_image2_1.jpg"
+        ),
+        Place(
+            placeName = "오대산국립공원",
+            address = "강원특별자치도 평창군 진부면 오대산로",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/52/3034152_image2_1.jpg"
+        ),
+        Place(
+            placeName = "하이원 스키장",
+            address = "강원특별자치도 정선군 고한읍 하이원길 424",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/20/2733720_image2_1.jpg"
+        ),
+        Place(
+            placeName = "낙산사",
+            address = "강원특별자치도 양양군 강현면 낙산사로 100",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms2/website/44/3022844.jpg"
+        ),
+        Place(
+            placeName = "춘천 삼악산 호수케이블카",
+            address = "강원특별자치도 춘천시 스포츠타운길 245",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/55/3036655_image2_1.jpg"
+        ),
+        Place(
+            placeName = "치악산국립공원",
+            address = "강원특별자치도 원주시 소초면 무쇠점2길 26",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/94/2948094_image2_1.bmp"
+        ),
+        Place(
+            placeName = "용평리조트",
+            address = "강원특별자치도 평창군 대관령면 올림픽로 715",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms2/website/05/2475705.jpg"
+        ),
+        Place(
+            placeName = "에버랜드",
+            address = "경기도 용인시 처인구 포곡읍 에버랜드로 199",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/09/2757509_image2_1.jpg"
+        ),
+        Place(
+            placeName = "화담숲",
+            address = "경기도 광주시 도척면 도척윗로 278-1",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/80/3308780_image2_1.PNG"
+        ),
+        Place(
+            placeName = "킨텍스",
+            address = "경기도 고양시 일산서구 킨텍스로 217-60",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms2/website/80/1984180.jpg"
+        ),
+        Place(
+            placeName = "매미성",
+            address = "경상남도 거제시 장목면 복항길",
+            lat = null,
+            lng = null,
+            imageUrl = "http://tong.visitkorea.or.kr/cms2/website/70/3092170.jpg"
+        )
+    )
 
     private val viewModel: HomeViewModel by viewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
     lateinit var homeFestivalAdapter: HomeFestivalAdapter
+    lateinit var homePlaceAdapter: HomePlaceAdapter
     lateinit var quoteAdapter: QuoteAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -85,8 +181,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
         }
+        homePlaceAdapter = HomePlaceAdapter()
+        binding.rvRecommendPlaceHome.adapter = homePlaceAdapter
         homeFestivalAdapter = HomeFestivalAdapter(viewModel)
         binding.rvFestival.adapter =  homeFestivalAdapter
+
     }
 
     override fun onResume() {
@@ -113,6 +212,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         collectLatestFlow(viewModel.recommendFestivals){ festivals ->
             if(festivals.isNotEmpty()) {
                 homeFestivalAdapter.submitList(festivals)
+                homePlaceAdapter.submitList(placeList)
+                binding.nscrollviewHome.visibility = View.VISIBLE
             }
         }
         lifecycleScope.launch {
@@ -200,7 +301,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             content = Content(
                 title = "모여(모두의 여행)",
                 description = "(초대자)님이 당신을 (일정이름)으로 초대하셨습니다.",
-                imageUrl = "https://d210-traveltogether.s3.ap-northeast-2.amazonaws.com/default/image_app_main.png\n",
+                imageUrl = "https://d210-traveltogether.s3.ap-northeast-2.amazonaws.com/default/image_app_main.png",
                 link = Link(
                     androidExecutionParams = mapOf("key1" to "value1", "key2" to "value2"),
                 )

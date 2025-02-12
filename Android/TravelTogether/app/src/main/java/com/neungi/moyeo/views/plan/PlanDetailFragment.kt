@@ -34,6 +34,7 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleUiEvent
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.fragment_plan_detail),
@@ -53,6 +54,12 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private lateinit var sectionedAdapter: SectionedAdapter
     private var isUserDragging = false
 
+    override fun onResume() {
+        super.onResume()
+        mainViewModel.setBnvState(false)
+        scheduleViewModel.startConnect()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -61,28 +68,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         setupObservers()
         setupRecyclerView()
         setupListeners()
-
-        collectLatestFlow(scheduleViewModel.scheduleUiEvent) { handleUiEvent(it) }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        mainViewModel.setBnvState(false)
-        scheduleViewModel.startConnect()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        scheduleViewModel.closeWebSocket()
-    }
-
-    override fun onMapReady(map: NaverMap) {
-        this.naverMap = map.apply {
-            uiSettings.isZoomControlEnabled = false
-        }
-        checkLocationPermission()
+        collectLatestFlow(scheduleViewModel.scheduleUiEvent) {handleUiEvent(it)}
     }
 
     private fun initializeViewBinding() {
@@ -95,6 +81,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun setupObservers() {
         with(scheduleViewModel) {
             serverEvents.observe(viewLifecycleOwner) { event ->
+                Timber.d(event.toString())
                 handleServerEvent(event)
             }
             scheduleSections.observe(viewLifecycleOwner) { sections ->
@@ -110,7 +97,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun handleServerEvent(event: ServerReceive) {
-        sectionedAdapter.updatePosition(event, isUserDragging)
+        sectionedAdapter.updateItem(event, isUserDragging)
     }
 
     private fun handleScheduleSections(sections: List<Section>) {
@@ -131,11 +118,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
     }
 
-    private fun handleManipulationEvent(event: ManipulationEvent) {
-        when (event.action) {
-            "ADD" -> sectionedAdapter.addSchedule(event, isUserDragging)
-            else -> handleEditSchedule(event)
-        }
+    private fun handleManipulationEvent(event: ScheduleData) {
+//        when (event.action) {
+//            "ADD" -> sectionedAdapter.addSchedule(event, isUserDragging)
+//            else -> handleEditSchedule(event)
+//        }
+
+        sectionedAdapter.addSchedule(event, isUserDragging)
     }
 
     private fun handleEditSchedule(event: ManipulationEvent) {
@@ -270,9 +259,14 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 handleScheduleEdit(editedData)
             },
             onDelete = { scheduleId ->
-                scheduleViewModel.sendDeleteEvent(scheduleId)
+                handleScheduleDelete(scheduleId)
             }
         ).show()
+    }
+
+    private fun handleScheduleDelete(scheduleId: Int){
+        scheduleViewModel.sendDeleteEvent(scheduleId)
+        sectionedAdapter.delete(scheduleId)
     }
 
     private fun handleScheduleEdit(scheduleData: ScheduleData) {
@@ -316,6 +310,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                     .commit()
             }
         mapFragment.getMapAsync(this)
+    }
+
+    override fun onMapReady(map: NaverMap) {
+        this.naverMap = map.apply {
+            uiSettings.isZoomControlEnabled = false
+        }
+        checkLocationPermission()
     }
 
     private fun checkLocationPermission() {
@@ -364,7 +365,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             else -> {}
         }
     }
-
+    
     companion object {
 
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000

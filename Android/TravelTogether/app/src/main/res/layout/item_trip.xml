@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/round_border"
-        android:layout_margin="15dp"
+        android:layout_margin="30dp"
         android:onClick="@{onItemClick}"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
