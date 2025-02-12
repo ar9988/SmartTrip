@@ -38,9 +38,12 @@ class WebSocketManager @Inject constructor() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             super.onOpen(webSocket, response)
             Timber.tag("WebSocket").d("onOpen: Connected")
+
+            isConnected = true
             sendStart()
 
         }
+
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             try {
@@ -67,7 +70,6 @@ class WebSocketManager @Inject constructor() {
                     }
 
                     jsonObject.has("title") -> {
-                        isConnected = true
                         val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
 //                        Timber.d(scheduleReceive.toString())
                         onScheduleEventReceived?.invoke(scheduleReceive)
@@ -75,7 +77,7 @@ class WebSocketManager @Inject constructor() {
 
                     jsonObject.has("paths") -> {
                         val routeReceive = gson.fromJson(text, PathReceive::class.java)
-                        Timber.d(routeReceive.toString())
+//                        Timber.d(routeReceive.toString())
                         onRouteEventReceived?.invoke(routeReceive)
                     }
 
