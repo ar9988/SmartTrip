@@ -9,7 +9,9 @@ import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
+import com.neungi.data.entity.ServerEvent
 import com.neungi.data.entity.ServerReceive
+import com.neungi.domain.model.Operation
 import com.neungi.domain.model.ScheduleData
 import com.neungi.moyeo.views.plan.adapter.LocalDateTimeAdapter
 import kotlinx.coroutines.CompletableDeferred
@@ -20,10 +22,11 @@ import javax.inject.Inject
 
 class WebSocketManager @Inject constructor() {
 
-    var tripId:Int = 0
+    var tripId: Int = 0
     private val client = OkHttpClient()
     private var webSocket: WebSocket? = null
     var isConnected = false
+
     // 각 이벤트에 대한 콜백
     var onServerEventReceived: ((ServerReceive) -> Unit)? = null
     var onRouteEventReceived: ((PathReceive) -> Unit)? = null
@@ -35,6 +38,8 @@ class WebSocketManager @Inject constructor() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             super.onOpen(webSocket, response)
             Timber.tag("WebSocket").d("onOpen: Connected")
+            sendStart()
+
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
@@ -60,25 +65,23 @@ class WebSocketManager @Inject constructor() {
 //                        Timber.d(serverReceive.toString())
                         onServerEventReceived?.invoke(serverReceive)
                     }
+
                     jsonObject.has("title") -> {
                         isConnected = true
                         val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
 //                        Timber.d(scheduleReceive.toString())
                         onScheduleEventReceived?.invoke(scheduleReceive)
                     }
+
                     jsonObject.has("paths") -> {
                         val routeReceive = gson.fromJson(text, PathReceive::class.java)
-//                        Timber.d(routeReceive.toString())
+                        Timber.d(routeReceive.toString())
                         onRouteEventReceived?.invoke(routeReceive)
                     }
-                    jsonObject.has("action") -> {
-//                        val add = gson.fromJson(text, ManipulationEvent::class.java)
-//                        Timber.d(add.toString())
-//                        onAddEventReceived?.invoke(add)
-                    }
+
                     jsonObject.has("placeName") -> {
                         val add = gson.fromJson(text, ScheduleData::class.java)
-                        Timber.d(add.toString())
+//                        Timber.d(add.toString())
                         onAddEventReceived?.invoke(add)
 
                     }
@@ -99,6 +102,21 @@ class WebSocketManager @Inject constructor() {
             isConnected = false
             Timber.tag("WebSocket").d("onClosed: Code=$code, Reason=$reason")
         }
+    }
+
+    private fun sendStart() {
+        sendMessage(
+            ServerEvent(
+                operationId = "123",
+                tripId = tripId,
+                operation = Operation(
+                    action = "START",
+                    scheduleId = -1,
+                    positionPath = -1
+                ),
+                timestamp = 1
+            )
+        )
     }
 
     fun connect(url: String) {

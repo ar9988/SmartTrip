@@ -110,6 +110,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handlePathEvent(receive: PathReceive) {
         receive.paths.forEach { pathData ->
+            Timber.d(pathData.sourceScheduleId.toString())
             paths[pathData.sourceScheduleId] = convertToLatLngList(pathData.path)
             sectionedAdapter.updatePathInfo(pathData, isUserDragging)
             if (!isUserDragging) {
