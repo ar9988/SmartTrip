@@ -6,19 +6,13 @@ import com.travel.together.TravelTogether.aiPlanning.service.DirectionsService;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.tripwebsocket.dto.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,15 +27,18 @@ public class TripStateManager {
         this.tripEditHistory = tripEditHistory;
         this.tripSchedulePositions = tripSchedulePositions;
     }
-
     // 전체 작업 내용 저장
     private final Map<Integer, List<EditRequest>> tripEditHistory;
+
 
     // schedule position 관리 (tripId -> (scheduleId -> position))
     private final Map<Integer, Map<Integer, Integer>> tripSchedulePositions;
 
     // DB 초기상태 저장용 Map (tripId -> (scheduleId -> ScheduleDTO))
     private final Map<Integer, Map<Integer, ScheduleDTO>> tripScheduleMap = new ConcurrentHashMap<>();
+
+    // Edit 작업 전용 저장소 (tripId -> scheduleId -> Schedule)
+    private final Map<Integer, Map<Integer, AddRequest.ScheduleDto>> tripEdits = new ConcurrentHashMap<>();
 
 
     // ADD요청 관리용
@@ -56,6 +53,18 @@ public class TripStateManager {
         return pendingAddRequests.remove(tripId);  // 조회 후 삭제
     }
 
+    // Edit 작업 내용 저장 (기존 addEdit과 별도)
+    public synchronized void addEditSchedule(Integer tripId, AddRequest.ScheduleDto schedule) {
+        Map<Integer, AddRequest.ScheduleDto> schedules = tripEdits.computeIfAbsent(tripId,
+                k -> new ConcurrentHashMap<>());
+        schedules.put(schedule.getScheduleId(), schedule);
+    }
+
+    // Edit 작업 조회
+    public AddRequest.ScheduleDto getEditSchedule(Integer tripId, Integer scheduleId) {
+        Map<Integer, AddRequest.ScheduleDto> schedules = tripEdits.get(tripId);
+        return schedules != null ? schedules.get(scheduleId) : null;
+    }
 
 
     // DB에서 읽어온 tripDetail 저장

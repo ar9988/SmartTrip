@@ -14,9 +14,9 @@ import java.util.List;
 public class    AddRequest {
     private String action;  // EDIT, ADD
     private Integer tripId;
-    private Integer dayId;
+    private Integer dayOrder;
     private ScheduleDto schedule;
-    private Long timestamp;
+    private Long timeStamp;
 
 
     @Setter

@@ -6,6 +6,7 @@ import com.travel.together.TravelTogether.trip.entity.Trip;
 import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.trip.repository.TripRepository;
+import com.travel.together.TravelTogether.tripwebsocket.config.TripScheduleWebSocketHandler;
 import com.travel.together.TravelTogether.tripwebsocket.dto.AddRequest;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
@@ -31,6 +32,7 @@ public class TripEditFinishEventListener {
     private final DayRepository dayRepository;
     private final ScheduleRepository scheduleRepository;
     private final TripStateManager stateManager;
+    private final TripScheduleWebSocketHandler webSocketHandler;
 
 
     @Async  // 비동기로 처리
@@ -60,7 +62,13 @@ public class TripEditFinishEventListener {
                     case "ADD":
                         addSchedule(edit);
                         log.info("ADD operation queued for scheduleId: {}", edit.getOperation().getScheduleId());
-
+                        break;
+                    case "EDIT":
+                        AddRequest.ScheduleDto scheduleDto = stateManager.getEditSchedule(tripId, edit.getOperation().getScheduleId());
+                        if (scheduleDto != null) {
+                            updateSchedule(tripId, scheduleDto);
+                            log.info("EDIT operation processed for scheduleId: {}", scheduleDto.getScheduleId());
+                        }
                         break;
                     default:
                         log.warn("Unknown operation: {}", edit.getOperation().getAction());
@@ -104,6 +112,7 @@ public class TripEditFinishEventListener {
     }
 
     private void addSchedule(EditRequest edit) {
+        log.info("DB UPdate-===========================");
         Integer newPosition = edit.getOperation().getPositionPath();
         Integer dayId = newPosition / 10000;  // 예: 17000 / 10000 = 1
         Integer tripId = edit.getTripId();
@@ -142,6 +151,18 @@ public class TripEditFinishEventListener {
                 savedSchedule.getId(), newPosition);
     }
 
+
+
+    private void updateSchedule(Integer tripId, AddRequest.ScheduleDto scheduleDto) {
+        Schedule schedule = scheduleRepository.findById(scheduleDto.getScheduleId())
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+
+        schedule.setDuration(scheduleDto.getDuration());
+        schedule.setPlaceName(scheduleDto.getPlaceName());
+
+        scheduleRepository.save(schedule);
+
+    }
 
     private void deleteSchedule(EditRequest edit) {
         Integer scheduleId = edit.getOperation().getScheduleId();

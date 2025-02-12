@@ -1,7 +1,9 @@
 package com.travel.together.TravelTogether.tripwebsocket.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
+import com.travel.together.TravelTogether.trip.repository.TripRepository;
 import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripScheduleCache;
@@ -31,7 +33,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final TripService tripService;
     private final ScheduleRepository scheduleRepository;
     private final ExecutorService executorService;
-
+    private final DayRepository dayRepository;
+    private final TripRepository tripRepository;
     @Autowired
     public WebSocketConfig(
             ApplicationEventPublisher applicationEventPublisher,
@@ -42,7 +45,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
             TripStateManager tripStateManager,
             TripService tripService,
             ScheduleRepository scheduleRepository,
-            ExecutorService executorService) {
+            ExecutorService executorService, DayRepository dayRepository, TripRepository tripRepository) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.tripEditCache = tripEditCache;
         this.objectMapper = objectMapper;
@@ -52,6 +55,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
         this.tripService = tripService;
         this.scheduleRepository = scheduleRepository;
         this.executorService = executorService;
+        this.dayRepository = dayRepository;
+        this.tripRepository = tripRepository;
     }
 
     @Bean
@@ -65,7 +70,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 tripStateManager,
                 tripService,
                 scheduleRepository,
-                executorService
+                executorService,
+                dayRepository,
+                tripRepository
 
         );  // 직접 생성
     }
