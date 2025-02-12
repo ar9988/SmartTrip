@@ -7,4 +7,5 @@ import lombok.Data;
 @Builder
 public class InviteAcceptResponseDto {
     private String message;
+    private Integer tripId;
 }

@@ -48,6 +48,7 @@ public class InviteService {
         if (tripIdStr == null) {
             return InviteAcceptResponseDto.builder()
                     .message("잘못된 초대 링크 입니다.")
+                    .tripId(-1)
                     .build();
         }
 
@@ -63,6 +64,7 @@ public class InviteService {
         if (tripMemberRepository.existsByTripIdAndUserId(tripId, userId.intValue())) {
             return InviteAcceptResponseDto.builder()
                     .message("이미 초대된 여행 일정 입니다.")
+                    .tripId(-1)
                     .build();
         }
 
@@ -72,6 +74,7 @@ public class InviteService {
 
         return InviteAcceptResponseDto.builder()
                 .message("여행 멤버 추가 완료!")
+                .tripId(tripId)
                 .build();
     }
 
