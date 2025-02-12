@@ -5,6 +5,7 @@ import com.neungi.data.api.AlbumsApi
 import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
 import com.neungi.data.api.FCMApi
+import com.neungi.data.api.InviteApi
 import com.neungi.data.api.TripsApi
 import com.neungi.data.util.JwtInterceptor
 import com.squareup.moshi.Moshi
@@ -24,7 +25,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     private const val BASE_URL = "http://43.202.51.112:8081/"
-//    private const val BASE_URL = "http://10.0.2.2:8080/"
+    // private const val BASE_URL = "http://10.0.2.2:8080/"
 
     @Provides
     @Singleton
@@ -90,5 +91,11 @@ object NetworkModule {
     @Singleton
     fun provideFCMApiService(@Named("Moyeo") retrofit: Retrofit): FCMApi {
         return retrofit.create(FCMApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideInviteApiService(@Named("Moyeo") retrofit: Retrofit): InviteApi {
+        return retrofit.create(InviteApi::class.java)
     }
 }

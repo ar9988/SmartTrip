@@ -8,6 +8,7 @@
         <variable
             name="vm"
             type="com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,37 +16,67 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/tv_title"
-            android:text="@string/title_my_travel_schedule"
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_start_plan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_margin="10dp" />
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_top_plan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+        <TextView
+            android:id="@+id/tv_title_plan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/pretendardbold"
+            android:text="@string/title_my_travel_schedule"
+            android:textAlignment="viewStart"
+            android:textColor="@color/neutral_100"
+            android:textSize="@dimen/font_size_title"
+            app:layout_constraintStart_toEndOf="@id/gl_start_plan"
+            app:layout_constraintTop_toBottomOf="@id/gl_top_plan" />
 
         <ImageButton
-            android:id="@+id/add_btn"
+            android:id="@+id/btn_add_plan"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/description_travel_add_button"
-            android:src="@drawable/baseline_add_24"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
             android:scaleType="fitXY"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="10dp"/>
+            android:src="@drawable/baseline_add_24"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_plan"
+            app:layout_constraintTop_toBottomOf="@id/gl_top_plan" />
 
         <androidx.recyclerview.widget.RecyclerView
-            app:submitData="@{vm.trips}"
             android:id="@+id/recyclerViewTrips"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
-            tools:listitem="@layout/item_trip"
-            app:layout_constraintTop_toBottomOf="@id/tv_title"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_title_plan"
+            app:submitData="@{vm.trips}"
+            tools:listitem="@layout/item_trip" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_end_plan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_bottom_plan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="@dimen/dp_medium" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

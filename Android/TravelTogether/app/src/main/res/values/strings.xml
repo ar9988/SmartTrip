@@ -19,7 +19,8 @@
     <string name="description_bus_icon">bus image</string>
     <string name="description_car_icon">car image</string>
     <string name="text_duration">체류 시간</string>
-
+    <string name="title_invite">같이 갈 사람 초대하기</string>
+    <string name="text_invite_link">초대 링크 복사하기</string>
 
     <!-- Album -->
     <string name="label_album">Album</string>
@@ -158,6 +159,7 @@
     <!-- firebase-->
     <string name="default_notification_channel_id">fcm_default_channel</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <!--notification-->
     <string name="notification">알림</string>
 
