@@ -7,17 +7,13 @@ import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.tripwebsocket.config.TripScheduleWebSocketHandler;
 import com.travel.together.TravelTogether.tripwebsocket.dto.RouteResponse;
-import com.travel.together.TravelTogether.tripwebsocket.service.RouteService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.socket.TextMessage;
 
 @Slf4j
 @Component
@@ -26,7 +22,6 @@ public class RouteCalculatorScheduler {
     private final TripScheduleWebSocketHandler webSocketHandler;
     private final DayRepository dayRepository;
     private final ScheduleRepository scheduleRepository;
-    private final RouteService routeService;
 
 
 //    @Scheduled(fixedRate = 300000) // 5분마다
@@ -59,29 +54,29 @@ public class RouteCalculatorScheduler {
                 Schedule toSchedule = orderedSchedules.get(i + 1);
 
             // TODO: 위도,경도에 따른 루트 계산
-                RouteService.Coordinate startCoord = new RouteService.Coordinate();
-                startCoord.setLatitude(fromSchedule.getLat());
-                startCoord.setLongitude(fromSchedule.getLng());
-
-                RouteService.Coordinate endCoord = new RouteService.Coordinate();
-                endCoord.setLatitude(toSchedule.getLat());
-                endCoord.setLongitude(toSchedule.getLng());
-
-                RouteResponse.Routes route = routeService.calculateRoute(
-                        startCoord,
-                        endCoord,
-                        day.getId());
-
-
-                // 각 route의 값을 확인
-                log.info("RouteService returned route - publicTransport: {}, personalVehicle: {}",
-                        route.getPublicTransport().getDuration(),
-                        route.getPersonalVehicle().getDuration());
+//                RouteService.Coordinate startCoord = new RouteService.Coordinate();
+//                startCoord.setLatitude(fromSchedule.getLat());
+//                startCoord.setLongitude(fromSchedule.getLng());
+//
+//                RouteService.Coordinate endCoord = new RouteService.Coordinate();
+//                endCoord.setLatitude(toSchedule.getLat());
+//                endCoord.setLongitude(toSchedule.getLng());
+//
+//                RouteResponse.Routes route = routeService.calculateRoute(
+//                        startCoord,
+//                        endCoord,
+//                        day.getId());
 
 
-
-
-                routes.add(route);
+//                // 각 route의 값을 확인
+//                log.info("RouteService returned route - publicTransport: {}, personalVehicle: {}",
+//                        route.getPublicTransport().getDuration(),
+//                        route.getPersonalVehicle().getDuration());
+//
+//
+//
+//
+//                routes.add(route);
             }
             response.setRoutes(routes);
 
