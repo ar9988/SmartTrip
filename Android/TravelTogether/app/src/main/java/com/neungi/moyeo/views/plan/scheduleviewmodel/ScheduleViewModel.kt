@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
@@ -25,7 +26,7 @@ class ScheduleViewModel @Inject constructor(
     private val webSocketManager: WebSocketManager
 ) : ViewModel() {
 
-    private val serverUrl = "ws://43.202.51.112:8081/ws?tripId="
+    private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
     lateinit var trip: Trip
 
     // 이벤트에 대한 LiveData를 ViewModel에서 관리
@@ -39,8 +40,8 @@ class ScheduleViewModel @Inject constructor(
     val scheduleSections: LiveData<List<Section>> get() = _scheduleSections
 
 
-    private val _manipulationEvent = MutableLiveData<ManipulationEvent>()
-    val manipulationEvent: LiveData<ManipulationEvent> get() = _manipulationEvent
+    private val _manipulationEvent = MutableLiveData<ScheduleData>()
+    val manipulationEvent: LiveData<ScheduleData> get() = _manipulationEvent
 
     init {
         webSocketManager.onServerEventReceived = { event: ServerReceive ->
@@ -56,8 +57,8 @@ class ScheduleViewModel @Inject constructor(
             _scheduleSections.postValue(sections)
         }
 
-        webSocketManager.onAddEventReceived = { manipulationEvent: ManipulationEvent ->
-            _manipulationEvent.postValue(manipulationEvent)
+        webSocketManager.onAddEventReceived = { addEvent: ScheduleData ->
+            _manipulationEvent.postValue(addEvent)
         }
     }
 

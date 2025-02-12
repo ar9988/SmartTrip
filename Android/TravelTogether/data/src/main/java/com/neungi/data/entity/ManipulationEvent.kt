@@ -4,6 +4,6 @@ data class ManipulationEvent (
     val action: String,
     val tripId:Int,
     val dayOrder:Int,
-    val timeStamp: Long,
-    val schedule: ScheduleEntity
+    val schedule: ScheduleEntity,
+    val timeStamp: Long
 )

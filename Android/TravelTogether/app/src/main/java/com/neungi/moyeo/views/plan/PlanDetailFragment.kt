@@ -18,6 +18,7 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.MultipartPathOverlay
+import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
@@ -114,11 +115,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
     }
 
-    private fun handleManipulationEvent(event: ManipulationEvent) {
-        when (event.action) {
-            "ADD" -> sectionedAdapter.addSchedule(event, isUserDragging)
-            else -> handleEditSchedule(event)
-        }
+    private fun handleManipulationEvent(event: ScheduleData) {
+//        when (event.action) {
+//            "ADD" -> sectionedAdapter.addSchedule(event, isUserDragging)
+//            else -> handleEditSchedule(event)
+//        }
+
+        sectionedAdapter.addSchedule(event, isUserDragging)
     }
 
     private fun handleEditSchedule(event: ManipulationEvent) {
@@ -253,6 +256,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 handleScheduleEdit(editedData)
             },
             onDelete = { scheduleId ->
+                sectionedAdapter.delete(scheduleId)
                 scheduleViewModel.sendDeleteEvent(scheduleId)
             }
         ).show()
@@ -343,11 +347,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             LatLng(minLat, minLng),
             LatLng(maxLat, maxLng)
         )
-    }
-
-    override fun onStop() {
-        super.onStop()
-//        scheduleViewModel.closeWebSocket()
     }
 
 }
