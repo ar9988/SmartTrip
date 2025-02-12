@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
+        <variable
+            name="onAddClick"
+            type="android.view.View.OnClickListener" />
         <variable
             name="vm"
             type="com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel" />
@@ -34,6 +36,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:scaleType="fitXY"
+            android:onClick="@{onAddClick}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_margin="10dp"/>

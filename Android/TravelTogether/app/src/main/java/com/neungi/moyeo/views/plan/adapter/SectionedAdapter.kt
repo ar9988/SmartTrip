@@ -293,6 +293,11 @@ class SectionedAdapter(
     }
 
     fun addSchedule(event: ScheduleData, isUserDragging: Boolean) {
+        listItems.forEach {
+            if (it is ListItem.Item && it.data.scheduleId == event.scheduleId) {
+                return
+            }
+        }
         listItems.add(ListItem.Item(event,1))
         if (!isUserDragging) rebuildSections() //notifyItemInserted(index + 1)
         else {
