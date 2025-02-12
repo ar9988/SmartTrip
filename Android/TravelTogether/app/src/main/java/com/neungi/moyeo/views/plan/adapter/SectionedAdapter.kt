@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.Path
 import com.neungi.domain.model.ScheduleData
@@ -253,16 +252,15 @@ class SectionedAdapter(
         return listItems[position]
     }
 
-    fun updatePosition(event: ServerReceive, isUserDragging: Boolean) {
+    fun updateItem(event: ServerReceive, isUserDragging: Boolean) {
         //서버에서 입력받은 수정
-        Timber.d("Updating position of schedule ${event.operation.scheduleId} to ${event.operation.positionPath}")
         if (event.operation.action == "DELETE") {
-            listItems.forEachIndexed { position, item ->
+            for (position in listItems.indices.reversed()) {
+                val item = listItems[position]
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId) {
-//                    removeItem(position, isUserDragging)
+                    // 아이템을 삭제
                     listItems.removeAt(position)
                     if (!isUserDragging) notifyItemRemoved(position)
-                    return
                 }
             }
         } else if (event.operation.action == "MOVE") {
@@ -271,11 +269,12 @@ class SectionedAdapter(
                     item.data.positionPath = event.operation.positionPath
                 }
             }
-
         }
+
         // 섹션을 재구성하여 순서를 반영
         if (!isUserDragging) rebuildSections()
     }
+
 
     fun updateValue(position: Int, newPositionPath: Int) {
         listItems[position] = ListItem.Item(

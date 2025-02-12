@@ -34,6 +34,7 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleUiEvent
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.fragment_plan_detail),
@@ -80,6 +81,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun setupObservers() {
         with(scheduleViewModel) {
             serverEvents.observe(viewLifecycleOwner) { event ->
+                Timber.d(event.toString())
                 handleServerEvent(event)
             }
             scheduleSections.observe(viewLifecycleOwner) { sections ->
@@ -95,7 +97,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun handleServerEvent(event: ServerReceive) {
-        sectionedAdapter.updatePosition(event, isUserDragging)
+        sectionedAdapter.updateItem(event, isUserDragging)
     }
 
     private fun handleScheduleSections(sections: List<Section>) {
@@ -257,9 +259,14 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 handleScheduleEdit(editedData)
             },
             onDelete = { scheduleId ->
-                scheduleViewModel.sendDeleteEvent(scheduleId)
+                handleScheduleDelete(scheduleId)
             }
         ).show()
+    }
+
+    private fun handleScheduleDelete(scheduleId: Int){
+        scheduleViewModel.sendDeleteEvent(scheduleId)
+        sectionedAdapter.delete(scheduleId)
     }
 
     private fun handleScheduleEdit(scheduleData: ScheduleData) {

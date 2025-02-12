@@ -84,10 +84,10 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     private fun showCalendarDialog() {
         val dialogBinding = DialogAddTripBinding.inflate(LayoutInflater.from(context))
-        dialogBinding.vm = aiPlaningViewModel
-        dialogBinding.toolbar.visibility = View.GONE
-        dialogBinding.tvSelectStart.visibility = View.GONE
-        dialogBinding.tvSelectEnd.visibility = View.GONE
+        dialogBinding.apply {
+            vm = aiPlaningViewModel
+        }
+
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("여행시작일과 종료일을 선택해주세요") // 다이어로그 타이틀 설정
             .setView(dialogBinding.root)
