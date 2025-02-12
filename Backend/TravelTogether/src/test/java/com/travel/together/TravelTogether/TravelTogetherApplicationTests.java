@@ -8,12 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @SpringBootTest
 @EnableScheduling
-@EnableJpaRepositories(basePackages = {
-		"com.travel.together.TravelTogether.album.repository",
-		"com.travel.together.TravelTogether.trip.repository",
-		"com.travel.together.TravelTogether.auth.repository",
-
-})
+@EnableJpaRepositories()
 class TravelTogetherApplicationTests {
 
 	@Test

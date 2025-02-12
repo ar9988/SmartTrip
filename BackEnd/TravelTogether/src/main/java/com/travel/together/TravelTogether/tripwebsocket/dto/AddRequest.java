@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddRequest {
+public class    AddRequest {
     private String action;  // EDIT, ADD
     private Integer tripId;
     private Integer dayId;
