@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
@@ -16,6 +15,10 @@ import com.neungi.domain.usecase.GetScheduleUseCase
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.util.convertToSections
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,10 +27,16 @@ import javax.inject.Inject
 class ScheduleViewModel @Inject constructor(
     private val getScheduleUseCase: GetScheduleUseCase,
     private val webSocketManager: WebSocketManager
-) : ViewModel() {
+) : ViewModel(), OnScheduleClickListener {
+
+    private val _scheduleUiEvent = MutableSharedFlow<ScheduleUiEvent>()
+    val scheduleUiEvent = _scheduleUiEvent.asSharedFlow()
 
     private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
-    lateinit var trip: Trip
+    // lateinit var trip: Trip
+
+    private val _selectedTrip = MutableStateFlow<Trip?>(null)
+    val selectedTrip = _selectedTrip.asStateFlow()
 
     // 이벤트에 대한 LiveData를 ViewModel에서 관리
     private val _serverEvents = MutableLiveData<ServerReceive>()
@@ -43,7 +52,13 @@ class ScheduleViewModel @Inject constructor(
     private val _manipulationEvent = MutableLiveData<ScheduleData>()
     val manipulationEvent: LiveData<ScheduleData> get() = _manipulationEvent
 
-    init {
+    override fun onClickInvite() {
+        viewModelScope.launch {
+            _scheduleUiEvent.emit(ScheduleUiEvent.ScheduleInvite)
+        }
+    }
+
+    private fun initWebSocket() {
         webSocketManager.onServerEventReceived = { event: ServerReceive ->
             _serverEvents.postValue(event)
         }
@@ -53,8 +68,11 @@ class ScheduleViewModel @Inject constructor(
         }
 
         webSocketManager.onScheduleEventReceived = { scheduleReceive: ScheduleReceive ->
-            val sections = convertToSections(scheduleReceive, trip)
-            _scheduleSections.postValue(sections)
+            val trip = _selectedTrip.value
+            trip?.let {
+                val sections = convertToSections(scheduleReceive, trip)
+                _scheduleSections.postValue(sections)
+            }
         }
 
         webSocketManager.onAddEventReceived = { addEvent: ScheduleData ->
@@ -62,18 +80,33 @@ class ScheduleViewModel @Inject constructor(
         }
     }
 
+    fun initTrip(trip: Trip) {
+        _selectedTrip.value = trip
+        initWebSocket()
+    }
+
     // WebSocket을 통한 메시지 전송
     fun sendMoveEvent(scheduleId: Int, newPosition: Int) {
-        val event =
-            ServerEvent("MOVE123", trip.id, Operation("MOVE", scheduleId, newPosition), 111231)
         viewModelScope.launch {
-            webSocketManager.sendMessage(event)
+            val trip = _selectedTrip.value
+            trip?.let {
+                val event = ServerEvent(
+                    "MOVE123",
+                    trip.id,
+                    Operation("MOVE", scheduleId, newPosition),
+                    111231
+                )
+                webSocketManager.sendMessage(event)
+            }
         }
     }
 
     fun sendDeleteEvent(scheduleId: Int) {
-        val event = ServerEvent("MOVE123", trip.id, Operation("DELETE", scheduleId, 0), 111231)
-        webSocketManager.sendMessage(event)
+        val trip = _selectedTrip.value
+        trip?.let {
+            val event = ServerEvent("MOVE123", trip.id, Operation("DELETE", scheduleId, 0), 111231)
+            webSocketManager.sendMessage(event)
+        }
     }
 
     fun sendEditEvent(schedule: ScheduleEntity) {
@@ -105,8 +138,11 @@ class ScheduleViewModel @Inject constructor(
     }
 
     fun startConnect() {
-        webSocketManager.connect(serverUrl + trip.id)
-        webSocketManager.tripId = trip.id
+        val trip = _selectedTrip.value
+        trip?.let {
+            webSocketManager.connect(serverUrl + trip.id)
+            webSocketManager.tripId = trip.id
+        }
     }
 
     fun closeWebSocket() {

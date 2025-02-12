@@ -1,5 +1,6 @@
 package com.neungi.moyeo.views.plan.adapter
 
+import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
@@ -8,7 +9,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.Path
@@ -21,6 +21,7 @@ import com.neungi.moyeo.util.Section
 import timber.log.Timber
 import java.time.LocalTime
 
+@SuppressLint("SetTextI18n")
 class SectionedAdapter(
     private val itemTouchHelper: ItemTouchHelper,
     private val onEditClick: (ScheduleData) -> Unit,
@@ -29,14 +30,53 @@ class SectionedAdapter(
     private val recyclerView: RecyclerView
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    companion object {
-        private const val VIEW_TYPE_SECTION_HEADER = 0
-        private const val VIEW_TYPE_ITEM = 1
-    }
-
     var sections = mutableListOf<Section>()
     val pathItems = mutableMapOf<Int, Int>()
     private var listItems = mutableListOf<ListItem>()
+
+    inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(data: ScheduleHeader) {
+            binding.dayInfo = data
+            binding.onClick = View.OnClickListener {
+                onAddClick(data.dayId)
+            }
+        }
+    }
+
+    inner class ItemViewHolder(private val binding: ItemScheduleBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(data: ScheduleData, path: Int?) {
+            binding.titleSchedule.text = data.placeName
+            binding.typeSchedule.text = data.positionPath.toString()
+            binding.tvFrom.text = data.fromTime.toString()
+            binding.tvTo.text = data.toTime.toString()
+
+            binding.cardSchedule.setOnClickListener {
+                onEditClick(data)
+            }
+
+            binding.cardSchedule.setOnLongClickListener { view ->
+                itemTouchHelper.startDrag(this)
+                true
+            }
+            if (path == null) {
+                binding.bottomSection.visibility = View.GONE
+            } else {
+                binding.bottomSection.visibility = View.VISIBLE
+                val hour = path / 60
+                val minute = path % 60
+                var timeInfo = ""
+                if (hour > 0) {
+                    timeInfo += "${hour}시간 "
+                }
+                timeInfo += "${minute}분 이동"
+                binding.tvTravelTime.text = timeInfo
+            }
+        }
+    }
 
     private fun buildTimeInfo() { // 활동 시간, 이동 시간 계산해서 표시
         listItems.forEachIndexed { position, item ->
@@ -206,42 +246,6 @@ class SectionedAdapter(
         }
     }
 
-
-    inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: ScheduleHeader) {
-            binding.dayInfo = data
-            binding.onClick = View.OnClickListener {
-                onAddClick(data.dayId)
-            }
-        }
-    }
-
-    inner class ItemViewHolder(private val binding: ItemScheduleBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(data: ScheduleData, path: Int?) {
-            binding.titleSchedule.text = data.placeName
-            binding.typeSchedule.text = data.positionPath.toString()
-            binding.tvFrom.text = data.fromTime.toString()
-            binding.tvTo.text = data.toTime.toString()
-
-            binding.cardSchedule.setOnClickListener {
-                onEditClick(data)
-            }
-
-            binding.cardSchedule.setOnLongClickListener { view ->
-                itemTouchHelper.startDrag(this)
-                true
-            }
-            if (path == null) {
-                binding.bottomSection.visibility = View.GONE
-            } else {
-                binding.bottomSection.visibility = View.VISIBLE
-                binding.tvTravelTime.text = path.toString() + "분"
-            }
-        }
-    }
-
     fun getItem(position: Int): ListItem {
         if (position < 0 || position >= listItems.size) {
             throw IndexOutOfBoundsException("Invalid position")
@@ -330,4 +334,9 @@ class SectionedAdapter(
         }
     }
 
+    companion object {
+
+        private const val VIEW_TYPE_SECTION_HEADER = 0
+        private const val VIEW_TYPE_ITEM = 1
+    }
 }

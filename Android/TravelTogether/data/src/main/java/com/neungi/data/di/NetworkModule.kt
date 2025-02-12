@@ -5,6 +5,7 @@ import com.neungi.data.api.AlbumsApi
 import com.neungi.data.api.FestivalApi
 import com.neungi.data.api.AuthApi
 import com.neungi.data.api.FCMApi
+import com.neungi.data.api.InviteApi
 import com.neungi.data.api.TripsApi
 import com.neungi.data.util.JwtInterceptor
 import com.squareup.moshi.Moshi
@@ -90,5 +91,11 @@ object NetworkModule {
     @Singleton
     fun provideFCMApiService(@Named("Moyeo") retrofit: Retrofit): FCMApi {
         return retrofit.create(FCMApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideInviteApiService(@Named("Moyeo") retrofit: Retrofit): InviteApi {
+        return retrofit.create(InviteApi::class.java)
     }
 }

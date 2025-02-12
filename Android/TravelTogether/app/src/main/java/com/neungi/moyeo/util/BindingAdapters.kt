@@ -6,6 +6,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import android.widget.CalendarView
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -364,8 +365,13 @@ fun setEndDate(view: CustomCalendarView, date: LocalDate?) {
         view.selectedEndDate = date
     }
 }
+@BindingAdapter("app:periodLength")
+fun setPeriod(view:CustomCalendarView, value : Int){
+    view.maxDateRange = value
+}
 
 @BindingAdapter("android:text")
 fun setIntAsString(view: TextView, value: Int) {
     view.text = value.toString()
 }
+

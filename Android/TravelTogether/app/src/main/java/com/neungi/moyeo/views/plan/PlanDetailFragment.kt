@@ -18,7 +18,6 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.MultipartPathOverlay
-import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
@@ -31,6 +30,7 @@ import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import com.neungi.moyeo.views.plan.dialog.EditScheduleDialog
+import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleUiEvent
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,18 +61,19 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         initializeViewBinding()
         initializeMap()
         setupObservers()
         setupRecyclerView()
         setupListeners()
+        collectLatestFlow(scheduleViewModel.scheduleUiEvent) {handleUiEvent(it)}
     }
 
     private fun initializeViewBinding() {
-        binding.apply {
+        with(binding) {
             vm = scheduleViewModel
-            scheduleViewModel.trip = tripViewModel.trip
-            trip = scheduleViewModel.trip
+            scheduleViewModel.initTrip(tripViewModel.trip)
         }
     }
 
@@ -145,7 +146,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun setupListeners() {
-        binding.btnBack.setOnClickListener {
+        binding.btnBackPlanDetail.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
@@ -222,10 +223,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             onEditClick = { scheduleData -> showEditDialog(scheduleData) },
             onAddClick = { dayId -> navigateToAddSchedule(dayId) },
             onDeletePath = { scheduleId -> removePathOverlay(scheduleId) },
-            recyclerView = binding.recyclerView
+            recyclerView = binding.rvPlanDetail
         )
 
-        binding.recyclerView.apply {
+        binding.rvPlanDetail.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = sectionedAdapter
             setHasFixedSize(true)
@@ -256,7 +257,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 handleScheduleEdit(editedData)
             },
             onDelete = { scheduleId ->
-                sectionedAdapter.delete(scheduleId)
                 scheduleViewModel.sendDeleteEvent(scheduleId)
             }
         ).show()
@@ -284,7 +284,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun navigateToAddSchedule(dayId: Int) {
         val bundle = Bundle().apply {
-            putInt("tripId", scheduleViewModel.trip.id)
+            putInt("tripId", scheduleViewModel.selectedTrip.value?.id ?: -1)
             putInt("dayId", dayId)
         }
         findNavController().navigate(R.id.action_schedule_add, bundle)
@@ -296,10 +296,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun initializeMap() {
-        val mapFragment = childFragmentManager.findFragmentById(R.id.detail_map_fragment) as? MapFragment
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment_plan_detail) as? MapFragment
             ?: MapFragment.newInstance().also {
                 childFragmentManager.beginTransaction()
-                    .add(R.id.detail_map_fragment, it)
+                    .add(R.id.map_fragment_plan_detail, it)
                     .commit()
             }
         mapFragment.getMapAsync(this)
@@ -347,6 +347,16 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             LatLng(minLat, minLng),
             LatLng(maxLat, maxLng)
         )
+    }
+
+    private fun handleUiEvent(event: ScheduleUiEvent) {
+        when (event) {
+            is ScheduleUiEvent.ScheduleInvite -> {
+                findNavController().navigateSafely(R.id.action_plan_detail_to_invite)
+            }
+
+            else -> {}
+        }
     }
 
 }
