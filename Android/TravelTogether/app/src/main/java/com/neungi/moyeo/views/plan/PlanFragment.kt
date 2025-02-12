@@ -33,8 +33,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
     private val tripViewModel: TripViewModel by activityViewModels()
     private val mainViewModel : MainViewModel by activityViewModels()
     private val aiPlaningViewModel: AIPlanningViewModel by activityViewModels()
-    private lateinit var startDate: LocalDate
-    private lateinit var endDate: LocalDate
     private lateinit var tripAdapter: TripAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

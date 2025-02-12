@@ -7,6 +7,8 @@ import com.neungi.domain.repository.TripsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Response
+import java.time.LocalDate
 import javax.inject.Inject
 
 class TripsRepositoryImpl @Inject constructor(
@@ -52,6 +54,14 @@ class TripsRepositoryImpl @Inject constructor(
         }
 
     override suspend fun deleteTrip(userId: String, trip: Trip): ApiResult<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun createTrip(
+        userId: String,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): ApiResult<Response> {
         TODO("Not yet implemented")
     }
 }
