@@ -289,20 +289,6 @@ class SectionedAdapter(
         notifyItemChanged(position)
     }
 
-    private fun removeItem(position: Int, isUserDragging: Boolean) {
-        if (position < 0 || position >= listItems.size) return
-
-        if (!isUserDragging) {
-            listItems.removeAt(position)
-            notifyItemRemoved(position)
-        } else {
-            Handler(Looper.getMainLooper()).post {
-                notifyDataSetChanged()
-            }
-        }
-        // 필요하다면 sections도 업데이트
-//        rebuildSections()
-    }
 
     fun updatePathInfo(path: Path, isUserDragging: Boolean) {
         pathItems[path.sourceScheduleId] = path.totalTime!!
@@ -310,41 +296,39 @@ class SectionedAdapter(
 
     }
 
-    fun addSchedule(event: ManipulationEvent, isUserDragging: Boolean) {
-        val schedule = event.schedule
-        listItems.forEachIndexed { index, listItem ->
-            if (listItem is ListItem.SectionHeader && schedule.day - 1 == listItem.data.dayId) {
-                listItems.add(
-                    index + 1,
-                    ListItem.Item(
-                        ScheduleData(
-                            scheduleId = schedule.id,
-                            placeName = schedule.placeName,
-                            positionPath = schedule.positionPath,
-                            timeStamp = event.timeStamp,
-                            duration = schedule.duration,
-                            type = schedule.type,
-                            fromTime = null,
-                            toTime = null,
-                            lat = schedule.lat,
-                            lng = schedule.lng,
-                        ),
-                        sectionIndex = schedule.day,
-                    )
-                )
-                if (!isUserDragging) rebuildSections() //notifyItemInserted(index + 1) 최적화 여지 있음
+    fun addSchedule(event: ScheduleData, isUserDragging: Boolean) {
+        listItems.forEach {
+            if (it is ListItem.Item && it.data.scheduleId == event.scheduleId) {
                 return
+            }
+        }
+        listItems.add(ListItem.Item(event,1))
+        if (!isUserDragging) rebuildSections() //notifyItemInserted(index + 1)
+        else {
+            // 레이아웃 계산 중일 때는 다음에 처리하도록 Handler를 사용
+            Handler(Looper.getMainLooper()).post {
+                notifyDataSetChanged()
             }
         }
 
     }
 
     fun editItem(item: ScheduleData, isUserDragging: Boolean) {
-        listItems.forEachIndexed { index, it ->
+        listItems.forEach {
             if (it is ListItem.Item && it.data.scheduleId == item.scheduleId) {
                 it.data.duration = item.duration
                 it.data.placeName = item.placeName
                 if(!isUserDragging) rebuildSections() // 최적화 여지 있음
+                return
+            }
+        }
+    }
+
+    fun delete(scheduleId: Int) {
+        listItems.forEachIndexed { index, it ->
+            if (it is ListItem.Item && it.data.scheduleId == scheduleId) {
+                listItems.removeAt(index)
+                rebuildSections()
                 return
             }
         }

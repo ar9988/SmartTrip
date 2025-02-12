@@ -32,7 +32,7 @@ class ScheduleViewModel @Inject constructor(
     private val _scheduleUiEvent = MutableSharedFlow<ScheduleUiEvent>()
     val scheduleUiEvent = _scheduleUiEvent.asSharedFlow()
 
-    private val serverUrl = "ws://43.202.51.112:8081/ws?tripId="
+    private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
     // lateinit var trip: Trip
 
     private val _selectedTrip = MutableStateFlow<Trip?>(null)
@@ -48,8 +48,9 @@ class ScheduleViewModel @Inject constructor(
     private val _scheduleSections = MutableLiveData<List<Section>>()
     val scheduleSections: LiveData<List<Section>> get() = _scheduleSections
 
-    private val _manipulationEvent = MutableLiveData<ManipulationEvent>()
-    val manipulationEvent: LiveData<ManipulationEvent> get() = _manipulationEvent
+
+    private val _manipulationEvent = MutableLiveData<ScheduleData>()
+    val manipulationEvent: LiveData<ScheduleData> get() = _manipulationEvent
 
     override fun onClickInvite() {
         viewModelScope.launch {
@@ -74,8 +75,8 @@ class ScheduleViewModel @Inject constructor(
             }
         }
 
-        webSocketManager.onAddEventReceived = { manipulationEvent: ManipulationEvent ->
-            _manipulationEvent.postValue(manipulationEvent)
+        webSocketManager.onAddEventReceived = { addEvent: ScheduleData ->
+            _manipulationEvent.postValue(addEvent)
         }
     }
 
@@ -147,4 +148,5 @@ class ScheduleViewModel @Inject constructor(
     fun closeWebSocket() {
         webSocketManager.close()
     }
+
 }

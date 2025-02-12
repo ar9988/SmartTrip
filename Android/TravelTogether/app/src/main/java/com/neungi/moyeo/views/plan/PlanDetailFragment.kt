@@ -53,6 +53,12 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private lateinit var sectionedAdapter: SectionedAdapter
     private var isUserDragging = false
 
+    override fun onResume() {
+        super.onResume()
+        mainViewModel.setBnvState(false)
+        scheduleViewModel.startConnect()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -61,28 +67,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         setupObservers()
         setupRecyclerView()
         setupListeners()
-
-        collectLatestFlow(scheduleViewModel.scheduleUiEvent) { handleUiEvent(it) }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        mainViewModel.setBnvState(false)
-        scheduleViewModel.startConnect()
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        scheduleViewModel.closeWebSocket()
-    }
-
-    override fun onMapReady(map: NaverMap) {
-        this.naverMap = map.apply {
-            uiSettings.isZoomControlEnabled = false
-        }
-        checkLocationPermission()
+        collectLatestFlow(scheduleViewModel.scheduleUiEvent) {handleUiEvent(it)}
     }
 
     private fun initializeViewBinding() {
@@ -131,11 +116,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
     }
 
-    private fun handleManipulationEvent(event: ManipulationEvent) {
-        when (event.action) {
-            "ADD" -> sectionedAdapter.addSchedule(event, isUserDragging)
-            else -> handleEditSchedule(event)
-        }
+    private fun handleManipulationEvent(event: ScheduleData) {
+//        when (event.action) {
+//            "ADD" -> sectionedAdapter.addSchedule(event, isUserDragging)
+//            else -> handleEditSchedule(event)
+//        }
+
+        sectionedAdapter.addSchedule(event, isUserDragging)
     }
 
     private fun handleEditSchedule(event: ManipulationEvent) {
@@ -318,6 +305,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         mapFragment.getMapAsync(this)
     }
 
+    override fun onMapReady(map: NaverMap) {
+        this.naverMap = map.apply {
+            uiSettings.isZoomControlEnabled = false
+        }
+        checkLocationPermission()
+    }
+
     private fun checkLocationPermission() {
         val fineLocation = Manifest.permission.ACCESS_FINE_LOCATION
         val coarseLocation = Manifest.permission.ACCESS_COARSE_LOCATION
@@ -365,12 +359,4 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
     }
 
-    companion object {
-
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-    }
-    override fun onStop() {
-        super.onStop()
-//        scheduleViewModel.closeWebSocket()
-    }
 }

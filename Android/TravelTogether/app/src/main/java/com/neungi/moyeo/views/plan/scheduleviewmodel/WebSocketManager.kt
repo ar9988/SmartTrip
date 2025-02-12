@@ -5,10 +5,12 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
 import com.neungi.data.entity.ServerReceive
+import com.neungi.domain.model.ScheduleData
 import com.neungi.moyeo.views.plan.adapter.LocalDateTimeAdapter
 import kotlinx.coroutines.CompletableDeferred
 import okhttp3.*
@@ -26,7 +28,7 @@ class WebSocketManager @Inject constructor() {
     var onServerEventReceived: ((ServerReceive) -> Unit)? = null
     var onRouteEventReceived: ((PathReceive) -> Unit)? = null
     var onScheduleEventReceived: ((ScheduleReceive) -> Unit)? = null
-    var onAddEventReceived: ((ManipulationEvent) -> Unit)? = null
+    var onAddEventReceived: ((ScheduleData) -> Unit)? = null
 
     private val webSocketListener = object : WebSocketListener() {
 
@@ -50,7 +52,7 @@ class WebSocketManager @Inject constructor() {
                 }
 
                 val jsonObject = JsonParser.parseString(text).asJsonObject
-                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
+//                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
                 when {
 
                     jsonObject.has("status") -> {
@@ -70,9 +72,15 @@ class WebSocketManager @Inject constructor() {
                         onRouteEventReceived?.invoke(routeReceive)
                     }
                     jsonObject.has("action") -> {
-                        val add = gson.fromJson(text, ManipulationEvent::class.java)
+//                        val add = gson.fromJson(text, ManipulationEvent::class.java)
+//                        Timber.d(add.toString())
+//                        onAddEventReceived?.invoke(add)
+                    }
+                    jsonObject.has("placeName") -> {
+                        val add = gson.fromJson(text, ScheduleData::class.java)
                         Timber.d(add.toString())
                         onAddEventReceived?.invoke(add)
+
                     }
                 }
             } catch (e: Exception) {
