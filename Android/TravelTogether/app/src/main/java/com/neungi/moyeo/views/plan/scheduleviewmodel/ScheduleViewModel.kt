@@ -34,7 +34,7 @@ class ScheduleViewModel @Inject constructor(
     private val _scheduleUiEvent = MutableSharedFlow<ScheduleUiEvent>()
     val scheduleUiEvent = _scheduleUiEvent.asSharedFlow()
 
-    private val serverUrl = "ws://43.202.51.112:8081/ws?tripId="
+    private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
     // private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
     // lateinit var trip: Trip
 

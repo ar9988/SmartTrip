@@ -25,6 +25,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalDate
 
 @AndroidEntryPoint
 class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
@@ -43,10 +44,11 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         lifecycleScope.launch {
             mainViewModel.userLoginInfo.collect{
                 if (it != null) {
-                    tripViewModel.getTrip("8")
+                    tripViewModel.getTrip(it.userId)
                 }
             }
         }
+
     }
 
 
@@ -87,16 +89,13 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         dialogBinding.apply {
             vm = aiPlaningViewModel
         }
-
+        val calendar = dialogBinding.calendarView
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("여행시작일과 종료일을 선택해주세요") // 다이어로그 타이틀 설정
             .setView(dialogBinding.root)
             .setPositiveButton("추가하기") { _, _ ->
                 // OK 버튼 클릭 시 동작
-//                val startDate = dialogBinding.getSelectedStartDate()
-//                val endDate = dialogBinding.dialogCalendarView.getSelectedEndDate()
-
-                // 필요한 동작을 추가 예: 선택된 날짜를 ViewModel에 저장 등
+                Timber.d(calendar.selectedStartDate.toString()+" "+calendar.selectedEndDate)
             }
             .setNegativeButton("취소하기", null)
             .create()
