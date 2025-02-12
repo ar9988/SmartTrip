@@ -20,9 +20,12 @@ import com.neungi.moyeo.databinding.DialogFestivalInfoBinding
 import com.neungi.moyeo.databinding.FragmentHomeBinding
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.home.adapter.HomeFestivalAdapter
+import com.neungi.moyeo.views.home.adapter.QuoteAdapter
 import com.neungi.moyeo.views.home.viewmodel.HomeUiEvent
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
+import com.neungi.moyeo.views.home.viewmodel.Quote
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -32,6 +35,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private val viewModel: HomeViewModel by viewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
     lateinit var homeFestivalAdapter: HomeFestivalAdapter
+    lateinit var quoteAdapter: QuoteAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,11 +52,26 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             }
         }
         observeStates()
+        loadQuotes()
     }
 
 //    private fun on
 
     private fun setAdapter() {
+        quoteAdapter = QuoteAdapter()
+        binding.vpQuoteHome.apply {
+            adapter = quoteAdapter
+            // 시작 위치를 중간으로 설정하여 양방향 무한 스크롤 가능하게
+            setCurrentItem(Int.MAX_VALUE / 2, false)
+
+            // 자동 스크롤
+            lifecycleScope.launch {
+                while(true) {
+                    delay(5000)
+                    setCurrentItem(currentItem + 1, true)
+                }
+            }
+        }
         homeFestivalAdapter = HomeFestivalAdapter(viewModel)
         binding.rvFestival.adapter =  homeFestivalAdapter
     }
@@ -124,5 +143,42 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
 
         dialog.show()
+    }
+
+    private fun loadQuotes() {
+
+        val quoteStrings = resources.getStringArray(R.array.quote)
+
+        val quotes = quoteStrings.map { quoteString ->
+            // \n으로 분리하여 인용구와 저자 정보 분리
+            val parts = quoteString.split("\n")
+            val quoteText = parts[0].trim('"') // 따옴표 제거
+            val authorInfo = parts[1]
+
+            // 저자 정보에서 책 제목과 저자 분리
+            val authorParts = if (authorInfo.contains("&lt;")) {
+                val bookTitle = authorInfo.substringBetween("&lt;", "&gt;")
+                val author = authorInfo.substringAfter("&gt;").trim(',', ' ', '-')
+                Pair(bookTitle, author)
+            } else {
+                Pair(null, authorInfo)
+            }
+
+            Quote(
+                text = quoteText,
+                author = authorParts.second,
+                source = authorParts.first,
+                backgroundImageRes = R.drawable.image_camping
+            )
+        }
+
+        // 어댑터에 데이터 설정
+        quoteAdapter.setQuotes(quotes)
+    }
+
+    private fun String.substringBetween(start: String, end: String): String {
+        val startIndex = this.indexOf(start) + start.length
+        val endIndex = this.indexOf(end)
+        return this.substring(startIndex, endIndex)
     }
 }

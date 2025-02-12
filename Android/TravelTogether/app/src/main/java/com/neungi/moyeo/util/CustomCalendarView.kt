@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
@@ -21,14 +22,29 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 class CustomCalendarView (context: Context, attrs: AttributeSet) : CalendarView(context,attrs) {
     var selectedStartDate: LocalDate? = null
     var selectedEndDate: LocalDate? = null
+    var maxDateRange: Int = 10
+
     private var onDateRangeSelected: ((LocalDate?, LocalDate?) -> Unit)? = null
 
     init {
+        context.theme.obtainStyledAttributes(
+            attrs,
+            R.styleable.CustomCalendarView,
+            0, 0
+        ).apply {
+            try {
+                maxDateRange = getInteger(R.styleable.CustomCalendarView_periodLength, 10)
+            } finally {
+                recycle()
+            }
+        }
+
         val currentMonth = YearMonth.now()
         val startMonth = currentMonth.minusMonths(10)
         val endMonth = currentMonth.plusMonths(10)
@@ -57,6 +73,14 @@ class CustomCalendarView (context: Context, attrs: AttributeSet) : CalendarView(
                         selectedStartDate = day.date
                         selectedEndDate = null
                     } else if (selectedEndDate == null) {
+                        val daysBetween = Math.abs(ChronoUnit.DAYS.between(selectedStartDate, day.date))
+                        if (daysBetween >= maxDateRange) {
+                            Toast.makeText(context,
+                                "최대 ${maxDateRange}일까지 선택 가능합니다",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@setOnClickListener
+                        }
                         if (day.date < selectedStartDate!!) {
                             selectedEndDate = selectedStartDate
                             selectedStartDate = day.date
@@ -80,7 +104,12 @@ class CustomCalendarView (context: Context, attrs: AttributeSet) : CalendarView(
                 container.day = day
                 container.binding.tvDay.text = day.date.dayOfMonth.toString()
 
-                if (day.date < LocalDate.now()) {
+                val isInSelectableRange = if (selectedStartDate != null && selectedEndDate == null) {
+                    val daysBetween = Math.abs(ChronoUnit.DAYS.between(selectedStartDate, day.date))
+                    daysBetween < maxDateRange
+                } else true
+
+                if (day.date < LocalDate.now() || !isInSelectableRange) {
                     container.binding.tvDay.setTextColor(Color.argb(128, 128, 128, 128))
                     container.binding.tvDay.background = null
                     return
