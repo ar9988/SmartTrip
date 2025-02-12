@@ -2,6 +2,7 @@ package com.neungi.moyeo
 
 import android.app.Application
 import android.content.Context
+import com.kakao.sdk.common.KakaoSdk
 import com.naver.maps.map.NaverMapSdk
 import com.neungi.domain.usecase.SaveNotificationUseCase
 import dagger.hilt.android.HiltAndroidApp
@@ -23,7 +24,7 @@ class MoyeoApplication : Application() {
 
 
         Timber.plant(Timber.DebugTree())
-
+        KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.NAVER_CLIENT_ID)
     }

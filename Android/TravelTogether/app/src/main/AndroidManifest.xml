@@ -25,6 +25,7 @@
         android:theme="@style/Theme.TravelTogether"
         tools:targetApi="31">
 
+
         <service
             android:name=".service.FCMService"
             android:exported="false">
@@ -38,18 +39,17 @@
             android:exported="true">
 
             <intent-filter>
-
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="moyeo"
-                    android:host="example.com"
-                    android:pathPrefix="/open" />
 
+                <!-- "kakao${YOUR_NATIVE_APP_KEY}://kakaolink" 형식의 앱 실행 스킴을 설정하는데 사용 -->
+                <data android:host="kakaolink"
+                    android:scheme="${kakaoKey}" />
             </intent-filter>
 
         </activity>
@@ -65,6 +65,10 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
+
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="${kakaoKey}" />
 
 
     </application>
