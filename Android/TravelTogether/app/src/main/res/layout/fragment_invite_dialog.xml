@@ -67,6 +67,7 @@
                 android:layout_marginTop="@dimen/dp_large"
                 android:background="@drawable/shape_button"
                 android:fontFamily="@font/pretendardsemibold"
+                android:onClick="@{() -> vm.onClickInvite()}"
                 android:text="@string/text_invite_link"
                 android:textAlignment="center"
                 android:textColor="@color/neutral_white"

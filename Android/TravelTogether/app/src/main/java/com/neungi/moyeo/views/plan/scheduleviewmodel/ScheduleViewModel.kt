@@ -11,6 +11,7 @@ import com.neungi.data.entity.ScheduleEntity
 import com.neungi.data.entity.ServerEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.*
+import com.neungi.domain.usecase.GetInviteUseCase
 import com.neungi.domain.usecase.GetScheduleUseCase
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.util.convertToSections
@@ -26,13 +27,15 @@ import javax.inject.Inject
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val getScheduleUseCase: GetScheduleUseCase,
+    private val getInviteUseCase: GetInviteUseCase,
     private val webSocketManager: WebSocketManager
 ) : ViewModel(), OnScheduleClickListener {
 
     private val _scheduleUiEvent = MutableSharedFlow<ScheduleUiEvent>()
     val scheduleUiEvent = _scheduleUiEvent.asSharedFlow()
 
-    private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
+    private val serverUrl = "ws://43.202.51.112:8081/ws?tripId="
+    // private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
     // lateinit var trip: Trip
 
     private val _selectedTrip = MutableStateFlow<Trip?>(null)
@@ -52,9 +55,26 @@ class ScheduleViewModel @Inject constructor(
     private val _manipulationEvent = MutableLiveData<ScheduleData>()
     val manipulationEvent: LiveData<ScheduleData> get() = _manipulationEvent
 
+    override fun onClickGoToInvite() {
+        viewModelScope.launch {
+            _scheduleUiEvent.emit(ScheduleUiEvent.GoToScheduleInvite)
+        }
+    }
+
     override fun onClickInvite() {
         viewModelScope.launch {
-            _scheduleUiEvent.emit(ScheduleUiEvent.ScheduleInvite)
+            val response = getInviteUseCase.invite(_selectedTrip.value?.id ?: -1)
+            when (response.status) {
+                ApiStatus.SUCCESS -> {
+                    _scheduleUiEvent.emit(ScheduleUiEvent.ScheduleInvite(
+                        "",
+                        _selectedTrip.value?.title ?: "",
+                        response.data ?: ""
+                    ))
+                }
+
+                else -> {}
+            }
         }
     }
 

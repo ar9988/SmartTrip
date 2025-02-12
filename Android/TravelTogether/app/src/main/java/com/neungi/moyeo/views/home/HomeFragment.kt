@@ -299,7 +299,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     private fun shareKakao() {
         val defaultFeed = FeedTemplate(
             content = Content(
-                title = "모여(모두의 여행",
+                title = "모여(모두의 여행)",
                 description = "(초대자)님이 당신을 (일정이름)으로 초대하셨습니다.",
                 imageUrl = "https://d210-traveltogether.s3.ap-northeast-2.amazonaws.com/default/image_app_main.png",
                 link = Link(
@@ -320,7 +320,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             // 카카오톡으로 카카오톡 공유 가능
             ShareClient.instance.shareDefault(requireContext(), defaultFeed) { sharingResult, error ->
                 if (error != null) {
-                    Timber.d("카카오톡 공유 실패", error)
+                    Timber.e("카카오톡 공유 실패: $error")
                 }
                 else if (sharingResult != null) {
                     Timber.d("카카오톡 공유 성공", error)

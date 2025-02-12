@@ -14,6 +14,8 @@ import com.neungi.data.repository.auth.AuthRepositoryImpl
 import com.neungi.data.repository.datastore.DataStoreRepositoryImpl
 import com.neungi.data.repository.fcm.FCMRepositoryImpl
 import com.neungi.data.repository.fcm.datasource.FCMDataSource
+import com.neungi.data.repository.invite.InviteRemoteDataSource
+import com.neungi.data.repository.invite.InviteRepositoryImpl
 import com.neungi.data.repository.trips.TripsRemoteDataSource
 import com.neungi.domain.repository.AiPlanningRepository
 import com.neungi.domain.repository.AlbumsRepository
@@ -21,6 +23,7 @@ import com.neungi.domain.repository.FestivalRepository
 import com.neungi.domain.repository.AuthRepository
 import com.neungi.domain.repository.DataStoreRepository
 import com.neungi.domain.repository.FCMRepository
+import com.neungi.domain.repository.InviteRepository
 import com.neungi.domain.repository.TripsRepository
 import dagger.Module
 import dagger.Provides
@@ -72,5 +75,11 @@ object RepositoryModule {
     @Singleton
     fun provideFCMRepository(fcmDataSource: FCMDataSource): FCMRepository {
         return FCMRepositoryImpl(fcmDataSource)
+    }
+
+    @Provides
+    @Singleton
+    fun provideInviteRepository(inviteRemoteDataSource: InviteRemoteDataSource): InviteRepository {
+        return InviteRepositoryImpl(inviteRemoteDataSource)
     }
 }
