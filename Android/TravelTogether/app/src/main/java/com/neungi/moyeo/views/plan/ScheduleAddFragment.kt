@@ -60,8 +60,8 @@ class ScheduleAddFragment : AiSearchPlaceFragment() {
             tripId = tripId,
             positionPath = -1,
             day = dayId,
-            lat = place.lat,
-            lng = place.lng,
+            lat = place.lat!!,
+            lng = place.lng!!,
             type = 1,
             duration = 0
         )

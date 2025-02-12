@@ -52,15 +52,24 @@ class HomeViewModel @Inject constructor(
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
     val recommendFestivals = _recommendFestivals.asStateFlow()
 
+    private val _festivalState =
+        MutableStateFlow<ApiResult<List<Festival>>>(ApiResult.success(emptyList()))
+    val festivalState = _festivalState.asStateFlow()
+
     private val _dialogFestival = MutableStateFlow<Festival?>(null)
     val dialogFestival = _dialogFestival.asStateFlow()
 
     private val _notificationHistory = MutableStateFlow<List<Notification>>(emptyList())
     val notificationHistory = _notificationHistory.asStateFlow()
 
-    private val _festivalState =
-        MutableStateFlow<ApiResult<List<Festival>>>(ApiResult.success(emptyList()))
-    val festivalState = _festivalState.asStateFlow()
+
+
+//    private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
+//    val recommendFestivals = _recommendFestivals.asStateFlow()
+
+//    private val _placeState =
+//        MutableStateFlow<ApiResult<List<Festival>>>(ApiResult.success(emptyList()))
+//    val festivalState = _festivalState.asStateFlow()
 
     init{
         getFestivalList()
