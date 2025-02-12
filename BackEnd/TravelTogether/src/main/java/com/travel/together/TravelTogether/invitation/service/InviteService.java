@@ -64,7 +64,7 @@ public class InviteService {
         if (tripMemberRepository.existsByTripIdAndUserId(tripId, userId.intValue())) {
             return InviteAcceptResponseDto.builder()
                     .message("이미 초대된 여행 일정 입니다.")
-                    .tripId(-1)
+                    .tripId(tripId)
                     .build();
         }
 
