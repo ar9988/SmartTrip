@@ -1,21 +1,16 @@
 package com.neungi.moyeo.views.home.viewmodel
 
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kakao.sdk.share.ShareClient
-import com.kakao.sdk.template.model.Button
-import com.kakao.sdk.template.model.Content
-import com.kakao.sdk.template.model.FeedTemplate
-import com.kakao.sdk.template.model.Link
 import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.Notification
-import com.neungi.domain.model.PhotoAlbum
+import com.neungi.domain.model.Place
 import com.neungi.domain.model.Trip
 import com.neungi.domain.usecase.GetFestivalOverview
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
+import com.neungi.domain.usecase.GetRecommendPlaceUseCase
 import com.neungi.domain.usecase.SaveNotificationUseCase
 import com.neungi.moyeo.util.CommonUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,7 +30,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getRecommendFestivalUseCase: GetRecommendFestivalUseCase,
     private val getFestivalOverview: GetFestivalOverview,
-    private val saveNotificationUseCase: SaveNotificationUseCase
+    private val saveNotificationUseCase: SaveNotificationUseCase,
+    private val getRecommendPlaceUseCase: GetRecommendPlaceUseCase,
 ) : ViewModel(),onHomeClickListener {
 
     private val _homeUiState = MutableStateFlow<HomeUiState>(HomeUiState())
@@ -48,6 +44,9 @@ class HomeViewModel @Inject constructor(
         null
     )
     val homeScheduleCardTrip = _homeScheduleCardTrip.asStateFlow()
+
+    private val _recommendPlaces = MutableStateFlow<List<Place>>(emptyList())
+    val recommendPlace = _recommendPlaces.asStateFlow()
 
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
     val recommendFestivals = _recommendFestivals.asStateFlow()
@@ -72,6 +71,7 @@ class HomeViewModel @Inject constructor(
 //    val festivalState = _festivalState.asStateFlow()
 
     init{
+        getRecommendPlace()
         getFestivalList()
     }
 
@@ -129,6 +129,37 @@ class HomeViewModel @Inject constructor(
 
 
     }
+
+    //추천 지역 정보
+    fun getRecommendPlace(){
+        viewModelScope.launch {
+            getRecommendPlaceUseCase().collectLatest {result->
+                when(result.status){
+                    ApiStatus.SUCCESS -> {
+                        _recommendPlaces.update {
+                            result.data?: emptyList()
+                        }
+                    }
+                    ApiStatus.ERROR -> {
+                        "정보가 없습니다"
+                    }
+                    ApiStatus.FAIL -> {
+                        "정보가 없습니다"
+                    }
+                    ApiStatus.LOADING -> {
+                        ""
+                    }
+                }
+            }
+
+
+
+
+        }
+
+
+    }
+
     //Notification내역 가져오기
     fun getNotification(){
         viewModelScope.launch {
