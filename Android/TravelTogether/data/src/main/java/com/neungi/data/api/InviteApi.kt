@@ -1,20 +1,17 @@
 package com.neungi.data.api
 
+import com.neungi.data.entity.InviteTokenEntity
 import retrofit2.Response
-import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface InviteApi {
 
-    @GET("invite")
-    fun getInvite(
-        @Query("token") token: String
-    ): Response<String>
-
     @POST("invite/{tripId}")
-    fun postInviteLink(
-        @Path("tripId") tripId: String
-    ): Response<String>
+    suspend fun postInviteLink(
+        @Path("tripId") tripId: Int
+    ): Response<InviteTokenEntity>
+
+    @POST("invite/accept")
+    suspend fun postInviteAccept(): Response<String>
 }

@@ -405,6 +405,7 @@ class AlbumViewModel @Inject constructor(
 
     private fun initPhotos() {
         viewModelScope.launch {
+            _photos.value = emptyList()
             val albumId = _selectedPhotoAlbum.value?.id ?: "-1"
             val response = getPhotosUseCase.getPhotos(albumId)
             when (response.status) {

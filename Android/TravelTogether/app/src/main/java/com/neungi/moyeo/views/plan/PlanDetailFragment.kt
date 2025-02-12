@@ -357,7 +357,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleUiEvent(event: ScheduleUiEvent) {
         when (event) {
-            is ScheduleUiEvent.ScheduleInvite -> {
+            is ScheduleUiEvent.GoToScheduleInvite -> {
                 findNavController().navigateSafely(R.id.action_plan_detail_to_invite)
             }
 
@@ -368,9 +368,5 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     companion object {
 
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-    }
-    override fun onStop() {
-        super.onStop()
-//        scheduleViewModel.closeWebSocket()
     }
 }
