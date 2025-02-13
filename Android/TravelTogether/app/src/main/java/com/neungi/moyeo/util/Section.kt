@@ -1,5 +1,6 @@
 package com.neungi.moyeo.util
 
+import Member
 import ScheduleReceive
 import com.neungi.domain.model.ScheduleData
 import com.neungi.domain.model.Trip
@@ -36,4 +37,8 @@ fun convertToSections(scheduleReceive: ScheduleReceive, trip: Trip): MutableList
     }
 
     return sections
+}
+
+fun convertToMember(scheduleReceive: ScheduleReceive): List<Member> {
+    return scheduleReceive.members
 }

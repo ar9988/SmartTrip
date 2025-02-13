@@ -1,5 +1,6 @@
 package com.neungi.moyeo.views.plan
 
+import Member
 import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
@@ -28,6 +29,7 @@ import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
+import com.neungi.moyeo.views.plan.adapter.PersonIconAdapter
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import com.neungi.moyeo.views.plan.dialog.EditScheduleDialog
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleUiEvent
@@ -68,7 +70,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         setupObservers()
         setupRecyclerView()
         setupListeners()
-        collectLatestFlow(scheduleViewModel.scheduleUiEvent) {handleUiEvent(it)}
+        collectLatestFlow(scheduleViewModel.scheduleUiEvent) { handleUiEvent(it) }
     }
 
     private fun initializeViewBinding() {
@@ -93,7 +95,14 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             manipulationEvent.observe(viewLifecycleOwner) { event ->
                 handleManipulationEvent(event)
             }
+            memberList.observe(viewLifecycleOwner) { members ->
+                handleMemberList(members)
+            }
         }
+    }
+
+    private fun handleMemberList(members: List<Member>) {
+        binding.rvPersonIconPlanDetail.adapter = PersonIconAdapter(members.map { it.userId })
     }
 
     private fun handleServerEvent(event: ServerReceive) {
@@ -235,11 +244,21 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             setHasFixedSize(true)
             itemTouchHelper.attachToRecyclerView(this)
         }
+
+        binding.rvPersonIconPlanDetail.apply {
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        }
     }
 
     private fun createItemTouchHelper(): ItemTouchHelper {
         val callback = createItemTouchHelperCallback(
-            updatePosition = { from, to -> scheduleViewModel.sendMoveEvent(from, to) },
+            updatePosition = { from, to ->
+                run {
+                    scheduleViewModel.sendMoveEvent(from, to)
+//                    removePathOverlay()
+                }
+            },
             onDrag = { isDragging ->
                 isUserDragging = isDragging
                 if (!isDragging) {
@@ -265,7 +284,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         ).show()
     }
 
-    private fun handleScheduleDelete(scheduleId: Int){
+    private fun handleScheduleDelete(scheduleId: Int) {
         scheduleViewModel.sendDeleteEvent(scheduleId)
         sectionedAdapter.delete(scheduleId)
     }
@@ -304,12 +323,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun initializeMap() {
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment_plan_detail) as? MapFragment
-            ?: MapFragment.newInstance().also {
-                childFragmentManager.beginTransaction()
-                    .add(R.id.map_fragment_plan_detail, it)
-                    .commit()
-            }
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.map_fragment_plan_detail) as? MapFragment
+                ?: MapFragment.newInstance().also {
+                    childFragmentManager.beginTransaction()
+                        .add(R.id.map_fragment_plan_detail, it)
+                        .commit()
+                }
         mapFragment.getMapAsync(this)
     }
 
@@ -324,8 +344,15 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         val fineLocation = Manifest.permission.ACCESS_FINE_LOCATION
         val coarseLocation = Manifest.permission.ACCESS_COARSE_LOCATION
 
-        if (ActivityCompat.checkSelfPermission(requireContext(), fineLocation) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(requireContext(), coarseLocation) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                fineLocation
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                coarseLocation
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             return
         }
     }
@@ -366,7 +393,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             else -> {}
         }
     }
-    
+
     companion object {
 
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
