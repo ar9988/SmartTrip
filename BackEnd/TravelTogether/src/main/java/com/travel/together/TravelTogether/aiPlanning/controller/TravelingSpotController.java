@@ -48,7 +48,7 @@ public class TravelingSpotController {
     }
 
     @PostMapping("/{contentId}")
-    public ResponseEntity<List<TravelingSpotDto>> updateFavoriteSpot(
+    public ResponseEntity<Boolean> updateFavoriteSpot(
             @RequestHeader("Authorization") String jwt,
             @PathVariable Integer contentId){
         String jwtToken = jwt.replace("Bearer", "").trim();
@@ -56,7 +56,7 @@ public class TravelingSpotController {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         Integer userId = user.getUserId();
-        List<TravelingSpotDto> favorites = travelingSpotService.updateFavoriteSpot(userId, contentId);
-        return ResponseEntity.ok(favorites);
+        Boolean isCompleted = travelingSpotService.updateFavoriteSpot(userId, contentId);
+        return ResponseEntity.ok(isCompleted);
     }
 }
