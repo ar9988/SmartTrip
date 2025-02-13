@@ -1,5 +1,4 @@
 import android.util.Log
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.neungi.data.mapper.TripMapper
 import com.neungi.data.repository.trips.LocalDateTimeSerializer
@@ -11,9 +10,8 @@ import com.neungi.domain.repository.TripsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -60,9 +58,22 @@ class TripsRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun deleteTrip(userId: String, trip: Trip): ApiResult<Boolean> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun deleteTrip(userId: String, tripId: Int): ApiResult<Boolean> =
+        try {
+            val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                tripsRemoteDataSource.deleteTrip(userId,tripId)
+            }
+
+            val responseBody = response.body()
+            if (response.isSuccessful && (responseBody != null)) {
+                ApiResult.success(responseBody)
+            } else {
+                ApiResult.error(response.errorBody().toString(), null)
+            }
+
+        } catch (e: Exception) {
+            ApiResult.fail()
+        }
 
     override suspend fun createTrip(
         userId: String,
@@ -93,7 +104,7 @@ class TripsRepositoryImpl @Inject constructor(
             // 실제 네트워크 요청
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 tripsRemoteDataSource.createTrip(
-                    RequestBody.create("application/json".toMediaTypeOrNull(), jsonRequestBody)
+                    jsonRequestBody.toRequestBody("application/json".toMediaTypeOrNull())
                 )
             }
 
@@ -119,7 +130,7 @@ class TripsRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             // 예외 발생 시 로그
-            Log.e("TripRepository", "예외 발생: ${e.localizedMessage}")
+            Log.e("TripRepository", "create 예외 발생: ${e.localizedMessage}")
             e.printStackTrace()
             ApiResult.fail()
         }

@@ -1,6 +1,5 @@
 package com.neungi.data.repository.trips
 
-import TripEntity
 import android.util.Log
 import com.neungi.data.api.TripsApi
 import com.neungi.data.entity.TripsResponse
@@ -28,5 +27,9 @@ class TripsRemoteDataSourceImpl @Inject constructor(
         Log.d("TripsRemoteDataSource", "Requesting Create")
         val response = tripsApi.createTrip(body)
         return response
+    }
+
+    override suspend fun deleteTrip(userId: String, tripId: Int): Response<Boolean> {
+        return tripsApi.deleteTrip(userId,tripId)
     }
 }
