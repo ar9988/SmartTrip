@@ -1,4 +1,4 @@
-package com.neungi.moyeo.views.home.adapter
+package com.neungi.moyeo.views.aiplanning.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,30 +6,39 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.neungi.domain.model.Festival
 import com.neungi.domain.model.Place
 import com.neungi.moyeo.R
-import com.neungi.moyeo.databinding.ItemFestivalHomeBinding
 import com.neungi.moyeo.databinding.ItemPlaceHomeBinding
+import com.neungi.moyeo.databinding.ItemPlaceSearchBinding
+import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
 
-class HomePlaceAdapter(private val viewModel: HomeViewModel) : ListAdapter<Place, HomePlaceAdapter.HomePlaceViewHolder>(PlaceDiffCallback()) {
-    inner class HomePlaceViewHolder(val binding: ItemPlaceHomeBinding) :
+class SearchFollowedPlaceAdapter(private val onCardClick: (String) -> Unit,
+                                 private val onFollowClick: (String) -> Unit,
+                                private val onPop:()->Unit) : ListAdapter<Place, SearchFollowedPlaceAdapter.HomePlaceViewHolder>(PlaceDiffCallback()) {
+    inner class HomePlaceViewHolder(val binding: ItemPlaceSearchBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Place) {
             binding.data = item
+            binding.ivFollow.isSelected = item.isFollowed
             binding.ivPlaceImage.load(item.imageUrl) {
                 error(R.drawable.image_noimg)
                 placeholder(R.drawable.ic_placeholder)
             }
-            binding.root.setOnClickListener {
-                viewModel.selectPlace(item)
+            binding.cvItemFollowedPlace.setOnClickListener{
+                onCardClick(item.placeName)
+                onPop()
             }
+            binding.ivFollow.setOnClickListener{
+                onFollowClick(item.contentId)
+            }
+
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomePlaceViewHolder {
 
-        return HomePlaceViewHolder(ItemPlaceHomeBinding.inflate(
+        return HomePlaceViewHolder(
+            ItemPlaceSearchBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -51,4 +60,3 @@ class HomePlaceAdapter(private val viewModel: HomeViewModel) : ListAdapter<Place
         }
     }
 }
-

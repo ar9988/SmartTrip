@@ -8,9 +8,10 @@ import com.neungi.domain.model.Festival
 import com.neungi.domain.model.Notification
 import com.neungi.domain.model.Place
 import com.neungi.domain.model.Trip
-import com.neungi.domain.usecase.GetFestivalOverview
+import com.neungi.domain.usecase.GetOverviewUseCase
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
 import com.neungi.domain.usecase.GetRecommendPlaceUseCase
+import com.neungi.domain.usecase.PlaceFollowUseCase
 import com.neungi.domain.usecase.SaveNotificationUseCase
 import com.neungi.moyeo.util.CommonUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -29,9 +31,10 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getRecommendFestivalUseCase: GetRecommendFestivalUseCase,
-    private val getFestivalOverview: GetFestivalOverview,
+    private val getOverviewUseCase: GetOverviewUseCase,
     private val saveNotificationUseCase: SaveNotificationUseCase,
     private val getRecommendPlaceUseCase: GetRecommendPlaceUseCase,
+    private val placeFollowUseCase: PlaceFollowUseCase
 ) : ViewModel(),onHomeClickListener {
 
     private val _homeUiState = MutableStateFlow<HomeUiState>(HomeUiState())
@@ -52,6 +55,9 @@ class HomeViewModel @Inject constructor(
         MutableStateFlow<ApiResult<List<Place>>>(ApiResult.success(emptyList()))
     val placeState = _placeState.asStateFlow()
 
+    private val _dialogPlace = MutableStateFlow<Place?>(null)
+    val dialogPlace = _dialogPlace.asStateFlow()
+
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
     val recommendFestivals = _recommendFestivals.asStateFlow()
 
@@ -65,7 +71,28 @@ class HomeViewModel @Inject constructor(
     private val _notificationHistory = MutableStateFlow<List<Notification>>(emptyList())
     val notificationHistory = _notificationHistory.asStateFlow()
 
+    private val _randomSelectedRegion = MutableStateFlow<Pair<String, String>>(Pair("", ""))
+    val randomSelectedRegion = _randomSelectedRegion.asStateFlow()
 
+    private val regionCode = mapOf(
+        "서울" to "1",
+        "인천" to "2",
+        "대전" to "3",
+        "대구" to "4",
+        "광주" to "5",
+        "부산" to "6",
+        "울산" to "7",
+        "세종" to "8",
+        "제주도" to "39",
+        "경기도" to "31",
+        "강원도" to "32",
+        "충청북도" to "33",
+        "충청남도" to "34",
+        "경상북도" to "35",
+        "경상남도" to "36",
+        "전라북도" to "37",
+        "전라남도" to "38"
+    )
 
 
 //    private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
@@ -76,7 +103,6 @@ class HomeViewModel @Inject constructor(
 //    val festivalState = _festivalState.asStateFlow()
 
     init{
-        getRecommendPlace()
         getFestivalList()
     }
 
@@ -109,7 +135,7 @@ class HomeViewModel @Inject constructor(
 
     fun selectFestival(festival:Festival){
         viewModelScope.launch {
-            val result = getFestivalOverview(festival.contentId)
+            val result = getOverviewUseCase(festival.contentId)
             Timber.d("${result}")
             val overView : String = when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -144,10 +170,18 @@ class HomeViewModel @Inject constructor(
 
     }
 
+
+
     //추천 지역 정보
     fun getRecommendPlace() {
+        _randomSelectedRegion.update {
+            regionCode.entries.random().let {
+                Pair(it.key, it.value)
+            }
+        }
         viewModelScope.launch {
-            getRecommendPlaceUseCase().collectLatest { result ->
+            Timber.d("RandomRegionNumber${randomSelectedRegion.value.second}")
+            getRecommendPlaceUseCase(randomSelectedRegion.value.second).collectLatest { result ->
                 _homeUiState.update { currentState ->
                     when (result.status) {
                         ApiStatus.SUCCESS -> currentState.copy(
@@ -160,6 +194,73 @@ class HomeViewModel @Inject constructor(
                             isLoading = false
                         )
                     }
+                }
+            }
+        }
+    }
+
+    fun selectPlace(place:Place){
+        viewModelScope.launch {
+            val result = getOverviewUseCase(place.contentId)
+            Timber.d("${result}")
+            val overView : String = when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    result.data?:"정보가 없습니다"
+                }
+                ApiStatus.ERROR -> {
+                    "정보가 없습니다"
+                }
+                ApiStatus.FAIL -> {
+                    "정보가 없습니다"
+                }
+                ApiStatus.LOADING -> {
+                    ""
+                }
+            }
+            val newFestival = Place(
+                placeName = place.placeName,
+                imageUrl = place.imageUrl,
+                address = place.address,
+                contentId = place.contentId,
+                overView = overView,
+                isFollowed = place.isFollowed,
+                lat = null,
+                lng = null
+            )
+            _dialogPlace.update {
+                newFestival
+            }
+            _homeUiEvent.emit(HomeUiEvent.ShowPlaceDialog)
+        }
+    }
+
+    fun onClickFollow(contentId:String){
+        viewModelScope.launch {
+            placeFollowUseCase(contentId).collect(){result->
+                when(result.status){
+                    ApiStatus.SUCCESS -> {
+                        if (result.data == true) {
+                            // Dialog 업데이트
+                            _dialogPlace.update { currentPlace ->
+                                currentPlace?.copy(isFollowed = !currentPlace.isFollowed)
+                            }
+
+                            // RecommendPlaces 업데이트
+                            _homeUiState.update { currentState ->
+                                val updatedPlaces = currentState.places.map { place ->
+                                    if (place.contentId == contentId) {
+                                        place.copy(isFollowed = !place.isFollowed)
+                                    } else {
+                                        place
+                                    }
+                                }
+                                currentState.copy(places = updatedPlaces)
+                            }
+                        }
+                    }
+                    ApiStatus.ERROR ->{}
+                    ApiStatus.FAIL -> {}
+                    ApiStatus.LOADING -> {}
                 }
             }
         }

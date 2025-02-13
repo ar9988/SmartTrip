@@ -13,5 +13,9 @@ interface AiPlanningRepository {
 
     suspend fun requestAiPlanning(requestBody: AiPlanningRequest): ApiResult<Boolean>
 
-    suspend fun getRecommendPlace(): Flow<ApiResult<List<Place>>>
+    suspend fun getRecommendPlace(regionNumber:String): Flow<ApiResult<List<Place>>>
+
+    suspend fun follow(contentId :String) : Flow<ApiResult<Boolean>>
+
+    suspend fun getFollowedPlaces(): Flow<ApiResult<List<Place>>>
 }

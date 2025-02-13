@@ -105,7 +105,7 @@ class AiSelectPeriodFragment : BaseFragment<FragmentAiSelectPeriodBinding>(R.lay
 
     override fun onDestroy() {
         super.onDestroy()
-
+        viewModel.clearState()
     }
 
 

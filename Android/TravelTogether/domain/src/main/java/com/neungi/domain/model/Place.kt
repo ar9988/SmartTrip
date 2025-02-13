@@ -6,5 +6,7 @@ data class Place (
     val lat: Double?,
     val lng: Double?,
     val imageUrl: String?=null,
-    val overview:String=""
+    val overView:String="",
+    val contentId:String = "",
+    val isFollowed:Boolean = false
 )
