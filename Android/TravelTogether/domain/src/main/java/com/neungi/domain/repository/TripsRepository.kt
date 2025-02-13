@@ -7,5 +7,5 @@ import java.time.LocalDate
 interface TripsRepository {
     suspend fun getTrips(userId: String): ApiResult<List<Trip>>
     suspend fun deleteTrip(userId: String, tripId: Int): ApiResult<Boolean>
-    suspend fun createTrip(userId:String,title:String,startDate: LocalDate,endDate: LocalDate) : ApiResult<List<Trip>>
+    suspend fun createTrip(userId:String,title:String,startDate: LocalDate,endDate: LocalDate) : ApiResult<Boolean>
 }

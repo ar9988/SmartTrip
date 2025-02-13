@@ -3,12 +3,15 @@ package com.neungi.moyeo.views.plan
 import Member
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
+import android.view.ViewTreeObserver
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -21,7 +24,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.MultipartPathOverlay
+import com.naver.maps.map.overlay.Overlay
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
@@ -30,6 +35,7 @@ import com.neungi.domain.model.ScheduleData
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
+import com.neungi.moyeo.util.NonScrollableHorizontalLayoutManager
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.adapter.PersonIconAdapter
@@ -58,6 +64,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private lateinit var naverMap: NaverMap
     private val paths = mutableMapOf<Int, List<LatLng>>()
     private val multipartPathOverlay = MultipartPathOverlay()
+    private val markerMap = HashMap<Int, Marker>()
 
     // Adapter
     private lateinit var sectionedAdapter: SectionedAdapter
@@ -113,6 +120,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 handleManipulationEvent(event)
             }
             memberList.observe(viewLifecycleOwner) { members ->
+                Timber.d(members.toString())
                 handleMemberList(members)
             }
             editEvent.observe(viewLifecycleOwner) {
@@ -123,14 +131,45 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleMemberList(members: List<Member>) {
         binding.rvPersonIconPlanDetail.adapter = PersonIconAdapter(members.map { it.userId })
-        binding.rvPersonIconPlanDetail.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-                val position = parent.getChildAdapterPosition(view)
-                val totalItems = parent.adapter?.itemCount ?: 0
+        binding.rvPersonIconPlanDetail.layoutManager = NonScrollableHorizontalLayoutManager(requireContext())
+        binding.rvPersonIconPlanDetail.setHasFixedSize(true) // RecyclerView 크기 고정
+        binding.rvPersonIconPlanDetail.overScrollMode = View.OVER_SCROLL_NEVER // 오버스크롤 방지
+        binding.rvPersonIconPlanDetail.isNestedScrollingEnabled = false // 내부 스크롤 비활성화
+        binding.rvPersonIconPlanDetail.clipChildren = false
+        binding.rvPersonIconPlanDetail.clipToPadding = false
+        binding.rvPersonIconPlanDetail.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                binding.rvPersonIconPlanDetail.viewTreeObserver.removeOnGlobalLayoutListener(this)
 
-                if (position != totalItems - 1) {
-                    view.translationX = (50 * (totalItems - 1 - position)).toFloat()
+                val recyclerViewWidth = binding.rvPersonIconPlanDetail.width // RecyclerView 가용 너비
+                val itemWidth = dp2px(40f, binding.root.context) // 아이콘 크기
+                val itemCount = binding.rvPersonIconPlanDetail.adapter?.itemCount ?: 1
+
+                val maxSpacing = dp2px(8f, binding.root.context) // 충분한 공간이 있을 때 간격
+                val minOverlap = -itemWidth * 0.9f // 겹치는 정도 (더 강하게 적용)
+
+                // 전체 아이콘 너비 계산
+                val totalItemWidth = (itemWidth * itemCount) + (maxSpacing * (itemCount - 1))
+
+                // 공간이 충분할 경우 maxSpacing, 공간이 부족하면 겹치도록 조정
+                val overlapOffset = if (totalItemWidth > recyclerViewWidth) minOverlap.toInt() else maxSpacing.toInt()
+
+                // 기존 ItemDecoration 제거 (중복 적용 방지)
+                while (binding.rvPersonIconPlanDetail.itemDecorationCount > 0) {
+                    binding.rvPersonIconPlanDetail.removeItemDecorationAt(0)
                 }
+
+                // 새로운 ItemDecoration 추가
+                binding.rvPersonIconPlanDetail.addItemDecoration(object : RecyclerView.ItemDecoration() {
+                    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                        val position = parent.getChildAdapterPosition(view)
+                        if (position > 0) {
+                            outRect.left = overlapOffset // 가변 간격 조정
+                        }
+                    }
+                })
+
+                binding.rvPersonIconPlanDetail.invalidateItemDecorations() // UI 즉시 반영
             }
         })
     }
@@ -261,6 +300,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             onEditClick = { scheduleData -> showEditDialog(scheduleData) },
             onAddClick = { dayId -> navigateToAddSchedule(dayId) },
             onDeletePath = { scheduleId -> removePathOverlay(scheduleId) },
+            handleMarker = { scheduleData, flag ->  handleMarker(scheduleData,flag)},
             recyclerView = binding.rvPlanDetail
         )
 
@@ -271,10 +311,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             itemTouchHelper.attachToRecyclerView(this)
         }
 
-        binding.rvPersonIconPlanDetail.apply {
-            layoutManager =
-                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        }
+//        binding.rvPersonIconPlanDetail.apply {
+//            layoutManager =
+//                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+//        }
     }
 
     private fun createItemTouchHelper(): ItemTouchHelper {
@@ -318,6 +358,9 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun handleScheduleEdit(scheduleData: ScheduleData) {
         sectionedAdapter.editItem(scheduleData, isUserDragging)
         val scheduleEntity = createScheduleEntity(scheduleData)
+        markerMap[scheduleData.scheduleId]?.apply {
+            captionText = scheduleData.placeName
+        }
         scheduleViewModel.sendEditEvent(scheduleEntity)
     }
 
@@ -326,11 +369,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         return ScheduleEntity(
             id = data.scheduleId,
             placeName = data.placeName,
-<<<<<<< Android/TravelTogether/app/src/main/java/com/neungi/moyeo/views/plan/PlanDetailFragment.kt
             tripId = tripViewModel.selectedTrip.value?.id ?: -1,
-=======
-            tripId = tripId,
->>>>>>> Android/TravelTogether/app/src/main/java/com/neungi/moyeo/views/plan/PlanDetailFragment.kt
             positionPath = data.positionPath,
             day = 0,
             lat = data.lat,
@@ -429,9 +468,34 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
     }
 
+    private fun handleMarker(scheduleData: ScheduleData,flag:Boolean) {
+        if(!flag) {
+            markerMap[scheduleData.scheduleId]?.map = null
+            markerMap.remove(scheduleData.scheduleId)
+        } else if(markerMap.containsKey(scheduleData.scheduleId)) {
+            return
+        } else {
+            val marker = Marker().apply {
+                width = 100
+                height = 100
+                position = LatLng(scheduleData.lat, scheduleData.lng)
+                map = naverMap
+                captionText = scheduleData.placeName
+                isHideCollidedSymbols = true
+                onClickListener = Overlay.OnClickListener { _ ->
+                    showEditDialog(scheduleData)
+                    true
+                }
+            }
+            markerMap[scheduleData.scheduleId] = marker
+        }
+    }
+
+    fun dp2px(dp: Float, context: Context) = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics)
+
     companion object {
 
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
         fun newInstance(tripId: Int) = PlanDetailFragment().apply {
             arguments = Bundle().apply {

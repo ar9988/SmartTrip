@@ -80,7 +80,7 @@ class TripsRepositoryImpl @Inject constructor(
         title: String,
         startDate: LocalDate,
         endDate: LocalDate
-    ): ApiResult<List<Trip>> =
+    ): ApiResult<Boolean> =
         try {
             // 네트워크 요청 시작 전 로그
             Log.d("TripsRepository", "createTrips() - userId: $userId, 네트워크 요청 시작")
@@ -112,21 +112,10 @@ class TripsRepositoryImpl @Inject constructor(
             val body = response.body()
             Log.d("TripsRepository", response.toString())
 
-            if (response.isSuccessful && body != null) {
-                Log.d("TripRepository", "Response Code: ${response.code()}")
-                Log.d("TripRepository", "Response Body: ${body.toString()}")
+            if (response.isSuccessful && (body != null)) {
+                ApiResult.success(body)
             } else {
-                Log.e("TripRepository", "응답 실패 - Error Body: ${response.errorBody()?.string()}")
-            }
-
-            if (response.isSuccessful && body != null) {
-                // 성공적인 응답 로그
-                Log.d("TripRepository", "응답 성공 - 데이터 매핑 시작")
-                ApiResult.success(TripMapper(body.trips))
-            } else {
-                // 오류 발생 시 로그
-                Log.e("TripRepository", "응답 실패 - Error Body: ${response.errorBody()?.string()}")
-                ApiResult.error(response.errorBody()?.string() ?: "알 수 없는 오류", null)
+                ApiResult.error(response.errorBody().toString(), null)
             }
         } catch (e: Exception) {
             // 예외 발생 시 로그

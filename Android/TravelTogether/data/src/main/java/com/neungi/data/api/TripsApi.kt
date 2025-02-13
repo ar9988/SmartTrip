@@ -19,9 +19,12 @@ interface TripsApi {
     @POST("trips/")
     suspend fun createTrip(
         @Body body: RequestBody
-    ): Response<TripsResponse>
+    ): Response<Boolean>
 
-    @DELETE("trips/{}")
-    suspend fun deleteTrip(userId: String, tripId: Int): Response<Boolean>
+    @DELETE("trips/{id}/{tripId}")
+    suspend fun deleteTrip(
+        @Path("id") userId: String,
+        @Path("tripId") tripId: Int
+    ): Response<Boolean>
 
 }

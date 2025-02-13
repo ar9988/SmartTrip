@@ -26,6 +26,7 @@ class SectionedAdapter(
     private val onEditClick: (ScheduleData) -> Unit,
     private val onAddClick: (Int) -> Unit,
     private val onDeletePath: (Int) -> Unit,
+    private val handleMarker:(ScheduleData, Boolean) -> Unit,
     private val recyclerView: RecyclerView
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -165,15 +166,6 @@ class SectionedAdapter(
     fun rebuildSections() {
         val newSections = mutableListOf<Section>()
         var currentSection: MutableList<ScheduleData>? = null
-
-        // positionPath로 정렬
-//        val sortedItems = listItems.sortedBy {
-//            when (it) {
-//                is ListItem.SectionHeader -> it.data.positionPath
-//                is ListItem.Item -> it.data.positionPath
-//            }
-//        }
-
         val sortedItems = listItems.sortedWith(
             compareBy<ListItem> {
                 when (it) {
@@ -198,6 +190,7 @@ class SectionedAdapter(
 
                 is ListItem.Item -> {
                     currentSection?.add(item.data)
+                    handleMarker(item.data,true)
                 }
             }
         }
@@ -260,6 +253,7 @@ class SectionedAdapter(
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId) {
                     // 아이템을 삭제
                     listItems.removeAt(position)
+                    handleMarker(item.data,false)
                     if (!isUserDragging) notifyItemRemoved(position)
                 }
             }
@@ -327,6 +321,7 @@ class SectionedAdapter(
         listItems.forEachIndexed { index, it ->
             if (it is ListItem.Item && it.data.scheduleId == scheduleId) {
                 listItems.removeAt(index)
+                handleMarker(it.data,false)
                 rebuildSections()
                 return
             }

@@ -12,13 +12,15 @@ import com.neungi.moyeo.databinding.ItemPersonIconBinding
 class PersonIconAdapter(private val urls: List<String>) : RecyclerView.Adapter<PersonIconAdapter.PersonIconViewHolder>() {
 
     inner class PersonIconViewHolder(private val binding: ItemPersonIconBinding) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(url: String) {
-            // Glide로 URL을 원형 아이콘으로 로드
+        fun bind(url: String, position: Int) {
             Glide.with(itemView.context)
                 .load(url)
-                .circleCrop() // 원형으로 크롭
+                .circleCrop()
+                .error(R.drawable.baseline_account_circle_24)
                 .into(binding.ivPersonIcon)
+
+            // Z-Index 효과를 주기 위해 elevation 설정
+            itemView.translationZ = position.toFloat() * 10f
         }
     }
 
@@ -28,7 +30,7 @@ class PersonIconAdapter(private val urls: List<String>) : RecyclerView.Adapter<P
     }
 
     override fun onBindViewHolder(holder: PersonIconViewHolder, position: Int) {
-        holder.bind(urls[position])
+        holder.bind(urls[position], position)
     }
 
     override fun getItemCount(): Int = urls.size

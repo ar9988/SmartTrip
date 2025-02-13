@@ -71,7 +71,18 @@ class TripViewModel @Inject constructor(
 
     fun deleteTrip(userId: String, tripId: Int){
         viewModelScope.launch {
-            getTripUseCase.removeTrip(userId.toString(),tripId)
+            val result = getTripUseCase.removeTrip(userId,tripId)
+            when (result.status) {
+                ApiStatus.SUCCESS -> {
+                    _tripUiEvent.emit(TripUiEvent.TripDelete)
+                }
+                ApiStatus.ERROR, ApiStatus.FAIL -> {
+                    _tripUiEvent.emit(TripUiEvent.TripDeleteFail)
+                }
+                ApiStatus.LOADING -> {
+                    // 필요하면 로딩 UI 이벤트 추가 가능
+                }
+            }
         }
     }
 
@@ -112,26 +123,13 @@ class TripViewModel @Inject constructor(
             Timber.d(result.toString())
             when (result.status) {
                 ApiStatus.SUCCESS -> {
-                    // result.data가 null이 아니고 List<Trip>으로 캐스팅 가능한지 확인
-                    val tripList = result.data as? List<Trip>
-                    if (tripList != null) {
-                        _trips.value = result.data!!
-                    } else {
-                        _trips.value = emptyList() // data가 null이거나 List<Trip>이 아닌 경우 처리
-                    }
+                    _tripUiEvent.emit(TripUiEvent.TripAdd)
                 }
-                ApiStatus.ERROR -> {
-                    // ApiResult.Status가 ERROR일 때 처리
-                    // 예: UI 상태 변경 또는 에러 메시지 표시
-                    // 예시: _tripUiState.value = TripUiState(errorMessage = result.message)
-                }
-                ApiStatus.FAIL -> {
-                    // ApiResult.Status가 FAIL일 때 처리
-                    // 예시: _tripUiState.value = TripUiState(failed = true)
+                ApiStatus.ERROR, ApiStatus.FAIL -> {
+                    _tripUiEvent.emit(TripUiEvent.TripAddFail)
                 }
                 ApiStatus.LOADING -> {
-                    // ApiResult.Status가 LOADING일 때 처리
-                    // 예시: _tripUiState.value = TripUiState(loading = true)
+                    // 필요하면 로딩 UI 이벤트 추가 가능
                 }
             }
         }
