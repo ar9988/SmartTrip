@@ -29,7 +29,7 @@ public class TravelingSpot {
     private String title;
 
     @Column(name = "overview")
-    private String overView;
+    private String overview;
 
     @Column(name = "address")
     private String address;
