@@ -101,21 +101,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         lifecycleScope.launch {
             viewModel.settingUiEvent.collectLatest { uiEvent ->
-                when (uiEvent) {
-                    is SettingUiEvent.GetUserInfoFail -> {
-                        Timber.d("로그아웃 상태")
-                        handleLoginEvent()
-                    }
+                if (uri != null && uri.host == "kakaolink") {
+                    when (uiEvent) {
+                        is SettingUiEvent.GetUserInfoFail -> {
+                            Timber.d("로그아웃 상태")
+                            handleLoginEvent()
+                        }
 
-                    is SettingUiEvent.GetUserInfoSuccess -> {
-                        if (uri != null && uri.host == "kakaolink") {
+                        is SettingUiEvent.GetUserInfoSuccess -> {
                             val token = uri.getQueryParameter("token")
                             Timber.d("카카오톡 초대 링크 감지: $token")
                             tripViewModel.requestInvite(token ?: "")
                         }
-                    }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
         }

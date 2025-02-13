@@ -67,13 +67,13 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
         lifecycleScope.launch {
             tripViewModel.selectedTrip.collectLatest { trip ->
-                val tripId = trip?.id ?: -1
-                if (!flag && (tripId != -1)) {
-                    flag = true
-                    val bundle = Bundle().apply {
-                        putInt("tripId", trip?.id ?: -1)
+                trip?.let {
+                    if (!flag) {
+                        flag = true
+                        tripViewModel.initTrip(trip)
+                        Timber.d(trip.title)
+                        findNavController().navigateSafely(R.id.action_plan_to_planDetail)
                     }
-                    findNavController().navigateSafely(R.id.action_plan_to_planDetail, bundle)
                 }
             }
         }
@@ -157,6 +157,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             }
         }
     }
+
 
     companion object {
         fun newInstance(tripId: Int) = PlanFragment().apply {

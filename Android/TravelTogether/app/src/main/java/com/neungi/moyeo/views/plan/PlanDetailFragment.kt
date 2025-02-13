@@ -5,6 +5,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
@@ -89,6 +91,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             }
         }
         with(binding) {
+            Timber.d("Trip: ${scheduleViewModel.selectedTrip.value}")
             vm = scheduleViewModel
             tripViewModel.selectedTrip.value?.let { scheduleViewModel.initTrip(it) }
         }
@@ -120,6 +123,16 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleMemberList(members: List<Member>) {
         binding.rvPersonIconPlanDetail.adapter = PersonIconAdapter(members.map { it.userId })
+        binding.rvPersonIconPlanDetail.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                val position = parent.getChildAdapterPosition(view)
+                val totalItems = parent.adapter?.itemCount ?: 0
+
+                if (position != totalItems - 1) {
+                    view.translationX = (50 * (totalItems - 1 - position)).toFloat()
+                }
+            }
+        })
     }
 
     private fun handleServerEvent(event: ServerReceive) {
@@ -313,7 +326,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         return ScheduleEntity(
             id = data.scheduleId,
             placeName = data.placeName,
+<<<<<<< Android/TravelTogether/app/src/main/java/com/neungi/moyeo/views/plan/PlanDetailFragment.kt
+            tripId = tripViewModel.selectedTrip.value?.id ?: -1,
+=======
             tripId = tripId,
+>>>>>>> Android/TravelTogether/app/src/main/java/com/neungi/moyeo/views/plan/PlanDetailFragment.kt
             positionPath = data.positionPath,
             day = 0,
             lat = data.lat,
