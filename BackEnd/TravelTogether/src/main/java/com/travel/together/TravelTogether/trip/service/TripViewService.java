@@ -1,8 +1,8 @@
 package com.travel.together.TravelTogether.trip.service;
 
-import com.travel.together.TravelTogether.trip.dto.DayDto;
-import com.travel.together.TravelTogether.trip.dto.TripDetailResponse;
-import com.travel.together.TravelTogether.trip.dto.TripResponse;
+import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.repository.UserRepository;
+import com.travel.together.TravelTogether.trip.dto.*;
 import com.travel.together.TravelTogether.trip.entity.*;
 import com.travel.together.TravelTogether.trip.exception.TripNotFoundException;
 import com.travel.together.TravelTogether.trip.exception.UnauthorizedException;
@@ -24,12 +24,13 @@ import java.util.stream.Collectors;
 //@Transactional(readOnly = true)
 //@RequiredArgsConstructor
 public class TripViewService {
-    public TripViewService(TripRepository tripRepository, ScheduleRepository scheduleRepository, TripMemberRepository tripMemberRepository, DayRepository dayRepository, RouteRepository routeRepository) {
+    public TripViewService(TripRepository tripRepository, ScheduleRepository scheduleRepository, TripMemberRepository tripMemberRepository, DayRepository dayRepository, RouteRepository routeRepository, UserRepository userRepository) {
         this.tripRepository = tripRepository;
         this.scheduleRepository = scheduleRepository;
         this.tripMemberRepository = tripMemberRepository;
         this.dayRepository = dayRepository;
         this.routeRepository = routeRepository;
+        this.userRepository = userRepository;
     }
 
     @Autowired
@@ -42,6 +43,8 @@ public class TripViewService {
     private final DayRepository dayRepository;
     @Autowired
     private final RouteRepository routeRepository;
+    @Autowired
+    private final UserRepository userRepository;
 
 
 
@@ -92,5 +95,32 @@ public class TripViewService {
 
         return new TripDetailResponse(trip, members, dayDtos);
     }
+
+
+
+
+    public TripCreateDto createTrip(TripRequestDto requestDto) {
+        // 사용자 조회
+        User creator = userRepository.findById(Long.valueOf(requestDto.getUserId()))
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Trip 엔티티 생성
+        Trip trip = Trip.builder()
+                .creator(creator)
+                .title(requestDto.getTitle())
+                .startDate(requestDto.getStartDate())
+                .endDate(requestDto.getEndDate())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        // 저장
+        Trip savedTrip = tripRepository.save(trip);
+
+        // DTO 변환 후 반환
+        return TripCreateDto.from(savedTrip);
+    }
+
+
 
 }

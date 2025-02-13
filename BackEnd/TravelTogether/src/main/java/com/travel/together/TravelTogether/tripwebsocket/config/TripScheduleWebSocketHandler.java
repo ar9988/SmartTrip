@@ -259,23 +259,23 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             log.info("New WebSocket connection established for trip: {}, session: {}",
                     tripId, session.getId());
 
-//
-//            try {
-//                Integer tripIdInt = Integer.valueOf(tripId);
-//                log.info("About to call handleInitialSync for tripId: {}", tripIdInt);
-//
-//
-//                handleInitialSync(session, tripIdInt);
-//                log.info("handleInitialSync completed for tripId: {}", tripIdInt);
-//
-//            } catch (JsonProcessingException e) {
-//                throw new RuntimeException(e);
-//            } catch (java.io.IOException e) {
-//                throw new RuntimeException(e);
-//            } catch (Exception e) {
-//                log.error("Error in afterConnectionEstablished for tripId: " + tripId, e);
-//
-//            }
+
+            try {
+                Integer tripIdInt = Integer.valueOf(tripId);
+                log.info("About to call handleInitialSync for tripId: {}", tripIdInt);
+
+
+                handleInitialSync(session, tripIdInt);
+                log.info("handleInitialSync completed for tripId: {}", tripIdInt);
+
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                log.error("Error in afterConnectionEstablished for tripId: " + tripId, e);
+
+            }
 
         }
     }
@@ -516,20 +516,29 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
     private void handleEditOperation(Integer tripId, AddRequest request) {
         try {
-            AddRequest.ScheduleDto schedule = request.getSchedule();
-            if (schedule == null) {
+            AddRequest.ScheduleDto scheduleDto = request.getSchedule();
+            if (scheduleDto == null) {
                 log.error("Schedule information is missing in request");
                 throw new IllegalArgumentException("Schedule cannot be null");
             }
-            // tripEdits에 변경된 Schedule 정보 저장
-            stateManager.addEditSchedule(tripId, schedule);
 
+            Schedule schedule = scheduleRepository.findById(scheduleDto.getScheduleId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Schedule not found with id: " + scheduleDto.getScheduleId()));
+
+            // duration과 placeName 업데이트
+            schedule.setDuration(scheduleDto.getDuration());
+            schedule.setPlaceName(scheduleDto.getPlaceName());
+            // DB 업데이트
+            scheduleRepository.save(schedule);
+
+            // tripEdits에 변경된 Schedule 정보 저장 (기존 로직 유지)
+            stateManager.addEditSchedule(tripId, scheduleDto);
             log.info("EDIT operation processed - tripId: {}, scheduleId: {}, new duration: {}, new placeName: {}",
                     tripId,
-                    schedule.getScheduleId(),
-                    schedule.getDuration(),
-                    schedule.getPlaceName());
-
+                    scheduleDto.getScheduleId(),
+                    scheduleDto.getDuration(),
+                    scheduleDto.getPlaceName());
 
         } catch (Exception e) {
             log.error("Error handling EDIT operation", e);

@@ -39,7 +39,7 @@ public class AuthConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()  // 인증 관련 엔드포인트
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()  // Swagger UI 허용
-                        .requestMatchers("/festivals", "/festivals/overview","trips/1","/fcm/**","/invite/**").permitAll()
+                        .requestMatchers("/festivals", "/festivals/overview","trips/**","/fcm/**","/invite/**").permitAll()
                         .anyRequest().authenticated()  // 그 외 모든 요청은 인증 필요
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // ✅ 필터 추가

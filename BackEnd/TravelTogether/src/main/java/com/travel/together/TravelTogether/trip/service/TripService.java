@@ -1,5 +1,9 @@
 package com.travel.together.TravelTogether.trip.service;
 
+import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.repository.UserRepository;
+import com.travel.together.TravelTogether.trip.dto.TripCreateDto;
+import com.travel.together.TravelTogether.trip.dto.TripRequestDto;
 import com.travel.together.TravelTogether.trip.entity.Day;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.entity.Trip;
@@ -16,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -25,15 +30,17 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class TripService {
-    public TripService(DayRepository dayRepository, TripMemberRepository tripMemberRepository, TripRepository tripRepository) {
+    public TripService(DayRepository dayRepository, TripMemberRepository tripMemberRepository, TripRepository tripRepository, UserRepository userRepository) {
         this.dayRepository = dayRepository;
         this.tripMemberRepository = tripMemberRepository;
         this.tripRepository = tripRepository;
+        this.userRepository = userRepository;
     }
 
     private final DayRepository dayRepository;
     private final TripMemberRepository tripMemberRepository;
     private final TripRepository tripRepository;
+    private final UserRepository userRepository;
 
     public List<Day> getDaysByTripId(Integer tripId) {
         // Trip의 day 정보를 조회하는 로직
@@ -108,4 +115,8 @@ public class TripService {
                 trip.getUpdatedAt()
         );
     }
+
+
+
+
 }
