@@ -113,19 +113,18 @@ public class TravelingSpotService {
     }
 
     @Transactional(readOnly = true)
-    public List<TravelingSpotDto> getUserFavoriteSpot(Integer userId) {
+    public List<TravelingSpotRegionDto> getUserFavoriteSpot(Integer userId) {
         List<Favorite> favorites = favoriteRepository.findByUserId(userId);
 
         return favorites.stream().map(favorite -> {
             TravelingSpot travelingSpot = favorite.getTravelingSpot();
-            TravelingSpotDto dto = new TravelingSpotDto();
-            dto.setRegion(travelingSpot.getRegion());
-            dto.setRegionNumber(travelingSpot.getRegionNumber());
+            TravelingSpotRegionDto dto = new TravelingSpotRegionDto();
             dto.setContentId(travelingSpot.getContentId());
             dto.setTitle(travelingSpot.getTitle());
             dto.setOverView(travelingSpot.getOverview());
             dto.setAddress(travelingSpot.getAddress());
             dto.setImageUrl(travelingSpot.getImageUrl());
+            dto.setIsFollowed(true);
             return dto;
         }).collect(Collectors.toList());
     }

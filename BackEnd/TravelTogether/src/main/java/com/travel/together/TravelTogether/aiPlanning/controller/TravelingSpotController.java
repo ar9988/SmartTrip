@@ -41,13 +41,13 @@ public class TravelingSpotController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TravelingSpotDto>> getUserFavorites(@RequestHeader("Authorization") String jwt) {
+    public ResponseEntity<List<TravelingSpotRegionDto>> getUserFavorites(@RequestHeader("Authorization") String jwt) {
         String jwtToken = jwt.replace("Bearer", "").trim();
         String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         Integer userId = user.getUserId();
-        List<TravelingSpotDto> favorites = travelingSpotService.getUserFavoriteSpot(userId);
+        List<TravelingSpotRegionDto> favorites = travelingSpotService.getUserFavoriteSpot(userId);
         return ResponseEntity.ok(favorites);
     }
 
