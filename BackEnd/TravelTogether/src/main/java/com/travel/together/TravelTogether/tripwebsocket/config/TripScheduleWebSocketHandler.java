@@ -132,15 +132,19 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         log.info("=== START Initial Sync for tripId: {} ===", tripId);
 
         // 1. 현재 상태 가져오기 (메모리에서)
-        TripDetailDTO currentTripDetail = stateManager.getTripDetail(tripId);
+//        TripDetailDTO currentTripDetail = stateManager.getTripDetail(tripId);
+        TripDetailDTO currentTripDetail = stateManager.getTripDetailWithEdits(tripId);
 
         if (currentTripDetail == null) {
             log.info("TripDetail is null, initializing from DB for tripId: {}", tripId);
             // 첫 접속인 경우 DB에서 초기화
             currentTripDetail = tripService.getTripDetailById(tripId);
             if (currentTripDetail != null) {
-                stateManager.initializeFromTripDetail(tripId, currentTripDetail);
                 // 초기화 후 바로 이 tripDetail 사용
+                stateManager.initializeFromTripDetail(tripId, currentTripDetail);
+                // DB에서 가져온 후에도 혹시 있을 수 있는 편집 내역 반영
+                currentTripDetail = stateManager.getTripDetailWithEdits(tripId);
+
                 log.info("Using initialized tripDetail directly");
             } else {
                 log.error("No trip detail found in DB for tripId: {}", tripId);
@@ -565,13 +569,12 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             log.info("broadcastToTripSsessions={}",objectMapper.writeValueAsString(request));
 
             // ✅ 최신 ScheduleDTO 생성 후 stateManager에 저장
-            ScheduleDTO updatedSchedule = new ScheduleDTO(
-                    schedule.getId(),
-                    schedule.getDuration(),
-                    schedule.getPlaceName(),
-                    schedule.getPositionPath(),
-                    tripId
-            );
+            ScheduleDTO updatedSchedule = new ScheduleDTO();
+            updatedSchedule.setId(schedule.getId());
+            updatedSchedule.setDuration(schedule.getDuration());
+            updatedSchedule.setPlaceName(schedule.getPlaceName());
+
+
             stateManager.saveEdit(tripId, schedule.getId(), updatedSchedule);
 
 

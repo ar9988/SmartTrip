@@ -414,19 +414,20 @@ public class TripStateManager {
     }
 
 
-    private final Map<Integer, Map<Integer, ScheduleDTO>> editedSchedules = new ConcurrentHashMap<>();
+    private final Map<Integer, Map<Integer, EditedScheduleInfo>> editedSchedules = new ConcurrentHashMap<>();
 
     // ✅ 특정 tripId의 schedule 수정 내역 저장
     public void saveEdit(Integer tripId, Integer scheduleId, ScheduleDTO updatedSchedule) {
+        EditedScheduleInfo editInfo = new EditedScheduleInfo(
+                updatedSchedule.getDuration(),
+                updatedSchedule.getPlaceName()
+        );
+
         editedSchedules
                 .computeIfAbsent(tripId, k -> new ConcurrentHashMap<>())
-                .put(scheduleId, updatedSchedule);
-        log.info("Saved edit for tripId: {}, scheduleId: {}", tripId, scheduleId);
-    }
+                .put(scheduleId, editInfo);
 
-    // ✅ 특정 tripId의 모든 수정 내역 반환
-    public Map<Integer, ScheduleDTO> getEditedSchedules(Integer tripId) {
-        return editedSchedules.getOrDefault(tripId, new HashMap<>());
+        log.info("Saved edit for tripId: {}, scheduleId: {}", tripId, scheduleId);
     }
 
 
@@ -436,37 +437,31 @@ public class TripStateManager {
     public TripDetailDTO getTripDetailWithEdits(Integer tripId) {
         log.info("getTripDetailWithEdits called with tripId: {}", tripId);
 
-        // 1. 기본 TripDetail 가져오기
         TripDetailDTO tripDetail = getTripDetail(tripId);
         if (tripDetail == null) {
             return null;
         }
 
-        // 2. 편집된 내용이 있는지 확인
-        Map<Integer, ScheduleDTO> edits = editedSchedules.get(tripId);
+        Map<Integer, EditedScheduleInfo> edits = editedSchedules.get(tripId);
         if (edits == null || edits.isEmpty()) {
             return tripDetail;
         }
 
-        // 3. 편집 내용을 반영한 새로운 TripDetailDTO 생성
-        TripDetailDTO updatedTripDetail = new TripDetailDTO(tripDetail); // 복사 생성자 필요
-
-        // 각 Day의 Schedule들을 순회하면서 편집된 내용 반영
-        for (DayDto day : updatedTripDetail.getDayDtos()) {
-            List<ScheduleDTO> schedules = day.getSchedules();
-            for (int i = 0; i < schedules.size(); i++) {
-                ScheduleDTO schedule = schedules.get(i);
-                ScheduleDTO editedSchedule = edits.get(schedule.getId());
-
-                if (editedSchedule != null) {
-                    // 편집된 내용으로 교체
-                    schedules.set(i, editedSchedule);
+        // tripDetail 자체는 수정하지 않고, schedule의 필드만 업데이트
+        for (DayDto day : tripDetail.getDayDtos()) {
+            for (ScheduleDTO schedule : day.getSchedules()) {
+                EditedScheduleInfo editInfo = edits.get(schedule.getId());
+                if (editInfo != null) {
+                    // 수정 가능한 필드만 업데이트
+                    schedule.setDuration(editInfo.getDuration());
+                    schedule.setPlaceName(editInfo.getPlaceName());
                 }
             }
         }
 
         log.info("Returning updated tripDetail for tripId: {}", tripId);
-        return updatedTripDetail;
+        return tripDetail;
+
     }
 
 
