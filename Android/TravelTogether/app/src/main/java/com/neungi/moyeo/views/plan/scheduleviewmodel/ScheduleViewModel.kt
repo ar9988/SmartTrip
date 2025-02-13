@@ -14,20 +14,25 @@ import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.*
 import com.neungi.domain.usecase.GetInviteUseCase
 import com.neungi.domain.usecase.GetScheduleUseCase
+import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.util.convertToMember
 import com.neungi.moyeo.util.convertToSections
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
+    private val getUserInfoUseCase: GetUserInfoUseCase,
     private val getScheduleUseCase: GetScheduleUseCase,
     private val getInviteUseCase: GetInviteUseCase,
     private val webSocketManager: WebSocketManager
@@ -35,6 +40,9 @@ class ScheduleViewModel @Inject constructor(
 
     private val _scheduleUiEvent = MutableSharedFlow<ScheduleUiEvent>()
     val scheduleUiEvent = _scheduleUiEvent.asSharedFlow()
+
+    private val _userName = MutableStateFlow<String?>(null)
+    val userName = _userName.asStateFlow()
 
     private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
     // private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
@@ -53,9 +61,14 @@ class ScheduleViewModel @Inject constructor(
     private val _scheduleSections = MutableLiveData<List<Section>>()
     val scheduleSections: LiveData<List<Section>> get() = _scheduleSections
 
-
     private val _manipulationEvent = MutableLiveData<ScheduleData>()
     val manipulationEvent: LiveData<ScheduleData> get() = _manipulationEvent
+
+    init {
+        viewModelScope.launch {
+            _userName.value = fetchUserName().first()
+        }
+    }
 
     private val _memberList = MutableLiveData<List<Member>>()
     val memberList: LiveData<List<Member>> get() = _memberList
@@ -66,13 +79,13 @@ class ScheduleViewModel @Inject constructor(
         }
     }
 
-    override fun onClickInvite() {
+    override fun onClickInvite(tripId: Int) {
         viewModelScope.launch {
-            val response = getInviteUseCase.invite(_selectedTrip.value?.id ?: -1)
+            val response = getInviteUseCase.invite(tripId)
             when (response.status) {
                 ApiStatus.SUCCESS -> {
                     _scheduleUiEvent.emit(ScheduleUiEvent.ScheduleInvite(
-                        "",
+                        _userName.value ?: "",
                         _selectedTrip.value?.title ?: "",
                         response.data ?: ""
                     ))
@@ -81,6 +94,11 @@ class ScheduleViewModel @Inject constructor(
                 else -> {}
             }
         }
+    }
+
+    private fun fetchUserName(): Flow<String?> = flow {
+        val name = getUserInfoUseCase.getUserName().first()
+        emit(name)
     }
 
     private fun initWebSocket() {
@@ -105,11 +123,19 @@ class ScheduleViewModel @Inject constructor(
         webSocketManager.onAddEventReceived = { addEvent: ScheduleData ->
             _manipulationEvent.postValue(addEvent)
         }
+        Timber.d("Web Socket Start")
     }
 
     fun initTrip(trip: Trip) {
         _selectedTrip.value = trip
+        Timber.d("Selected: ${_selectedTrip.value}")
         initWebSocket()
+    }
+
+    fun fetchTrip(tripId: String) {
+        viewModelScope.launch {
+            // val response = getScheduleUseCase.
+        }
     }
 
     // WebSocket을 통한 메시지 전송
@@ -175,5 +201,4 @@ class ScheduleViewModel @Inject constructor(
     fun closeWebSocket() {
         webSocketManager.close()
     }
-
 }

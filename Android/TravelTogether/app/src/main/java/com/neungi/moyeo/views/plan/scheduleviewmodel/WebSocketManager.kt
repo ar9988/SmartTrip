@@ -60,7 +60,7 @@ class WebSocketManager @Inject constructor() {
                 }
 
                 val jsonObject = JsonParser.parseString(text).asJsonObject
-//                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
+                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
                 when {
 
                     jsonObject.has("status") -> {

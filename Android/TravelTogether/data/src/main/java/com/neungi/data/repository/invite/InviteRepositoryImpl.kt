@@ -6,6 +6,7 @@ import com.neungi.domain.repository.InviteRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.RequestBody
 import javax.inject.Inject
 
 class InviteRepositoryImpl @Inject constructor(
@@ -32,15 +33,15 @@ class InviteRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun postInviteAccept(): ApiResult<String> =
+    override suspend fun postInviteAccept(body: RequestBody): ApiResult<Pair<String, Int>> =
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
-                inviteRemoteDataSource.postInviteAccept()
+                inviteRemoteDataSource.postInviteAccept(body)
             }
 
             val responseBody = response.body()
             if (response.isSuccessful && (responseBody != null)) {
-                ApiResult.success(responseBody)
+                ApiResult.success(Pair(responseBody.message, responseBody.tripId))
             } else {
                 ApiResult.error(response.errorBody().toString(), null)
             }

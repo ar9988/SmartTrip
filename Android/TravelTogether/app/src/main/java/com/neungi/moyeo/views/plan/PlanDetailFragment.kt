@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +37,8 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleUiEvent
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -56,12 +59,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private lateinit var sectionedAdapter: SectionedAdapter
     private var isUserDragging = false
 
-    override fun onResume() {
-        super.onResume()
-        mainViewModel.setBnvState(false)
-        scheduleViewModel.startConnect()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -73,10 +70,24 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         collectLatestFlow(scheduleViewModel.scheduleUiEvent) { handleUiEvent(it) }
     }
 
+    override fun onResume() {
+        super.onResume()
+        mainViewModel.setBnvState(false)
+        scheduleViewModel.startConnect()
+    }
+
     private fun initializeViewBinding() {
+        lifecycleScope.launch {
+            tripViewModel.selectedTrip.collectLatest { trip ->
+                trip?.let {
+                    scheduleViewModel.initTrip(trip)
+                    Timber.d("Trip: ${scheduleViewModel.selectedTrip.value}")
+                }
+            }
+        }
         with(binding) {
             vm = scheduleViewModel
-            scheduleViewModel.initTrip(tripViewModel.trip)
+            tripViewModel.selectedTrip.value?.let { scheduleViewModel.initTrip(it) }
         }
     }
 
@@ -159,7 +170,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun setupListeners() {
         binding.btnBackPlanDetail.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            requireActivity().supportFragmentManager.popBackStack()
         }
 
         setupFragmentResultListener()
@@ -387,7 +398,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun handleUiEvent(event: ScheduleUiEvent) {
         when (event) {
             is ScheduleUiEvent.GoToScheduleInvite -> {
-                findNavController().navigateSafely(R.id.action_plan_detail_to_invite)
+                val bundle = Bundle().apply {
+                    putInt("tripId", scheduleViewModel.selectedTrip.value?.id ?: -1)
+                    putString("tripTitle", scheduleViewModel.selectedTrip.value?.title)
+                }
+                findNavController().navigate(R.id.action_plan_detail_to_invite, bundle)
             }
 
             else -> {}
@@ -397,5 +412,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     companion object {
 
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+
+        fun newInstance(tripId: Int) = PlanDetailFragment().apply {
+            arguments = Bundle().apply {
+                putInt("tripId", tripId)
+            }
+        }
     }
 }

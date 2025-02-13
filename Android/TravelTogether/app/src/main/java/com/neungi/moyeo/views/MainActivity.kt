@@ -1,6 +1,7 @@
 package com.neungi.moyeo.views
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +16,7 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.location.LocationServices
@@ -24,10 +26,15 @@ import com.neungi.moyeo.databinding.ActivityMainBinding
 import com.neungi.moyeo.util.Permissions
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
+import com.neungi.moyeo.views.auth.LoginFragment
 import com.neungi.moyeo.views.auth.viewmodel.AuthViewModel
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
+import com.neungi.moyeo.views.plan.PlanDetailFragment
+import com.neungi.moyeo.views.plan.PlanFragment
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
+import com.neungi.moyeo.views.plan.tripviewmodel.TripUiEvent
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
+import com.neungi.moyeo.views.setting.viewmodel.SettingUiEvent
 import com.neungi.moyeo.views.setting.viewmodel.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -78,11 +85,75 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             }
         }
 
-
+        Timber.d("OnCreate Intent: $intent")
+        handleKakaoInvite(intent) // ✅ 초대 링크 감지
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
 
+        setIntent(intent) // ✅ 기존 Intent 업데이트
+        handleKakaoInvite(intent) // ✅ 초대 링크 감지
+        Timber.d("New Intent: $intent")
+    }
 
+    private fun handleKakaoInvite(intent: Intent?) {
+        val uri = intent?.data
+
+        lifecycleScope.launch {
+            viewModel.settingUiEvent.collectLatest { uiEvent ->
+                when (uiEvent) {
+                    is SettingUiEvent.GetUserInfoFail -> {
+                        Timber.d("로그아웃 상태")
+                        handleLoginEvent()
+                    }
+
+                    is SettingUiEvent.GetUserInfoSuccess -> {
+                        if (uri != null && uri.host == "kakaolink") {
+                            val token = uri.getQueryParameter("token")
+                            Timber.d("카카오톡 초대 링크 감지: $token")
+                            tripViewModel.requestInvite(token ?: "")
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            tripViewModel.tripUiEvent.collectLatest { uiEvent ->
+                when (uiEvent) {
+                    is TripUiEvent.TripInviteSuccess -> {
+                        showToast(uiEvent.message)
+                        handleInviteEvent(uiEvent.tripId)
+                    }
+
+                    is TripUiEvent.TripInviteFail -> {
+                        showToast(uiEvent.message)
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    @SuppressLint("CommitTransaction")
+    private fun handleInviteEvent(tripId: Int) {
+        val bundle = Bundle().apply {
+            putInt("tripId", tripId)
+        }
+        navController.navigate(R.id.action_global_plan, bundle)
+    }
+
+    @SuppressLint("CommitTransaction")
+    private fun handleLoginEvent() {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fcv_main, LoginFragment())
+            .addToBackStack(null)
+            .commit()
+    }
 
     private fun setBottomNavigationBar() {
         navController = navHostFragment.navController
@@ -102,8 +173,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             }
         }
     }
-
-
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun hasPermission(): Boolean {
@@ -125,9 +194,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         )
     }
 
-
     companion object {
+
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 100  // 임의의 고유 코드
     }
-
 }
