@@ -9,8 +9,8 @@ import com.travel.together.TravelTogether.aiPlanning.entity.TravelingSpot;
 import com.travel.together.TravelTogether.aiPlanning.repository.FavoriteRepository;
 import com.travel.together.TravelTogether.aiPlanning.repository.TravelingSpotRepository;
 import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.jwt.JwtTokenProvider;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,16 +28,19 @@ public class TravelingSpotService {
     private final ObjectMapper objectMapper; // JSON 파싱용
     private final UserRepository userRepository;
     private final FavoriteRepository favoriteRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public TravelingSpotService(
             TravelingSpotRepository travelingSpotRepository,
             ObjectMapper objectMapper,
             UserRepository userRepository,
-            FavoriteRepository favoriteRepository) {
+            FavoriteRepository favoriteRepository,
+            JwtTokenProvider jwtTokenProvider) {
         this.travelingSpotRepository = travelingSpotRepository;
         this.objectMapper = objectMapper;
         this.userRepository = userRepository;
         this.favoriteRepository = favoriteRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
 
@@ -56,7 +59,7 @@ public class TravelingSpotService {
                             .regionNumber(dto.getRegionNumber())
                             .contentId(dto.getContentId())
                             .title(dto.getTitle()) // place_name -> title
-                            .overView(null)
+                            .overview(null)
                             .address(dto.getAddress()) // addr1 -> address
                             .imageUrl(dto.getImageUrl()) // firstimage -> imageurl
                             .build())
@@ -70,17 +73,43 @@ public class TravelingSpotService {
         }
     }
 
-    public List<TravelingSpotRegionDto> getRegionSpots(Integer regionId) {
-        List<TravelingSpot> spots = travelingSpotRepository.findByRegionNumber(String.valueOf(regionId));
-        return spots.stream().map(spot -> {
-            TravelingSpotRegionDto dto = new TravelingSpotRegionDto();
-            dto.setTitle(spot.getTitle());
-            dto.setOverView(spot.getOverView());
-            dto.setAddress(spot.getAddress());
-            dto.setImageUrl(spot.getImageUrl());
-            dto.setContentId(spot.getContentId());
-            return dto;
-    }).collect(Collectors.toList());
+    public List<TravelingSpotRegionDto> getRegionSpots(Integer regionId, String jwt) {
+        // 로그인 했다면 찜한 목록 확인 후 있다면 true 반환
+        // 아니라면 모두 false 반환
+        if (jwt == null) {
+            List<TravelingSpot> spots = travelingSpotRepository.findByRegionNumber(String.valueOf(regionId));
+            return spots.stream().map(spot -> {
+                TravelingSpotRegionDto dto = new TravelingSpotRegionDto();
+                dto.setTitle(spot.getTitle());
+                dto.setOverView(spot.getOverview());
+                dto.setAddress(spot.getAddress());
+                dto.setImageUrl(spot.getImageUrl());
+                dto.setContentId(spot.getContentId());
+                dto.setIsFollowed(false);
+                return dto;
+            }).collect(Collectors.toList());
+        } else {
+            String jwtToken = jwt.replace("Bearer", "").trim();
+            String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
+            User user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+            List<Favorite> favorites = favoriteRepository.findByUserId(user.getUserId());
+            List<TravelingSpot> spots = travelingSpotRepository.findByRegionNumber(String.valueOf(regionId));
+            return spots.stream().map(spot -> {
+                TravelingSpotRegionDto dto = new TravelingSpotRegionDto();
+                dto.setTitle(spot.getTitle());
+                dto.setOverView(spot.getOverview());
+                dto.setAddress(spot.getAddress());
+                dto.setImageUrl(spot.getImageUrl());
+                dto.setContentId(spot.getContentId());
+                dto.setIsFollowed(favorites.stream()
+                        .anyMatch(favorite -> favorite.getTravelingSpot().getContentId().equals(spot.getContentId()))
+                );
+                return dto;
+            }).collect(Collectors.toList());
+
+        }
+
     }
 
     @Transactional(readOnly = true)
@@ -94,16 +123,14 @@ public class TravelingSpotService {
             dto.setRegionNumber(travelingSpot.getRegionNumber());
             dto.setContentId(travelingSpot.getContentId());
             dto.setTitle(travelingSpot.getTitle());
-            dto.setOverView(travelingSpot.getOverView());
+            dto.setOverView(travelingSpot.getOverview());
             dto.setAddress(travelingSpot.getAddress());
             dto.setImageUrl(travelingSpot.getImageUrl());
             return dto;
         }).collect(Collectors.toList());
     }
 
-    public Boolean updateFavoriteSpot(Integer userId, Integer contentId) {
-        User user = userRepository.findById(userId.longValue())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public Boolean updateFavoriteSpot(User user, Integer contentId) {
 
         Optional<TravelingSpot> spotOptional = travelingSpotRepository.findByContentId(contentId.toString());
         if (spotOptional.isEmpty()) {
@@ -111,7 +138,7 @@ public class TravelingSpotService {
         }
         TravelingSpot travelingSpot = spotOptional.get();
 
-        Optional<Favorite> favoriteOptional = favoriteRepository.findByUserIdAndTravelingSpot(userId, travelingSpot);
+        Optional<Favorite> favoriteOptional = favoriteRepository.findByUserIdAndTravelingSpot(user.getUserId(), travelingSpot);
 
         if (favoriteOptional.isPresent()) {
             favoriteRepository.delete(favoriteOptional.get());

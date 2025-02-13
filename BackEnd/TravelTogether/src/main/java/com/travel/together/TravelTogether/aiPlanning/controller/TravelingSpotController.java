@@ -9,11 +9,13 @@ import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.jwt.JwtTokenProvider;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import jakarta.persistence.Entity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/favorite")
 public class TravelingSpotController {
@@ -31,8 +33,10 @@ public class TravelingSpotController {
     }
 
     @GetMapping("/{regionNumber}")
-    public ResponseEntity<List<TravelingSpotRegionDto>> getRegionSpot(@PathVariable Integer regionNumber) {
-        List<TravelingSpotRegionDto> spots = travelingSpotService.getRegionSpots(regionNumber);
+    public ResponseEntity<List<TravelingSpotRegionDto>> getRegionSpot(
+            @PathVariable Integer regionNumber,
+            @RequestHeader(value = "Authorization", required = false) String jwt) {
+        List<TravelingSpotRegionDto> spots = travelingSpotService.getRegionSpots(regionNumber, jwt);
         return ResponseEntity.ok(spots);
     }
 
@@ -55,8 +59,7 @@ public class TravelingSpotController {
         String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        Integer userId = user.getUserId();
-        Boolean isCompleted = travelingSpotService.updateFavoriteSpot(userId, contentId);
+        Boolean isCompleted = travelingSpotService.updateFavoriteSpot(user, contentId);
         return ResponseEntity.ok(isCompleted);
     }
 }
