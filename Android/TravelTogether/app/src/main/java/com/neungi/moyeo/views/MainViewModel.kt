@@ -9,9 +9,11 @@ import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.LoginInfo
 import com.neungi.domain.model.Place
+import com.neungi.domain.usecase.GetFollowedPlacesUseCase
 import com.neungi.domain.usecase.GetInviteUseCase
 import com.neungi.domain.usecase.GetSearchPlaceUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
+import com.neungi.domain.usecase.PlaceFollowUseCase
 import com.neungi.domain.usecase.SaveNotificationUseCase
 import com.neungi.domain.usecase.SetFCMUseCase
 import com.neungi.domain.usecase.SetUserInfoUseCase
@@ -26,6 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -43,6 +46,9 @@ class MainViewModel @Inject constructor(
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val setUserInfoUseCase: SetUserInfoUseCase,
     private val setFCMUseCase: SetFCMUseCase,
+    private val followedPlacesUseCase: GetFollowedPlacesUseCase,
+    private val saveNotificationUseCase: SaveNotificationUseCase,
+    private val placeFollowUseCase : PlaceFollowUseCase
     private val saveNotificationUseCase: SaveNotificationUseCase,
     private val getInviteUseCase: GetInviteUseCase
 ) : ViewModel() {
@@ -88,12 +94,59 @@ class MainViewModel @Inject constructor(
     private val _deviceID = MutableStateFlow<String>("")
     val deviceID = _deviceID.asStateFlow()
 
+    private val _searchFollowedPlaces = MutableStateFlow<List<Place>>(emptyList())
+    val searchFollowedPlaces = _searchFollowedPlaces.asStateFlow()
 
 
 
 
 
 
+    //관광지 검색창에서 팔로우한 지역 목록
+    //Search place
+    fun getFollowedPlaces(){
+        viewModelScope.launch {
+            followedPlacesUseCase().collectLatest {result ->
+                when(result.status) {
+                    ApiStatus.SUCCESS ->{
+                        _searchFollowedPlaces.update {
+                            result.data?: emptyList()
+                        }
+                    }
+                    ApiStatus.ERROR -> {
+                        _searchFollowedPlaces.update {
+                            result.data?: emptyList()
+                        }
+                    }
+                    ApiStatus.FAIL -> {
+                        _searchFollowedPlaces.update {
+                            result.data?: emptyList()
+                        }
+                    }
+                    ApiStatus.LOADING -> {}
+                }
+
+            }
+
+        }
+    }
+
+    fun onClickFollow(contentId:String){
+        viewModelScope.launch {
+            placeFollowUseCase(contentId).collect(){result->
+                when(result.status){
+                    ApiStatus.SUCCESS -> {
+                        if (result.data == true) {
+                            getFollowedPlaces()
+                        }
+                    }
+                    ApiStatus.ERROR ->{}
+                    ApiStatus.FAIL -> {}
+                    ApiStatus.LOADING -> {}
+                }
+            }
+        }
+    }
     /*
     관광지 검색시
     검색창 텍스트 변경시
