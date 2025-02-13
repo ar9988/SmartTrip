@@ -2,6 +2,7 @@ package com.neungi.domain.usecase
 
 import com.neungi.domain.model.ApiResult
 import com.neungi.domain.repository.InviteRepository
+import okhttp3.RequestBody
 import javax.inject.Inject
 
 class GetInviteUseCase @Inject constructor(
@@ -12,7 +13,7 @@ class GetInviteUseCase @Inject constructor(
         return inviteRepository.postInviteLink(tripId)
     }
 
-    suspend fun inviteAccept(): ApiResult<String> {
-        return inviteRepository.postInviteAccept()
+    suspend fun inviteAccept(body: RequestBody): ApiResult<Pair<String, Int>> {
+        return inviteRepository.postInviteAccept(body)
     }
 }
