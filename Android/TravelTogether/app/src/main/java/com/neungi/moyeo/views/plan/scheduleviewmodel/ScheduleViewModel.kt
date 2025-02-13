@@ -1,5 +1,6 @@
 package com.neungi.moyeo.views.plan.scheduleviewmodel
 
+import Member
 import ScheduleReceive
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,6 +16,7 @@ import com.neungi.domain.usecase.GetInviteUseCase
 import com.neungi.domain.usecase.GetScheduleUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.moyeo.util.Section
+import com.neungi.moyeo.util.convertToMember
 import com.neungi.moyeo.util.convertToSections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -68,6 +70,9 @@ class ScheduleViewModel @Inject constructor(
         }
     }
 
+    private val _memberList = MutableLiveData<List<Member>>()
+    val memberList: LiveData<List<Member>> get() = _memberList
+
     override fun onClickGoToInvite() {
         viewModelScope.launch {
             _scheduleUiEvent.emit(ScheduleUiEvent.GoToScheduleInvite)
@@ -109,7 +114,9 @@ class ScheduleViewModel @Inject constructor(
             val trip = _selectedTrip.value
             trip?.let {
                 val sections = convertToSections(scheduleReceive, trip)
+                val member = convertToMember(scheduleReceive)
                 _scheduleSections.postValue(sections)
+                _memberList.postValue(member)
             }
         }
 
