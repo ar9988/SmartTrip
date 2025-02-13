@@ -8,4 +8,5 @@ public class TravelingSpotRegionDto {
     private String imageUrl;
     private String address;
     private String overView;
+    private String contentId;
 }

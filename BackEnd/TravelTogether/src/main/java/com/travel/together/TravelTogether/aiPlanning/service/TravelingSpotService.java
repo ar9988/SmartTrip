@@ -8,6 +8,7 @@ import com.travel.together.TravelTogether.aiPlanning.entity.Favorite;
 import com.travel.together.TravelTogether.aiPlanning.entity.TravelingSpot;
 import com.travel.together.TravelTogether.aiPlanning.repository.FavoriteRepository;
 import com.travel.together.TravelTogether.aiPlanning.repository.TravelingSpotRepository;
+import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,7 +29,7 @@ public class TravelingSpotService {
     private final UserRepository userRepository;
     private final FavoriteRepository favoriteRepository;
 
-    private TravelingSpotService(
+    public TravelingSpotService(
             TravelingSpotRepository travelingSpotRepository,
             ObjectMapper objectMapper,
             UserRepository userRepository,
@@ -76,6 +78,7 @@ public class TravelingSpotService {
             dto.setOverView(spot.getOverView());
             dto.setAddress(spot.getAddress());
             dto.setImageUrl(spot.getImageUrl());
+            dto.setContentId(spot.getContentId());
             return dto;
     }).collect(Collectors.toList());
     }
@@ -98,8 +101,27 @@ public class TravelingSpotService {
         }).collect(Collectors.toList());
     }
 
-    public List<TravelingSpotDto> updateFavoriteSpot() {
+    public Boolean updateFavoriteSpot(Integer userId, Integer contentId) {
+        User user = userRepository.findById(userId.longValue())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
+        Optional<TravelingSpot> spotOptional = travelingSpotRepository.findByContentId(contentId.toString());
+        if (spotOptional.isEmpty()) {
+            return false;
+        }
+        TravelingSpot travelingSpot = spotOptional.get();
+
+        Optional<Favorite> favoriteOptional = favoriteRepository.findByUserIdAndTravelingSpot(userId, travelingSpot);
+
+        if (favoriteOptional.isPresent()) {
+            favoriteRepository.delete(favoriteOptional.get());
+        } else {
+            Favorite favorite = new Favorite();
+            favorite.setUser(user);
+            favorite.setTravelingSpot(travelingSpot);
+            favoriteRepository.save(favorite);
+        }
+        return true;
     }
 
 
