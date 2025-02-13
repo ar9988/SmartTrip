@@ -48,8 +48,7 @@ class MainViewModel @Inject constructor(
     private val setFCMUseCase: SetFCMUseCase,
     private val followedPlacesUseCase: GetFollowedPlacesUseCase,
     private val saveNotificationUseCase: SaveNotificationUseCase,
-    private val placeFollowUseCase : PlaceFollowUseCase
-    private val saveNotificationUseCase: SaveNotificationUseCase,
+    private val placeFollowUseCase : PlaceFollowUseCase,
     private val getInviteUseCase: GetInviteUseCase
 ) : ViewModel() {
 
