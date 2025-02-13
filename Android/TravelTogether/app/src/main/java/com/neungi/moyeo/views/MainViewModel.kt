@@ -3,11 +3,14 @@ package com.neungi.moyeo.views
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
+import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.LoginInfo
 import com.neungi.domain.model.Place
 import com.neungi.domain.usecase.GetFollowedPlacesUseCase
+import com.neungi.domain.usecase.GetInviteUseCase
 import com.neungi.domain.usecase.GetSearchPlaceUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.domain.usecase.PlaceFollowUseCase
@@ -17,16 +20,22 @@ import com.neungi.domain.usecase.SetUserInfoUseCase
 import com.neungi.moyeo.util.EmptyState
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
 import com.neungi.moyeo.views.aiplanning.viewmodel.SearchUiState
+import com.neungi.moyeo.views.setting.viewmodel.SettingUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
@@ -40,15 +49,18 @@ class MainViewModel @Inject constructor(
     private val followedPlacesUseCase: GetFollowedPlacesUseCase,
     private val saveNotificationUseCase: SaveNotificationUseCase,
     private val placeFollowUseCase : PlaceFollowUseCase
+    private val saveNotificationUseCase: SaveNotificationUseCase,
+    private val getInviteUseCase: GetInviteUseCase
 ) : ViewModel() {
 
     init {
         getDeviceId()
         getFCMToken()
         login()
-
-
     }
+
+    private val _settingUiEvent = MutableSharedFlow<SettingUiEvent>()
+    val settingUiEvent = _settingUiEvent.asSharedFlow()
 
     private val _bnvState = MutableStateFlow<Boolean>(true)
     val bnvState = _bnvState.asStateFlow()
@@ -178,6 +190,11 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             getUserInfoUseCase.getLoginInfo().first() { loginInfo ->
                 _userLoginInfo.value = loginInfo
+                when (_userLoginInfo.value == null) {
+                    true -> _settingUiEvent.emit(SettingUiEvent.GetUserInfoFail)
+
+                    else -> _settingUiEvent.emit(SettingUiEvent.GetUserInfoSuccess)
+                }
                 checkAndUpdateFCM()
                 true
             }
@@ -240,9 +257,4 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-
-
-
-
-
 }

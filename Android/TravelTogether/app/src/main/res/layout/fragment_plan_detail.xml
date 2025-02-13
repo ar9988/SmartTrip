@@ -61,8 +61,7 @@
                     app:layout_constraintEnd_toStartOf="@id/rv_person_icon_plan_detail"
                     app:layout_constraintHorizontal_chainStyle="packed"
                     app:layout_constraintStart_toEndOf="@id/btn_back_plan_detail"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintWidth_default="wrap" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_person_icon_plan_detail"

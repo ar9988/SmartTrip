@@ -1,9 +1,9 @@
 package com.neungi.data.repository.trips
 
-import TripEntity
 import android.util.Log
 import com.neungi.data.api.TripsApi
 import com.neungi.data.entity.TripsResponse
+import okhttp3.RequestBody
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -20,5 +20,16 @@ class TripsRemoteDataSourceImpl @Inject constructor(
         Log.d("TripsRemoteDataSource", "Received response: ${response.body()}")
 
         return response
+    }
+
+    override suspend fun createTrip(body: RequestBody): Response<TripsResponse> {
+
+        Log.d("TripsRemoteDataSource", "Requesting Create")
+        val response = tripsApi.createTrip(body)
+        return response
+    }
+
+    override suspend fun deleteTrip(userId: String, tripId: Int): Response<Boolean> {
+        return tripsApi.deleteTrip(userId,tripId)
     }
 }

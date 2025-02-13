@@ -32,6 +32,7 @@ class WebSocketManager @Inject constructor() {
     var onRouteEventReceived: ((PathReceive) -> Unit)? = null
     var onScheduleEventReceived: ((ScheduleReceive) -> Unit)? = null
     var onAddEventReceived: ((ScheduleData) -> Unit)? = null
+    var onEditEventReceived: ((ManipulationEvent) -> Unit)? = null
 
     private val webSocketListener = object : WebSocketListener() {
 
@@ -60,7 +61,7 @@ class WebSocketManager @Inject constructor() {
                 }
 
                 val jsonObject = JsonParser.parseString(text).asJsonObject
-//                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
+                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
                 when {
 
                     jsonObject.has("status") -> {
@@ -85,7 +86,10 @@ class WebSocketManager @Inject constructor() {
                         val add = gson.fromJson(text, ScheduleData::class.java)
 //                        Timber.d(add.toString())
                         onAddEventReceived?.invoke(add)
-
+                    }
+                    jsonObject.has("dayOrder") -> {
+                        val editedItem = gson.fromJson(text,ManipulationEvent::class.java)
+                        onEditEventReceived?.invoke(editedItem)
                     }
                 }
             } catch (e: Exception) {

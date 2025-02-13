@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
+
     <data>
+
         <variable
             name="vm"
             type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
-        <import type="android.view.View"/>
+
+        <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -14,6 +17,18 @@
         android:layout_height="match_parent"
         tools:context=".views.aiplanning.AiSelectPeriodFragment">
 
+        <!-- Title EditText -->
+        <EditText
+            android:id="@+id/editTextTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/Trip_Title_hint"
+            android:inputType="text"
+            android:padding="16dp"
+            app:layout_constraintBottom_toTopOf="@id/calendarView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.neungi.moyeo.util.CustomCalendarView
             android:id="@+id/calendarView"

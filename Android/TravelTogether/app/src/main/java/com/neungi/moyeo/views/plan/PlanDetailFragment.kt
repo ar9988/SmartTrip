@@ -1,5 +1,6 @@
 package com.neungi.moyeo.views.plan
 
+import Member
 import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
@@ -11,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,12 +30,15 @@ import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
+import com.neungi.moyeo.views.plan.adapter.PersonIconAdapter
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
 import com.neungi.moyeo.views.plan.dialog.EditScheduleDialog
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleUiEvent
 import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -45,6 +50,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private val tripViewModel: TripViewModel by activityViewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
 
+    private var tripId : Int =-1
+
     // Map related properties
     private lateinit var naverMap: NaverMap
     private val paths = mutableMapOf<Int, List<LatLng>>()
@@ -54,12 +61,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private lateinit var sectionedAdapter: SectionedAdapter
     private var isUserDragging = false
 
-    override fun onResume() {
-        super.onResume()
-        mainViewModel.setBnvState(false)
-        scheduleViewModel.startConnect()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -68,13 +69,28 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         setupObservers()
         setupRecyclerView()
         setupListeners()
-        collectLatestFlow(scheduleViewModel.scheduleUiEvent) {handleUiEvent(it)}
+        collectLatestFlow(scheduleViewModel.scheduleUiEvent) { handleUiEvent(it) }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mainViewModel.setBnvState(false)
+        scheduleViewModel.startConnect()
     }
 
     private fun initializeViewBinding() {
+        lifecycleScope.launch {
+            tripViewModel.selectedTrip.collectLatest { trip ->
+                trip?.let {
+                    scheduleViewModel.initTrip(trip)
+                    tripId = trip.id
+                    Timber.d("Trip: ${scheduleViewModel.selectedTrip.value}")
+                }
+            }
+        }
         with(binding) {
             vm = scheduleViewModel
-            scheduleViewModel.initTrip(tripViewModel.trip)
+            tripViewModel.selectedTrip.value?.let { scheduleViewModel.initTrip(it) }
         }
     }
 
@@ -93,7 +109,17 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             manipulationEvent.observe(viewLifecycleOwner) { event ->
                 handleManipulationEvent(event)
             }
+            memberList.observe(viewLifecycleOwner) { members ->
+                handleMemberList(members)
+            }
+            editEvent.observe(viewLifecycleOwner) {
+                handleEditSchedule(it)
+            }
         }
+    }
+
+    private fun handleMemberList(members: List<Member>) {
+        binding.rvPersonIconPlanDetail.adapter = PersonIconAdapter(members.map { it.userId })
     }
 
     private fun handleServerEvent(event: ServerReceive) {
@@ -120,11 +146,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun handleManipulationEvent(event: ScheduleData) {
-//        when (event.action) {
-//            "ADD" -> sectionedAdapter.addSchedule(event, isUserDragging)
-//            else -> handleEditSchedule(event)
-//        }
-
+        Timber.d("Add event ${event.toString()}")
         sectionedAdapter.addSchedule(event, isUserDragging)
     }
 
@@ -150,7 +172,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun setupListeners() {
         binding.btnBackPlanDetail.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            requireActivity().supportFragmentManager.popBackStack()
         }
 
         setupFragmentResultListener()
@@ -235,11 +257,21 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             setHasFixedSize(true)
             itemTouchHelper.attachToRecyclerView(this)
         }
+
+        binding.rvPersonIconPlanDetail.apply {
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        }
     }
 
     private fun createItemTouchHelper(): ItemTouchHelper {
         val callback = createItemTouchHelperCallback(
-            updatePosition = { from, to -> scheduleViewModel.sendMoveEvent(from, to) },
+            updatePosition = { from, to ->
+                run {
+                    scheduleViewModel.sendMoveEvent(from, to)
+//                    removePathOverlay()
+                }
+            },
             onDrag = { isDragging ->
                 isUserDragging = isDragging
                 if (!isDragging) {
@@ -265,7 +297,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         ).show()
     }
 
-    private fun handleScheduleDelete(scheduleId: Int){
+    private fun handleScheduleDelete(scheduleId: Int) {
         scheduleViewModel.sendDeleteEvent(scheduleId)
         sectionedAdapter.delete(scheduleId)
     }
@@ -277,10 +309,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun createScheduleEntity(data: ScheduleData): ScheduleEntity {
+
         return ScheduleEntity(
             id = data.scheduleId,
             placeName = data.placeName,
-            tripId = tripViewModel.trip.id,
+            tripId = tripId,
             positionPath = data.positionPath,
             day = 0,
             lat = data.lat,
@@ -304,12 +337,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun initializeMap() {
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment_plan_detail) as? MapFragment
-            ?: MapFragment.newInstance().also {
-                childFragmentManager.beginTransaction()
-                    .add(R.id.map_fragment_plan_detail, it)
-                    .commit()
-            }
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.map_fragment_plan_detail) as? MapFragment
+                ?: MapFragment.newInstance().also {
+                    childFragmentManager.beginTransaction()
+                        .add(R.id.map_fragment_plan_detail, it)
+                        .commit()
+                }
         mapFragment.getMapAsync(this)
     }
 
@@ -324,8 +358,15 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         val fineLocation = Manifest.permission.ACCESS_FINE_LOCATION
         val coarseLocation = Manifest.permission.ACCESS_COARSE_LOCATION
 
-        if (ActivityCompat.checkSelfPermission(requireContext(), fineLocation) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(requireContext(), coarseLocation) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                fineLocation
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                coarseLocation
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             return
         }
     }
@@ -360,15 +401,25 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun handleUiEvent(event: ScheduleUiEvent) {
         when (event) {
             is ScheduleUiEvent.GoToScheduleInvite -> {
-                findNavController().navigateSafely(R.id.action_plan_detail_to_invite)
+                val bundle = Bundle().apply {
+                    putInt("tripId", scheduleViewModel.selectedTrip.value?.id ?: -1)
+                    putString("tripTitle", scheduleViewModel.selectedTrip.value?.title)
+                }
+                findNavController().navigate(R.id.action_plan_detail_to_invite, bundle)
             }
 
             else -> {}
         }
     }
-    
+
     companion object {
 
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+
+        fun newInstance(tripId: Int) = PlanDetailFragment().apply {
+            arguments = Bundle().apply {
+                putInt("tripId", tripId)
+            }
+        }
     }
 }
