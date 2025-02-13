@@ -36,7 +36,6 @@ import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
 import com.neungi.moyeo.util.NonScrollableHorizontalLayoutManager
-import com.neungi.moyeo.util.OverlappingItemDecoration
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.adapter.PersonIconAdapter
@@ -497,7 +496,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     companion object {
 
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
 
         fun newInstance(tripId: Int) = PlanDetailFragment().apply {
             arguments = Bundle().apply {
