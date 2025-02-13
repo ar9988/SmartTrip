@@ -414,12 +414,59 @@ public class TripStateManager {
     }
 
 
+    private final Map<Integer, Map<Integer, EditedScheduleInfo>> editedSchedules = new ConcurrentHashMap<>();
+
+    // ✅ 특정 tripId의 schedule 수정 내역 저장
+    public void saveEdit(Integer tripId, Integer scheduleId, ScheduleDTO updatedSchedule) {
+        EditedScheduleInfo editInfo = new EditedScheduleInfo(
+                updatedSchedule.getDuration(),
+                updatedSchedule.getPlaceName()
+        );
+
+        editedSchedules
+                .computeIfAbsent(tripId, k -> new ConcurrentHashMap<>())
+                .put(scheduleId, editInfo);
+
+        log.info("Saved edit for tripId: {}, scheduleId: {}", tripId, scheduleId);
+    }
 
 
 
 
+    // 웹소켓 초기 동기화용
+    public TripDetailDTO getTripDetailWithEdits(Integer tripId) {
+        log.info("getTripDetailWithEdits called with tripId: {}", tripId);
 
-    // 웹소켓 연결이 끊기면 모든 작업내역 삭제
+        TripDetailDTO tripDetail = getTripDetail(tripId);
+        if (tripDetail == null) {
+            return null;
+        }
+
+        Map<Integer, EditedScheduleInfo> edits = editedSchedules.get(tripId);
+        if (edits == null || edits.isEmpty()) {
+            return tripDetail;
+        }
+
+        // tripDetail 자체는 수정하지 않고, schedule의 필드만 업데이트
+        for (DayDto day : tripDetail.getDayDtos()) {
+            for (ScheduleDTO schedule : day.getSchedules()) {
+                EditedScheduleInfo editInfo = edits.get(schedule.getId());
+                if (editInfo != null) {
+                    // 수정 가능한 필드만 업데이트
+                    schedule.setDuration(editInfo.getDuration());
+                    schedule.setPlaceName(editInfo.getPlaceName());
+                }
+            }
+        }
+
+        log.info("Returning updated tripDetail for tripId: {}", tripId);
+        return tripDetail;
+
+    }
+
+
+
+// 웹소켓 연결이 끊기면 모든 작업내역 삭제
     public synchronized void clearEditHistory(Integer tripId) {
         tripEditHistory.remove(tripId);
         tripSchedulePositions.remove(tripId);

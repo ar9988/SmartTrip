@@ -26,4 +26,7 @@ public class TripDetailDTO {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
+    public TripDetailDTO(TripDetailDTO tripDetail) {
+    }
 }
