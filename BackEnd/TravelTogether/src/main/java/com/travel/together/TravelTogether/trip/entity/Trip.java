@@ -1,11 +1,15 @@
 package com.travel.together.TravelTogether.trip.entity;
 
+import com.travel.together.TravelTogether.album.entity.Photo;
+import com.travel.together.TravelTogether.album.entity.PhotoAlbum;
 import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.trip.entity.TripEntityListener;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -21,7 +25,7 @@ public class Trip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
@@ -40,6 +44,14 @@ public class Trip {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+
+    // PhotoAlbum과의 관계 추가
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoAlbum> photoAlbums = new ArrayList<>();
+
+    // TripMember와의 관계 추가
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TripMember> tripMembers = new ArrayList<>();
 
 
 
