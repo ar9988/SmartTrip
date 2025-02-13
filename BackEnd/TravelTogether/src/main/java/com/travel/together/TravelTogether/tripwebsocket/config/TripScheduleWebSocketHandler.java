@@ -149,20 +149,36 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             }
         }
 
-        // 2. 현재의 position 정보 적용
+        // 2. 현재의 position 정보, DELETE정보 적용
         log.info("Getting schedule positions for tripId: {}", tripId);
         Map<Integer, Integer> currentPositions = stateManager.getSchedulePositions(tripId);
         log.info("Retrieved positions. Size: {}", currentPositions != null ? currentPositions.size() : 0);
+        Set<Integer> deletedIds = stateManager.getDeletedSchedules(tripId);
+
         if (currentPositions != null) {
             for (DayDto day : currentTripDetail.getDayDtos()) {
-                for (ScheduleDTO schedule : day.getSchedules()) {
-                    Integer position = currentPositions.get(schedule.getId());
-                    log.info("Schedule ID: {}, Current Position: {}", schedule.getId(), position);
+                // 삭제된 schedule 필터링하여 새 리스트 생성
+                List<ScheduleDTO> filteredSchedules = new ArrayList<>();
 
-                    if (position != null) {
-                        schedule.setPositionPath(position);
+
+                for (ScheduleDTO schedule : day.getSchedules()) {
+
+                    // 삭제된 schedule이 아닌 경우만 처리
+                    if (!deletedIds.contains(schedule.getId())) {
+                        Integer position = currentPositions.get(schedule.getId());
+                        log.info("Schedule ID: {}, Current Position: {}", schedule.getId(), position);
+
+                        if (position != null) {
+                            schedule.setPositionPath(position);
+                        }
+                        filteredSchedules.add(schedule);
                     }
+
                 }
+
+                // 필터링된 리스트로 교체
+                day.setSchedules(filteredSchedules);
+
             }
         }
 

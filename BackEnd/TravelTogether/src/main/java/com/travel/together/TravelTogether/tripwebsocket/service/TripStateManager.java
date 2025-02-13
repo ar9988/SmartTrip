@@ -40,6 +40,9 @@ public class TripStateManager {
     // Edit 작업 전용 저장소 (tripId -> scheduleId -> Schedule)
     private final Map<Integer, Map<Integer, AddRequest.ScheduleDto>> tripEdits = new ConcurrentHashMap<>();
 
+    // DELETE 관리용
+    private final Map<Integer, Set<Integer>> tripDeletedSchedules = new ConcurrentHashMap<>();
+
 
     // ADD요청 관리용
     private final Map<Integer, AddRequest> pendingAddRequests = new ConcurrentHashMap<>();
@@ -64,6 +67,12 @@ public class TripStateManager {
     public AddRequest.ScheduleDto getEditSchedule(Integer tripId, Integer scheduleId) {
         Map<Integer, AddRequest.ScheduleDto> schedules = tripEdits.get(tripId);
         return schedules != null ? schedules.get(scheduleId) : null;
+    }
+
+
+    // 삭제된 scheduleId들을 가져오는 getter
+    public Set<Integer> getDeletedSchedules(Integer tripId) {
+        return tripDeletedSchedules.getOrDefault(tripId, Collections.emptySet());
     }
 
 
@@ -174,10 +183,17 @@ public class TripStateManager {
     public synchronized void removeState(Integer tripId, Integer scheduleId) {
         log.debug("Removing state for tripId: {}, scheduleId: {}", tripId, scheduleId);
 
+        // 삭제된 스케줄 기록
+        tripDeletedSchedules.computeIfAbsent(tripId, k -> ConcurrentHashMap.newKeySet())
+                .add(scheduleId);
+
+        // position 제거
         Map<Integer, Integer> schedulePositions = tripSchedulePositions.get(tripId);
         if (schedulePositions != null) {
             schedulePositions.remove(scheduleId);
         }
+
+
     }
 
     public boolean hasPositions(Integer tripId) {
@@ -407,6 +423,8 @@ public class TripStateManager {
     public synchronized void clearEditHistory(Integer tripId) {
         tripEditHistory.remove(tripId);
         tripSchedulePositions.remove(tripId);
+        tripDeletedSchedules.remove(tripId);
+
     }
 
 
