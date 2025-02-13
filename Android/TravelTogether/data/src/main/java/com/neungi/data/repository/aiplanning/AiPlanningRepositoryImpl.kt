@@ -10,6 +10,7 @@ import com.neungi.domain.repository.AiPlanningRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -51,7 +52,22 @@ class AiPlanningRepositoryImpl @Inject constructor(
             ApiResult.fail()
         }
 
-    override suspend fun getRecommendPlace(): Flow<ApiResult<List<Place>>> {
-        TODO("Not yet implemented")
+    override suspend fun getRecommendPlace(): Flow<ApiResult<List<Place>>> = flow {
+        emit(ApiResult.loading(null))
+        try {
+            val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                aiPlanningDataSource.getRecommendPlace()
+            }
+            val body = response.body()
+            if (response.isSuccessful && (body != null)) {
+                emit(ApiResult.success(body))
+            } else {
+                emit(ApiResult.error(response.errorBody().toString(), null))
+            }
+
+        } catch (e: Exception) {
+            emit(ApiResult.fail())
+        }
     }
+
 }

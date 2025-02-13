@@ -48,6 +48,10 @@ class HomeViewModel @Inject constructor(
     private val _recommendPlaces = MutableStateFlow<List<Place>>(emptyList())
     val recommendPlace = _recommendPlaces.asStateFlow()
 
+    private val _placeState =
+        MutableStateFlow<ApiResult<List<Place>>>(ApiResult.success(emptyList()))
+    val placeState = _placeState.asStateFlow()
+
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
     val recommendFestivals = _recommendFestivals.asStateFlow()
 
@@ -63,6 +67,7 @@ class HomeViewModel @Inject constructor(
 
 
 
+
 //    private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
 //    val recommendFestivals = _recommendFestivals.asStateFlow()
 
@@ -75,22 +80,31 @@ class HomeViewModel @Inject constructor(
         getFestivalList()
     }
 
-    fun getFestivalList(){
+    fun getFestivalList() {
         viewModelScope.launch {
             val today = LocalDate.now()
             val endDate = today.plusDays(30)
-            Timber.d("?!?!?!??!!??")
-            val resultFlow = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(today), CommonUtils.convertToYYYYMMDDwithHyphen(endDate), "-1")
 
-            resultFlow.collectLatest { result ->
-                _festivalState.value = result
-                if (_festivalState.value.status == ApiStatus.SUCCESS){
-                    _recommendFestivals.value = _festivalState.value.data?: emptyList()
+            getRecommendFestivalUseCase(
+                CommonUtils.convertToYYYYMMDDwithHyphen(today),
+                CommonUtils.convertToYYYYMMDDwithHyphen(endDate),
+                "-1"
+            ).collectLatest { result ->
+                _homeUiState.update { currentState ->
+                    when (result.status) {
+                        ApiStatus.SUCCESS -> currentState.copy(
+                            festivals = result.data ?: emptyList(),
+                            isLoading = false
+                        )
+                        ApiStatus.LOADING -> currentState.copy(isLoading = true)
+                        else -> currentState.copy(
+                            error = "축제 정보를 불러오는데 실패했습니다",
+                            isLoading = false
+                        )
+                    }
                 }
             }
-
         }
-
     }
 
     fun selectFestival(festival:Festival){
@@ -131,33 +145,24 @@ class HomeViewModel @Inject constructor(
     }
 
     //추천 지역 정보
-    fun getRecommendPlace(){
+    fun getRecommendPlace() {
         viewModelScope.launch {
-            getRecommendPlaceUseCase().collectLatest {result->
-                when(result.status){
-                    ApiStatus.SUCCESS -> {
-                        _recommendPlaces.update {
-                            result.data?: emptyList()
-                        }
-                    }
-                    ApiStatus.ERROR -> {
-                        "정보가 없습니다"
-                    }
-                    ApiStatus.FAIL -> {
-                        "정보가 없습니다"
-                    }
-                    ApiStatus.LOADING -> {
-                        ""
+            getRecommendPlaceUseCase().collectLatest { result ->
+                _homeUiState.update { currentState ->
+                    when (result.status) {
+                        ApiStatus.SUCCESS -> currentState.copy(
+                            places = result.data ?: emptyList(),
+                            isLoading = false
+                        )
+                        ApiStatus.LOADING -> currentState.copy(isLoading = true)
+                        else -> currentState.copy(
+                            error = "장소 정보를 불러오는데 실패했습니다",
+                            isLoading = false
+                        )
                     }
                 }
             }
-
-
-
-
         }
-
-
     }
 
     //Notification내역 가져오기

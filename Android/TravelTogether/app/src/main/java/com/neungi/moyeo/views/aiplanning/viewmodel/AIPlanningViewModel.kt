@@ -1,5 +1,6 @@
 package com.neungi.moyeo.views.aiplanning.viewmodel
 
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neungi.domain.model.AiPlanningRequest
@@ -424,6 +425,30 @@ class AIPlanningViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun clearState(){
+        viewModelScope.launch {
+            _aiDestinatiionUiState.update { AIPlanningUiState() }
+            _calendarSelectState.update { 0 }
+            _startDate.update { null }
+            _endDate.update { null }
+            _startTime.update { DEFAULT_START_TIME }
+            _endTime.update { DEFAULT_END_TIME }
+            _uiState.update { RegionUiState() }
+            _selectedLocalTab.update { DEFAULT_SELECTED_LOCAL_TAB }
+            _selectedLocations.update { emptyList() }
+            _selectedPlaces.update { emptyList() }
+            _recommendFestivals.update { emptyList() }
+            _dialogSelectedFestival.update { null }
+            _selectedTheme.update { emptyList() }
+        }
+    }
+
+    companion object {
+        private val DEFAULT_START_TIME = "오전 10:00"
+        private val DEFAULT_END_TIME = "오후 5:00"
+        private val DEFAULT_SELECTED_LOCAL_TAB = "특별"
     }
 
 

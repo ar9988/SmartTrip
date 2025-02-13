@@ -38,6 +38,7 @@ import com.neungi.moyeo.views.home.viewmodel.Quote
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -209,16 +210,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     fun observeStates(){
         collectLatestFlow(viewModel.homeUiEvent) { handleUiEvent(it) }
-        collectLatestFlow(viewModel.recommendFestivals){ festivals ->
-            if(festivals.isNotEmpty()) {
-                homeFestivalAdapter.submitList(festivals)
-                homePlaceAdapter.submitList(placeList)
-                binding.nscrollviewHome.visibility = View.VISIBLE
-            }
-        }
         lifecycleScope.launch {
-            viewModel.festivalState.collectLatest { state ->
-                mainViewModel.setLoadingState(state.status==ApiStatus.LOADING)
+            viewModel.homeUiState.collect { state ->
+                mainViewModel.setLoadingState(state.isLoading)
+
+                homeFestivalAdapter.submitList(state.festivals)
+                homePlaceAdapter.submitList(state.places)
+
+                binding.nscrollviewHome.visibility = if (state.festivals.isNotEmpty() && state.places.isNotEmpty()) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+                state.error?.let { error ->
+                }
             }
         }
     }
