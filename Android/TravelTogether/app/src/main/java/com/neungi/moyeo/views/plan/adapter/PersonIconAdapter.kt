@@ -18,6 +18,7 @@ class PersonIconAdapter(private val urls: List<String>) : RecyclerView.Adapter<P
             Glide.with(itemView.context)
                 .load(url)
                 .circleCrop() // 원형으로 크롭
+                .error(R.drawable.baseline_account_circle_24) // URL 로드 실패 시 기본 이미지 사용
                 .into(binding.ivPersonIcon)
         }
     }

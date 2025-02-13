@@ -5,6 +5,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
@@ -28,6 +30,7 @@ import com.neungi.domain.model.ScheduleData
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
+import com.neungi.moyeo.util.OverlappingItemDecoration
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.adapter.PersonIconAdapter
@@ -110,6 +113,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 handleManipulationEvent(event)
             }
             memberList.observe(viewLifecycleOwner) { members ->
+                Timber.d(members.toString())
                 handleMemberList(members)
             }
             editEvent.observe(viewLifecycleOwner) {
@@ -242,7 +246,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun setupRecyclerView() {
         val itemTouchHelper = createItemTouchHelper()
-
         sectionedAdapter = SectionedAdapter(
             itemTouchHelper = itemTouchHelper,
             onEditClick = { scheduleData -> showEditDialog(scheduleData) },
@@ -257,10 +260,9 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             setHasFixedSize(true)
             itemTouchHelper.attachToRecyclerView(this)
         }
-
         binding.rvPersonIconPlanDetail.apply {
-            layoutManager =
-                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            addItemDecoration(OverlappingItemDecoration())
         }
     }
 
