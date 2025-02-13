@@ -35,8 +35,6 @@ class TripViewModel @Inject constructor(
     private val _trips = MutableStateFlow<List<Trip>>(emptyList())
     val trips = _trips.asStateFlow()
 
-    lateinit var trip:Trip
-
     private val _selectedTrip = MutableStateFlow<Trip?>(null)
     val selectedTrip = _selectedTrip.asStateFlow()
 
@@ -71,8 +69,10 @@ class TripViewModel @Inject constructor(
         }
     }
 
-    fun deleteTrip(trip: Trip){
-
+    fun deleteTrip(userId: String, tripId: Int){
+        viewModelScope.launch {
+            getTripUseCase.removeTrip(userId.toString(),tripId)
+        }
     }
 
     fun getTrips(userId :String){

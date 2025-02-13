@@ -50,6 +50,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private val tripViewModel: TripViewModel by activityViewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
 
+    private var tripId : Int =-1
+
     // Map related properties
     private lateinit var naverMap: NaverMap
     private val paths = mutableMapOf<Int, List<LatLng>>()
@@ -81,6 +83,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             tripViewModel.selectedTrip.collectLatest { trip ->
                 trip?.let {
                     scheduleViewModel.initTrip(trip)
+                    tripId = trip.id
                     Timber.d("Trip: ${scheduleViewModel.selectedTrip.value}")
                 }
             }
@@ -108,6 +111,9 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             }
             memberList.observe(viewLifecycleOwner) { members ->
                 handleMemberList(members)
+            }
+            editEvent.observe(viewLifecycleOwner) {
+                handleEditSchedule(it)
             }
         }
     }
@@ -140,11 +146,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun handleManipulationEvent(event: ScheduleData) {
-//        when (event.action) {
-//            "ADD" -> sectionedAdapter.addSchedule(event, isUserDragging)
-//            else -> handleEditSchedule(event)
-//        }
-
+        Timber.d("Add event ${event.toString()}")
         sectionedAdapter.addSchedule(event, isUserDragging)
     }
 
@@ -307,10 +309,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun createScheduleEntity(data: ScheduleData): ScheduleEntity {
+
         return ScheduleEntity(
             id = data.scheduleId,
             placeName = data.placeName,
-            tripId = tripViewModel.trip.id,
+            tripId = tripId,
             positionPath = data.positionPath,
             day = 0,
             lat = data.lat,

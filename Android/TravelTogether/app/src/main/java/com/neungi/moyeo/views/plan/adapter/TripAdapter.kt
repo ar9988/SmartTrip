@@ -12,7 +12,7 @@ import timber.log.Timber
 
 class TripAdapter(
     private val onItemClick: (Trip) -> Unit,
-    private val onDeleteClick: (Int) -> Unit
+    private val onDeleteClick: (Trip) -> Unit
 ) : ListAdapter<Trip, TripAdapter.TripViewHolder>(TripDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
@@ -31,7 +31,7 @@ class TripAdapter(
                 this.trip = trip
                 Timber.d(trip.title)
                 onDeleteClick = View.OnClickListener {
-                    onDeleteClick(trip.id)
+                    onDeleteClick(trip)
                 }
                 onItemClick = View.OnClickListener{
                     onItemClick(trip)
