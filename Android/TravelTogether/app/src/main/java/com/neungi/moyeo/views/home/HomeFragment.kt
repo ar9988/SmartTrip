@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -28,6 +29,7 @@ import com.neungi.domain.model.Place
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.DialogFestivalInfoBinding
+import com.neungi.moyeo.databinding.DialogPlaceInfoBinding
 import com.neungi.moyeo.databinding.FragmentHomeBinding
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.home.adapter.HomeFestivalAdapter
@@ -39,104 +41,12 @@ import com.neungi.moyeo.views.home.viewmodel.Quote
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
-    val placeList = listOf(
-        Place(
-            placeName = "강원랜드 카지노",
-            address = "강원특별자치도 정선군 사북읍 하이원길 265",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/91/1982091_image2_1.jpg"
-        ),
-        Place(
-            placeName = "남이섬유원지",
-            address = "강원특별자치도 춘천시 남이섬길 1 남이섬",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/62/3427362_image2_1.jpg"
-        ),
-        Place(
-            placeName = "설악산국립공원",
-            address = "강원특별자치도 양양군 서면 오색리",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/27/2739227_image2_1.jpg"
-        ),
-        Place(
-            placeName = "오대산국립공원",
-            address = "강원특별자치도 평창군 진부면 오대산로",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/52/3034152_image2_1.jpg"
-        ),
-        Place(
-            placeName = "하이원 스키장",
-            address = "강원특별자치도 정선군 고한읍 하이원길 424",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/20/2733720_image2_1.jpg"
-        ),
-        Place(
-            placeName = "낙산사",
-            address = "강원특별자치도 양양군 강현면 낙산사로 100",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms2/website/44/3022844.jpg"
-        ),
-        Place(
-            placeName = "춘천 삼악산 호수케이블카",
-            address = "강원특별자치도 춘천시 스포츠타운길 245",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/55/3036655_image2_1.jpg"
-        ),
-        Place(
-            placeName = "치악산국립공원",
-            address = "강원특별자치도 원주시 소초면 무쇠점2길 26",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/94/2948094_image2_1.bmp"
-        ),
-        Place(
-            placeName = "용평리조트",
-            address = "강원특별자치도 평창군 대관령면 올림픽로 715",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms2/website/05/2475705.jpg"
-        ),
-        Place(
-            placeName = "에버랜드",
-            address = "경기도 용인시 처인구 포곡읍 에버랜드로 199",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/09/2757509_image2_1.jpg"
-        ),
-        Place(
-            placeName = "화담숲",
-            address = "경기도 광주시 도척면 도척윗로 278-1",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms/resource/80/3308780_image2_1.PNG"
-        ),
-        Place(
-            placeName = "킨텍스",
-            address = "경기도 고양시 일산서구 킨텍스로 217-60",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms2/website/80/1984180.jpg"
-        ),
-        Place(
-            placeName = "매미성",
-            address = "경상남도 거제시 장목면 복항길",
-            lat = null,
-            lng = null,
-            imageUrl = "http://tong.visitkorea.or.kr/cms2/website/70/3092170.jpg"
-        )
-    )
 
     private val viewModel: HomeViewModel by viewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
@@ -161,9 +71,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         }
         observeStates()
         loadQuotes()
-        binding.cardviewScheduleAddHome.setOnClickListener{
-            shareKakao()
-        }
     }
 
     override fun setBackPressedCallback() {
@@ -199,7 +106,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
             }
         }
-        homePlaceAdapter = HomePlaceAdapter()
+        homePlaceAdapter = HomePlaceAdapter(viewModel)
         binding.rvRecommendPlaceHome.adapter = homePlaceAdapter
         homeFestivalAdapter = HomeFestivalAdapter(viewModel)
         binding.rvFestival.adapter =  homeFestivalAdapter
@@ -210,10 +117,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         super.onResume()
 
         mainViewModel.setBnvState(true)
+        viewModel.getRecommendPlace()
     }
 
     private fun handleUiEvent(event: HomeUiEvent) {
         when(event){
+            is HomeUiEvent.ShowPlaceDialog->{
+                showPlaceDialog()
+            }
             is HomeUiEvent.ShowFestivalDialog->{
                 showFestivalDialog()
 
@@ -227,21 +138,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     fun observeStates(){
         collectLatestFlow(viewModel.homeUiEvent) { handleUiEvent(it) }
-        collectLatestFlow(viewModel.recommendFestivals){ festivals ->
-            if(festivals.isNotEmpty()) {
-                homeFestivalAdapter.submitList(festivals)
-                homePlaceAdapter.submitList(placeList)
-                binding.nscrollviewHome.visibility = View.VISIBLE
-            }
-        }
         lifecycleScope.launch {
-            viewModel.festivalState.collectLatest { state ->
-                mainViewModel.setLoadingState(state.status==ApiStatus.LOADING)
+            viewModel.homeUiState.collect { state ->
+                homeFestivalAdapter.submitList(state.festivals)
+                homePlaceAdapter.submitList(state.places)
+                mainViewModel.setLoadingState(state.isLoading)
+                binding.nscrollviewHome.visibility =if(state.isLoading ==false) {
+                    View.VISIBLE
+                }else{
+                    View.GONE
+                }
+                state.error?.let { error ->
+                }
             }
         }
     }
 
-    fun showFestivalDialog(){
+    private fun showFestivalDialog(){
         val dialogBinding = DialogFestivalInfoBinding.inflate(layoutInflater)
 
         // ViewModel 설정
@@ -270,6 +183,60 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             }
             btnFestivalDialogClose.setOnClickListener {
                 dialog.dismiss()
+            }
+
+
+        }
+
+        dialog.show()
+    }
+
+    private fun showPlaceDialog(){
+        val dialogBinding = DialogPlaceInfoBinding.inflate(layoutInflater)
+
+        // ViewModel 설정
+        dialogBinding.vm = viewModel
+        dialogBinding.lifecycleOwner = viewLifecycleOwner
+
+        val dialog = Dialog(requireContext()).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(dialogBinding.root)
+
+            // Dialog 크기 설정
+            window?.apply {
+                val width = (resources.displayMetrics.widthPixels * 0.85).toInt()
+                val height = (resources.displayMetrics.heightPixels * 0.5).toInt()
+                setLayout(
+                    width,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            }
+        }
+
+
+        with(dialogBinding) {
+            ivPlaceDialogImage.load(viewModel.dialogPlace.value!!.imageUrl){
+                placeholder(R.drawable.ic_placeholder)
+                error(R.drawable.image_noimg)
+            }
+            btnPlaceDialogClose.setOnClickListener {
+                dialog.dismiss()
+            }
+            ivFollow.isSelected = viewModel.dialogPlace.value!!.isFollowed
+
+            lifecycleScope.launch {
+                viewModel.dialogPlace.collect { place ->
+                    place?.let {
+                        ivFollow.isSelected = it.isFollowed
+                        Timber.d("Follow!!!")
+                    }
+                }
+            }
+
+            ivFollow.setOnClickListener{
+                Timber.d("Follow!")
+                viewModel.onClickFollow(viewModel.dialogPlace.value!!.contentId)
             }
 
         }
@@ -314,63 +281,63 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         return this.substring(startIndex, endIndex)
     }
 
-    private fun shareKakao() {
-        val defaultFeed = FeedTemplate(
-            content = Content(
-                title = "모여(모두의 여행)",
-                description = "(초대자)님이 당신을 (일정이름)으로 초대하셨습니다.",
-                imageUrl = "https://d210-traveltogether.s3.ap-northeast-2.amazonaws.com/default/image_app_main.png",
-                link = Link(
-                    androidExecutionParams = mapOf("key1" to "value1", "key2" to "value2"),
-                )
-            ),
-            buttons = listOf(
-                Button(
-                    "일정 수정하러가기",
-                    Link(
-                        androidExecutionParams = mapOf("key1" to "value1", "key2" to "value2"),
-                    )
-                )
-            )
-        )
-
-        if (ShareClient.instance.isKakaoTalkSharingAvailable(requireContext())) {
-            // 카카오톡으로 카카오톡 공유 가능
-            ShareClient.instance.shareDefault(requireContext(), defaultFeed) { sharingResult, error ->
-                if (error != null) {
-                    Timber.e("카카오톡 공유 실패: $error")
-                }
-                else if (sharingResult != null) {
-                    Timber.d("카카오톡 공유 성공", error)
-                    startActivity(sharingResult.intent)
-
-                    // 카카오톡 공유에 성공했지만 아래 경고 메시지가 존재할 경우 일부 컨텐츠가 정상 동작하지 않을 수 있습니다.
-                    Timber.w( "${sharingResult.warningMsg}")
-                    Timber.w("Argument Msg: ${sharingResult.argumentMsg}")
-                }
-            }
-        } else {
-            // 카카오톡 미설치: 웹 공유 사용 권장
-            // 웹 공유 예시 코드
-            val sharerUrl = WebSharerClient.instance.makeDefaultUrl(defaultFeed)
-
-            // CustomTabs으로 웹 브라우저 열기
-
-            // 1. CustomTabsServiceConnection 지원 브라우저 열기
-            // ex) Chrome, 삼성 인터넷, FireFox, 웨일 등
-            try {
-                KakaoCustomTabsClient.openWithDefault(requireContext(), sharerUrl)
-            } catch(e: UnsupportedOperationException) {
-                // CustomTabsServiceConnection 지원 브라우저가 없을 때 예외처리
-            }
-
-            // 2. CustomTabsServiceConnection 미지원 브라우저 열기
-            // ex) 다음, 네이버 등
-            try {
-                KakaoCustomTabsClient.open(requireContext(), sharerUrl)
-            } catch (e: ActivityNotFoundException) {
-                // 디바이스에 설치된 인터넷 브라우저가 없을 때 예외처리
-            }
-        }
-    }
+//    private fun shareKakao() {
+//        val defaultFeed = FeedTemplate(
+//            content = Content(
+//                title = "모여(모두의 여행)",
+//                description = "(초대자)님이 당신을 (일정이름)으로 초대하셨습니다.",
+//                imageUrl = "https://d210-traveltogether.s3.ap-northeast-2.amazonaws.com/default/image_app_main.png",
+//                link = Link(
+//                    androidExecutionParams = mapOf("key1" to "value1", "key2" to "value2"),
+//                )
+//            ),
+//            buttons = listOf(
+//                Button(
+//                    "일정 수정하러가기",
+//                    Link(
+//                        androidExecutionParams = mapOf("key1" to "value1", "key2" to "value2"),
+//                    )
+//                )
+//            )
+//        )
+//
+//        if (ShareClient.instance.isKakaoTalkSharingAvailable(requireContext())) {
+//            // 카카오톡으로 카카오톡 공유 가능
+//            ShareClient.instance.shareDefault(requireContext(), defaultFeed) { sharingResult, error ->
+//                if (error != null) {
+//                    Timber.e("카카오톡 공유 실패: $error")
+//                }
+//                else if (sharingResult != null) {
+//                    Timber.d("카카오톡 공유 성공", error)
+//                    startActivity(sharingResult.intent)
+//
+//                    // 카카오톡 공유에 성공했지만 아래 경고 메시지가 존재할 경우 일부 컨텐츠가 정상 동작하지 않을 수 있습니다.
+//                    Timber.w( "${sharingResult.warningMsg}")
+//                    Timber.w("Argument Msg: ${sharingResult.argumentMsg}")
+//                }
+//            }
+//        } else {
+//            // 카카오톡 미설치: 웹 공유 사용 권장
+//            // 웹 공유 예시 코드
+//            val sharerUrl = WebSharerClient.instance.makeDefaultUrl(defaultFeed)
+//
+//            // CustomTabs으로 웹 브라우저 열기
+//
+//            // 1. CustomTabsServiceConnection 지원 브라우저 열기
+//            // ex) Chrome, 삼성 인터넷, FireFox, 웨일 등
+//            try {
+//                KakaoCustomTabsClient.openWithDefault(requireContext(), sharerUrl)
+//            } catch(e: UnsupportedOperationException) {
+//                // CustomTabsServiceConnection 지원 브라우저가 없을 때 예외처리
+//            }
+//
+//            // 2. CustomTabsServiceConnection 미지원 브라우저 열기
+//            // ex) 다음, 네이버 등
+//            try {
+//                KakaoCustomTabsClient.open(requireContext(), sharerUrl)
+//            } catch (e: ActivityNotFoundException) {
+//                // 디바이스에 설치된 인터넷 브라우저가 없을 때 예외처리
+//            }
+//        }
+//    }
 }

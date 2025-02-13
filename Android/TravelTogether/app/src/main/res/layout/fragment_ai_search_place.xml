@@ -12,7 +12,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="800dp">
+        android:layout_height="match_parent">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_search_place"
@@ -44,6 +44,7 @@
 
         </com.google.android.material.appbar.MaterialToolbar>
 
+
         <TextView
             android:id="@+id/tv_ai_search_empty"
             android:layout_width="wrap_content"
@@ -51,24 +52,59 @@
             android:text="@string/place_search_question"
             android:textColor="@android:color/darker_gray"
             android:textSize="@dimen/font_size_medium"
-            android:visibility="@{vm.searchUiState.searchTextIsEmpty ? View.VISIBLE : View.GONE}"
+            android:visibility="@{vm.searchUiState.searchTextIsEmpty &amp;&amp; vm.searchFollowedPlaces.empty ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toBottomOf="@id/toolbar_search_place"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="@{vm.searchUiState.searchTextIsEmpty &amp;&amp; !vm.searchFollowedPlaces.empty ? View.VISIBLE : View.GONE}"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_search_place"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            >
+            <TextView
+                android:id="@+id/tv_title_followed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{vm.userLoginInfo.userName+`님이 팔로우한 관광지에요`}"
+                android:layout_margin="@dimen/dp_medium"
+                android:textSize="@dimen/font_size_title"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="userName님이 팔로우한 관광지에요"
+                />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_followed_place_search"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginVertical="@dimen/dp_medium"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@id/tv_title_followed"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_ai_search_result"
             android:layout_width="match_parent"
-            android:padding="@dimen/dp_medium"
             android:layout_height="0dp"
+            android:padding="@dimen/dp_medium"
             android:layout_marginTop="@dimen/dp_medium"
             android:visibility="@{vm.searchUiState.searchTextIsEmpty ? View.GONE : View.VISIBLE}"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/toolbar_search_place"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

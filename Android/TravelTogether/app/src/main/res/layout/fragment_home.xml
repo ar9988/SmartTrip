@@ -57,6 +57,7 @@
             android:id="@+id/nscrollview_home"
             android:visibility="gone"
             android:layout_width="match_parent"
+
             android:layout_height="0dp"
             android:fillViewport="true"
             app:layout_constraintTop_toBottomOf="@id/toolbar_home"
@@ -66,6 +67,7 @@
                 android:id="@+id/fragment_home"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:paddingHorizontal="@dimen/dp_smaller"
                 tools:context=".views.home.HomeFragment">
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardview_schedule_home"
@@ -245,7 +247,7 @@
                     android:id="@+id/tv_recommend_place_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="요즘 인기 있는 관광지에요!"
+                    android:text="@{vm.randomSelectedRegion.first + `에서 인기 있는 관광지에요!`}"
                     android:textSize="@dimen/font_size_title"
                     android:textStyle="bold"
                     android:layout_marginVertical="@dimen/dp_small"
@@ -256,7 +258,6 @@
                     android:id="@+id/rv_recommend_place_home"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    submitData="@{}"
                     android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintEnd_toEndOf="@id/gl_end_home"

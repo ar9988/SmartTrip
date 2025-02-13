@@ -6,6 +6,8 @@ sealed class HomeUiEvent {
 
     data object ShowFestivalDialog: HomeUiEvent()
 
+    data object ShowPlaceDialog: HomeUiEvent()
+
     data object GoToNotification:HomeUiEvent()
 
 

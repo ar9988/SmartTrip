@@ -6,9 +6,11 @@ import com.neungi.domain.model.AiPlanningRequest
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.LocationCategory
+import com.neungi.domain.model.Place
 import com.neungi.domain.model.Preferences
 import com.neungi.domain.model.ThemeItem
-import com.neungi.domain.usecase.GetFestivalOverview
+import com.neungi.domain.usecase.GetFollowedPlacesUseCase
+import com.neungi.domain.usecase.GetOverviewUseCase
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.domain.usecase.RqeuestAiPlanningUseCase
@@ -36,7 +38,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AIPlanningViewModel @Inject constructor(
     private val getRecommendFestivalUseCase: GetRecommendFestivalUseCase,
-    private val getFestivalOverview:GetFestivalOverview,
+    private val getOverviewUseCase:GetOverviewUseCase,
     private val requestAiPlanningUseCase: RqeuestAiPlanningUseCase,
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val regionMapper: RegionMapper
@@ -106,6 +108,8 @@ class AIPlanningViewModel @Inject constructor(
 
     private val _selectedTheme = MutableStateFlow<List<String>>(emptyList())
     val selectedThemeList = _selectedTheme.asStateFlow()
+
+
 
 
 
@@ -280,7 +284,7 @@ class AIPlanningViewModel @Inject constructor(
     //추천 축제 선택시 dialog
     fun selectFestival(festival:Festival){
         viewModelScope.launch {
-            val result = getFestivalOverview(festival.contentId)
+            val result = getOverviewUseCase(festival.contentId)
             Timber.d("${result}")
             val overView : String = when (result.status) {
                 ApiStatus.SUCCESS -> {
@@ -351,6 +355,8 @@ class AIPlanningViewModel @Inject constructor(
         }
 
     }
+
+
 
     private fun clearDatas() {
         _calendarSelectState.value = 0
@@ -424,6 +430,33 @@ class AIPlanningViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+
+
+
+    fun clearState(){
+        viewModelScope.launch {
+            _aiDestinatiionUiState.update { AIPlanningUiState() }
+            _calendarSelectState.update { 0 }
+            _startDate.update { null }
+            _endDate.update { null }
+            _startTime.update { DEFAULT_START_TIME }
+            _endTime.update { DEFAULT_END_TIME }
+            _uiState.update { RegionUiState() }
+            _selectedLocalTab.update { DEFAULT_SELECTED_LOCAL_TAB }
+            _selectedLocations.update { emptyList() }
+            _selectedPlaces.update { emptyList() }
+            _recommendFestivals.update { emptyList() }
+            _dialogSelectedFestival.update { null }
+            _selectedTheme.update { emptyList() }
+        }
+    }
+
+    companion object {
+        private val DEFAULT_START_TIME = "오전 10:00"
+        private val DEFAULT_END_TIME = "오후 5:00"
+        private val DEFAULT_SELECTED_LOCAL_TAB = "특별"
     }
 
 

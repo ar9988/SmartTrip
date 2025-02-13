@@ -10,9 +10,11 @@ import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAiSearchPlaceBinding
 import com.neungi.moyeo.views.MainViewModel
+import com.neungi.moyeo.views.aiplanning.adapters.SearchFollowedPlaceAdapter
 import com.neungi.moyeo.views.aiplanning.adapters.SearchPlaceAdapter
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
+import com.neungi.moyeo.views.home.adapter.HomePlaceAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -23,6 +25,7 @@ open class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.
     val viewModel: AIPlanningViewModel by activityViewModels()
     val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var searchPlaceAdapter : SearchPlaceAdapter
+    private lateinit var searchFollowedPlaceAdapter: SearchFollowedPlaceAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,6 +49,7 @@ open class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.
 //                true
 //            }
         }
+        mainViewModel.getFollowedPlaces()
         setAdapter()
         setListener()
         collectEvent()
@@ -58,6 +62,12 @@ open class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.
                 searchPlaceAdapter.submitList(places)
             }
         }
+        lifecycleScope.launch {
+            mainViewModel.searchFollowedPlaces.collect { places ->
+                searchFollowedPlaceAdapter.submitList(places)
+            }
+        }
+
     }
 
     private fun setListener() {
@@ -78,6 +88,8 @@ open class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.
     open fun setAdapter() {
         searchPlaceAdapter = SearchPlaceAdapter(viewModel)
         binding.rvAiSearchResult.adapter = searchPlaceAdapter
+        searchFollowedPlaceAdapter = SearchFollowedPlaceAdapter({placeName->viewModel.togglePlaceSelection(placeName)},{contentId->mainViewModel.onClickFollow(contentId)},{viewModel.onClickPopBackToDestiination()})
+        binding.rvFollowedPlaceSearch.adapter = searchFollowedPlaceAdapter
     }
 
     private fun collectEvent() {
