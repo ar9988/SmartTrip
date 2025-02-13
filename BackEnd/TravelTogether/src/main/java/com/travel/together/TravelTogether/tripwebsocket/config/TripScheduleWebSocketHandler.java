@@ -20,6 +20,7 @@ import com.travel.together.TravelTogether.tripwebsocket.service.ScheduleService;
 import com.travel.together.TravelTogether.tripwebsocket.service.TripStateManager;
 import io.jsonwebtoken.io.IOException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -288,6 +289,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             // ADD타입 따로 처리
             log.info("Received message: {}", message.getPayload());
             JsonNode jsonNode = objectMapper.readTree(message.getPayload());
+
             if (jsonNode.has("action")) {
                 log.info("Action detected, processing ADD request");
                 String action = jsonNode.get("action").asText();
@@ -295,6 +297,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
                 AddRequest addRequest = objectMapper.readValue(message.getPayload(), AddRequest.class);
                 Integer tripId = addRequest.getTripId();
+
+
 
                 log.info("AddRequest parsed: tripId={}, dayOrder={}", tripId, addRequest.getDayOrder());
 
@@ -305,11 +309,31 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     operation.setScheduleId(scheduleIdCounter.get());
                     operation.setPositionPath(addRequest.getSchedule().getPositionPath());
 
+
                 } else if ("EDIT".equals(action)) {
-                    handleEditOperation(tripId, addRequest);
-                    operation.setAction("EDIT");
-                    operation.setScheduleId(addRequest.getSchedule().getScheduleId());  // scheduleIdCounter 대신 원래 ID 사용
-                    operation.setPositionPath(addRequest.getSchedule().getPositionPath());
+                    EditOnlyRequest editOnlyRequest = objectMapper.readValue(message.getPayload(), EditOnlyRequest.class);
+                    Integer mytripId = editOnlyRequest.getTripId();  // tripId를 EditOnlyRequest에서 가져와야 함
+                    log.info("Edit Only tripId==={}",mytripId);
+                    // DB 업데이트는 handleEditOperation에서
+                    handleEditOperation(mytripId, editOnlyRequest);
+
+                    // 브로드캐스트는 여기서 직접
+                    session.sendMessage(new TextMessage("SUCCESS"));
+
+//                    broadcastToTripSessions(mytripId, message.getPayload());
+
+                    String tripIdStr = String.valueOf(mytripId);
+                    Set<WebSocketSession> tripSessionSet = tripSessions.get(tripIdStr);
+
+                    if (tripSessionSet != null) {
+                        for (WebSocketSession tripSession : tripSessionSet) {
+                            if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
+                                tripSession.sendMessage(new TextMessage(message.getPayload()));
+                            }
+                        }
+                    }
+                    return;
+
                 }
 
 
@@ -514,45 +538,42 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    private void handleEditOperation(Integer tripId, AddRequest request) {
+    @Transactional
+    private void handleEditOperation(Integer tripId, EditOnlyRequest request) {
         try {
-            AddRequest.ScheduleDto scheduleDto = request.getSchedule();
-            if (scheduleDto == null) {
-                log.error("Schedule information is missing in request");
-                throw new IllegalArgumentException("Schedule cannot be null");
-            }
 
-            Schedule schedule = scheduleRepository.findById(scheduleDto.getScheduleId())
+            Schedule schedule = scheduleRepository.findById(request.getSchedule().getId())  // scheduleId -> id로 변경
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Schedule not found with id: " + scheduleDto.getScheduleId()));
+                            "Schedule not found with id: " + request.getSchedule().getId()));
 
             // duration과 placeName 업데이트
-            schedule.setDuration(scheduleDto.getDuration());
-            schedule.setPlaceName(scheduleDto.getPlaceName());
+            schedule.setDuration(request.getSchedule().getDuration());
+            schedule.setPlaceName(request.getSchedule().getPlaceName());
             // DB 업데이트
             scheduleRepository.save(schedule);
-
-            // tripEdits에 변경된 Schedule 정보 저장 (기존 로직 유지)
-            stateManager.addEditSchedule(tripId, scheduleDto);
             log.info("EDIT operation processed - tripId: {}, scheduleId: {}, new duration: {}, new placeName: {}",
                     tripId,
-                    scheduleDto.getScheduleId(),
-                    scheduleDto.getDuration(),
-                    scheduleDto.getPlaceName());
+                    request.getSchedule().getId(),
+                    request.getSchedule().getDuration(),
+                    request.getSchedule().getPlaceName());
 
 
-            // 3. 현재 상태를 모든 클라이언트에게 전송
-            EditRequest.Operation newOperation = new EditRequest.Operation();
-            newOperation.setAction("EDIT");  // Action 명시적 설정
-            newOperation.setScheduleId(request.getSchedule().getScheduleId());
-            newOperation.setPositionPath(-1);
 
-            EditRequest newEditRequest = new EditRequest();
-            newEditRequest.setTripId(tripId);
-            newEditRequest.setOperation(newOperation);
 
-            EditResponse response = EditResponse.createSuccess(newEditRequest, 1);
-            broadcastToTripSessions(tripId, objectMapper.writeValueAsString(response));
+            // 받은 request를 그대로 브로드캐스트
+            broadcastToTripSessions(tripId, objectMapper.writeValueAsString(request));
+            log.info("broadcastToTripSsessions={}",objectMapper.writeValueAsString(request));
+
+            // ✅ 최신 ScheduleDTO 생성 후 stateManager에 저장
+            ScheduleDTO updatedSchedule = new ScheduleDTO(
+                    schedule.getId(),
+                    schedule.getDuration(),
+                    schedule.getPlaceName(),
+                    schedule.getPositionPath(),
+                    tripId
+            );
+            stateManager.saveEdit(tripId, schedule.getId(), updatedSchedule);
+
 
 
         } catch (Exception e) {
@@ -757,16 +778,16 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
                     if (source != null) {
                         // 먼저 기본 정보 브로드캐스트
-                        String responseMessage = objectMapper.writeValueAsString(responseMap);
-                        broadcastToTripSessions(tripId, responseMessage);
+//                        String responseMessage = objectMapper.writeValueAsString(responseMap);
+//                        broadcastToTripSessions(tripId, responseMessage);
 
                         // scheduleDTO 전송
                         String scheduleMessage = objectMapper.writeValueAsString(scheduleToSend);
                         broadcastToTripSessions(tripId, scheduleMessage);
 
                         // TripDetail 전송
-                        String tripDetailMessage = objectMapper.writeValueAsString(currentTripDetail);
-                        broadcastToTripSessions(tripId, tripDetailMessage);
+//                        String tripDetailMessage = objectMapper.writeValueAsString(currentTripDetail);
+//                        broadcastToTripSessions(tripId, tripDetailMessage);
 
                         // 경로 계산은 콜백으로 처리
 

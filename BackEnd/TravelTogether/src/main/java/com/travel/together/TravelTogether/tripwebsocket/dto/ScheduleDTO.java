@@ -20,4 +20,7 @@ public class ScheduleDTO {
     private Double lat;
     private Double lng;
     private Integer type;
+
+    public ScheduleDTO(Integer id, Integer duration, String placeName, Integer positionPath, Integer tripId) {
+    }
 }

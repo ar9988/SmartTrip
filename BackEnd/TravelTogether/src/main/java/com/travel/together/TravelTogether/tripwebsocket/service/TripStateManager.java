@@ -414,12 +414,64 @@ public class TripStateManager {
     }
 
 
+    private final Map<Integer, Map<Integer, ScheduleDTO>> editedSchedules = new ConcurrentHashMap<>();
+
+    // ✅ 특정 tripId의 schedule 수정 내역 저장
+    public void saveEdit(Integer tripId, Integer scheduleId, ScheduleDTO updatedSchedule) {
+        editedSchedules
+                .computeIfAbsent(tripId, k -> new ConcurrentHashMap<>())
+                .put(scheduleId, updatedSchedule);
+        log.info("Saved edit for tripId: {}, scheduleId: {}", tripId, scheduleId);
+    }
+
+    // ✅ 특정 tripId의 모든 수정 내역 반환
+    public Map<Integer, ScheduleDTO> getEditedSchedules(Integer tripId) {
+        return editedSchedules.getOrDefault(tripId, new HashMap<>());
+    }
 
 
 
 
+    // 웹소켓 초기 동기화용
+    public TripDetailDTO getTripDetailWithEdits(Integer tripId) {
+        log.info("getTripDetailWithEdits called with tripId: {}", tripId);
 
-    // 웹소켓 연결이 끊기면 모든 작업내역 삭제
+        // 1. 기본 TripDetail 가져오기
+        TripDetailDTO tripDetail = getTripDetail(tripId);
+        if (tripDetail == null) {
+            return null;
+        }
+
+        // 2. 편집된 내용이 있는지 확인
+        Map<Integer, ScheduleDTO> edits = editedSchedules.get(tripId);
+        if (edits == null || edits.isEmpty()) {
+            return tripDetail;
+        }
+
+        // 3. 편집 내용을 반영한 새로운 TripDetailDTO 생성
+        TripDetailDTO updatedTripDetail = new TripDetailDTO(tripDetail); // 복사 생성자 필요
+
+        // 각 Day의 Schedule들을 순회하면서 편집된 내용 반영
+        for (DayDto day : updatedTripDetail.getDayDtos()) {
+            List<ScheduleDTO> schedules = day.getSchedules();
+            for (int i = 0; i < schedules.size(); i++) {
+                ScheduleDTO schedule = schedules.get(i);
+                ScheduleDTO editedSchedule = edits.get(schedule.getId());
+
+                if (editedSchedule != null) {
+                    // 편집된 내용으로 교체
+                    schedules.set(i, editedSchedule);
+                }
+            }
+        }
+
+        log.info("Returning updated tripDetail for tripId: {}", tripId);
+        return updatedTripDetail;
+    }
+
+
+
+// 웹소켓 연결이 끊기면 모든 작업내역 삭제
     public synchronized void clearEditHistory(Integer tripId) {
         tripEditHistory.remove(tripId);
         tripSchedulePositions.remove(tripId);
