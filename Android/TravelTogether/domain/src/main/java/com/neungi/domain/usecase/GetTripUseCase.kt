@@ -14,8 +14,8 @@ class GetTripUseCase @Inject constructor(
         return tripsRepository.getTrips(userId)
     }
 
-    suspend fun makeTrip(userId: String,startDate: LocalDate,endDate: LocalDate) : ApiResult<Response>{
-        return tripsRepository.createTrip(userId,startDate,endDate)
+    suspend fun makeTrip(userId: String,title:String,startDate: LocalDate,endDate: LocalDate) : ApiResult<List<Trip>> {
+        return tripsRepository.createTrip(userId,title,startDate,endDate)
     }
 
     suspend fun removeTrip(userId: String, trip: Trip): ApiResult<Boolean>{

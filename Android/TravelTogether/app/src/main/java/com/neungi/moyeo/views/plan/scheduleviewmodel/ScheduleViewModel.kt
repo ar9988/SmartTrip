@@ -173,7 +173,6 @@ class ScheduleViewModel @Inject constructor(
             )
         )
 
-
     }
 
     fun sendAddEvent(schedule: ScheduleEntity) {

@@ -7,6 +7,7 @@ import com.neungi.data.api.AuthApi
 import com.neungi.data.api.FCMApi
 import com.neungi.data.api.InviteApi
 import com.neungi.data.api.TripsApi
+import com.neungi.data.repository.trips.ZonedDateTimeJsonAdapter
 import com.neungi.data.util.JwtInterceptor
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
