@@ -8,11 +8,11 @@ import com.travel.together.TravelTogether.trip.exception.TripNotFoundException;
 import com.travel.together.TravelTogether.trip.exception.UnauthorizedException;
 import com.travel.together.TravelTogether.trip.repository.*;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.AccessDeniedException;
-
 import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -21,8 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-//@Transactional(readOnly = true)
-//@RequiredArgsConstructor
+@Transactional
 public class TripViewService {
     public TripViewService(TripRepository tripRepository, ScheduleRepository scheduleRepository, TripMemberRepository tripMemberRepository, DayRepository dayRepository, RouteRepository routeRepository, UserRepository userRepository) {
         this.tripRepository = tripRepository;
@@ -49,6 +48,7 @@ public class TripViewService {
 
 
     // 전체 여행 조회
+    @Transactional
     public TripResponse getAllTrip(Integer userId) {
         List<Trip> trips = tripRepository.findTripsByUserId(userId);
 
@@ -99,6 +99,7 @@ public class TripViewService {
 
 
 
+    @Transactional
     public TripCreateDto createTrip(TripRequestDto requestDto) {
         // 사용자 조회
         User creator = userRepository.findById(Long.valueOf(requestDto.getUserId()))
@@ -116,6 +117,13 @@ public class TripViewService {
 
         // 저장
         Trip savedTrip = tripRepository.save(trip);
+
+        // 여행 생성자를 trip_member 테이블에도 추가
+        TripMember tripMember = TripMember.builder()
+                .trip(savedTrip)
+                .user(creator)
+                .build();
+        tripMemberRepository.save(tripMember);
 
         // DTO 변환 후 반환
         return TripCreateDto.from(savedTrip);

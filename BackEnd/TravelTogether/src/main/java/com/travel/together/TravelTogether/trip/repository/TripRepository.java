@@ -19,9 +19,5 @@ public interface TripRepository extends JpaRepository<Trip, Integer> {
                     "WHERE tm.user_id = :userId",
             nativeQuery = true)
     List<Trip> findTripsByUserId(@Param("userId") Integer userId);
-//    @Query("SELECT t.trip.id as tripId, COUNT(t.id) as memberCount FROM TripMember t WHERE t.trip.id IN :tripIds GROUP BY t.trip.id")
-//    Optional<Trip> findByIdWithCreator(@Param("tripId") Integer tripId);
-//
-//    List<Trip> findByCreatorIdOrderByCreatedAtDesc(Integer creatorId);
 }
 

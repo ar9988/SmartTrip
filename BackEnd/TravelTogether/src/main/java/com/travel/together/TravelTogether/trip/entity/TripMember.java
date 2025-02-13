@@ -2,9 +2,7 @@ package com.travel.together.TravelTogether.trip.entity;
 
 import com.travel.together.TravelTogether.auth.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 @Entity
@@ -12,6 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class TripMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +32,8 @@ public class TripMember {
         this.trip = trip;
         this.user = user;
     }
+
+
+
 }
 
