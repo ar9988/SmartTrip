@@ -1,4 +1,4 @@
-package com.neungi.data.di
+package com.neungi.data.repository.trips
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson

@@ -166,6 +166,7 @@
     <!--home-->
     <string name="festival_title_home">축제 정보를 확인해보세요!</string>
     <string name="person_icon">Person Icon</string>
+    <string name="Trip_Title_hint">Enter Title</string>
 
 
 </resources>
