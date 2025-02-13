@@ -1,76 +1,77 @@
-startDate:{startDate}
-startTime:{startTime}
-endDate:{endDate}
-endTime:{endTime}
-destination:{destination}
-places:{places}
-theme:{theme}
+    startDate:{startDate}
+    startTime:{startTime}
+    endDate:{endDate}
+    endTime:{endTime}
+    destination:{destination}
+    places:{places}
+    theme:{theme}
 
-출력 데이터 형식:
-{
-  "title": "string",
-  "start_date": "string",
-  "end_date": "string",
-  "destination": ["string"],
-  "preferences": {
-    "activities": ["string"],
-    "interests": ["string"]
-  },
-  "schedule": {
-    "days": [
-      {
-        "date": "string",
-        "activities": [
+    출력 데이터 형식:
+    {
+      "title": "string",
+      "start_date": "string",
+      "end_date": "string",
+      "destination": ["string"],
+      "schedule": {
+        "days": [
           {
-            "name": "string",
-            "duration": number,
-            "type": number,
-            "positionPath": number,
+            "date": "string",
+            "activities": [
+              {
+                "name": "string",
+                "duration": number,
+                "type": number,
+                "positionPath": number,
+              }
+            ]
           }
         ]
       }
-    ]
-  }
-}
+    }
 
-응답 규칙:
-1. 기본 응답 형식
-   - JSON 형식으로만 응답하며 부가 설명 제외
-   - 날짜 형식:
-     * `start_date`, `end_date`, `date`: "YYYYMMDD"
-   - `type` 구분:
-     * 1: 관광지
-     * 2: 식사
-   - `positionPath`: (날짜순서*10000 + 활동순서*1000)
-     예시) 첫째날: 10000, 11000, 12000 / 둘째날: 20000, 21000, 22000
+    응답 규칙:
 
-2. 일정 구성 규칙
-   - 운영 시간:
-     * 일일 시작: `{startTime}`
-     * 일일 종료: `{endTime}`
-     * 점심: **12:30 - 13:30 (90분)**
-     * 저녁: **18:00 - 19:30 (90분)**
-   - 활동 시간:
-     * 관광지/체험: 60-120분
-     * 축제: 120-180분
-     * 점심~저녁(13:30~18:00) 사이
-     * **이동 시간 고려하지 않음**
-   - 일정 밀도:
-     * **이동 시간 무시하고 활동을 연속적으로 배치**
+    1. 출력 응답 형식
+       - JSON 형식으로만 응답하며 부가 설명 제외
+       - `title`: ({destination} 여행)
+         ex) destination = ["서울특별시", "과천시"] -> `title`: "서울특별시 과천시 여행"
+       - `start_date`, `end_date`, `date`: "YYYYMMDD"
+       - `destination` = {destination} (입력 데이터 유지)
+       - `date`: startDate 부터 시작
+       - activities: places 데이터를 포함한다. 단 방문 장소에 존재하지 않은 장소인 경우, 방문 장소에서는 places 데이터를 배제한다.
+         ex) places = ["구미라면축제", "동궁과월지"] -> `name`: "구미라면축제", `name`: "동궁과월지"
+         ex2) places = ["구미라면축제"], destination: ["수원시"] -> "구미라면축제" 배제.
+         ex3) places = ["서울세계불꽃축제", "국립중앙박물관"], destination: ["원주시"] -> "서울세계불꽃축제", "국립중앙박물관" 배제.
+       - `name`: 장소명만 표기, 정확한 정보만 사용함.
+         ex) "관악산", "국립중앙박물관", "경복궁"
+         ex2) "서울역 근처 식당", "롯데월드 인근 카페" 배제.
+       - `duration`: 분 단위
+         ex) 60, 90
+       - `type`: (관광지: 1, 식사: 2)
+       - `positionPath`: (날짜순서*10000 + 활동순서*1000)
+         ex) 첫째날: 10000, 11000, 12000 / 둘째날: 20000, 21000, 22000
 
-3. **컨텐츠 규칙**
-   - 장소 선정:
-     * **실제 존재하는 장소만 포함**
-     * **정확한 위치 정보 포함**
-     * **운영 시간이 확인된 장소만 선정**
-   - 장소 우선순위:
-     1. `preferences.activities` 내 장소
-     2. `preferences.interests` 관련 장소
-     3. `destination` 내 주요 관광지
+    2. 일정 구성 규칙
+       - 여행 시작 시각: {startDate} {startTime}
+       - 여행 최종 종료 시각: {endDate} {endTime}
+       - startDate == endDate 조건이면, startTime과 endTime의 차이를 고려하여 일정 개수를 설정한다.
+       - 점심 식사와 저녁 식사가 존재한다면, 점심 저녁 식사 사이의 일정은 3개가 존재한다. 또한, 점심 이전과 저녁 이후에도 일정이 존재한다.
+        서울특별시 예시: ("경복궁", "청와대", "식사", "북촌 한옥마을", "서울 스카이", "N 서울 타워", "식사", "홍대")
+        춘천시 예시: ("강촌 레일바이크", "제이드가든 수목원", "식사", "삼악산 호수케이블카", "소양강스카이워크", "청평사", "식사", "춘천닭갈비막국수축제")
+        전주시 예시: ("전주 한옥마을", "경기전", "식사", "전동성당", "전주 남부시장", "덕진공원", "식사", "전주 수목원")
+        강릉시 예시: ("경포해변", "안목 커피거리", "식사", "오죽헌", "강릉 중앙시장", "선교장", "식사", "정동진")
 
-4. **출력 형식 제약**
-   - **`name` 필드는 반드시 장소명만 표기 (예: "관악산", "국립중앙박물관")**
-   - 동일 도시 및 장소 재방문 금지
-   - 날씨/계절 특성 반영
-   - 실내/외 활동 균형 배분
-   - 점심과 저녁 식사는 `"식사"`로 표기 (예: `"name": "식사"`)
+    3. 컨텐츠 규칙
+       - 동일한 도시와 같은 장소를 방문하지 않는다
+       ex) "동대문디지털프라자"를 방문한 경우,"DDP"를 방문하지 않는다
+       ex2) "코엑스"를 방문한 경우, "COEX"를 포함한 장소는 방문하지 않는다.
+       - 방문한 도시에서 같은 theme에 해당되는 장소의 일정은 1개로 제한한다.
+       ex) theme = ["museum"] 조건에서, "국립중앙박물관"을 방문한 경우, 서울에서 박물관은 방문하지 않는다.
+       ex2) theme = ["ocean"] 조건에서, "해운대 해수욕장"을 방문한 경우, 부산에서 해수욕장을 방문하지 않는다.
+       - 점심과 저녁 식사는 `식사`로 표기, ex) `name`: "식사"
+       - 식사 일정은 점심 식사, 저녁 식사가 존재한다. 식사 시간은 90분으로 고정한다. 저녁 식사는 마지막 일정 바로 직전에 배치.
+       - 실제 존재하는 관광지만 포함
+
+    4. 제약
+       - theme 를 고려하여 해당 지역의 일정을 생성한다. 단, 관련 장소가 해당 지역에 없는 경우에는 해당 지역에서는 theme를 고려하지 않는다.
+       - 공항은 방문하지 않는다.
