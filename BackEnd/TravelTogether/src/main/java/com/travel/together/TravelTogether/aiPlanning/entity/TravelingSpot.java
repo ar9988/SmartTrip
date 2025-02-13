@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "travelingspot")
+@Table(name = "traveling_spot")
 public class TravelingSpot {
 
     @Id
@@ -19,21 +19,21 @@ public class TravelingSpot {
     @Column(name = "region", nullable = false, length = 20)
     private String region;
 
-    @Column(name = "regionnumber", nullable = false)
+    @Column(name = "region_number", nullable = false)
     private String regionNumber;
 
-    @Column(name = "contentid")
-    private String contentid;
+    @Column(name = "content_id")
+    private String contentId;
 
     @Column(name = "title")
     private String title;
 
     @Column(name = "overview")
-    private String overview;
+    private String overView;
 
     @Column(name = "address")
     private String address;
 
-    @Column(name = "imageurl")
-    private String imageurl;
+    @Column(name = "image_url")
+    private String imageUrl;
 }
