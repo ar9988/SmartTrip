@@ -139,4 +139,20 @@ public class TripViewService {
 
     }
 
+    public void updateTrip(Integer tripId, TripUpdateRequest request) {
+
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new EntityNotFoundException("Trip not found"));
+        log.info("Trip found: {}", trip);
+
+        trip.updateTrip(
+                request.getTitle(),
+                request.getStartDate(),
+                request.getEndDate()
+        );
+
+        tripRepository.save(trip);
+    }
+
 }

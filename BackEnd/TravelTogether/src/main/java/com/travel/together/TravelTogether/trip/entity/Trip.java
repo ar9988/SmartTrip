@@ -53,83 +53,12 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TripMember> tripMembers = new ArrayList<>();
 
-
-
-    //getter and setter
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
+    public void updateTrip(String title, LocalDateTime startDate, LocalDateTime endDate) {
         this.title = title;
-    }
-
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
+        this.updatedAt = LocalDateTime.now();
     }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-
-//            @Builder
-//    public Trip(User creator, String title, LocalDateTime startDate, LocalDateTime endDate) {
-//        this.creator = creator;
-//        this.title = title;
-//        this.startDate = startDate;
-//        this.endDate = endDate;
-//        this.createdAt = LocalDateTime.now();
-//        this.updatedAt = LocalDateTime.now();
-//    }
-//
-//    public void update(String title, LocalDateTime startDate, LocalDateTime endDate) {
-//        this.title = title;
-//        this.startDate = startDate;
-//        this.endDate = endDate;
-//        this.updatedAt = LocalDateTime.now();
-//    }
 
 
 

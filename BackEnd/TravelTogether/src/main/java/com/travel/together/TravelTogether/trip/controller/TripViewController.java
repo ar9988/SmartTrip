@@ -3,6 +3,7 @@ package com.travel.together.TravelTogether.trip.controller;
 import com.travel.together.TravelTogether.trip.dto.TripCreateDto;
 import com.travel.together.TravelTogether.trip.dto.TripRequestDto;
 import com.travel.together.TravelTogether.trip.dto.TripResponse;
+import com.travel.together.TravelTogether.trip.dto.TripUpdateRequest;
 import com.travel.together.TravelTogether.trip.service.TripViewService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -47,6 +48,13 @@ public class TripViewController {
         tripViewService.deleteTrip(tripId);
 //        return ResponseEntity.noContent().build();
         log.info("DELETE SUCCESS");
+        return true;
+    }
+
+    @PutMapping("{userId}/{tripId}")
+    public boolean updateTrip(@PathVariable Integer tripId, @RequestBody @Valid TripUpdateRequest request) {
+
+        tripViewService.updateTrip(tripId, request);
         return true;
     }
 
