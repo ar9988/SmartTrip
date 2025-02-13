@@ -4,6 +4,10 @@ import com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleUiEvent
 
 sealed class TripUiEvent {
 
+    data object TripDeleteFail : TripUiEvent()
+
+    data object TripAddFail : TripUiEvent()
+
     data object TripEdit : TripUiEvent()
 
     data object TripAdd : TripUiEvent()

@@ -8,6 +8,6 @@ import java.time.LocalDate
 
 interface TripsRemoteDataSource {
     suspend fun getTrips(userId: String): Response<TripsResponse>
-    suspend fun createTrip(body: RequestBody):Response<TripsResponse>
+    suspend fun createTrip(body: RequestBody): Response<Boolean>
     suspend fun deleteTrip(userId: String,tripId:Int) : Response<Boolean>
 }

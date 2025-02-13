@@ -22,11 +22,9 @@ class TripsRemoteDataSourceImpl @Inject constructor(
         return response
     }
 
-    override suspend fun createTrip(body: RequestBody): Response<TripsResponse> {
-
-        Log.d("TripsRemoteDataSource", "Requesting Create")
-        val response = tripsApi.createTrip(body)
-        return response
+    override suspend fun createTrip(body: RequestBody): Response<Boolean> {
+        tripsApi.createTrip(body)
+        return tripsApi.createTrip(body)
     }
 
     override suspend fun deleteTrip(userId: String, tripId: Int): Response<Boolean> {
