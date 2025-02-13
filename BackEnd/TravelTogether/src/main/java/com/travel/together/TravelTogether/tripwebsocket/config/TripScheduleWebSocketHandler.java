@@ -540,6 +540,21 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     scheduleDto.getDuration(),
                     scheduleDto.getPlaceName());
 
+
+            // 3. 현재 상태를 모든 클라이언트에게 전송
+            EditRequest.Operation newOperation = new EditRequest.Operation();
+            newOperation.setAction("EDIT");  // Action 명시적 설정
+            newOperation.setScheduleId(request.getSchedule().getScheduleId());
+            newOperation.setPositionPath(-1);
+
+            EditRequest newEditRequest = new EditRequest();
+            newEditRequest.setTripId(tripId);
+            newEditRequest.setOperation(newOperation);
+
+            EditResponse response = EditResponse.createSuccess(newEditRequest, 1);
+            broadcastToTripSessions(tripId, objectMapper.writeValueAsString(response));
+
+
         } catch (Exception e) {
             log.error("Error handling EDIT operation", e);
             throw new RuntimeException("Failed to process EDIT operation", e);

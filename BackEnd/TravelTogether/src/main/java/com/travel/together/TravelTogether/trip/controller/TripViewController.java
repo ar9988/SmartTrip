@@ -40,7 +40,6 @@ public class TripViewController {
 //    }
 
 
-
     @PostMapping("/")
     public ResponseEntity<TripCreateDto> createTrip(@Valid @RequestBody TripRequestDto tripRequestDto) {
 //        tripRequestDto.setUserId(userId);  // TripRequestDto에 setter 추가 필요
