@@ -71,7 +71,7 @@ class TripViewModel @Inject constructor(
         }
     }
 
-    fun deleteTrip(trip: Trip){
+    fun deleteTrip(tripId: Int){
 
     }
 

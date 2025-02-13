@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -142,6 +143,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     lateinit var homeFestivalAdapter: HomeFestivalAdapter
     lateinit var homePlaceAdapter: HomePlaceAdapter
     lateinit var quoteAdapter: QuoteAdapter
+    private var backPressedTime: Long = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -162,6 +164,22 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         binding.cardviewScheduleAddHome.setOnClickListener{
             shareKakao()
         }
+    }
+
+    override fun setBackPressedCallback() {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+
+            override fun handleOnBackPressed() {
+                if (System.currentTimeMillis() - backPressedTime < 2000) {
+                    requireActivity().finish()
+                } else {
+                    backPressedTime = System.currentTimeMillis()
+                    showToastMessage("한 번 더 누르면 종료됩니다.")
+                }
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
 //    private fun on

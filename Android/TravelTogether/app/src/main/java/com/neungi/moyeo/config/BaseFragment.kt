@@ -34,7 +34,7 @@ abstract class BaseFragment<T : ViewDataBinding>(private val layoutId: Int) : Fr
     protected val binding
         get() = requireNotNull(_binding)
 
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
+    open lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -88,17 +88,6 @@ abstract class BaseFragment<T : ViewDataBinding>(private val layoutId: Int) : Fr
         inputMethodManager.hideSoftInputFromWindow(editText.windowToken, 0)
     }
 
-    private fun setBackPressedCallback() {
-        onBackPressedCallback = object : OnBackPressedCallback(true) {
-
-            override fun handleOnBackPressed() {
-                requireActivity().supportFragmentManager.popBackStack()
-            }
-        }
-
-        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-    }
-
     protected fun showToastMessage(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
@@ -112,6 +101,17 @@ abstract class BaseFragment<T : ViewDataBinding>(private val layoutId: Int) : Fr
         val index = cursor?.getColumnIndex(MediaStore.MediaColumns.DATA)
 
         return index?.let { cursor.getString(index) }
+    }
+
+    open fun setBackPressedCallback() {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+
+            override fun handleOnBackPressed() {
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     fun NavController.navigateSafely(
