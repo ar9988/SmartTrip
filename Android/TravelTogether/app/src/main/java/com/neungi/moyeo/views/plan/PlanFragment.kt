@@ -19,7 +19,7 @@ import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.plan.tripviewmodel.TripUiEvent
 import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -31,6 +31,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
     private val aiPlaningViewModel: AIPlanningViewModel by activityViewModels()
     private lateinit var tripAdapter: TripAdapter
     private lateinit var user: LoginInfo
+    private var flag = false
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.vm = tripViewModel
@@ -41,16 +42,36 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         lifecycleScope.launch {
             mainViewModel.userLoginInfo.collect{
                 if (it != null) {
-                    tripViewModel.getTrip(it.userId)
-//                    tripViewModel.getTrip("8")
+                    tripViewModel.getTrips(it.userId)
                     user = it
+                }
+            }
+        }
+        lifecycleScope.launch {
+            tripViewModel.trips.collectLatest {
+                arguments?.let { argument ->
+                    val tripId = argument.getInt("tripId", -1)
+                    if (!flag && (tripId != -1)) {
+                        tripViewModel.getTrip(tripId)
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            tripViewModel.selectedTrip.collectLatest { trip ->
+                val tripId = trip?.id ?: -1
+                if (!flag && (tripId != -1)) {
+                    flag = true
+                    val bundle = Bundle().apply {
+                        putInt("tripId", trip?.id ?: -1)
+                    }
+                    findNavController().navigateSafely(R.id.action_plan_to_planDetail, bundle)
                 }
             }
         }
 
     }
-
-
 
     private fun handleUiEvent(event: TripUiEvent) {
         when (event) {
@@ -69,7 +90,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
     private fun setupRecyclerView() {
         tripAdapter = TripAdapter(
             onItemClick = { trip ->
-                tripViewModel.trip = trip
+                tripViewModel.initTrip(trip)
                 Timber.d(trip.title)
                 findNavController().navigateSafely(R.id.action_plan_to_planDetail)
             },
@@ -113,6 +134,12 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         }
     }
 
+    companion object {
 
-
+        fun newInstance(tripId: Int) = PlanFragment().apply {
+            arguments = Bundle().apply {
+                putInt("tripId", tripId)
+            }
+        }
+    }
 }

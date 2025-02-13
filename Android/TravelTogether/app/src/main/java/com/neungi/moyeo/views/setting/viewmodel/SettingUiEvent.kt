@@ -2,6 +2,10 @@ package com.neungi.moyeo.views.setting.viewmodel
 
 sealed class SettingUiEvent {
 
+    data object GetUserInfoSuccess : SettingUiEvent()
+
+    data object GetUserInfoFail : SettingUiEvent()
+
     data object GoToLogin : SettingUiEvent()
 
     data object Logout : SettingUiEvent()

@@ -74,6 +74,10 @@ class SettingViewModel @Inject constructor(
     private val _updateUserProfileMessage = MutableStateFlow<String>("")
     val updateUserProfileMessage = _updateUserProfileMessage
 
+    init {
+        getUserInfo()
+    }
+
     override fun onClickLogin() {
         viewModelScope.launch {
             _settingUiEvent.emit(SettingUiEvent.GoToLogin)

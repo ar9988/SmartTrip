@@ -4,5 +4,5 @@ interface OnScheduleClickListener {
 
     fun onClickGoToInvite()
 
-    fun onClickInvite()
+    fun onClickInvite(tripId: Int)
 }

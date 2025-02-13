@@ -38,11 +38,18 @@ class InviteDialogFragment :
 
     private fun initView() {
         binding.ivInviteDialog.setOnClickListener { dismiss() }
+        binding.btnInviteDialog.setOnClickListener {
+            viewModel.onClickInvite(arguments?.getInt("tripId") ?: -1)
+        }
         lifecycleScope.launch {
             viewModel.scheduleUiEvent.collectLatest { uiEvent ->
                 when (uiEvent) {
                     is ScheduleUiEvent.ScheduleInvite -> {
-                        shareKakao(uiEvent.userName, uiEvent.tripTitle, uiEvent.token)
+                        shareKakao(
+                            uiEvent.userName,
+                            arguments?.getString("tripTitle") ?: "",
+                            uiEvent.token
+                        )
                     }
 
                     else -> {}
@@ -70,6 +77,8 @@ class InviteDialogFragment :
                 )
             )
         )
+
+        Timber.d("Token: $token")
 
         if (ShareClient.instance.isKakaoTalkSharingAvailable(requireContext())) {
             // 카카오톡으로 카카오톡 공유 가능
