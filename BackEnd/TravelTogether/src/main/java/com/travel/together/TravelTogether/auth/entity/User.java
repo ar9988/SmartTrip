@@ -1,6 +1,7 @@
 package com.travel.together.TravelTogether.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.travel.together.TravelTogether.aiPlanning.entity.Favorite;
 import com.travel.together.TravelTogether.album.entity.Photo;
 import com.travel.together.TravelTogether.trip.entity.Trip;
 import com.travel.together.TravelTogether.trip.entity.TripMember;
@@ -46,6 +47,9 @@ public class User implements UserDetails {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Favorite> favorites;
 
     @OneToMany(mappedBy = "creator")
     private List<Trip> createdTrips;
