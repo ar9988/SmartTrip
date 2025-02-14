@@ -29,4 +29,8 @@ class TripsRemoteDataSourceImpl @Inject constructor(
     override suspend fun deleteTrip(userId: String, tripId: Int): Response<Boolean> {
         return tripsApi.deleteTrip(userId,tripId)
     }
+
+    override suspend fun getLatestTrip(): Response<TripsResponse> = tripsApi.getLatestTrip()
+
+
 }

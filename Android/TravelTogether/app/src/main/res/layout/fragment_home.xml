@@ -89,12 +89,13 @@
                     android:layout_width="0dp"
                     android:layout_height="160dp"
                     app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
                     android:visibility="@{loginInfo != null &amp;&amp; vm.homeScheduleCardTrip !=null ? View.VISIBLE : View.GONE}"
+                    android:onClick="@{()-> vm.onClickTripCard()}"
+                    app:cardElevation="0dp"
                     app:layout_constraintTop_toBottomOf="@id/gl_top_home"
                     app:layout_constraintStart_toStartOf="@id/gl_start_home"
                     app:layout_constraintEnd_toEndOf="@id/gl_end_home"
-                    tools:visibility="gone">
+                    tools:visibility="visible">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -110,6 +111,7 @@
                             android:textColor="#000000"
                             android:textSize="@dimen/font_size_title"
                             android:textStyle="bold"
+                            android:text="@{vm.homeScheduleCardTrip.title}"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             tools:text="18제주팟" />
@@ -170,6 +172,7 @@
                             android:layout_marginStart="@dimen/dp_smaller"
                             android:textColor="#666666"
                             android:textSize="12sp"
+                            android:text="@{vm.homeScheduleCardTrip.tripParticipants}"
                             app:layout_constraintBottom_toBottomOf="@id/iv_head_count_home"
                             app:layout_constraintStart_toEndOf="@id/iv_head_count_home"
                             app:layout_constraintTop_toTopOf="@id/iv_head_count_home"
@@ -215,39 +218,39 @@
                     app:layout_constraintEnd_toEndOf="@id/gl_end_home"
                     app:cardElevation="0dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_dashed_card"
-                    android:padding="16dp">
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_dashed_card"
+                        android:padding="16dp">
 
-                    <ImageView
-                        android:id="@+id/imageViewPlus"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@drawable/baseline_add_24"
-                        app:tint="@color/neutral_60"
-                        app:layout_constraintBottom_toTopOf="@id/textViewAdd"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_chainStyle="packed" />
+                        <ImageView
+                            android:id="@+id/imageViewPlus"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:src="@drawable/baseline_add_24"
+                            app:tint="@color/neutral_60"
+                            app:layout_constraintBottom_toTopOf="@id/textViewAdd"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintVertical_chainStyle="packed" />
 
-                    <TextView
-                        android:id="@+id/textViewAdd"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/font_size_medium"
-                        android:text="여행 일정 추가하기"
-                        android:textColor="@color/neutral_60"
-                        android:textSize="@dimen/font_size_large"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/imageViewPlus" />
+                        <TextView
+                            android:id="@+id/textViewAdd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/font_size_medium"
+                            android:text="여행 일정 추가하기"
+                            android:textColor="@color/neutral_60"
+                            android:textSize="@dimen/font_size_large"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/imageViewPlus" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
                 <androidx.constraintlayout.widget.Barrier
                     android:id="@+id/barrier_card_home"

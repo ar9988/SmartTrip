@@ -10,5 +10,7 @@ sealed class HomeUiEvent {
 
     data object GoToNotification:HomeUiEvent()
 
+    data object GoToPlanDetail:HomeUiEvent()
+
 
 }

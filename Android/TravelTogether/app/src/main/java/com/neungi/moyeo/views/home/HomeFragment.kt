@@ -40,8 +40,10 @@ import com.neungi.moyeo.views.home.adapter.QuoteAdapter
 import com.neungi.moyeo.views.home.viewmodel.HomeUiEvent
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
 import com.neungi.moyeo.views.home.viewmodel.Quote
+import com.neungi.moyeo.views.plan.tripviewmodel.TripViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -52,6 +54,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     private val viewModel: HomeViewModel by viewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
+    private val tripViewModel:TripViewModel by activityViewModels()
     lateinit var homeFestivalAdapter: HomeFestivalAdapter
     lateinit var homePlaceAdapter: HomePlaceAdapter
     lateinit var quoteAdapter: QuoteAdapter
@@ -123,6 +126,16 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
             is HomeUiEvent.GoToNotification->{
                 findNavController().navigateSafely(R.id.action_home_to_Notification)
             }
+
+            HomeUiEvent.GoToPlanDetail -> {
+                viewModel.homeScheduleCardTrip.value?.let { trip ->
+                    tripViewModel.initTrip(trip)
+                    Timber.d(trip.title)
+                    findNavController().navigateSafely(R.id.action_home_to_planDetail)
+                }
+
+
+            }
         }
 
     }
@@ -139,9 +152,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 // UI 상태 수집
                 launch {
                     viewModel.homeUiState.collect { state ->
-                        binding?.let { binding ->
-                            homeFestivalAdapter.submitList(viewModel.recommendFestivals.value)
-                            homePlaceAdapter.submitList(viewModel.recommendPlace.value)
+                        binding.let { binding ->
                             mainViewModel.setLoadingState(state.isLoading)
                             binding.nscrollviewHome.visibility = if (state.isLoading == false) {
                                 View.VISIBLE
@@ -166,7 +177,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                 }
                 launch{
                     mainViewModel.userLoginInfo.collect{ userInfo->
-                        binding?.let { binding ->
+                        binding.let { binding ->
                             binding.loginInfo = userInfo
                             binding.ivProfile.load(
                                 userInfo?.userProfileImg
@@ -179,6 +190,29 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                         }
                     }
                 }
+
+                launch {
+                    viewModel.recommendFestivals.collect { festivals ->
+                        homeFestivalAdapter.submitList(festivals)
+                    }
+                }
+
+                launch {
+                    viewModel.recommendPlace.collect { places ->
+                        homePlaceAdapter.submitList(places)
+                    }
+                }
+
+                launch{
+                    viewModel.homeScheduleCardTrip.collect{ trip->
+                        binding.let { binding ->
+                            if(trip!=null){
+                                binding.ivThumbnail.load(R.drawable.icon_carrier)
+                            }
+                        }
+                    }
+                }
+
             }
         }
 

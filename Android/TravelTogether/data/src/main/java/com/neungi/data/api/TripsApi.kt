@@ -27,4 +27,9 @@ interface TripsApi {
         @Path("tripId") tripId: Int
     ): Response<Boolean>
 
+
+    @GET("trips/latest")
+    suspend fun getLatestTrip():Response<TripsResponse>
+
+
 }
