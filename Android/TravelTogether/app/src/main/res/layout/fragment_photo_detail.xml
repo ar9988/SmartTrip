@@ -45,58 +45,80 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     app:layout_constraintGuide_begin="@dimen/dp_medium" />
-
-                <Toolbar
+                <com.google.android.material.appbar.MaterialToolbar
                     android:id="@+id/toolbar_photo_detail"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:navigationIcon="@drawable/baseline_chevron_left_24"
+                    app:contentInsetStart="0dp"
+                    app:contentInsetLeft="0dp"
+                    app:contentInsetStartWithNavigation="0dp"
+                    app:title="@string/title_album">
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_refresh_photo_detail"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="@dimen/dp_medium"
+                        android:src="@drawable/ic_refresh"
+                        android:layout_gravity="end"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                </com.google.android.material.appbar.MaterialToolbar>
 
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/iv_back_photo_detail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:onClick="@{() -> vm.onClickBackToAlbumDetail()}"
-                            android:src="@drawable/baseline_chevron_left_24"
-                            app:layout_constraintBottom_toBottomOf="@id/tv_title_photo_detail"
-                            app:layout_constraintDimensionRatio="1:1"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="@id/tv_title_photo_detail" />
+<!--                <Toolbar-->
+<!--                    android:id="@+id/toolbar_photo_detail"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="?attr/actionBarSize"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent">-->
 
-                        <TextView
-                            android:id="@+id/tv_title_photo_detail"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/dp_small"
-                            android:fontFamily="@font/pretendardbold"
-                            android:text="@string/title_album"
-                            android:textAlignment="viewStart"
-                            android:textColor="@color/neutral_100"
-                            android:textSize="@dimen/font_size_title"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/iv_back_photo_detail"
-                            app:layout_constraintTop_toTopOf="parent" />
+<!--                    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="match_parent">-->
 
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/iv_refresh_photo_detail"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginEnd="@dimen/dp_medium"
-                            android:src="@drawable/ic_refresh"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+<!--                        <androidx.appcompat.widget.AppCompatImageView-->
+<!--                            android:id="@+id/iv_back_photo_detail"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:onClick="@{() -> vm.onClickBackToAlbumDetail()}"-->
+<!--                            android:src="@drawable/baseline_chevron_left_24"-->
+<!--                            app:layout_constraintBottom_toBottomOf="@id/tv_title_photo_detail"-->
+<!--                            app:layout_constraintDimensionRatio="1:1"-->
+<!--                            app:layout_constraintStart_toStartOf="parent"-->
+<!--                            app:layout_constraintTop_toTopOf="@id/tv_title_photo_detail" />-->
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+<!--                        <TextView-->
+<!--                            android:id="@+id/tv_title_photo_detail"-->
+<!--                            android:layout_width="0dp"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_marginStart="@dimen/dp_small"-->
+<!--                            android:fontFamily="@font/pretendardbold"-->
+<!--                            android:text="@string/title_album"-->
+<!--                            android:textAlignment="viewStart"-->
+<!--                            android:textColor="@color/neutral_100"-->
+<!--                            android:textSize="@dimen/font_size_title"-->
+<!--                            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                            app:layout_constraintEnd_toEndOf="parent"-->
+<!--                            app:layout_constraintStart_toEndOf="@id/iv_back_photo_detail"-->
+<!--                            app:layout_constraintTop_toTopOf="parent" />-->
 
-                </Toolbar>
+<!--                        <androidx.appcompat.widget.AppCompatImageView-->
+<!--                            android:id="@+id/iv_refresh_photo_detail"-->
+<!--                            android:layout_width="36dp"-->
+<!--                            android:layout_height="36dp"-->
+<!--                            android:layout_marginEnd="@dimen/dp_medium"-->
+<!--                            android:src="@drawable/ic_refresh"-->
+<!--                            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                            app:layout_constraintEnd_toEndOf="parent"-->
+<!--                            app:layout_constraintTop_toTopOf="parent" />-->
+
+<!--                    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+<!--                </Toolbar>-->
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_photo_detail"

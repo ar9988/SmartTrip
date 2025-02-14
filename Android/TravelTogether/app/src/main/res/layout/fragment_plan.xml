@@ -34,29 +34,55 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
-        <TextView
-            android:id="@+id/tv_title_plan"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/pretendardbold"
-            android:text="@string/title_my_travel_schedule"
-            android:textAlignment="viewStart"
-            android:textColor="@color/neutral_100"
-            android:textSize="@dimen/font_size_title"
-            app:layout_constraintStart_toEndOf="@id/gl_start_plan"
-            app:layout_constraintTop_toBottomOf="@id/gl_top_plan" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_plan"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:titleMarginStart="@dimen/dp_large"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:title="@string/title_my_travel_schedule">
+            <ImageButton
+                android:id="@+id/btn_add_plan"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/description_travel_add_button"
+                android:onClick="@{onAddClick}"
+                android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/dp_small"
+                android:scaleType="fitXY"
+                android:src="@drawable/baseline_add_24"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_plan"
+                app:layout_constraintTop_toBottomOf="@id/gl_top_plan" />
 
-        <ImageButton
-            android:id="@+id/btn_add_plan"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/description_travel_add_button"
-            android:onClick="@{onAddClick}"
-            android:scaleType="fitXY"
-            android:src="@drawable/baseline_add_24"
-            app:layout_constraintEnd_toStartOf="@id/gl_end_plan"
-            app:layout_constraintTop_toBottomOf="@id/gl_top_plan" />
+        </com.google.android.material.appbar.MaterialToolbar>
+
+<!--        <TextView-->
+<!--            android:id="@+id/tv_title_plan"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:fontFamily="@font/pretendardbold"-->
+<!--            android:text="@string/title_my_travel_schedule"-->
+<!--            android:textAlignment="viewStart"-->
+<!--            android:textColor="@color/neutral_100"-->
+<!--            android:textSize="@dimen/font_size_title"-->
+<!--            app:layout_constraintStart_toEndOf="@id/gl_start_plan"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/gl_top_plan" />-->
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/btn_add_plan"-->
+<!--            android:layout_width="36dp"-->
+<!--            android:layout_height="36dp"-->
+<!--            android:background="@android:color/transparent"-->
+<!--            android:contentDescription="@string/description_travel_add_button"-->
+<!--            android:onClick="@{onAddClick}"-->
+<!--            android:scaleType="fitXY"-->
+<!--            android:src="@drawable/baseline_add_24"-->
+<!--            app:layout_constraintEnd_toStartOf="@id/gl_end_plan"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/gl_top_plan" />-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewTrips"
@@ -66,7 +92,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/gl_end_plan"
             app:layout_constraintStart_toEndOf="@id/gl_start_plan"
-            app:layout_constraintTop_toBottomOf="@id/tv_title_plan"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_plan"
             app:submitData="@{vm.trips}"
             tools:listitem="@layout/item_trip" />
 

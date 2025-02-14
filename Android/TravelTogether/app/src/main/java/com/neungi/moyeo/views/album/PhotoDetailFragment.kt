@@ -27,6 +27,9 @@ class PhotoDetailFragment :
         super.onViewCreated(view, savedInstanceState)
 
         binding.vm = viewModel
+        binding.toolbarPhotoDetail.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
 
         initRecyclerView()
         initView()
