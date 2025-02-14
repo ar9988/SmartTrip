@@ -113,10 +113,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     private fun showDeleteConfirmationDialog(trip: Trip) {
         // 다이어로그 생성
-        if(!::user.isInitialized||user.userId.isEmpty()){
-            Toast.makeText(requireContext(), "로그인 해주세요.", Toast.LENGTH_SHORT).show()
-            return
-        }
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("삭제 확인")
             .setMessage("${trip.title} 을(를) 삭제하시겠습니까?")
@@ -136,7 +132,10 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
     }
 
     private fun showCalendarDialog() {
-
+        if(!::user.isInitialized||user.userId.isEmpty()){
+            Toast.makeText(requireContext(), "로그인 해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val dialogBinding = DialogAddTripBinding.inflate(LayoutInflater.from(context))
         dialogBinding.apply {
             vm = aiPlaningViewModel
