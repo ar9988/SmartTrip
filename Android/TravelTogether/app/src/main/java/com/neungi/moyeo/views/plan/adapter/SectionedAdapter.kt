@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.Path
 import com.neungi.domain.model.ScheduleData
@@ -31,7 +32,8 @@ class SectionedAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var sections = mutableListOf<Section>()
-    val pathItems = mutableMapOf<Int, Int>()
+    val pathItems = mutableMapOf<Int, Int>() //key = scheduelId , value = time
+//    val pathInfo
     private var listItems = mutableListOf<ListItem>()
 
     inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
@@ -283,8 +285,10 @@ class SectionedAdapter(
     }
 
 
-    fun updatePathInfo(path: Path, isUserDragging: Boolean) {
-        pathItems[path.sourceScheduleId] = path.totalTime!!
+    fun updatePathInfo(pathReceive: PathReceive, isUserDragging: Boolean) {
+        pathReceive.paths.forEach {
+            pathItems[it.sourceScheduleId] = it.totalTime!!
+        }
         if (!isUserDragging) rebuildSections()
 
     }
