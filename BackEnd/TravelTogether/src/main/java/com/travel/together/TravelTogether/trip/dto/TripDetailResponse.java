@@ -1,7 +1,7 @@
 package com.travel.together.TravelTogether.trip.dto;
 
-import com.travel.together.TravelTogether.trip.entity.*;
-import lombok.Builder;
+import com.travel.together.TravelTogether.trip.entity.Trip;
+import com.travel.together.TravelTogether.trip.entity.TripMember;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

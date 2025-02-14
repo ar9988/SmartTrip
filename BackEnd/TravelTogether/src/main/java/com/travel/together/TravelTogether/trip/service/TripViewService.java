@@ -7,9 +7,10 @@ import com.travel.together.TravelTogether.trip.entity.*;
 import com.travel.together.TravelTogether.trip.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -156,15 +156,19 @@ public class TripViewService {
     // 현재시간 이후의 가장 최근 여행 1개 조회해서보내주기
 
     @Transactional
-    public TripResponse findUpcomingTrip(Integer id) {
+    public TripResponse findUpcomingTrip(Integer userId) {
         LocalDateTime now = LocalDateTime.now();
 
-        Optional<Trip> tripOptional = tripRepository.findFirstByStartDateGreaterThanOrderByStartDateAsc(now);
+        log.info("1");
+        Optional<Trip> tripOptional = tripRepository.findUpcomingTripByUserId(userId);
+
+        log.info("2");
 
         if (tripOptional.isEmpty()) {
             return null;
         }
 
+        log.info("3");
         Trip trip = tripOptional.get();
         Integer memberCount = tripMemberRepository.countByTripId(trip.getId());
 

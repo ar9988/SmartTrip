@@ -1,9 +1,7 @@
 package com.travel.together.TravelTogether.trip.entity;
 
-import com.travel.together.TravelTogether.album.entity.Photo;
 import com.travel.together.TravelTogether.album.entity.PhotoAlbum;
 import com.travel.together.TravelTogether.auth.entity.User;
-import com.travel.together.TravelTogether.trip.entity.TripEntityListener;
 import jakarta.persistence.*;
 import lombok.*;
 
