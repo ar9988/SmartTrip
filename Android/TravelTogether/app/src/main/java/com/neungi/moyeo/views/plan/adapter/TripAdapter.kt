@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.domain.model.Trip
 import com.neungi.moyeo.databinding.ItemTripBinding
+import com.neungi.moyeo.util.CommonUtils.formatZonedDateTimeWithZone
 import timber.log.Timber
 
 class TripAdapter(
@@ -29,6 +30,8 @@ class TripAdapter(
         fun bind(trip: Trip) {
             binding.apply {
                 this.trip = trip
+                binding.textviewDate.text = formatZonedDateTimeWithZone(trip.startDate)
+                binding.tvEndDateTrip.text = formatZonedDateTimeWithZone(trip.endDate)
                 Timber.d(trip.title)
                 onDeleteClick = View.OnClickListener {
                     onDeleteClick(trip)
