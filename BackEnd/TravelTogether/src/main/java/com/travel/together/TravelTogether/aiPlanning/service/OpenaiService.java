@@ -117,7 +117,7 @@ public class OpenaiService {
 
             // API 요청 본문 생성
             JSONObject requestBody = new JSONObject();
-            requestBody.put("model", "gpt-4o-mini");
+            requestBody.put("model", "gpt-4o");
             requestBody.put("max_tokens", MAX_TOKENS);
 
             // 외부 파일에서 프롬프트 템플릿을 로드
