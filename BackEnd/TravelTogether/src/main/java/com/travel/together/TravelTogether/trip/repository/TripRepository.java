@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -20,6 +19,16 @@ public interface TripRepository extends JpaRepository<Trip, Integer> {
                     "WHERE tm.user_id = :userId",
             nativeQuery = true)
     List<Trip> findTripsByUserId(@Param("userId") Integer userId);
+
+
+    @Query("SELECT t FROM Trip t " +
+            "JOIN TripMember tm ON t.id = tm.trip.id " +
+            "WHERE tm.user.id = :userId " +
+            "AND (DATE(t.startDate) = CURRENT_DATE " +
+            "OR t.startDate > CURRENT_DATE) " +
+            "ORDER BY t.startDate ASC " +
+            "LIMIT 1")
+    Optional<Trip> findUpcomingTripByUserId(@Param("userId") Integer userId);
 
     Optional<Trip> findFirstByStartDateGreaterThanOrderByStartDateAsc(LocalDateTime now);
 }

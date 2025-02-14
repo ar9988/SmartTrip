@@ -24,10 +24,12 @@ public class TripViewController {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
     }
+
     private final TripViewService tripViewService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-//     일정 전체조회
+
+    //     일정 전체조회
     @GetMapping("/{userId}")
     public ResponseEntity<TripResponse> getAllTrip(
             @PathVariable Integer userId) {
@@ -67,9 +69,11 @@ public class TripViewController {
 
     @GetMapping("/latest")
     public ResponseEntity<TripResponse> getLatestTrip(@RequestHeader("Authorization") String token) {
+        log.info("TOken = {}", token);
         // JWT 토큰에서 사용자 정보 추출
         String jwtToken = token.replace("Bearer", "").trim();
         String userEmail = jwtTokenProvider.getEmailFromToken(jwtToken);
+        log.info("aaaa={}", jwtToken);
 
         // 사용자 조회
         User user = userRepository.findByEmail(userEmail)
@@ -77,10 +81,16 @@ public class TripViewController {
 
         // 해당 사용자의 최근 여행 조회
         TripResponse response = tripViewService.findUpcomingTrip(user.getId());
+        log.info("response GET = {}", response);
         return response != null
                 ? ResponseEntity.ok(response)
                 : ResponseEntity.notFound().build();
     }
 
-
+    // 빈 Trip일 경우 빈 day 튜플을 만들어서 보내주기
+//    @GetMapping("/makeday")
+//    public ResponseEntity<TripResponse> makeTempDay() {
+//
+//
+//    }
 }
