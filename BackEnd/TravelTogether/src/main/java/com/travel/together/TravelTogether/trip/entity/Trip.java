@@ -1,15 +1,11 @@
 package com.travel.together.TravelTogether.trip.entity;
 
-import com.travel.together.TravelTogether.album.entity.Photo;
-import com.travel.together.TravelTogether.album.entity.PhotoAlbum;
 import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.trip.entity.TripEntityListener;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -25,7 +21,7 @@ public class Trip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
@@ -45,20 +41,83 @@ public class Trip {
     private LocalDateTime updatedAt;
 
 
-    // PhotoAlbum과의 관계 추가
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PhotoAlbum> photoAlbums = new ArrayList<>();
 
-    // TripMember와의 관계 추가
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TripMember> tripMembers = new ArrayList<>();
 
-    public void updateTrip(String title, LocalDateTime startDate, LocalDateTime endDate) {
-        this.title = title;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.updatedAt = LocalDateTime.now();
+    //getter and setter
+
+    public Integer getId() {
+        return id;
     }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+
+//            @Builder
+//    public Trip(User creator, String title, LocalDateTime startDate, LocalDateTime endDate) {
+//        this.creator = creator;
+//        this.title = title;
+//        this.startDate = startDate;
+//        this.endDate = endDate;
+//        this.createdAt = LocalDateTime.now();
+//        this.updatedAt = LocalDateTime.now();
+//    }
+//
+//    public void update(String title, LocalDateTime startDate, LocalDateTime endDate) {
+//        this.title = title;
+//        this.startDate = startDate;
+//        this.endDate = endDate;
+//        this.updatedAt = LocalDateTime.now();
+//    }
 
 
 
