@@ -48,7 +48,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             mainViewModel.userLoginInfo.collect{
                 if (it != null) {
                     tripViewModel.getTrips(it.userId)
-                    // tripViewModel.getTrips("8")
                     user = it
                 }
             }
@@ -76,10 +75,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
                             findNavController().navigateSafely(R.id.action_plan_to_planDetail_pop_up_to)
                         }
                     }
-//                    flag = true
-//                    tripViewModel.initTrip(trip)
-//                    Timber.d(trip.title)
-//                    findNavController().navigateSafely(R.id.action_plan_to_planDetail_pop_up_to)
                 }
             }
         }
