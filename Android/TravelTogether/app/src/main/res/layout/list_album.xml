@@ -35,61 +35,63 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:backgroundAlbumImage="@{photoAlbum.imageUrl}">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_album_overlay"/>
 
                 <TextView
                     android:id="@+id/tv_title_list_album"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_medium"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="@dimen/dp_smaller"
                     android:layout_marginEnd="@dimen/dp_medium"
-                    android:layout_marginBottom="@dimen/dp_small"
                     android:fontFamily="@font/pretendardbold"
                     android:text="@{photoAlbum.title}"
                     android:textAlignment="viewStart"
-                    android:textSize="@dimen/font_size_small"
-                    app:changeTextColor="@{photoAlbum.imageUrl}"
+                    android:textSize="@dimen/font_size_medium"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@id/tv_start_date_list_album"
-                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
-
+                <!--                    app:changeTextColor="@{photoAlbum.imageUrl}"-->
                 <TextView
                     android:id="@+id/tv_start_date_list_album"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_medium"
-                    android:layout_marginBottom="@dimen/dp_medium"
                     android:fontFamily="@font/pretendardregular"
                     android:text="@{photoAlbum.startDate}"
-                    android:textColor="@color/neutral_50"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/font_size_smallest"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintBottom_toTopOf="@id/tv_end_date_list_album"
+                    app:layout_constraintStart_toStartOf="@id/tv_end_date_list_album" />
 
-                <TextView
-                    android:id="@+id/tv_date_list_album"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_smaller"
-                    android:fontFamily="@font/pretendardregular"
-                    android:text="@string/text_range_center"
-                    android:textColor="@color/neutral_50"
-                    android:textSize="@dimen/font_size_smallest"
-                    app:layout_constraintBottom_toBottomOf="@id/tv_start_date_list_album"
-                    app:layout_constraintStart_toEndOf="@id/tv_start_date_list_album"
-                    app:layout_constraintTop_toTopOf="@id/tv_start_date_list_album" />
+<!--                <TextView-->
+<!--                    android:id="@+id/tv_date_list_album"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="@dimen/dp_smaller"-->
+<!--                    android:fontFamily="@font/pretendardregular"-->
+<!--                    android:text="@string/text_range_center"-->
+<!--                    android:textColor="@color/white"-->
+<!--                    android:textSize="@dimen/font_size_smallest"-->
+<!--                    app:layout_constraintBottom_toBottomOf="@id/tv_start_date_list_album"-->
+<!--                    app:layout_constraintStart_toEndOf="@id/tv_start_date_list_album"-->
+<!--                    app:layout_constraintTop_toTopOf="@id/tv_start_date_list_album" />-->
 
                 <TextView
                     android:id="@+id/tv_end_date_list_album"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_smaller"
+                    app:layout_goneMarginBottom="@dimen/dp_small"
                     android:fontFamily="@font/pretendardregular"
                     android:text="@{photoAlbum.endDate}"
-                    android:textColor="@color/neutral_50"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="@dimen/dp_small"
                     android:textSize="@dimen/font_size_smallest"
-                    app:layout_constraintBottom_toBottomOf="@id/tv_start_date_list_album"
-                    app:layout_constraintStart_toEndOf="@id/tv_date_list_album"
-                    app:layout_constraintTop_toTopOf="@id/tv_start_date_list_album" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/tv_title_list_album"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
