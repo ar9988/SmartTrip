@@ -9,11 +9,11 @@
         android:id="@+id/et_dialog_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:autofillHints="input schedule name"
+        android:autofillHints="input schedule title"
         android:labelFor="@+id/title"
         android:inputType="text"
         android:textStyle="bold"
-        android:textSize="32sp"
+        android:textSize="@dimen/font_size_large"
         app:layout_constraintEnd_toStartOf="@+id/button_dialog_edit_close"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -35,47 +35,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/text_duration"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_medium"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/et_dialog_title"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/et_duration"
         android:layout_marginTop="16dp"/>
 
-    <LinearLayout
-        android:id="@+id/ll_duration_input"
+
+    <EditText
+        android:id="@+id/et_duration"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:textSize="@dimen/font_size_medium"
+        android:gravity="center"
+        app:layout_constraintStart_toEndOf="@id/text_duration"
+        app:layout_constraintEnd_toStartOf="@id/tv_minute_label"
+        app:layout_constraintTop_toTopOf="@id/text_duration"
+        app:layout_constraintBottom_toBottomOf="@id/text_duration"
+        android:background="@android:color/transparent"/>
+    <TextView
+        android:id="@+id/tv_minute_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/text_duration"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp">
-
-        <EditText
-            android:id="@+id/et_duration"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:hint="0"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:background="@android:color/transparent"
-            android:padding="8dp"
-            android:layout_marginEnd="8dp"/>
-
-        <TextView
-            android:id="@+id/tv_minute_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="분"
-            android:textSize="18sp"/>
-    </LinearLayout>
+        android:text="@string/text_minute"
+        app:layout_constraintTop_toTopOf="@id/text_duration"
+        app:layout_constraintBottom_toBottomOf="@id/text_duration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/et_duration"
+        android:textSize="@dimen/font_size_medium"/>
 
     <!-- ✅ 확인 버튼: 오른쪽 아래 정렬 -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="확인"
+        android:text="@string/text_dialog_ok"
+        app:layout_constraintTop_toBottomOf="@id/et_duration"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="16dp"
@@ -86,7 +83,7 @@
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="삭제"
+        android:text="@string/text_dialog_delete"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_confirm"
         android:layout_marginBottom="16dp"

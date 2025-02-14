@@ -21,7 +21,7 @@ fun convertToSections(scheduleReceive: ScheduleReceive, trip: Trip): MutableList
     scheduleReceive.day.forEachIndexed { index, day ->
         val sectionHeader = ScheduleHeader(
             dayId = index+1,
-            title = (index+1).toString()+"일차 ("+trip.startDate.plusDays(((index+1).toLong())).format(formatter)+")",
+            title = (index+1).toString()+"일차 ("+trip.startDate.plusDays(((index).toLong())).format(formatter)+")",
             positionPath = ((index + 1)*10000-1)
         // 경계값과 동일한 일정이 생겨도 헤더가 위로 오게 하기위함 Item의 path값을 계산할땐 +1해서 계산
         )
