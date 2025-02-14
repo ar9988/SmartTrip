@@ -40,6 +40,7 @@ class AiPlanningRepositoryImpl @Inject constructor(
 
     override suspend fun requestAiPlanning(requestBody: AiPlanningRequest): ApiResult<Boolean> =
         try {
+            Log.d("requestAI : ",requestBody.toString())
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 aiPlanningDataSource.requestAiPlanning(requestBody)
             }

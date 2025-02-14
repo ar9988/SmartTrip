@@ -18,6 +18,10 @@
             android:id="@+id/action_home_to_Notification"
             app:destination="@id/fragment_notification" />
 
+        <action
+            android:id="@+id/action_home_to_planDetail"
+            app:destination="@id/fragment_plan_detail" />
+
     </fragment>
 
     <fragment

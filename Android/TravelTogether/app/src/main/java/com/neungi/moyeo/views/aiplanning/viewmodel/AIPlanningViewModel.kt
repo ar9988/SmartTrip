@@ -339,7 +339,6 @@ class AIPlanningViewModel @Inject constructor(
                 val response = requestAiPlanningUseCase(requestBody)
                 val status = response.status
                 val data = response.data
-                clearDatas()
                 when (status == ApiStatus.SUCCESS && data != null) {
                     true -> {
                         Timber.d("성공?")

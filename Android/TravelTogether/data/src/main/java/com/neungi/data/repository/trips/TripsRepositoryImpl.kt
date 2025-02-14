@@ -9,6 +9,8 @@ import com.neungi.domain.model.Trip
 import com.neungi.domain.repository.TripsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -123,6 +125,35 @@ class TripsRepositoryImpl @Inject constructor(
             e.printStackTrace()
             ApiResult.fail()
         }
+
+    override suspend fun getLatestTrip(): Flow<ApiResult<Trip?>> = flow{
+        emit(ApiResult.loading(null))
+        try {
+
+            val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
+                tripsRemoteDataSource.getLatestTrip()
+            }
+
+            // 응답 상태 코드와 본문 로그
+            val body = response.body()
+            if (response.isSuccessful && body != null) {
+                val trips = TripMapper(body.trips)
+                if(trips.isNotEmpty()) {
+                    emit(ApiResult.success(trips.get(0)))
+                }else{
+                    emit(ApiResult.error(response.errorBody().toString(), null))
+                }
+            } else {
+                Log.e("TripRepository", "응답 실패 - Error Body: ${response.errorBody()?.string()}")
+                ApiResult.error(response.errorBody()?.string() ?: "알 수 없는 오류", null)
+            }
+        } catch (e: Exception) {
+            // 예외 발생 시 로그
+            Log.e("TripRepository", "예외 발생: ${e.localizedMessage}")
+            e.printStackTrace()
+            emit(ApiResult.fail())
+        }
+    }
 
 
 }

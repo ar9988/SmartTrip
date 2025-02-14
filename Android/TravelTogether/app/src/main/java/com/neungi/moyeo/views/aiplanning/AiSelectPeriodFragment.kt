@@ -26,7 +26,7 @@ class AiSelectPeriodFragment : BaseFragment<FragmentAiSelectPeriodBinding>(R.lay
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        viewModel.clearState()
         binding.vm = viewModel
         binding.toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
@@ -103,10 +103,6 @@ class AiSelectPeriodFragment : BaseFragment<FragmentAiSelectPeriodBinding>(R.lay
         mainViewModel.setBnvState(false)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.clearState()
-    }
 
 
 
