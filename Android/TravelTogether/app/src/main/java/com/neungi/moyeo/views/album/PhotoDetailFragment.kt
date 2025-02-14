@@ -44,7 +44,9 @@ class PhotoDetailFragment :
                         showToastMessage(resources.getString(R.string.message_fail_to_comment_submit))
                     }
 
-                    else -> { showLoading(false) }
+                    else -> {
+                        showLoading(false)
+                    }
                 }
             }
         }
@@ -106,6 +108,10 @@ class PhotoDetailFragment :
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
+            is AlbumUiEvent.PhotoDownload -> {
+                showToastMessage(resources.getString(R.string.message_photo_download))
+            }
+
             is AlbumUiEvent.GetPhotoCommentsFail -> {
                 showToastMessage(resources.getString(R.string.message_fail_to_get_photo_comments))
             }

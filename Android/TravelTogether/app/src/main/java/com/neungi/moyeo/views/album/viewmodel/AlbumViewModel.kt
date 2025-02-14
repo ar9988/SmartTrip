@@ -2,9 +2,12 @@ package com.neungi.moyeo.views.album.viewmodel
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.app.DownloadManager
 import android.content.ContentUris
+import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
@@ -22,8 +25,10 @@ import com.neungi.domain.usecase.GetCommentsUseCase
 import com.neungi.domain.usecase.GetPhotoLocationsUseCase
 import com.neungi.domain.usecase.GetPhotosUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
+import com.neungi.moyeo.util.CommonUtils.calculateLocation
 import com.neungi.moyeo.util.CommonUtils.convertToDegree
 import com.neungi.moyeo.util.CommonUtils.formatLongToDateTime
+import com.neungi.moyeo.util.CommonUtils.isPhotoTakenInKorea
 import com.neungi.moyeo.util.EmptyState
 import com.neungi.moyeo.util.EnterState
 import com.neungi.moyeo.util.InputValidState
@@ -294,6 +299,20 @@ class AlbumViewModel @Inject constructor(
                 }
             }
 
+            val averageLocation = calculateLocation(photos)
+            photos.forEachIndexed { index, photoEntity ->
+                if ((photoEntity.latitude == 0.0) && (photoEntity.longitude == 0.0)) {
+                    photos[index] = PhotoEntity(
+                        photoEntity.place,
+                        photoEntity.body,
+                        averageLocation.latitude,
+                        averageLocation.longitude,
+                        photoEntity.takenAt
+                    )
+                }
+                Timber.d("Lat: ${photoEntity.latitude}, Lng: ${photoEntity.longitude}")
+            }
+
             val chunked = photos.chunked(10)
             for (chunk in chunked) {
                 val photoParts = chunk.mapNotNull { photo ->
@@ -551,8 +570,8 @@ class AlbumViewModel @Inject constructor(
                 "latitude" to it.latitude,
                 "longitude" to it.longitude,
                 "takenAt" to it.takenAt,
-                "albumId" to 1,
-                "userId" to 9,
+                "albumId" to _selectedPhotoAlbum.value?.id,
+                "userId" to _userId.value,
                 "filePath" to "",
             )
         }
@@ -806,5 +825,21 @@ class AlbumViewModel @Inject constructor(
     fun fetchUserId(): Flow<String?> = flow {
         val id = getUserInfoUseCase.getUserId().first()
         emit(id)
+    }
+
+    fun downloadImage() {
+        viewModelScope.launch {
+            _albumUiEvent.emit(AlbumUiEvent.PhotoDownload)
+            val request = DownloadManager.Request(Uri.parse(_selectedPhoto.value?.filePath)).apply {
+                setTitle("이미지 다운로드")
+                setDescription("이미지를 다운로드하는 중...")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, _selectedPhoto.value?.photoPlace)
+                setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            }
+
+            val downloadManager = application.applicationContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            downloadManager.enqueue(request)
+        }
     }
 }
