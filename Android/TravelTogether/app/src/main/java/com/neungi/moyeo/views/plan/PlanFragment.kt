@@ -159,14 +159,16 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
     }
 
     private fun showCalendarDialog() {
+
         val dialogBinding = DialogAddTripBinding.inflate(LayoutInflater.from(context))
         dialogBinding.apply {
             vm = aiPlaningViewModel
         }
+
         val title = dialogBinding.editTextTitle
         val calendar = dialogBinding.calendarView
         val dialog = AlertDialog.Builder(requireContext())
-            .setTitle("여행시작일과 종료일을 선택해주세요") // 다이어로그 타이틀 설정
+            .setTitle("여행시작일과 종료일을 선택해주세요")
             .setView(dialogBinding.root)
             .setPositiveButton("추가하기") { dialogInterface, _ -> }
             .setNegativeButton("취소하기", null)
@@ -175,7 +177,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         dialog.show()
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener { v ->
-            if (title.text.toString() == "") {
+            if (title.text.toString().isEmpty()) {
                 Toast.makeText(requireContext(), "여행 제목을 입력해 주세요.", Toast.LENGTH_SHORT).show()
             } else if (calendar.selectedStartDate == null || calendar.selectedEndDate == null) {
                 Toast.makeText(requireContext(), "옳바른 날짜를 선택해 주세요.", Toast.LENGTH_SHORT).show()

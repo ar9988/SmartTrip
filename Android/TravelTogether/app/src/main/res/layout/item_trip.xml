@@ -1,104 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
             name="trip"
             type="com.neungi.domain.model.Trip" />
+
         <variable
             name="onDeleteClick"
             type="android.view.View.OnClickListener" />
+
         <variable
             name="onEditClick"
-            type="android.view.View.OnClickListener"/>
+            type="android.view.View.OnClickListener" />
+
         <variable
             name="onItemClick"
             type="android.view.View.OnClickListener" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    <!-- MaterialCardView로 카드 모양으로 감싸기 -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/round_border"
         android:layout_margin="30dp"
-        android:onClick="@{onItemClick}"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        app:cardBackgroundColor="@color/colorSecondary"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:strokeWidth="1dp">  <!-- 카드 배경색 -->
 
-        <!-- 이미지 부분 -->
-        <ImageView
-            android:src="@drawable/bnv_album"
-            android:id="@+id/imageview_plan"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:contentDescription="@string/description_plan_image"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_margin="15dp"/>
-
-        <!-- 제목 텍스트 -->
-        <TextView
-            android:layout_margin="15dp"
-            android:id="@+id/textview_title"
-            android:layout_width="wrap_content"
+        <!-- ConstraintLayout을 여전히 사용하여 요소 배치 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageview_plan"
-            android:text="@{trip.title}"
-            app:layout_constraintVertical_bias="0.1"
-            />
+            android:onClick="@{onItemClick}"
+            android:padding="10dp">
 
-        <!-- 날짜 텍스트 -->
-        <TextView
-            android:layout_margin="15dp"
-            android:id="@+id/textview_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageview_plan"
-            android:text="@{trip.startDate.toString()}"
-            app:layout_constraintVertical_bias="0.4"
-            />
+            <!-- 이미지 부분 -->
+            <ImageView
+                android:id="@+id/imageview_plan"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_margin="15dp"
+                android:background="@drawable/round_border"
+                android:contentDescription="@string/description_plan_image"
+                android:src="@drawable/icon_carrier"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- 참여자 수 -->
-        <TextView
-            android:layout_margin="15dp"
-            android:id="@+id/textview_number_of_participants"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageview_plan"
-            android:text="@{trip.tripParticipants}"
-            app:layout_constraintVertical_bias="0.7"
-            />
+            <!-- 제목 텍스트 -->
+            <TextView
+                android:id="@+id/textview_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:text="@{trip.title}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/imageview_plan"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.1" />
 
-        <!-- 삭제 버튼 -->
-        <ImageButton
-            android:onClick="@{onDeleteClick}"
-            android:id="@+id/button_delete"
-            android:contentDescription="@string/description_plan_delete_button"
-            android:src="@drawable/baseline_delete_24"
-            android:layout_margin="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@android:color/transparent"
-            android:scaleType="fitXY"/>
+            <!-- 날짜 텍스트 -->
+            <TextView
+                android:id="@+id/textview_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:text="@{trip.startDate.toString()}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/imageview_plan"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.4" />
 
-        <!-- 편집 버튼 -->
-<!--        <ImageButton-->
-<!--            android:id="@+id/button_edit"-->
-<!--            android:onClick="@{onEditClick}"-->
-<!--            android:contentDescription="@string/description_plan_edit_button"-->
-<!--            android:src="@drawable/baseline_mode_edit_24"-->
-<!--            android:layout_margin="15dp"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toStartOf="@id/button_delete"-->
-<!--            android:layout_width="48dp"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:background="@android:color/transparent"-->
-<!--            android:scaleType="fitXY"/>-->
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- 참여자 수 -->
+            <TextView
+                android:id="@+id/textview_number_of_participants"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:text="@{trip.tripParticipants}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/imageview_plan"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.7" />
+
+            <!-- 삭제 버튼 -->
+            <ImageButton
+                android:id="@+id/button_delete"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_margin="15dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/description_plan_delete_button"
+                android:onClick="@{onDeleteClick}"
+                android:scaleType="fitXY"
+                android:src="@drawable/baseline_delete_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- 편집 버튼 -->
+            <!-- 편집 버튼이 주석 처리된 부분 -->
+            <!-- <ImageButton-->
+            <!--     android:id="@+id/button_edit"-->
+            <!--     android:onClick="@{onEditClick}"-->
+            <!--     android:contentDescription="@string/description_plan_edit_button"-->
+            <!--     android:src="@drawable/baseline_mode_edit_24"-->
+            <!--     android:layout_margin="15dp"-->
+            <!--     app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--     app:layout_constraintEnd_toStartOf="@id/button_delete"-->
+            <!--     android:layout_width="48dp"-->
+            <!--     android:layout_height="48dp"-->
+            <!--     android:background="@android:color/transparent"-->
+            <!--     android:scaleType="fitXY"/>-->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
 </layout>
