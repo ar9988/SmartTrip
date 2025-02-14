@@ -67,6 +67,17 @@ fun ImageView.bindUriProfileImage(uri: Uri?) {
     scaleType = ImageView.ScaleType.CENTER_CROP
 }
 
+@BindingAdapter("app:urlCircleImage")
+fun ImageView.bindUrlCircleImage(url: String?) {
+    elevation = 10F
+    load(url) {
+        placeholder(R.drawable.ic_theme_white)
+        error(R.drawable.ic_theme_white)
+        transformations(CircleCropTransformation())
+    }
+    scaleType = ImageView.ScaleType.CENTER_CROP
+}
+
 /*** ConstraintLayout ***/
 @BindingAdapter("app:backgroundAlbumImage")
 fun ConstraintLayout.bindBackgroundAlbumImage(url: String) {

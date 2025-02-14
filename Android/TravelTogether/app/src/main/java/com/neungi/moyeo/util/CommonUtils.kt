@@ -17,12 +17,14 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 object CommonUtils {
 
     private val emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}\$".toRegex()
-    private val passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()\\-_=+{}\\[\\]|;:'\",.<>?/]).{8,16}$".toRegex()
+    private val passwordRegex =
+        "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()\\-_=+{}\\[\\]|;:'\",.<>?/]).{8,16}$".toRegex()
     private val phoneNumberRegex = "^010-\\d{4}-\\d{4}\$".toRegex()
 
     private fun calculateLuminance(color: Int): Double {
@@ -47,7 +49,8 @@ object CommonUtils {
 
     fun validatePassword(password: CharSequence): Boolean = passwordRegex.matches(password)
 
-    fun validatePhoneNumber(phoneNumber: CharSequence): Boolean = phoneNumberRegex.matches(phoneNumber)
+    fun validatePhoneNumber(phoneNumber: CharSequence): Boolean =
+        phoneNumberRegex.matches(phoneNumber)
 
     fun convertToDegree(value: String): Double {
         val dms = value.split(",", limit = 3)
@@ -60,6 +63,7 @@ object CommonUtils {
 
     fun convertToYYYYMMDDwithHyphen(date: LocalDate?): String =
         (date ?: LocalDate.now()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
     fun convertToyyyyMMdd(date: LocalDate?): String =
         (date ?: LocalDate.now()).format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
@@ -73,19 +77,25 @@ object CommonUtils {
     }
 
     fun formatLongToDateTime(timestamp: Long): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
-            .withZone(ZoneId.systemDefault())
+        val formatter =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm").withZone(ZoneId.of("Asia/Seoul"))
+                .withZone(ZoneId.systemDefault())
 
         return formatter.format(Instant.ofEpochMilli(timestamp))
     }
+
     fun formatLongToyyyyMMddWithDot(timestamp: Long): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")
-            .withZone(ZoneId.systemDefault())
+        val formatter =
+            DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm").withZone(ZoneId.of("Asia/Seoul"))
+                .withZone(ZoneId.systemDefault())
 
         return formatter.format(Instant.ofEpochMilli(timestamp))
     }
 
-
+    fun formatZonedDateTimeWithZone(zonedDateTime: ZonedDateTime): String {
+        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+        return zonedDateTime.withZoneSameInstant(ZoneId.of("Asia/Seoul")).format(formatter)
+    }
 
     fun drawableToBitmap(drawable: Drawable, size: Int = 144): Bitmap {
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
@@ -123,7 +133,9 @@ object CommonUtils {
     fun initPlaceNumber(places: List<String>): Int {
         var number = 1
         places.sortedBy { it }.forEach { place ->
-            if (place == "장소 $number") { number++ }
+            if (place == "장소 $number") {
+                number++
+            }
         }
 
         return number
