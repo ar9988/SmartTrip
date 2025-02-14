@@ -91,31 +91,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         }
     }
 
-    private fun handleUiEvent(event: TripUiEvent) {
-        when (event) {
-            TripUiEvent.TripAdd -> {
-                Toast.makeText(requireContext(), "여행이 추가되었습니다.", Toast.LENGTH_SHORT).show()
-                tripViewModel.getTrip(user.userId.toInt())
-            }
-
-            TripUiEvent.TripAddFail -> {
-                Toast.makeText(requireContext(), "여행 추가에 실패했습니다.", Toast.LENGTH_SHORT).show()
-            }
-
-            TripUiEvent.TripDelete -> {
-                Toast.makeText(requireContext(), "여행이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
-
-            }
-
-            TripUiEvent.TripDeleteFail -> {
-                Toast.makeText(requireContext(), "여행 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
-            }
-
-            else -> {}
-
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         mainViewModel.setBnvState(true)
@@ -192,6 +167,31 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
                 )
                 dialog.dismiss()
             }
+        }
+    }
+
+    private fun handleUiEvent(event: TripUiEvent) {
+        when (event) {
+            TripUiEvent.TripAdd -> {
+                Toast.makeText(requireContext(), "여행이 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                tripViewModel.getTrip(user.userId.toInt())
+            }
+
+            TripUiEvent.TripAddFail -> {
+                Toast.makeText(requireContext(), "여행 추가에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
+
+            TripUiEvent.TripDelete -> {
+                Toast.makeText(requireContext(), "여행이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+
+            }
+
+            TripUiEvent.TripDeleteFail -> {
+                Toast.makeText(requireContext(), "여행 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
+
+            else -> {}
+
         }
     }
 }
