@@ -276,15 +276,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>**/*.properties</include> <!-- env.properties 포함 -->
-					<include>**/*.yml</include>
-				</includes>
-			</resource>
-		</resources>
 	</build>
 
 </project>
