@@ -4,23 +4,22 @@ import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import com.travel.together.TravelTogether.trip.dto.*;
 import com.travel.together.TravelTogether.trip.entity.*;
-import com.travel.together.TravelTogether.trip.exception.TripNotFoundException;
-import com.travel.together.TravelTogether.trip.exception.UnauthorizedException;
 import com.travel.together.TravelTogether.trip.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.AccessDeniedException;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @Transactional
 public class TripViewService {
@@ -130,13 +129,34 @@ public class TripViewService {
         return TripCreateDto.from(savedTrip);
     }
 
+    @Transactional
+    public void deleteTrip(Integer tripId) {
+        tripRepository.deleteById(tripId);
+        log.info("Trip deletion completed for ID: {}", tripId);
 
+    }
+
+    public void updateTrip(Integer tripId, TripUpdateRequest request) {
+
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new EntityNotFoundException("Trip not found"));
+        log.info("Trip found: {}", trip);
+
+        trip.updateTrip(
+                request.getTitle(),
+                request.getStartDate(),
+                request.getEndDate()
+        );
+
+        tripRepository.save(trip);
+    }
 
 
     // 현재시간 이후의 가장 최근 여행 1개 조회해서보내주기
 
     @Transactional
-    public TripResponse findUpcomingTrip() {
+    public TripResponse findUpcomingTrip(Integer id) {
         LocalDateTime now = LocalDateTime.now();
 
         Optional<Trip> tripOptional = tripRepository.findFirstByStartDateGreaterThanOrderByStartDateAsc(now);
