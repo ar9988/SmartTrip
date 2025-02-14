@@ -53,7 +53,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:onClick="@{()->vm.onClickToNotifcation()}"
-                    android:src="@drawable/ic_notification_outlined" />
+                    android:src="@drawable/ic_bell" />
 
                 <!-- 알림 표시 점 -->
                 <View
@@ -65,6 +65,7 @@
                     android:visibility="@{vm.hasNotification ? View.VISIBLE : View.GONE}"
                      />
             </FrameLayout>
+
         </com.google.android.material.appbar.MaterialToolbar>
 
 

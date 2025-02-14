@@ -13,6 +13,9 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.widget.TextView
 import androidx.palette.graphics.Palette
+import com.naver.maps.geometry.LatLng
+import com.neungi.domain.model.PhotoEntity
+import timber.log.Timber
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -139,5 +142,24 @@ object CommonUtils {
         }
 
         return number
+    }
+
+    fun isPhotoTakenInKorea(latitude: Double, longitude: Double): Boolean {
+        return latitude in 33.0..38.6 && longitude in 124.6..131.9
+    }
+
+    fun calculateLocation(photos: List<PhotoEntity>): LatLng {
+        var averageLatitude = photos.filter { it.latitude != 0.0 }.map { it.latitude }.average()
+        if (averageLatitude.isNaN()) {
+            averageLatitude = 0.0
+        }
+        var averageLongitude = photos.filter { it.longitude != 0.0 }.map { it.longitude }.average()
+        if (averageLongitude.isNaN()) {
+            averageLongitude = 0.0
+        }
+
+        Timber.d("$averageLatitude, $averageLongitude")
+
+        return LatLng(averageLatitude, averageLongitude)
     }
 }

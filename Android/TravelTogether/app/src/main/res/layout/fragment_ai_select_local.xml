@@ -4,10 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="vm"
             type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
+
         <import type="android.view.View" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,16 +18,6 @@
         android:layout_height="match_parent"
         tools:context=".views.aiplanning.AiSelectPeriodFragment">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar_ai_local_select"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_constraintTop_toTopOf="parent"
-            app:navigationIcon="@drawable/baseline_chevron_left_24"
-            app:contentInsetStart="0dp"
-            app:contentInsetLeft="0dp"
-            app:contentInsetStartWithNavigation="0dp"
-            app:title="@string/destination_planning" />
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_start_destination"
             android:layout_width="wrap_content"
@@ -39,6 +32,194 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_ai_local_select"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/baseline_chevron_left_24"
+            app:title="@string/destination_planning" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggle_buttongroup_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="80dp"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="@id/gl_start_destination"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"
+            app:selectionRequired="true"
+            app:singleSelection="true" />
+
+        <View
+            android:id="@+id/divider_vertical_select_local"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:background="@color/neutral_50"
+            app:layout_constraintBottom_toBottomOf="@id/rv_detail_select_local"
+            app:layout_constraintEnd_toStartOf="@id/rv_detail_select_local"
+            app:layout_constraintStart_toEndOf="@id/toggle_buttongroup_category"
+            app:layout_constraintTop_toTopOf="@id/rv_detail_select_local" />
+
+        <!--        <androidx.recyclerview.widget.RecyclerView-->
+        <!--            android:id="@+id/rv_category_select_local"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:orientation="vertical"-->
+        <!--            app:itemSpacing="0dp"-->
+        <!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"-->
+        <!--            app:layout_constraintBottom_toTopOf="@id/chipgroup_selected_locations"-->
+        <!--            app:layout_constraintStart_toStartOf="@id/gl_start_destination"-->
+        <!--            />-->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_detail_select_local"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/dp_smaller"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toTopOf="@id/chipgroup_selected_locations"
+            app:layout_constraintEnd_toEndOf="@id/gl_end_destination"
+            app:layout_constraintStart_toEndOf="@id/toggle_buttongroup_category"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select" />
+
+        <!--        <TextView-->
+        <!--            android:id="@+id/text_guide"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="여행지를 선택해주세요"-->
+        <!--            android:layout_marginTop="16dp"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent" />-->
+        <!--        <androidx.recyclerview.widget.RecyclerView-->
+        <!--            android:id="@+id/rv_local_big"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_margin="16dp"-->
+        <!--            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"-->
+        <!--            app:spanCount="3"-->
+        <!--            android:visibility="gone"-->
+        <!--            android:nestedScrollingEnabled="false"-->
+        <!--            android:focusableInTouchMode="true"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintTop_toTopOf="parent"-->
+        <!--            app:layout_constraintBottom_toBottomOf="parent"/>-->
+
+
+        <!--        <com.google.android.material.tabs.TabLayout-->
+        <!--            android:id="@+id/tablayout_local_big"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:visibility="visible"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent" />-->
+        <!--        <com.google.android.material.tabs.TabLayout-->
+        <!--            android:id="@+id/tablayout_local_big"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:clipToPadding="false"-->
+        <!--            android:paddingHorizontal="@dimen/dp_medium"-->
+        <!--            app:tabMode="scrollable"-->
+        <!--            app:tabGravity="start"-->
+        <!--            app:tabInlineLabel="true"-->
+        <!--            app:tabMaxWidth="320dp"-->
+        <!--            app:tabMinWidth="100dp"-->
+        <!--            app:tabPaddingStart="0dp"-->
+        <!--            app:tabPaddingEnd="0dp"-->
+        <!--            app:tabIndicator="@null"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            />-->
+        <!--        <View-->
+        <!--            android:id="@+id/divider_ai_local_top"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="@dimen/dp_line_size"-->
+        <!--            android:background="@color/colorPrimary"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/tablayout_local_big"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+
+        <!--            />-->
+
+
+        <!--        <androidx.viewpager2.widget.ViewPager2-->
+        <!--            android:id="@+id/vp_local_detail"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:visibility="visible"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/divider_ai_local_top"-->
+        <!--            app:layout_constraintBottom_toTopOf="@id/chipgroup_selected_locations"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent" />-->
+
+        <View
+            android:id="@+id/divider_ai_local_bottom"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_line_size"
+            android:background="@color/colorPrimary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rv_detail_select_local" />
+
+
+        <!--        <androidx.constraintlayout.motion.widget.MotionLayout-->
+        <!--            android:id="@+id/motionLayout_local_select"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:clickable="false"-->
+        <!--            android:focusable="false"-->
+        <!--            app:layout_constraintTop_toBottomOf="@id/text_guide"-->
+        <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layoutDescription="@xml/scene_region_transition">-->
+
+        <!--            -->
+
+        <!--        </androidx.constraintlayout.motion.widget.MotionLayout>-->
+        <!--        <androidx.recyclerview.widget.RecyclerView-->
+        <!--            android:id="@+id/rv_selected_local"-->
+        <!--            android:layout_width="0dp"-->
+        <!--            android:layout_height="40dp"-->
+        <!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+        <!--            app:layout_constraintBottom_toTopOf="@id/gl_horizontal_bottom"-->
+        <!--            app:layout_constraintStart_toStartOf="parent"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            />-->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipgroup_selected_locations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/dp_medium"
+            app:chipSpacingHorizontal="@dimen/dp_small"
+            app:layout_constraintBottom_toTopOf="@id/btn_ai_select_local_next"
+            app:layout_constraintTop_toBottomOf="@id/divider_ai_local_bottom"
+            app:singleLine="false" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_ai_select_local_next"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="0dp"
+            android:background="@drawable/selector_button"
+            android:onClick="@{ () ->vm.onClickGoToDestination()}"
+            android:paddingVertical="0dp"
+            android:text="@string/next"
+            android:textColor="@color/neutral_white"
+            android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/gl_bottom_destination"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_destination"
+            app:layout_constraintStart_toEndOf="@id/gl_start_destination" />
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_end_destination"
             android:layout_width="wrap_content"
@@ -52,184 +233,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_end="@dimen/dp_medium" />
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggle_buttongroup_category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="80dp"
-            android:orientation="vertical"
-            app:selectionRequired="true"
-            app:singleSelection="true"
-            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"
-            app:layout_constraintStart_toStartOf="@id/gl_start_destination"
-            />
-        <View
-            android:id="@+id/divider_vertical_select_local"
-            android:layout_width="1dp"
-            android:layout_height="0dp"
-            android:background="@color/neutral_50"
-            app:layout_constraintStart_toEndOf="@id/toggle_buttongroup_category"
-            app:layout_constraintEnd_toStartOf="@id/rv_detail_select_local"
-            app:layout_constraintTop_toTopOf="@id/rv_detail_select_local"
-            app:layout_constraintBottom_toBottomOf="@id/rv_detail_select_local"
-
-
-            />
-
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/rv_category_select_local"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:orientation="vertical"-->
-<!--            app:itemSpacing="0dp"-->
-<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/chipgroup_selected_locations"-->
-<!--            app:layout_constraintStart_toStartOf="@id/gl_start_destination"-->
-<!--            />-->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_detail_select_local"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginStart="@dimen/dp_smaller"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"
-            app:layout_constraintBottom_toTopOf="@id/chipgroup_selected_locations"
-            app:layout_constraintStart_toEndOf="@id/toggle_buttongroup_category"
-            app:layout_constraintEnd_toEndOf="@id/gl_end_destination"
-            />
-
-<!--        <TextView-->
-<!--            android:id="@+id/text_guide"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="여행지를 선택해주세요"-->
-<!--            android:layout_marginTop="16dp"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent" />-->
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/rv_local_big"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_margin="16dp"-->
-<!--            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"-->
-<!--            app:spanCount="3"-->
-<!--            android:visibility="gone"-->
-<!--            android:nestedScrollingEnabled="false"-->
-<!--            android:focusableInTouchMode="true"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"/>-->
-
-
-
-<!--        <com.google.android.material.tabs.TabLayout-->
-<!--            android:id="@+id/tablayout_local_big"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:visibility="visible"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent" />-->
-<!--        <com.google.android.material.tabs.TabLayout-->
-<!--            android:id="@+id/tablayout_local_big"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:clipToPadding="false"-->
-<!--            android:paddingHorizontal="@dimen/dp_medium"-->
-<!--            app:tabMode="scrollable"-->
-<!--            app:tabGravity="start"-->
-<!--            app:tabInlineLabel="true"-->
-<!--            app:tabMaxWidth="320dp"-->
-<!--            app:tabMinWidth="100dp"-->
-<!--            app:tabPaddingStart="0dp"-->
-<!--            app:tabPaddingEnd="0dp"-->
-<!--            app:tabIndicator="@null"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            />-->
-<!--        <View-->
-<!--            android:id="@+id/divider_ai_local_top"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="@dimen/dp_line_size"-->
-<!--            android:background="@color/colorPrimary"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/tablayout_local_big"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-
-<!--            />-->
-
-
-<!--        <androidx.viewpager2.widget.ViewPager2-->
-<!--            android:id="@+id/vp_local_detail"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:visibility="visible"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/divider_ai_local_top"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/chipgroup_selected_locations"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent" />-->
-
-        <View
-            android:id="@+id/divider_ai_local_bottom"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/dp_line_size"
-            android:background="@color/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/rv_detail_select_local"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-
-            />
-
-
-        <!--        <androidx.constraintlayout.motion.widget.MotionLayout-->
-<!--            android:id="@+id/motionLayout_local_select"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:clickable="false"-->
-<!--            android:focusable="false"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/text_guide"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layoutDescription="@xml/scene_region_transition">-->
-
-<!--            -->
-
-<!--        </androidx.constraintlayout.motion.widget.MotionLayout>-->
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/rv_selected_local"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="40dp"-->
-<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/gl_horizontal_bottom"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            />-->
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipgroup_selected_locations"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/dp_medium"
-            app:layout_constraintTop_toBottomOf="@id/divider_ai_local_bottom"
-            app:layout_constraintBottom_toTopOf="@id/btn_ai_select_local_next"
-            app:chipSpacingHorizontal="@dimen/dp_small"
-            app:singleLine="false" />
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_ai_select_local_next"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="0dp"
-            android:layout_marginVertical="0dp"
-            android:text="@string/next"
-            android:backgroundTint="@color/colorPrimary"
-            android:visibility="@{vm.calendarSelectState == 2 ? View.VISIBLE : View.GONE}"
-            android:onClick="@{ () ->vm.onClickGoToDestination()}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_horizontal_bottom"
@@ -239,4 +242,5 @@
             app:layout_constraintGuide_begin="667dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>
