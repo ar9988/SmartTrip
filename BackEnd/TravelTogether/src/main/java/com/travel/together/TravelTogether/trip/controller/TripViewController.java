@@ -51,5 +51,13 @@ public class TripViewController {
 
 
 
+    @GetMapping("/latest")
+    public ResponseEntity<TripResponse> getLatestTrip() {
+        TripResponse response = tripViewService.findUpcomingTrip();
+        return response != null
+                ? ResponseEntity.ok(response)
+                : ResponseEntity.notFound().build();
+    }
+
 
 }
