@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,5 +20,7 @@ public interface TripRepository extends JpaRepository<Trip, Integer> {
                     "WHERE tm.user_id = :userId",
             nativeQuery = true)
     List<Trip> findTripsByUserId(@Param("userId") Integer userId);
+
+    Optional<Trip> findFirstByStartDateGreaterThanOrderByStartDateAsc(LocalDateTime now);
 }
 

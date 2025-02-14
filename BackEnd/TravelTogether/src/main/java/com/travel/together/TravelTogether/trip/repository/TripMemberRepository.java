@@ -22,4 +22,5 @@ public interface TripMemberRepository extends JpaRepository<TripMember, Integer>
     List<TripMember> findByTripId(Integer tripId);
     boolean existsByTripIdAndUserId(Integer tripId, Integer userId);
 
+    Integer countByTripId(Integer id);
 }

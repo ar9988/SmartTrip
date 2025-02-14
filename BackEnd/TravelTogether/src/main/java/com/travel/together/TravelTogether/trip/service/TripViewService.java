@@ -155,4 +155,36 @@ public class TripViewService {
         tripRepository.save(trip);
     }
 
+
+    // 현재시간 이후의 가장 최근 여행 1개 조회해서보내주기
+
+    @Transactional
+    public TripResponse findUpcomingTrip() {
+        LocalDateTime now = LocalDateTime.now();
+
+        Optional<Trip> tripOptional = tripRepository.findFirstByStartDateGreaterThanOrderByStartDateAsc(now);
+
+        if (tripOptional.isEmpty()) {
+            return null;
+        }
+
+        Trip trip = tripOptional.get();
+        Integer memberCount = tripMemberRepository.countByTripId(trip.getId());
+
+        return TripResponse.from(
+                List.of(trip),
+                t -> memberCount,  // 단일 건이므로 미리 조회한 memberCount 사용
+                t -> "",  // 기본 thumbnail 값 ""
+                t -> false  // 기본 status 값 false
+        );
+    }
+
+    private Integer getMemberCount(Trip trip) {
+        return tripMemberRepository.countByTripId(trip.getId());
+    }
+
+
+
 }
+
+
