@@ -93,7 +93,7 @@ class TripsRepositoryImpl @Inject constructor(
                 userId.toInt()
             )
 
-            Log.d("TripsRepository", "createTripRequest: ${createTripRequest.toString()}")
+            Log.d("TripsRepository", "createTripRequest in RepositoryImpl: ${createTripRequest.toString()}")
             // Gson으로 JSON 문자열 생성
             val gson = GsonBuilder().registerTypeAdapter(LocalDateTime::class.java,LocalDateTimeSerializer()).create()
             val jsonRequestBody = gson.toJson(createTripRequest)

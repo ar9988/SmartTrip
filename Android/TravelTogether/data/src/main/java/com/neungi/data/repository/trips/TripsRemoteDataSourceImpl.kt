@@ -23,7 +23,6 @@ class TripsRemoteDataSourceImpl @Inject constructor(
     }
 
     override suspend fun createTrip(body: RequestBody): Response<Boolean> {
-        tripsApi.createTrip(body)
         return tripsApi.createTrip(body)
     }
 
