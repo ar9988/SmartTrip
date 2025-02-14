@@ -53,6 +53,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     private val authViewModel: AuthViewModel by viewModels()
     private val settingViewModel: SettingViewModel by viewModels()
     private lateinit var navController: NavController
+    private var flag = false
     private val navHostFragment: NavHostFragment by lazy {
         supportFragmentManager.findFragmentById(R.id.fcv_main) as NavHostFragment
     }
@@ -92,16 +93,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         super.onNewIntent(intent)
 
         setIntent(intent) // ✅ 기존 Intent 업데이트
+        viewModel.login()
         handleKakaoInvite(intent) // ✅ 초대 링크 감지
         Timber.d("New Intent: $intent")
     }
 
     private fun handleKakaoInvite(intent: Intent?) {
         val uri = intent?.data
+        Timber.d("${intent?.data}")
+        flag = true
 
         lifecycleScope.launch {
             viewModel.settingUiEvent.collectLatest { uiEvent ->
-                if (uri != null && uri.host == "kakaolink") {
+                if (flag && uri != null && uri.host == "kakaolink") {
+                    intent.data = null
                     when (uiEvent) {
                         is SettingUiEvent.GetUserInfoFail -> {
                             Timber.d("로그아웃 상태")
@@ -122,17 +127,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         lifecycleScope.launch {
             tripViewModel.tripUiEvent.collectLatest { uiEvent ->
-                when (uiEvent) {
-                    is TripUiEvent.TripInviteSuccess -> {
-                        showToast(uiEvent.message)
-                        handleInviteEvent(uiEvent.tripId)
-                    }
+                if (flag) {
+                    flag = false
+                    when (uiEvent) {
+                        is TripUiEvent.TripInviteSuccess -> {
+                            showToast(uiEvent.message)
+                            handleInviteEvent(uiEvent.tripId)
+                        }
 
-                    is TripUiEvent.TripInviteFail -> {
-                        showToast(uiEvent.message)
-                    }
+                        is TripUiEvent.TripInviteFail -> {
+                            showToast(uiEvent.message)
+                        }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
         }
@@ -148,6 +156,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
     @SuppressLint("CommitTransaction")
     private fun handleLoginEvent() {
+        binding.viewLoading.visibility = View.GONE
+        binding.loadingAnimation.visibility = View.GONE
+        binding.lottieLoading.isClickable = false
+        binding.lottieLoading.isFocusable = false
+        binding.loadingAnimation.cancelAnimation()
         supportFragmentManager.beginTransaction()
             .replace(R.id.fcv_main, LoginFragment())
             .addToBackStack(null)

@@ -101,6 +101,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             Timber.d("Trip: ${scheduleViewModel.selectedTrip.value}")
             vm = scheduleViewModel
             tripViewModel.selectedTrip.value?.let { scheduleViewModel.initTrip(it) }
+            tripViewModel.removeTrip()
         }
     }
 

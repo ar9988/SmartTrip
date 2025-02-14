@@ -143,4 +143,8 @@ class TripViewModel @Inject constructor(
             }
         }
     }
+
+    fun removeTrip() {
+        _selectedTrip.value = null
+    }
 }

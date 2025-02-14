@@ -114,6 +114,7 @@ class ScheduleViewModel @Inject constructor(
         webSocketManager.onScheduleEventReceived = { scheduleReceive: ScheduleReceive ->
             val trip = _selectedTrip.value
             trip?.let {
+                Timber.d("Receive: $scheduleReceive")
                 val sections = convertToSections(scheduleReceive, trip)
                 val member = convertToMember(scheduleReceive)
                 _scheduleSections.postValue(sections)

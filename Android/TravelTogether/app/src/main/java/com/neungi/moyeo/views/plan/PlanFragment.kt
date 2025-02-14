@@ -48,7 +48,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             mainViewModel.userLoginInfo.collect{
                 if (it != null) {
                     tripViewModel.getTrips(it.userId)
-//                    tripViewModel.getTrips("8")
                     user = it
                 }
             }
@@ -67,12 +66,14 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
         lifecycleScope.launch {
             tripViewModel.selectedTrip.collectLatest { trip ->
-                trip?.let {
-                    if (!flag) {
-                        flag = true
-                        tripViewModel.initTrip(trip)
-                        Timber.d(trip.title)
-                        findNavController().navigateSafely(R.id.action_plan_to_planDetail)
+                if (trip != null) {
+                    arguments?.let { argument ->
+                        val tripId = argument.getInt("tripId", -1)
+                        if (tripId != -1) {
+                            tripViewModel.initTrip(trip)
+                            Timber.d(trip.title)
+                            findNavController().navigateSafely(R.id.action_plan_to_planDetail_pop_up_to)
+                        }
                     }
                 }
             }
@@ -99,9 +100,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             TripUiEvent.TripDeleteFail -> {
                 Toast.makeText(requireContext(), "여행 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
-            TripUiEvent.TripEdit -> TODO()
-            is TripUiEvent.TripInviteFail -> TODO()
-            is TripUiEvent.TripInviteSuccess -> TODO()
+            else -> {}
 
         }
     }
