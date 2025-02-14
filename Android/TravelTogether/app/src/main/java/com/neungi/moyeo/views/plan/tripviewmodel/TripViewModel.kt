@@ -1,5 +1,6 @@
 package com.neungi.moyeo.views.plan.tripviewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -125,7 +126,9 @@ class TripViewModel @Inject constructor(
     }
 
     fun createTrip(userId: String, title: String, startDate: LocalDate, endDate: LocalDate) {
+        Timber.d("create Trip in ViewModel ")
         viewModelScope.launch {
+            Timber.d("create Trip in ViewModelScope ")
             val result = getTripUseCase.makeTrip(userId, title, startDate, endDate)
             Timber.d(result.toString())
             when (result.status) {

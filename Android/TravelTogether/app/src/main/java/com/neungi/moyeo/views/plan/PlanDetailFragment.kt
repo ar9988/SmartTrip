@@ -130,50 +130,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
     }
 
-    private fun handleMemberList(members: List<Member>) {
-        binding.rvPersonIconPlanDetail.adapter = PersonIconAdapter(members.map { it.userId })
-        binding.rvPersonIconPlanDetail.layoutManager = NonScrollableHorizontalLayoutManager(requireContext())
-        binding.rvPersonIconPlanDetail.setHasFixedSize(true) // RecyclerView 크기 고정
-        binding.rvPersonIconPlanDetail.overScrollMode = View.OVER_SCROLL_NEVER // 오버스크롤 방지
-        binding.rvPersonIconPlanDetail.isNestedScrollingEnabled = false // 내부 스크롤 비활성화
-        binding.rvPersonIconPlanDetail.clipChildren = false
-        binding.rvPersonIconPlanDetail.clipToPadding = false
-        binding.rvPersonIconPlanDetail.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                binding.rvPersonIconPlanDetail.viewTreeObserver.removeOnGlobalLayoutListener(this)
-
-                val recyclerViewWidth = binding.rvPersonIconPlanDetail.width // RecyclerView 가용 너비
-                val itemWidth = dp2px(40f, binding.root.context) // 아이콘 크기
-                val itemCount = binding.rvPersonIconPlanDetail.adapter?.itemCount ?: 1
-
-                val maxSpacing = dp2px(8f, binding.root.context) // 충분한 공간이 있을 때 간격
-                val minOverlap = -itemWidth * 0.9f // 겹치는 정도 (더 강하게 적용)
-
-                // 전체 아이콘 너비 계산
-                val totalItemWidth = (itemWidth * itemCount) + (maxSpacing * (itemCount - 1))
-
-                // 공간이 충분할 경우 maxSpacing, 공간이 부족하면 겹치도록 조정
-                val overlapOffset = if (totalItemWidth > recyclerViewWidth) minOverlap.toInt() else maxSpacing.toInt()
-
-                // 기존 ItemDecoration 제거 (중복 적용 방지)
-                while (binding.rvPersonIconPlanDetail.itemDecorationCount > 0) {
-                    binding.rvPersonIconPlanDetail.removeItemDecorationAt(0)
-                }
-
-                // 새로운 ItemDecoration 추가
-                binding.rvPersonIconPlanDetail.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-                        val position = parent.getChildAdapterPosition(view)
-                        if (position > 0) {
-                            outRect.left = overlapOffset // 가변 간격 조정
-                        }
-                    }
-                })
-
-                binding.rvPersonIconPlanDetail.invalidateItemDecorations() // UI 즉시 반영
-            }
-        })
-    }
 
     private fun handleServerEvent(event: ServerReceive) {
         sectionedAdapter.updateItem(event, isUserDragging)
@@ -189,12 +145,13 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handlePathEvent(receive: PathReceive) {
         receive.paths.forEach { pathData ->
+
             Timber.d(pathData.sourceScheduleId.toString())
             paths[pathData.sourceScheduleId] = convertToLatLngList(pathData.path)
-            sectionedAdapter.updatePathInfo(pathData, isUserDragging)
-            if (!isUserDragging) {
-                paintPathToMap()
-            }
+        }
+        sectionedAdapter.updatePathInfo(receive, isUserDragging)
+        if (!isUserDragging) {
+            paintPathToMap()
         }
     }
 
@@ -490,6 +447,51 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             }
             markerMap[scheduleData.scheduleId] = marker
         }
+    }
+
+    private fun handleMemberList(members: List<Member>) {
+        binding.rvPersonIconPlanDetail.adapter = PersonIconAdapter(members.map { it.userId })
+        binding.rvPersonIconPlanDetail.layoutManager = NonScrollableHorizontalLayoutManager(requireContext())
+        binding.rvPersonIconPlanDetail.setHasFixedSize(true) // RecyclerView 크기 고정
+        binding.rvPersonIconPlanDetail.overScrollMode = View.OVER_SCROLL_NEVER // 오버스크롤 방지
+        binding.rvPersonIconPlanDetail.isNestedScrollingEnabled = false // 내부 스크롤 비활성화
+        binding.rvPersonIconPlanDetail.clipChildren = false
+        binding.rvPersonIconPlanDetail.clipToPadding = false
+        binding.rvPersonIconPlanDetail.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                binding.rvPersonIconPlanDetail.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                val recyclerViewWidth = binding.rvPersonIconPlanDetail.width // RecyclerView 가용 너비
+                val itemWidth = dp2px(40f, binding.root.context) // 아이콘 크기
+                val itemCount = binding.rvPersonIconPlanDetail.adapter?.itemCount ?: 1
+
+                val maxSpacing = dp2px(8f, binding.root.context) // 충분한 공간이 있을 때 간격
+                val minOverlap = -itemWidth * 0.9f // 겹치는 정도 (더 강하게 적용)
+
+                // 전체 아이콘 너비 계산
+                val totalItemWidth = (itemWidth * itemCount) + (maxSpacing * (itemCount - 1))
+
+                // 공간이 충분할 경우 maxSpacing, 공간이 부족하면 겹치도록 조정
+                val overlapOffset = if (totalItemWidth > recyclerViewWidth) minOverlap.toInt() else maxSpacing.toInt()
+
+                // 기존 ItemDecoration 제거 (중복 적용 방지)
+                while (binding.rvPersonIconPlanDetail.itemDecorationCount > 0) {
+                    binding.rvPersonIconPlanDetail.removeItemDecorationAt(0)
+                }
+
+                // 새로운 ItemDecoration 추가
+                binding.rvPersonIconPlanDetail.addItemDecoration(object : RecyclerView.ItemDecoration() {
+                    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                        val position = parent.getChildAdapterPosition(view)
+                        if (position > 0) {
+                            outRect.left = overlapOffset // 가변 간격 조정
+                        }
+                    }
+                })
+
+                binding.rvPersonIconPlanDetail.invalidateItemDecorations() // UI 즉시 반영
+            }
+        })
     }
 
     fun dp2px(dp: Float, context: Context) = TypedValue.applyDimension(

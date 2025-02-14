@@ -8,7 +8,7 @@
     <!-- Plan -->
     <string name="title_my_travel_schedule">나의 여행일정</string>
     <string name="description_travel_add_button">여행 추가 버튼</string>
-    <string name="description_plan_image">여행 대표 이미지</string>
+    <string name="description_plan_image">여행 대표 이미지 작가 djvstock 출처 Freepik</string>
     <string name="description_plan_edit_button">일정 수정 버튼</string>
     <string name="description_plan_delete_button">일정 삭제 버튼</string>
     <string name="title_dialog_edit_trip">일정 정보 수정</string>

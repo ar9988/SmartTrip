@@ -3,7 +3,7 @@ package com.neungi.domain.usecase
 import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.Trip
 import com.neungi.domain.repository.TripsRepository
-import retrofit2.Response
+
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -15,6 +15,7 @@ class GetTripUseCase @Inject constructor(
     }
 
     suspend fun makeTrip(userId: String,title:String,startDate: LocalDate,endDate: LocalDate) : ApiResult<Boolean> {
+
         return tripsRepository.createTrip(userId,title,startDate,endDate)
     }
 
