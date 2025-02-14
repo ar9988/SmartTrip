@@ -11,6 +11,7 @@ import com.neungi.domain.model.Trip
 import com.neungi.domain.usecase.GetOverviewUseCase
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
 import com.neungi.domain.usecase.GetRecommendPlaceUseCase
+import com.neungi.domain.usecase.GetTripUseCase
 import com.neungi.domain.usecase.PlaceFollowUseCase
 import com.neungi.domain.usecase.SaveNotificationUseCase
 import com.neungi.moyeo.util.CommonUtils
@@ -38,7 +39,8 @@ class HomeViewModel @Inject constructor(
     private val getOverviewUseCase: GetOverviewUseCase,
     private val saveNotificationUseCase: SaveNotificationUseCase,
     private val getRecommendPlaceUseCase: GetRecommendPlaceUseCase,
-    private val placeFollowUseCase: PlaceFollowUseCase
+    private val placeFollowUseCase: PlaceFollowUseCase,
+    private val getTripUseCase: GetTripUseCase
 ) : ViewModel(),onHomeClickListener {
 
     private val _homeUiState = MutableStateFlow<HomeUiState>(HomeUiState())
@@ -113,7 +115,26 @@ class HomeViewModel @Inject constructor(
     init{
         getRecommendPlace()
         getFestivalList()
+        getLatestTrip()
         getNotification()
+    }
+
+    fun getLatestTrip(){
+        viewModelScope.launch {
+            getTripUseCase.getLatestTrip().collectLatest { result ->
+                Timber.d("${result.data}")
+                when (result.status) {
+                    ApiStatus.SUCCESS -> {
+                        _homeScheduleCardTrip.value = result.data
+                    }
+                    ApiStatus.ERROR -> _homeScheduleCardTrip.value = null
+                    ApiStatus.FAIL -> _homeScheduleCardTrip.value = null
+                    ApiStatus.LOADING -> _homeScheduleCardTrip.value = null
+                }
+
+            }
+        }
+
     }
 
     fun getFestivalList() {
@@ -199,11 +220,14 @@ class HomeViewModel @Inject constructor(
                 _homeUiState.update { currentState ->
                     when (result.status) {
                         ApiStatus.SUCCESS -> {
-                            _recommendPlaces.value = result.data?: emptyList()
+                            val places = result.data ?: emptyList()
+                            Timber.d("받은 일정! ${places}")
+                            _recommendPlaces.value = places
                             currentState.copy(
-                                places = result.data ?: emptyList(),
+                                places = places,
                                 isLoading = false
                             )
+
                         }
                         ApiStatus.LOADING -> currentState.copy(isLoading = true)
                         else -> currentState.copy(
@@ -251,7 +275,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onClickFollow(contentId:String){
+    override fun onClickFollow(contentId:String){
         viewModelScope.launch {
             placeFollowUseCase(contentId).collect(){result->
                 when(result.status){
@@ -283,10 +307,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+
+
     //Notification내역 가져오기
     fun getNotification(){
         viewModelScope.launch {
-            saveNotificationUseCase.getNotification().conflate().collect() { notificationList ->
+            saveNotificationUseCase.getNotification().collect { notificationList ->
                 Timber.d("notification : $notificationList")
                 _notificationHistory.update { notificationList }
             }
@@ -313,6 +339,16 @@ class HomeViewModel @Inject constructor(
         }
 
     }
+
+    override fun onClickTripCard() {
+        viewModelScope.launch {
+            _homeUiEvent.emit(HomeUiEvent.GoToPlanDetail)
+        }
+    }
+
+
+
+
 
 
 
