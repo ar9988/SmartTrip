@@ -18,8 +18,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @Transactional
 public class TripViewService {
@@ -129,6 +132,27 @@ public class TripViewService {
         return TripCreateDto.from(savedTrip);
     }
 
+    @Transactional
+    public void deleteTrip(Integer tripId) {
+        tripRepository.deleteById(tripId);
+        log.info("Trip deletion completed for ID: {}", tripId);
 
+    }
+
+    public void updateTrip(Integer tripId, TripUpdateRequest request) {
+
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new EntityNotFoundException("Trip not found"));
+        log.info("Trip found: {}", trip);
+
+        trip.updateTrip(
+                request.getTitle(),
+                request.getStartDate(),
+                request.getEndDate()
+        );
+
+        tripRepository.save(trip);
+    }
 
 }
