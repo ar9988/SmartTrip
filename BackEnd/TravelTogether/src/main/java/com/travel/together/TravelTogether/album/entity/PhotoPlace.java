@@ -23,4 +23,7 @@ public class PhotoPlace {
 
     @Column(length = 10, nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "photoPlace", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Photo> photos;
 }

@@ -46,8 +46,8 @@ public class Trip {
 
 
     // PhotoAlbum과의 관계 추가
-    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PhotoAlbum> photoAlbums = new ArrayList<>();
+    @OneToOne(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PhotoAlbum photoAlbum;
 
     // TripMember와의 관계 추가
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
