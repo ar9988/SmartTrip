@@ -48,7 +48,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             mainViewModel.userLoginInfo.collect {
                 if (it != null) {
                     tripViewModel.getTrips(it.userId)
-                    // tripViewModel.getTrips("8")
                     user = it
                 }
             }

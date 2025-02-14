@@ -118,7 +118,7 @@ fun createItemTouchHelperCallback(
             super.clearView(recyclerView, viewHolder)
             // 드래그가 끝났을 때 원래 배경으로 복원
             viewHolder.itemView.findViewById<ConstraintLayout>(R.id.card_schedule)?.let { card ->
-                card.setBackgroundResource(R.drawable.round_border)  // 기본 배경
+                card.background = null
             }
         }
 

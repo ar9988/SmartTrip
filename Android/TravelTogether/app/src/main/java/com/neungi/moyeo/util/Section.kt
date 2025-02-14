@@ -28,6 +28,7 @@ fun convertToSections(scheduleReceive: ScheduleReceive, trip: Trip): MutableList
             ) + ")",
             positionPath = ((index + 1) * 10000 - 1)
             // 경계값과 동일한 일정이 생겨도 헤더가 위로 오게 하기위함 Item의 path값을 계산할땐 +1해서 계산
+        // 경계값과 동일한 일정이 생겨도 헤더가 위로 오게 하기위함 Item의 path값을 계산할땐 +1해서 계산
         )
 
         // 각 Day의 schedule을 items로 설정

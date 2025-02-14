@@ -168,6 +168,9 @@
     <string name="festival_title_home">축제 정보를 확인해보세요!</string>
     <string name="person_icon">Person Icon</string>
     <string name="Trip_Title_hint">Enter Title</string>
+    <string name="text_dialog_ok">확인</string>
+    <string name="text_dialog_delete">삭제</string>
+    <string name="text_minute">분</string>
 
 
 </resources>
