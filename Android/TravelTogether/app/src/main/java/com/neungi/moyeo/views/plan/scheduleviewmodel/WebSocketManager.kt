@@ -84,7 +84,7 @@ class WebSocketManager @Inject constructor() {
 
                     jsonObject.has("placeName") -> {
                         val add = gson.fromJson(text, ScheduleData::class.java)
-//                        Timber.d(add.toString())
+                        Timber.d(add.toString())
                         onAddEventReceived?.invoke(add)
                     }
                     jsonObject.has("dayOrder") -> {
