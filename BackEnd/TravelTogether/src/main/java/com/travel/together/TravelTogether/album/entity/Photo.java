@@ -1,10 +1,12 @@
 package com.travel.together.TravelTogether.album.entity;
 
 import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.comment.entity.Comment;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +32,9 @@ public class Photo {
 
     @Column(length = 200, nullable = false)
     private String filePath;
+
+    @OneToMany(mappedBy = "photo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 
 
     private float latitude;
