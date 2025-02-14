@@ -138,7 +138,8 @@ public class AiplanningService {
 
             KakaoDto place = kakaoResponse.getPlaces().get(0);
 
-            if (place.getPlaceName().equals("식사")) {
+            // 식사 일정의 경우 0.0으로 좌표값 반환
+            if (activity.getName().equals("식사")) {
                 Double lat = 0.0;
                 Double lng = 0.0;
             } else {
@@ -149,7 +150,7 @@ public class AiplanningService {
             Schedule planningData = Schedule.builder()
                     .day(day)
                     .trip(day.getTrip())
-                    .placeName(activity.getName())
+                    .placeName(place.getPlaceName())
                     .orderNum(1)
                     .lat(place.getLatitude())
                     .lng(place.getLongitude())
