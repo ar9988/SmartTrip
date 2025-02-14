@@ -29,7 +29,7 @@ import timber.log.Timber
 class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     private val tripViewModel: TripViewModel by activityViewModels()
-    private val mainViewModel : MainViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
     private val aiPlaningViewModel: AIPlanningViewModel by activityViewModels()
     private lateinit var tripAdapter: TripAdapter
     private lateinit var user: LoginInfo
@@ -45,11 +45,16 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         }
 
         lifecycleScope.launch {
-            mainViewModel.userLoginInfo.collect{
+            mainViewModel.userLoginInfo.collect {
                 if (it != null) {
                     tripViewModel.getTrips(it.userId)
                     user = it
                 }
+            }
+        }
+        lifecycleScope.launch {
+            tripViewModel.trips.collectLatest { tripList ->
+                tripAdapter.submitList(tripList)
             }
         }
 
@@ -89,17 +94,22 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         when (event) {
             TripUiEvent.TripAdd -> {
                 Toast.makeText(requireContext(), "여행이 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                tripViewModel.getTrip(user.userId.toInt())
             }
+
             TripUiEvent.TripAddFail -> {
                 Toast.makeText(requireContext(), "여행 추가에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
 
             TripUiEvent.TripDelete -> {
                 Toast.makeText(requireContext(), "여행이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+
             }
+
             TripUiEvent.TripDeleteFail -> {
                 Toast.makeText(requireContext(), "여행 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
+
             else -> {}
 
         }
@@ -134,7 +144,8 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             .setPositiveButton("확인") { dialogInterface, _ ->
                 // "확인" 버튼을 눌렀을 때 삭제 작업 실행
                 tripViewModel.deleteTrip(user.userId, trip.id)
-                Toast.makeText(requireContext(), "${trip.title} 삭제되었습니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "${trip.title} 삭제되었습니다.", Toast.LENGTH_SHORT)
+                    .show()
                 dialogInterface.dismiss()  // 다이어로그 닫기
             }
             .setNegativeButton("취소") { dialogInterface, _ ->
@@ -170,17 +181,13 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
                 Toast.makeText(requireContext(), "옳바른 날짜를 선택해 주세요.", Toast.LENGTH_SHORT).show()
             } else {
                 Timber.d(title.text.toString() + " " + calendar.selectedStartDate.toString() + " " + calendar.selectedEndDate)
-                tripViewModel.createTrip(user.userId, title.text.toString(), calendar.selectedStartDate!!, calendar.selectedEndDate!!)
+                tripViewModel.createTrip(
+                    user.userId,
+                    title.text.toString(),
+                    calendar.selectedStartDate!!,
+                    calendar.selectedEndDate!!
+                )
                 dialog.dismiss()
-            }
-        }
-    }
-
-
-    companion object {
-        fun newInstance(tripId: Int) = PlanFragment().apply {
-            arguments = Bundle().apply {
-                putInt("tripId", tripId)
             }
         }
     }

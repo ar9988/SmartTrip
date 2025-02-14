@@ -69,22 +69,29 @@ class TripViewModel @Inject constructor(
         }
     }
 
-    fun deleteTrip(userId: String, tripId: Int){
+    fun deleteTrip(userId: String, tripId: Int) {
         viewModelScope.launch {
-            val result = getTripUseCase.removeTrip(userId,tripId)
+            val result = getTripUseCase.removeTrip(userId, tripId)
             when (result.status) {
                 ApiStatus.SUCCESS -> {
-                    _tripUiEvent.emit(TripUiEvent.TripDelete)
+                    if (result.data == true) {
+                        // After deletion, filter out the deleted trip from the list
+                        _trips.value = _trips.value.filter { it.id != tripId }
+                        _tripUiEvent.emit(TripUiEvent.TripDelete)
+                    } else {
+                        _tripUiEvent.emit(TripUiEvent.TripDeleteFail)
+                    }
                 }
                 ApiStatus.ERROR, ApiStatus.FAIL -> {
                     _tripUiEvent.emit(TripUiEvent.TripDeleteFail)
                 }
                 ApiStatus.LOADING -> {
-                    // 필요하면 로딩 UI 이벤트 추가 가능
+                    // Loading logic can go here
                 }
             }
         }
     }
+
 
     fun getTrips(userId :String){
         viewModelScope.launch {
@@ -117,13 +124,19 @@ class TripViewModel @Inject constructor(
         }
     }
 
-    fun createTrip(userId:String, title:String ,startDate:LocalDate,endDate:LocalDate) {
+    fun createTrip(userId: String, title: String, startDate: LocalDate, endDate: LocalDate) {
         viewModelScope.launch {
-            val result = getTripUseCase.makeTrip(userId,title,startDate,endDate)
+            val result = getTripUseCase.makeTrip(userId, title, startDate, endDate)
             Timber.d(result.toString())
             when (result.status) {
                 ApiStatus.SUCCESS -> {
-                    _tripUiEvent.emit(TripUiEvent.TripAdd)
+                    if (result.data == true) {
+                        // After a successful trip addition, refresh the trips list
+                        getTrips(userId)
+                        _tripUiEvent.emit(TripUiEvent.TripAdd)
+                    } else {
+                        _tripUiEvent.emit(TripUiEvent.TripAddFail)
+                    }
                 }
                 ApiStatus.ERROR, ApiStatus.FAIL -> {
                     _tripUiEvent.emit(TripUiEvent.TripAddFail)
