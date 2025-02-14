@@ -57,6 +57,7 @@
     <string name="message_photo_upload">이미지를 업로드했습니다.</string>
     <string name="message_fail_to_upload_photo">이미지 업로드에 실패했습니다.</string>
     <string name="message_fail_to_get_photo_comments">남긴 추억 불러오기에 실패했습니다.</string>
+    <string name="message_photo_download">이미지를 다운로드합니다.</string>
     <string name="message_success_to_delete_photo">이미지를 삭제했습니다.</string>
     <string name="message_fail_to_delete_photo">이미지 삭제에 실패했습니다.</string>
     <string name="title_comment_delete">추억 삭제하기</string>

@@ -42,6 +42,8 @@ sealed class AlbumUiEvent {
 
     data object DeletePhotoFail : AlbumUiEvent()
 
+    data object PhotoDownload : AlbumUiEvent()
+
     data object GetPhotoCommentsFail : AlbumUiEvent()
 
     data object PhotoCommentSubmitSuccess : AlbumUiEvent()

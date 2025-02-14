@@ -142,6 +142,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_marginEnd="@dimen/dp_medium"
+                    android:onClick="@{() -> vm.downloadImage()}"
                     android:src="@drawable/ic_photo_share"
                     app:layout_constraintBottom_toBottomOf="@id/tv_name_photo_detail"
                     app:layout_constraintDimensionRatio="1:1"
