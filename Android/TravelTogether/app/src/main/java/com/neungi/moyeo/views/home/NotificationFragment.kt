@@ -36,12 +36,10 @@ class NotificationFragment: BaseFragment<FragmentNotificationBinding>(R.layout.f
             notificationAdapter.submitList(history)
         }
 
-
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.getNotification()
         mainViewModel.setBnvState(false)
     }
 

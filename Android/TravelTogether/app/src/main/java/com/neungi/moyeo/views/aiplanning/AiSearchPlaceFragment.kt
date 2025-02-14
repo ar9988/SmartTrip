@@ -88,7 +88,15 @@ open class AiSearchPlaceFragment : BaseFragment<FragmentAiSearchPlaceBinding>(R.
     open fun setAdapter() {
         searchPlaceAdapter = SearchPlaceAdapter(viewModel)
         binding.rvAiSearchResult.adapter = searchPlaceAdapter
-        searchFollowedPlaceAdapter = SearchFollowedPlaceAdapter({placeName->viewModel.togglePlaceSelection(placeName)},{contentId->mainViewModel.onClickFollow(contentId)},{viewModel.onClickPopBackToDestiination()})
+        searchFollowedPlaceAdapter = SearchFollowedPlaceAdapter(
+            onCardClick = {
+                placeName->viewModel.togglePlaceSelection(placeName)
+                viewModel.onClickPopBackToDestiination()
+                      },
+            onFollowClick = {contentId->
+                mainViewModel.onClickFollow(contentId)
+                mainViewModel.triggerRefresh()
+            })
         binding.rvFollowedPlaceSearch.adapter = searchFollowedPlaceAdapter
     }
 

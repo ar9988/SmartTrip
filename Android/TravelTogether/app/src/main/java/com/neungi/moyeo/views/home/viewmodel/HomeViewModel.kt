@@ -17,11 +17,15 @@ import com.neungi.moyeo.util.CommonUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -61,15 +65,19 @@ class HomeViewModel @Inject constructor(
     private val _recommendFestivals = MutableStateFlow<List<Festival>>(emptyList())
     val recommendFestivals = _recommendFestivals.asStateFlow()
 
-    private val _festivalState =
-        MutableStateFlow<ApiResult<List<Festival>>>(ApiResult.success(emptyList()))
-    val festivalState = _festivalState.asStateFlow()
 
     private val _dialogFestival = MutableStateFlow<Festival?>(null)
     val dialogFestival = _dialogFestival.asStateFlow()
 
     private val _notificationHistory = MutableStateFlow<List<Notification>>(emptyList())
     val notificationHistory = _notificationHistory.asStateFlow()
+
+    val hasNotification = notificationHistory.map { it.isNotEmpty() }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            false
+        )
 
     private val _randomSelectedRegion = MutableStateFlow<Pair<String, String>>(Pair("", ""))
     val randomSelectedRegion = _randomSelectedRegion.asStateFlow()
@@ -103,25 +111,31 @@ class HomeViewModel @Inject constructor(
 //    val festivalState = _festivalState.asStateFlow()
 
     init{
+        getRecommendPlace()
         getFestivalList()
+        getNotification()
     }
 
     fun getFestivalList() {
         viewModelScope.launch {
             val today = LocalDate.now()
             val endDate = today.plusDays(30)
-
+            Timber.d("getFestivalList started")
             getRecommendFestivalUseCase(
                 CommonUtils.convertToYYYYMMDDwithHyphen(today),
                 CommonUtils.convertToYYYYMMDDwithHyphen(endDate),
                 "-1"
             ).collectLatest { result ->
+                Timber.d("Festival result: $result")
                 _homeUiState.update { currentState ->
                     when (result.status) {
-                        ApiStatus.SUCCESS -> currentState.copy(
-                            festivals = result.data ?: emptyList(),
-                            isLoading = false
-                        )
+                        ApiStatus.SUCCESS -> {
+                            _recommendFestivals.value = result.data?: emptyList()
+                            currentState.copy(
+                                festivals = result.data ?: emptyList(),
+                                isLoading = false
+                            )
+                        }
                         ApiStatus.LOADING -> currentState.copy(isLoading = true)
                         else -> currentState.copy(
                             error = "축제 정보를 불러오는데 실패했습니다",
@@ -184,10 +198,13 @@ class HomeViewModel @Inject constructor(
             getRecommendPlaceUseCase(randomSelectedRegion.value.second).collectLatest { result ->
                 _homeUiState.update { currentState ->
                     when (result.status) {
-                        ApiStatus.SUCCESS -> currentState.copy(
-                            places = result.data ?: emptyList(),
-                            isLoading = false
-                        )
+                        ApiStatus.SUCCESS -> {
+                            _recommendPlaces.value = result.data?: emptyList()
+                            currentState.copy(
+                                places = result.data ?: emptyList(),
+                                isLoading = false
+                            )
+                        }
                         ApiStatus.LOADING -> currentState.copy(isLoading = true)
                         else -> currentState.copy(
                             error = "장소 정보를 불러오는데 실패했습니다",
@@ -269,9 +286,9 @@ class HomeViewModel @Inject constructor(
     //Notification내역 가져오기
     fun getNotification(){
         viewModelScope.launch {
-            saveNotificationUseCase.getNotifiaacion().first() {notificationLsit ->
-                _notificationHistory.update { notificationLsit }
-                true
+            saveNotificationUseCase.getNotification().conflate().collect() { notificationList ->
+                Timber.d("notification : $notificationList")
+                _notificationHistory.update { notificationList }
             }
         }
     }

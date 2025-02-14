@@ -96,7 +96,8 @@ class MainViewModel @Inject constructor(
     private val _searchFollowedPlaces = MutableStateFlow<List<Place>>(emptyList())
     val searchFollowedPlaces = _searchFollowedPlaces.asStateFlow()
 
-
+    private val _refreshTrigger = MutableStateFlow(false)
+    val refreshTrigger = _refreshTrigger.asStateFlow()
 
 
 
@@ -255,5 +256,13 @@ class MainViewModel @Inject constructor(
                 setFCMUseCase.registFCMToken(loginInfo.userId, deviceId, token)
             }
         }
+    }
+
+    fun triggerRefresh() {
+        _refreshTrigger.value = true
+    }
+
+    fun offRefreshTrigger() {
+        _refreshTrigger.value = false
     }
 }

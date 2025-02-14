@@ -14,8 +14,7 @@ import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.home.viewmodel.HomeViewModel
 
 class SearchFollowedPlaceAdapter(private val onCardClick: (String) -> Unit,
-                                 private val onFollowClick: (String) -> Unit,
-                                private val onPop:()->Unit) : ListAdapter<Place, SearchFollowedPlaceAdapter.HomePlaceViewHolder>(PlaceDiffCallback()) {
+                                 private val onFollowClick: (String) -> Unit) : ListAdapter<Place, SearchFollowedPlaceAdapter.HomePlaceViewHolder>(PlaceDiffCallback()) {
     inner class HomePlaceViewHolder(val binding: ItemPlaceSearchBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Place) {
@@ -27,7 +26,6 @@ class SearchFollowedPlaceAdapter(private val onCardClick: (String) -> Unit,
             }
             binding.cvItemFollowedPlace.setOnClickListener{
                 onCardClick(item.placeName)
-                onPop()
             }
             binding.ivFollow.setOnClickListener{
                 onFollowClick(item.contentId)

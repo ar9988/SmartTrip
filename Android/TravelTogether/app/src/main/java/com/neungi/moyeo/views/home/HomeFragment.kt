@@ -12,7 +12,9 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import coil.load
@@ -57,18 +59,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.vm = viewModel
-        mainViewModel.setLoadingState(true)
         setAdapter()
-        collectLatestFlow(mainViewModel.userLoginInfo){ userInfo->
-            binding.loginInfo = userInfo
-            binding.ivProfile.load(userInfo?.userProfileImg?:"https://i.namu.wiki/i/d1A_wD4kuLHmOOFqJdVlOXVt1TWA9NfNt_HA0CS0Y_N0zayUAX8olMuv7odG2FiDLDQZIRBqbPQwBSArXfEJlQ.webp") {
-                crossfade(true)
-                transformations(CircleCropTransformation())
-                error(R.drawable.ic_profile)
-            }
-        }
         observeStates()
         loadQuotes()
     }
@@ -115,9 +107,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
     override fun onResume() {
         super.onResume()
-
+        Timber.d("HomeUiState festivals size: ${viewModel.homeUiState.value}")
         mainViewModel.setBnvState(true)
-        viewModel.getRecommendPlace()
     }
 
     private fun handleUiEvent(event: HomeUiEvent) {
@@ -137,21 +128,60 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     }
 
     fun observeStates(){
-        collectLatestFlow(viewModel.homeUiEvent) { handleUiEvent(it) }
-        lifecycleScope.launch {
-            viewModel.homeUiState.collect { state ->
-                homeFestivalAdapter.submitList(state.festivals)
-                homePlaceAdapter.submitList(state.places)
-                mainViewModel.setLoadingState(state.isLoading)
-                binding.nscrollviewHome.visibility =if(state.isLoading ==false) {
-                    View.VISIBLE
-                }else{
-                    View.GONE
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.homeUiEvent.collect { event ->
+                        handleUiEvent(event)
+                    }
                 }
-                state.error?.let { error ->
+
+                // UI 상태 수집
+                launch {
+                    viewModel.homeUiState.collect { state ->
+                        binding?.let { binding ->
+                            homeFestivalAdapter.submitList(viewModel.recommendFestivals.value)
+                            homePlaceAdapter.submitList(viewModel.recommendPlace.value)
+                            mainViewModel.setLoadingState(state.isLoading)
+                            binding.nscrollviewHome.visibility = if (state.isLoading == false) {
+                                View.VISIBLE
+                            } else {
+                                View.GONE
+                            }
+                        }
+                        state.error?.let { error ->
+                        }
+                    }
+                }
+
+                // 새로고침 트리거 수집
+                launch {
+                    mainViewModel.refreshTrigger.collect { shouldRefresh ->
+                        if (shouldRefresh) {
+                            viewModel.getRecommendPlace()
+                            viewModel.getFestivalList()
+                            mainViewModel.offRefreshTrigger()
+                        }
+                    }
+                }
+                launch{
+                    mainViewModel.userLoginInfo.collect{ userInfo->
+                        binding?.let { binding ->
+                            binding.loginInfo = userInfo
+                            binding.ivProfile.load(
+                                userInfo?.userProfileImg
+                                    ?: "https://i.namu.wiki/i/d1A_wD4kuLHmOOFqJdVlOXVt1TWA9NfNt_HA0CS0Y_N0zayUAX8olMuv7odG2FiDLDQZIRBqbPQwBSArXfEJlQ.webp"
+                            ) {
+                                crossfade(true)
+                                transformations(CircleCropTransformation())
+                                error(R.drawable.ic_profile)
+                            }
+                        }
+                    }
                 }
             }
         }
+
     }
 
     private fun showFestivalDialog(){

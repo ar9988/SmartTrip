@@ -10,7 +10,7 @@ class SaveNotificationUseCase@Inject constructor(
 ) {
     suspend fun saveNotifiacation(newNotification: Notification) = dataStoreRepository.saveNotification(newNotification)
 
-    fun getNotifiaacion():Flow<List<Notification>> = dataStoreRepository.getNotifications()
+    fun getNotification():Flow<List<Notification>> = dataStoreRepository.getNotifications()
 
     suspend fun deleteNotification(notificationId: String) = dataStoreRepository.deleteNotification(notificationId)
 
