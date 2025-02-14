@@ -82,8 +82,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/card_schedule"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/round_border">
+                android:layout_height="match_parent">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_schedule_icon"
