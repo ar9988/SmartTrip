@@ -32,8 +32,8 @@ class SectionedAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var sections = mutableListOf<Section>()
-    val pathItems = mutableMapOf<Int, Int>() //key = scheduelId , value = time
-//    val pathInfo
+    val pathItems = mutableMapOf<Int, Int>() //key = scheduelId , value = travel time
+    val pathInfo = mutableMapOf<Int, Int>() // key = scheduleId , value = day
     private var listItems = mutableListOf<ListItem>()
 
     inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
@@ -192,6 +192,7 @@ class SectionedAdapter(
 
                 is ListItem.Item -> {
                     currentSection?.add(item.data)
+                    pathInfo[item.data.scheduleId] = item.data.positionPath/10000
                     handleMarker(item.data,true)
                 }
             }

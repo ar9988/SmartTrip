@@ -58,11 +58,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private val tripViewModel: TripViewModel by activityViewModels()
     private val mainViewModel: MainViewModel by activityViewModels()
 
-    private var tripId : Int =-1
+    private var tripId: Int = -1
 
     // Map related properties
     private lateinit var naverMap: NaverMap
-    private val paths = mutableMapOf<Int, List<LatLng>>()
+    private val paths = mutableMapOf<Int, List<LatLng>>() // key = schedule ID, value = path
     private val multipartPathOverlay = MultipartPathOverlay()
     private val markerMap = HashMap<Int, Marker>()
 
@@ -228,22 +228,26 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         multipartPathOverlay.map = null
         val pathList = paths.values.toList()
         multipartPathOverlay.coordParts = pathList
-        multipartPathOverlay.colorParts = createColorParts(pathList.size)
+        multipartPathOverlay.colorParts = createColorParts()
     }
 
-    private fun createColorParts(pathCount: Int): List<MultipartPathOverlay.ColorPart> {
+    private fun createColorParts(): List<MultipartPathOverlay.ColorPart> {
         val colors = listOf(
             Color.RED, Color.YELLOW, Color.GREEN, Color.CYAN,
             Color.BLUE, Color.MAGENTA, Color.BLACK, Color.DKGRAY
         )
-        return List(pathCount) { index ->
-            MultipartPathOverlay.ColorPart(
-                colors[index % colors.size],
-                Color.WHITE,
-                Color.DKGRAY,
-                Color.LTGRAY
+        val list = mutableListOf<MultipartPathOverlay.ColorPart>()
+        paths.keys.forEach {
+            list.add(
+                MultipartPathOverlay.ColorPart(
+                    colors[sectionedAdapter.pathInfo[it]!!],
+                    Color.WHITE,
+                    Color.DKGRAY,
+                    Color.LTGRAY
+                )
             )
         }
+        return list
     }
 
     private fun convertToLatLngList(path: List<List<Double>>): List<LatLng> {
@@ -258,7 +262,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             onEditClick = { scheduleData -> showEditDialog(scheduleData) },
             onAddClick = { dayId -> navigateToAddSchedule(dayId) },
             onDeletePath = { scheduleId -> removePathOverlay(scheduleId) },
-            handleMarker = { scheduleData, flag ->  handleMarker(scheduleData,flag)},
+            handleMarker = { scheduleData, flag -> handleMarker(scheduleData, flag) },
             recyclerView = binding.rvPlanDetail
         )
 
@@ -426,11 +430,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         }
     }
 
-    private fun handleMarker(scheduleData: ScheduleData,flag:Boolean) {
-        if(!flag) {
+    private fun handleMarker(scheduleData: ScheduleData, flag: Boolean) {
+        if (!flag) {
             markerMap[scheduleData.scheduleId]?.map = null
             markerMap.remove(scheduleData.scheduleId)
-        } else if(markerMap.containsKey(scheduleData.scheduleId)) {
+        } else if (markerMap.containsKey(scheduleData.scheduleId)) {
             return
         } else {
             val marker = Marker().apply {
@@ -451,13 +455,15 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleMemberList(members: List<Member>) {
         binding.rvPersonIconPlanDetail.adapter = PersonIconAdapter(members.map { it.userId })
-        binding.rvPersonIconPlanDetail.layoutManager = NonScrollableHorizontalLayoutManager(requireContext())
+        binding.rvPersonIconPlanDetail.layoutManager =
+            NonScrollableHorizontalLayoutManager(requireContext())
         binding.rvPersonIconPlanDetail.setHasFixedSize(true) // RecyclerView 크기 고정
         binding.rvPersonIconPlanDetail.overScrollMode = View.OVER_SCROLL_NEVER // 오버스크롤 방지
         binding.rvPersonIconPlanDetail.isNestedScrollingEnabled = false // 내부 스크롤 비활성화
         binding.rvPersonIconPlanDetail.clipChildren = false
         binding.rvPersonIconPlanDetail.clipToPadding = false
-        binding.rvPersonIconPlanDetail.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        binding.rvPersonIconPlanDetail.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 binding.rvPersonIconPlanDetail.viewTreeObserver.removeOnGlobalLayoutListener(this)
 
@@ -472,7 +478,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 val totalItemWidth = (itemWidth * itemCount) + (maxSpacing * (itemCount - 1))
 
                 // 공간이 충분할 경우 maxSpacing, 공간이 부족하면 겹치도록 조정
-                val overlapOffset = if (totalItemWidth > recyclerViewWidth) minOverlap.toInt() else maxSpacing.toInt()
+                val overlapOffset =
+                    if (totalItemWidth > recyclerViewWidth) minOverlap.toInt() else maxSpacing.toInt()
 
                 // 기존 ItemDecoration 제거 (중복 적용 방지)
                 while (binding.rvPersonIconPlanDetail.itemDecorationCount > 0) {
@@ -480,8 +487,14 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                 }
 
                 // 새로운 ItemDecoration 추가
-                binding.rvPersonIconPlanDetail.addItemDecoration(object : RecyclerView.ItemDecoration() {
-                    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                binding.rvPersonIconPlanDetail.addItemDecoration(object :
+                    RecyclerView.ItemDecoration() {
+                    override fun getItemOffsets(
+                        outRect: Rect,
+                        view: View,
+                        parent: RecyclerView,
+                        state: RecyclerView.State
+                    ) {
                         val position = parent.getChildAdapterPosition(view)
                         if (position > 0) {
                             outRect.left = overlapOffset // 가변 간격 조정
@@ -495,7 +508,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     fun dp2px(dp: Float, context: Context) = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics)
+        TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics
+    )
 
     companion object {
 
