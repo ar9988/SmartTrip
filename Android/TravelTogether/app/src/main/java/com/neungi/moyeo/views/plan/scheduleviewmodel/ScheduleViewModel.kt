@@ -33,7 +33,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val getUserInfoUseCase: GetUserInfoUseCase,
-    private val getScheduleUseCase: GetScheduleUseCase,
     private val getInviteUseCase: GetInviteUseCase,
     private val webSocketManager: WebSocketManager
 ) : ViewModel(), OnScheduleClickListener {

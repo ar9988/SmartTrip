@@ -47,8 +47,8 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         lifecycleScope.launch {
             mainViewModel.userLoginInfo.collect {
                 if (it != null) {
-                    tripViewModel.getTrips(it.userId)
-//                    tripViewModel.getTrips("8")
+//                    tripViewModel.getTrips(it.userId)
+                    tripViewModel.getTrips("17")
                     user = it
                 }
             }
@@ -139,14 +139,16 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
 
     private fun showDeleteConfirmationDialog(trip: Trip) {
         // 다이어로그 생성
+        if(!::user.isInitialized||user.userId.isEmpty()){
+            Toast.makeText(requireContext(), "로그인 해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val dialog = AlertDialog.Builder(requireContext())
             .setTitle("삭제 확인")
             .setMessage("${trip.title} 을(를) 삭제하시겠습니까?")
             .setPositiveButton("확인") { dialogInterface, _ ->
                 // "확인" 버튼을 눌렀을 때 삭제 작업 실행
                 tripViewModel.deleteTrip(user.userId, trip.id)
-                Toast.makeText(requireContext(), "${trip.title} 삭제되었습니다.", Toast.LENGTH_SHORT)
-                    .show()
                 dialogInterface.dismiss()  // 다이어로그 닫기
             }
             .setNegativeButton("취소") { dialogInterface, _ ->
@@ -169,7 +171,7 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
         val title = dialogBinding.editTextTitle
         val calendar = dialogBinding.calendarView
         val dialog = AlertDialog.Builder(requireContext())
-            .setTitle("여행시작일과 종료일을 선택해주세요")
+            .setTitle("빈 여행 생성하기")
             .setView(dialogBinding.root)
             .setPositiveButton("추가하기") { dialogInterface, _ -> }
             .setNegativeButton("취소하기", null)
