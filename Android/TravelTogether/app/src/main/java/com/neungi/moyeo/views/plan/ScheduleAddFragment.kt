@@ -30,6 +30,9 @@ class ScheduleAddFragment : AiSearchPlaceFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Timber.d(tripId.toString()+" "+dayId.toString())
+        binding.tvTitleFollowed.visibility= View.GONE
+        binding.rvFollowedPlaceSearch.visibility= View.GONE
+        binding.tvAiSearchEmpty.visibility = View.VISIBLE
     }
     override fun onAttach(context: Context) {
         super.onAttach(context)
