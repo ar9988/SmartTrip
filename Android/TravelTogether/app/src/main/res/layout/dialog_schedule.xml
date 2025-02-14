@@ -54,7 +54,7 @@
         app:layout_constraintEnd_toStartOf="@id/tv_minute_label"
         app:layout_constraintTop_toTopOf="@id/text_duration"
         app:layout_constraintBottom_toBottomOf="@id/text_duration"
-        android:background="@android:color/transparent"/>
+        android:background="@drawable/underline"/>
     <TextView
         android:id="@+id/tv_minute_label"
         android:layout_width="wrap_content"
