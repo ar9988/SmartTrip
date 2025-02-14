@@ -188,6 +188,7 @@ class MainViewModel @Inject constructor(
 
     fun login(){
         viewModelScope.launch {
+            Timber.d("Login")
             getUserInfoUseCase.getLoginInfo().first() { loginInfo ->
                 _userLoginInfo.value = loginInfo
                 when (_userLoginInfo.value == null) {
