@@ -10,5 +10,5 @@ public class MemberDTO {
     private String userId;
     private String name;
     private boolean owner;
-
+    private String profileImage;
 }

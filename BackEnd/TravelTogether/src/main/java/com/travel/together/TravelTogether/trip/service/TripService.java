@@ -62,7 +62,8 @@ public class TripService {
                     return new MemberDTO(
                             member.getUser().getId().toString(),
                             member.getUser().getName(),
-                            member.getIsOwner());
+                            member.getIsOwner(),
+                            member.getUser().getProfile_image());
                 })
                 .collect(Collectors.toList());
 
