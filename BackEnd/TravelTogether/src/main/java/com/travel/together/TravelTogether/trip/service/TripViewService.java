@@ -50,7 +50,9 @@ public class TripViewService {
     // 전체 여행 조회
     @Transactional
     public TripResponse getAllTrip(Integer userId) {
-        List<Trip> trips = tripRepository.findTripsByUserId(userId);
+        // endDate가 현재시각 이후인 여행만 조회
+        List<Trip> trips = tripRepository.findActiveTripsByUserId(userId);
+
 
         // 각 여행별 멤버 수 계산
         List<Object[]> countResults = tripMemberRepository.countMembersByTripId();

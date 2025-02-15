@@ -13,6 +13,9 @@ import java.util.Optional;
 @Repository
 public interface TripRepository extends JpaRepository<Trip, Integer> {
 
+    @Query("SELECT t FROM Trip t WHERE t.creator.id = :userId AND t.endDate >= CURRENT_TIMESTAMP")
+    List<Trip> findActiveTripsByUserId(@Param("userId") Integer userId);
+
     @Query(value =
             "SELECT t.* FROM trip t " +
                     "INNER JOIN trip_member tm ON t.id = tm.trip_id " +

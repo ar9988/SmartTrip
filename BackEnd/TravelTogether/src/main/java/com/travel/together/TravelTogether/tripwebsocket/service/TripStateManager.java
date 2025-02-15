@@ -256,7 +256,7 @@ public class TripStateManager {
 
                 // 현재 일정이나 다음 일정이 휴식(type=2)인 경우 path 생성 건너뛰기
                 if (currentSchedule.getType() == 2 || nextSchedule.getType() == 2) {
-                    log.info("Skipping path generation for rest schedule: {} -> {}",
+                    log.info("type=2인 schedule 스킵: {} -> {}",
                             currentSchedule.getId(), nextSchedule.getId());
                     continue;
                 }
@@ -348,17 +348,33 @@ public class TripStateManager {
 
             // 이전 스케줄과의 경로
             if (prevScheduleId != null && scheduleMap.containsKey(prevScheduleId)) {
-                PathInfo prevPath = generatePath(scheduleMap.get(prevScheduleId), movedSchedule);
-                if (prevPath != null) {
-                    paths.add(prevPath);
+                Schedule prevSchedule = scheduleMap.get(prevScheduleId);
+
+                // 이전 스케줄이나 이동된 스케줄이 휴식인 경우 제외
+                if (prevSchedule.getType() != 2 && movedSchedule.getType() != 2) {
+                    PathInfo prevPath = generatePath(prevSchedule, movedSchedule);
+                    if (prevPath != null) {
+                        paths.add(prevPath);
+                    }
+                } else {
+                    log.info("type=2인 schedule 스킵 - prev: {}, moved: {}",
+                            prevScheduleId, movedScheduleId);
                 }
+
             }
 
             // 다음 스케줄과의 경로
             if (nextScheduleId != null && scheduleMap.containsKey(nextScheduleId)) {
-                PathInfo nextPath = generatePath(movedSchedule, scheduleMap.get(nextScheduleId));
-                if (nextPath != null) {
-                    paths.add(nextPath);
+                Schedule nextSchedule = scheduleMap.get(nextScheduleId);
+                // 다음 스케줄이나 이동된 스케줄이 휴식인 경우 제외
+                if (nextSchedule.getType() != 2 && movedSchedule.getType() != 2) {
+                    PathInfo nextPath = generatePath(movedSchedule, nextSchedule);
+                    if (nextPath != null) {
+                        paths.add(nextPath);
+                    }
+                } else {
+                    log.info("type=2인 schedule 스킵 - moved: {}, next: {}",
+                            movedScheduleId, nextScheduleId);
                 }
             }
 
