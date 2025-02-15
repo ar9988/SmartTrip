@@ -9,4 +9,8 @@ import lombok.Data;
 public class EditedScheduleInfo {
     private Integer duration;
     private String placeName;
+
+    public EditedScheduleInfo() {
+
+    }
 }

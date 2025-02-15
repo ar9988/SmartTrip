@@ -330,9 +330,11 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     Set<WebSocketSession> tripSessionSet = tripSessions.get(tripIdStr);
 
                     if (tripSessionSet != null) {
+                        String broadcastMessage = message.getPayload();
+
                         for (WebSocketSession tripSession : tripSessionSet) {
-                            if (tripSession.isOpen() && !tripSession.getId().equals(session.getId())) {
-                                tripSession.sendMessage(new TextMessage(message.getPayload()));
+                            if (tripSession.isOpen()) {  // 송신자 포함 모든 세션에 전송
+                                tripSession.sendMessage(new TextMessage(broadcastMessage));
                             }
                         }
                     }

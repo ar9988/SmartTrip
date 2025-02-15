@@ -251,6 +251,17 @@ public class TripStateManager {
 
             // 연속된 일정 간의 모든 경로 생성
             for (int i = 0; i < orderedScheduleIds.size() - 1; i++) {
+                Schedule currentSchedule = scheduleMap.get(orderedScheduleIds.get(i));
+                Schedule nextSchedule = scheduleMap.get(orderedScheduleIds.get(i + 1));
+
+                // 현재 일정이나 다음 일정이 휴식(type=2)인 경우 path 생성 건너뛰기
+                if (currentSchedule.getType() == 2 || nextSchedule.getType() == 2) {
+                    log.info("Skipping path generation for rest schedule: {} -> {}",
+                            currentSchedule.getId(), nextSchedule.getId());
+                    continue;
+                }
+
+
                 int currentPosition = positions.get(orderedScheduleIds.get(i));
                 int nextPosition = positions.get(orderedScheduleIds.get(i + 1));
 
@@ -438,11 +449,15 @@ public class TripStateManager {
         log.info("getTripDetailWithEdits called with tripId: {}", tripId);
 
         TripDetailDTO tripDetail = getTripDetail(tripId);
+        log.info("tripDetail is null for tripId: {}", tripId);
+
         if (tripDetail == null) {
             return null;
         }
 
         Map<Integer, EditedScheduleInfo> edits = editedSchedules.get(tripId);
+        log.info("Edits for tripId {}: {}", tripId, edits);
+
         if (edits == null || edits.isEmpty()) {
             return tripDetail;
         }
