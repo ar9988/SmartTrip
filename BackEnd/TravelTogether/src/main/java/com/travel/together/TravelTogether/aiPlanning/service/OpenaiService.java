@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -94,7 +95,11 @@ public class OpenaiService {
             // 난수 생성을 위한 현재 시간 변수
             LocalTime now = LocalTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HHmmss");
-            Integer currentTime = Integer.valueOf(now.format(formatter)) % 17;
+            Integer timeIndex = Integer.valueOf(now.format(formatter)) % 17;
+
+            // 지역 추천을 위한 리스트
+            List<String> regions = Arrays.asList("서울","인천","광주","대구","대전","부산","울산","세종","제주","경기도","강원도","경상북도","경상남도","전라북도","전라남도","충청북도","충청남도");
+            String region = regions.get(timeIndex);
 
             // 요청 데이터로 프롬프트 템플릿을 동적으로 생성
             String prompt = promptTemplate
@@ -105,7 +110,7 @@ public class OpenaiService {
                     .replace("{destination}", listToJsonArray(requestDTO.getDestination()))
                     .replace("{places}", listToJsonArray(requestDTO.getPreferences().getPlaces()))
                     .replace("{theme}", listToJsonArray(requestDTO.getPreferences().getTheme()))
-                    .replace("{currentTime}", currentTime.toString());
+                    .replace("{region}", region.toString());
 
 
             JSONArray messages = new JSONArray();
