@@ -232,15 +232,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun createColorParts(): List<MultipartPathOverlay.ColorPart> {
-        val colors = listOf(
-            Color.RED, Color.YELLOW, Color.GREEN, Color.CYAN,
-            Color.BLUE, Color.MAGENTA, Color.BLACK, Color.DKGRAY
-        )
         val list = mutableListOf<MultipartPathOverlay.ColorPart>()
         paths.keys.forEach {
             list.add(
                 MultipartPathOverlay.ColorPart(
-                    colors[sectionedAdapter.pathInfo[it]!!],
+                    colors[sectionedAdapter.pathInfo[it]!!.first % colors.size],
                     Color.WHITE,
                     Color.DKGRAY,
                     Color.LTGRAY
@@ -320,6 +316,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun handleScheduleEdit(scheduleData: ScheduleData) {
         sectionedAdapter.editItem(scheduleData, isUserDragging)
         val scheduleEntity = createScheduleEntity(scheduleData)
+        scheduleEntity.tripId = tripId
         markerMap[scheduleData.scheduleId]?.apply {
             captionText = scheduleData.placeName
         }
@@ -437,7 +434,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         } else if (markerMap.containsKey(scheduleData.scheduleId)) {
             return
         } else {
+            val info = sectionedAdapter.pathInfo[scheduleData.scheduleId]
             val marker = Marker().apply {
+                iconTintColor = colors[info!!.first % colors.size]
+                subCaptionText = info.first.toString()+" 일차 "+info.second.toString()+"번째 일정"
                 width = 100
                 height = 100
                 position = LatLng(scheduleData.lat, scheduleData.lng)
@@ -512,7 +512,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     )
 
     companion object {
-
+        val colors = listOf(
+            Color.RED, Color.YELLOW, Color.GREEN, Color.CYAN,
+            Color.BLUE, Color.MAGENTA, Color.BLACK, Color.DKGRAY
+        )
 
         fun newInstance(tripId: Int) = PlanDetailFragment().apply {
             arguments = Bundle().apply {
