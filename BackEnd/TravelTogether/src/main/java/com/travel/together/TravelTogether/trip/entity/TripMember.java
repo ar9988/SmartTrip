@@ -31,6 +31,7 @@ public class TripMember {
     public TripMember(Trip trip, User user){
         this.trip = trip;
         this.user = user;
+        this.isOwner = false;
     }
 
 
