@@ -53,7 +53,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:onClick="@{()->vm.onClickToNotifcation()}"
-                    android:src="@drawable/ic_bell" />
+                    android:src="@drawable/ic_notification_outlined" />
 
                 <!-- 알림 표시 점 -->
                 <View

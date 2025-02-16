@@ -36,18 +36,19 @@
                 android:orientation="horizontal"
                 app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
-            <TextView
-                android:id="@+id/tv_title_login"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendardbold"
-                android:text="@string/title_login"
-                android:textAlignment="viewStart"
-                android:textColor="@color/neutral_100"
-                android:textSize="@dimen/font_size_title"
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar_login"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:contentInsetLeft="0dp"
+                app:contentInsetStart="0dp"
+                app:contentInsetStartWithNavigation="0dp"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_login"
                 app:layout_constraintStart_toEndOf="@id/gl_start_login"
-                app:layout_constraintTop_toBottomOf="@id/gl_top_login" />
+                app:layout_constraintTop_toBottomOf="@id/gl_top_login"
+                app:navigationIcon="@drawable/baseline_chevron_left_24"
+                app:title="@string/title_login" />
+
 
             <TextView
                 android:id="@+id/tv_description_login"
@@ -61,7 +62,7 @@
                 app:layout_constraintBottom_toTopOf="@id/til_id_login"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_login"
                 app:layout_constraintStart_toEndOf="@id/gl_start_login"
-                app:layout_constraintTop_toBottomOf="@id/tv_title_login"
+                app:layout_constraintTop_toBottomOf="@id/toolbar_login"
                 app:layout_constraintVertical_chainStyle="packed" />
 
             <com.google.android.material.textfield.TextInputLayout

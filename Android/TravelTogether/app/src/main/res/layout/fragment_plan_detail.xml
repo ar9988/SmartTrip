@@ -19,80 +19,48 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/baseline_chevron_left_24"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:title="@{vm.selectedTrip.title}">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_add_person"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="@dimen/dp_medium"
+                android:layout_marginEnd="@dimen/dp_medium"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/description_btn_add_person"
+                android:onClick="@{() -> vm.onClickGoToInvite()}"
+                android:scaleType="fitXY"
+                android:src="@drawable/baseline_person_add_alt_24"
+                android:layout_gravity="end"/>
 
-                <ImageButton
-                    android:id="@+id/btn_back_plan_detail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="@string/description_back_btn"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/baseline_arrow_back_ios_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tv_title_plan_detail"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_small"
-                    android:layout_marginEnd="@dimen/dp_small"
-                    android:ellipsize="end"
-                    android:fontFamily="@font/pretendardbold"
-                    android:maxLines="1"
-                    android:text="@{vm.selectedTrip.title}"
-                    android:textColor="@color/neutral_100"
-                    android:textSize="@dimen/font_size_large"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/rv_person_icon_plan_detail"
-                    app:layout_constraintHorizontal_chainStyle="packed"
-                    app:layout_constraintStart_toEndOf="@id/btn_back_plan_detail"
-                    app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_person_icon_plan_detail"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:nestedScrollingEnabled="false"
+                    android:maxWidth="80dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/btn_add_person"
-                    app:layout_constraintStart_toEndOf="@id/tv_title_plan_detail"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:layout_gravity="end" />
 
-                <androidx.appcompat.widget.AppCompatImageButton
-                    android:id="@+id/btn_add_person"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginStart="@dimen/dp_medium"
-                    android:layout_marginEnd="@dimen/dp_medium"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="@string/description_btn_add_person"
-                    android:onClick="@{() -> vm.onClickGoToInvite()}"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/baseline_person_add_alt_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </Toolbar>
+
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"

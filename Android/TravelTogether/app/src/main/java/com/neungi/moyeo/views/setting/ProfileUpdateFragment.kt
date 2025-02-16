@@ -68,7 +68,9 @@ class ProfileUpdateFragment :
 
     private fun initView() {
         with(binding) {
-            ivBackProfileUpdate.setOnClickListener {
+
+            toolbarProfileUpdate.setNavigationOnClickListener {
+
                 requireActivity().supportFragmentManager.popBackStack()
             }
 

@@ -74,6 +74,9 @@ class PhotoClassificationFragment :
         super.onViewCreated(view, savedInstanceState)
 
         binding.vm = viewModel
+        binding.toolbarPhotoClassification.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
 
         initFusedLocationClient()
 

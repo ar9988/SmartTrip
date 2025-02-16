@@ -181,7 +181,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun setupListeners() {
-        binding.btnBackPlanDetail.setOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
         }
 

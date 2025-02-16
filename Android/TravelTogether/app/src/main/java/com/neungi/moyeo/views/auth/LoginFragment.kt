@@ -25,6 +25,9 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(R.layout.fragment_login
         super.onViewCreated(view, savedInstanceState)
 
         binding.vm = viewModel
+        binding.toolbarLogin.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
 
         setEditTextFocus()
 

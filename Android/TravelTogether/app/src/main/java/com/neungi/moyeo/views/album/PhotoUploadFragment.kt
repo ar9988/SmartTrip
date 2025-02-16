@@ -77,6 +77,9 @@ class PhotoUploadFragment :
         super.onViewCreated(view, savedInstanceState)
 
         binding.vm = viewModel
+        binding.toolbarPhotoUpload.setNavigationOnClickListener {
+            viewModel.onClickBackToAlbumDetail()
+        }
 
         initRecyclerView()
         checkAndRequestPermissions()
