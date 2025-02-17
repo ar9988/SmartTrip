@@ -15,6 +15,7 @@ import com.travel.together.TravelTogether.album.repository.PhotoRepository;
 import com.travel.together.TravelTogether.album.repository.PhotoPlaceRepository;
 import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Date;
 
+@Slf4j
 @Service
 public class PhotoService {
 
@@ -185,8 +187,10 @@ public class PhotoService {
     public boolean deletePhoto(int albumId, Integer photoId, Long userId) {
         Photo photo = photoRepository.findById(photoId)
                 .orElseThrow(() -> new IllegalArgumentException("Photo not found"));
+        log.info("photoUser : {}", photo.getUser().getId());
+        log.info("UserId : {}", userId);
 
-        if (!photo.getUser().getId().equals(userId)) {
+        if (!photo.getUser().getId().equals(userId.intValue())) {
             throw new RuntimeException("User not authorized to delete this photo");
         }
 
