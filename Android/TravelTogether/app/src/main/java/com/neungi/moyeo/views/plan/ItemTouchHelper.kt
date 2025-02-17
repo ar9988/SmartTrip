@@ -1,7 +1,11 @@
 package com.neungi.moyeo.views.plan
 
+import android.animation.ValueAnimator
+import android.view.animation.DecelerateInterpolator
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.moyeo.R
 import com.neungi.moyeo.util.ListItem
@@ -37,7 +41,6 @@ fun createItemTouchHelperCallback(
             val adapter = recyclerView.adapter as SectionedAdapter
             val fromPosition = viewHolder.bindingAdapterPosition
             val toPosition = target.bindingAdapterPosition
-
             // 드래그 제한 조건 처리
             val targetItem = adapter.getItem(toPosition)
             if (targetItem is ListItem.SectionHeader && targetItem.data.title == "1일차") {
@@ -86,11 +89,28 @@ fun createItemTouchHelperCallback(
             )
             adapter.updateValue(toPosition, newPositionPath)
 
+            val nestedScrollView = viewHolder.itemView.parent.parent.parent as NestedScrollView
+            val y = recyclerView.getChildAt(toPosition).y.toInt()
 
+            nestedScrollView.post {
+                smoothScrollWithCustomDuration(nestedScrollView, y, 1000L) // 300ms로 설정
+            }
             Timber.d("onMove: $fromPosition -> $toPosition, ${((upsidePositionPath + downsidePositionPath) / 2)}")
             return true
         }
 
+        private fun smoothScrollWithCustomDuration(nestedScrollView: NestedScrollView, targetY: Int, duration: Long = 500L) {
+            val startY = nestedScrollView.scrollY
+            val valueAnimator = ValueAnimator.ofInt(startY, targetY)
+            valueAnimator.duration = duration // 애니메이션 시간 (밀리초)
+
+            valueAnimator.interpolator = DecelerateInterpolator() // 부드러운 감속 효과
+            valueAnimator.addUpdateListener { animator ->
+                val animatedValue = animator.animatedValue as Int
+                nestedScrollView.scrollTo(0, animatedValue)
+            }
+            valueAnimator.start()
+        }
 
 
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {

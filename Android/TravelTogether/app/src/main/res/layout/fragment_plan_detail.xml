@@ -23,48 +23,67 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:navigationIcon="@drawable/baseline_chevron_left_24"
-            app:contentInsetStart="0dp"
-            app:contentInsetLeft="0dp"
-            app:contentInsetStartWithNavigation="0dp"
-            app:title="@{vm.selectedTrip.title}">
+            app:navigationIcon="@drawable/baseline_chevron_left_24">
 
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btn_add_person"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginStart="@dimen/dp_medium"
-                android:layout_marginEnd="@dimen/dp_medium"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/description_btn_add_person"
-                android:onClick="@{() -> vm.onClickGoToInvite()}"
-                android:scaleType="fitXY"
-                android:src="@drawable/baseline_person_add_alt_24"
-                android:layout_gravity="end"/>
+            <!-- ConstraintLayout을 사용하여 자식 뷰들을 배치 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_person_icon_plan_detail"
-                    android:layout_width="wrap_content"
+                <!-- title을 TextView로 배치 -->
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:nestedScrollingEnabled="false"
-                    android:maxWidth="80dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    android:layout_gravity="end" />
+                    android:text="@{vm.selectedTrip.title}"
+                    android:textSize="@dimen/font_size_medium"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/icon_container"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_percent="0.4" />
 
+                <!-- Add Person Button -->
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btn_add_person"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="@dimen/dp_medium"
+                    android:layout_marginEnd="@dimen/dp_medium"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/description_btn_add_person"
+                    android:onClick="@{() -> vm.onClickGoToInvite()}"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/baseline_person_add_alt_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" /> <!-- 오른쪽 끝에 배치 -->
 
+                <!-- Icon Container -->
+                <FrameLayout
+                    android:id="@+id/icon_container"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_add_person"
+                    app:layout_constraintStart_toEndOf="@id/toolbar_title"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_percent="0.4" />
 
-
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </com.google.android.material.appbar.MaterialToolbar>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:fillViewport="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/toolbar">
 
@@ -93,7 +112,7 @@
                     android:id="@+id/rv_plan_detail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
+                    android:nestedScrollingEnabled="true"
                     tools:listitem="@layout/item_schedule" />
 
             </LinearLayout>
