@@ -16,7 +16,8 @@ public interface TripRepository extends JpaRepository<Trip, Integer> {
     @Query("SELECT DISTINCT t FROM Trip t " +
             "LEFT JOIN t.tripMembers tm " +
             "WHERE (t.creator.id = :userId OR tm.user.id = :userId) " +
-            "AND t.endDate >= CURRENT_TIMESTAMP")
+            "AND t.endDate >= CURRENT_TIMESTAMP " +  // 여기에 공백 추가
+            "ORDER BY t.startDate ASC")
     List<Trip> findActiveTripsByUserId(@Param("userId") Integer userId);
 
     @Query(value =

@@ -155,20 +155,20 @@ public class TripViewService {
             Day savedDay = dayRepository.save(day);
 
             // Schedule 생성 (positionPath는 Day ID 기반으로 설정)
-            int positionPath = (dayOrder * 10000) + 1000;
-            Schedule schedule = Schedule.builder()
-                    .day(savedDay)
-                    .trip(trip)
-                    .placeName("시작 지점")
-                    .orderNum(1)
-                    .lat(0.0)
-                    .lng(0.0)
-                    .type(1)
-                    .positionPath(positionPath)
-                    .duration(0)
-                    .build();
+//            int positionPath = (dayOrder * 10000) + 1000;
+//            Schedule schedule = Schedule.builder()
+//                    .day(savedDay)
+//                    .trip(trip)
+//                    .placeName("시작 지점")
+//                    .orderNum(1)
+//                    .lat(0.0)
+//                    .lng(0.0)
+//                    .type(1)
+//                    .positionPath(positionPath)
+//                    .duration(0)
+//                    .build();
 
-            scheduleRepository.save(schedule);
+//            scheduleRepository.save(schedule);
 
             currentDate = currentDate.plusDays(1);
             dayOrder++;

@@ -16,9 +16,9 @@ public class AsyncConfig implements AsyncConfigurer {
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);    // 기본적으로 유지되는 스레드 수
-        executor.setMaxPoolSize(5); // 최대 스레드 수
-        executor.setQueueCapacity(10);  // 작업 대기열 최대 용량
+        executor.setCorePoolSize(10);    // 기본적으로 유지되는 스레드 수
+        executor.setMaxPoolSize(30); // 최대 스레드 수
+        executor.setQueueCapacity(70);  // 작업 대기열 최대 용량
         executor.setThreadNamePrefix("TripEditAsync-"); //생성되는 스레드 이름 접두사
         executor.initialize(); // 설정 완료 후 executor 초기화
         return executor;
