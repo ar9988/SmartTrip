@@ -159,11 +159,11 @@ public class AiplanningService {
 
             Double latitude = place.getLatitude();
             Double longitude = place.getLongitude();
-            // 식사 일정일 경우 좌표를 0.0으로 처리
-//            if (activity.getName().equals("식사")) {
-//                latitude = 0.0;
-//                longitude = 0.0;
-//            }
+            // 식사 일정일 경우 좌표를 음수 -1.0으로 처리
+            if (keyword2.equals("식사")) {
+                latitude = -1.0;
+                longitude = -1.0;
+            }
 
             Schedule planningData = Schedule.builder()
                     .day(day)
