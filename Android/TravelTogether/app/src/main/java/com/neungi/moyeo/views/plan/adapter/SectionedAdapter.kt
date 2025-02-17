@@ -13,6 +13,7 @@ import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.Path
 import com.neungi.domain.model.ScheduleData
+import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemSectionHeaderBinding
 import com.neungi.moyeo.databinding.ItemScheduleBinding
 import com.neungi.moyeo.util.ListItem
@@ -33,7 +34,7 @@ class SectionedAdapter(
 
     var sections = mutableListOf<Section>()
     val pathItems = mutableMapOf<Int, Int>() //key = scheduelId , value = travel time
-    val pathInfo = mutableMapOf<Int, Int>() // key = scheduleId , value = day
+    val pathInfo = mutableMapOf<Int, Pair<Int,Int>>() // key = scheduleId , value = <day,>
     private var listItems = mutableListOf<ListItem>()
 
     inner class SectionHeaderViewHolder(private val binding: ItemSectionHeaderBinding) :
@@ -55,7 +56,12 @@ class SectionedAdapter(
             binding.typeSchedule.text = data.positionPath.toString()
             binding.tvFrom.text = data.fromTime.toString()
             binding.tvTo.text = data.toTime.toString()
-
+            if(data.type==1){
+                binding.cardSchedule.setBackgroundColor(binding.root.context.getColor(R.color.colorSecondary))
+            }
+            if(data.type==2){
+                binding.cardSchedule.setBackgroundColor(binding.root.context.getColor(R.color.colorPrimary))
+            }
             binding.cardSchedule.setOnClickListener {
                 onEditClick(data)
             }
@@ -192,7 +198,8 @@ class SectionedAdapter(
 
                 is ListItem.Item -> {
                     currentSection?.add(item.data)
-                    pathInfo[item.data.scheduleId] = item.data.positionPath/10000
+                    val idx = currentSection?.size ?: 0
+                    pathInfo[item.data.scheduleId] = Pair(item.data.positionPath/10000,idx)
                     handleMarker(item.data,true)
                 }
             }
@@ -257,6 +264,10 @@ class SectionedAdapter(
                     // 아이템을 삭제
                     listItems.removeAt(position)
                     handleMarker(item.data,false)
+                    if(position-1 in listItems.indices && listItems[position-1] is ListItem.Item){
+                        onDeletePath((listItems[position-1] as ListItem.Item).data.scheduleId)
+                    }
+                    onDeletePath(event.operation.scheduleId)
                     if (!isUserDragging) notifyItemRemoved(position)
                 }
             }
@@ -327,6 +338,10 @@ class SectionedAdapter(
             if (it is ListItem.Item && it.data.scheduleId == scheduleId) {
                 listItems.removeAt(index)
                 handleMarker(it.data,false)
+                if(index-1 in listItems.indices && listItems[index-1] is ListItem.Item){
+                    onDeletePath((listItems[index-1] as ListItem.Item).data.scheduleId)
+                }
+                onDeletePath(scheduleId)
                 rebuildSections()
                 return
             }

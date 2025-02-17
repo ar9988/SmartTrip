@@ -16,7 +16,7 @@ data class ScheduleEntity(
     val placeName: String,
 
     @Json(name = "trip_id")
-    val tripId: Int,
+    var tripId: Int,
 
     @Json(name = "positionPath")
     val positionPath: Int,
