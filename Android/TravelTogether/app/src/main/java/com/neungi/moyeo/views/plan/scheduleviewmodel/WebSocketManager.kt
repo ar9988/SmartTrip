@@ -1,6 +1,5 @@
 package com.neungi.moyeo.views.plan.scheduleviewmodel
 
-import ScheduleReceive
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -9,6 +8,7 @@ import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
+import com.neungi.data.entity.ScheduleReceive
 import com.neungi.data.entity.ServerEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.Operation
@@ -23,7 +23,6 @@ import javax.inject.Inject
 class WebSocketManager @Inject constructor() {
 
     var tripId: Int = 0
-    private val client = OkHttpClient()
     private var webSocket: WebSocket? = null
     var isConnected = false
 
@@ -34,6 +33,7 @@ class WebSocketManager @Inject constructor() {
     var onAddEventReceived: ((ScheduleData) -> Unit)? = null
     var onEditEventReceived: ((ManipulationEvent) -> Unit)? = null
 
+    private val client = OkHttpClient()
     private val webSocketListener = object : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {

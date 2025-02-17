@@ -1,14 +1,14 @@
 package com.neungi.moyeo.views.plan.scheduleviewmodel
 
-import Member
-import ScheduleReceive
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.neungi.data.entity.ManipulationEvent
+import com.neungi.data.entity.Member
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
+import com.neungi.data.entity.ScheduleReceive
 import com.neungi.data.entity.ServerEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.*

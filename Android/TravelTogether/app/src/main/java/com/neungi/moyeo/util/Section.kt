@@ -1,7 +1,7 @@
 package com.neungi.moyeo.util
 
-import Member
-import ScheduleReceive
+import com.neungi.data.entity.Member
+import com.neungi.data.entity.ScheduleReceive
 import com.neungi.domain.model.ScheduleData
 import com.neungi.domain.model.Trip
 import com.neungi.moyeo.util.CommonUtils.formatZonedDateTimeWithZone

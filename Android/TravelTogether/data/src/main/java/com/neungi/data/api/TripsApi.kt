@@ -21,9 +21,9 @@ interface TripsApi {
         @Body body: RequestBody
     ): Response<Boolean>
 
-    @DELETE("trips/{id}/{tripId}")
+    @DELETE("trips/{userId}/{tripId}")
     suspend fun deleteTrip(
-        @Path("id") userId: String,
+        @Path("userId") userId: Int,
         @Path("tripId") tripId: Int
     ): Response<Boolean>
 

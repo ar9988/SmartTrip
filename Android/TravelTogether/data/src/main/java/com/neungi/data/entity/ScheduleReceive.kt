@@ -1,3 +1,5 @@
+package com.neungi.data.entity
+
 import com.neungi.domain.model.ScheduleData
 import java.time.LocalDateTime
 
@@ -13,7 +15,8 @@ data class ScheduleReceive(
 data class Member(
     val userId: String,
     val name: String,
-    val owner: Boolean
+    val owner: Boolean,
+    val profileImage:String
 )
 
 data class Day(

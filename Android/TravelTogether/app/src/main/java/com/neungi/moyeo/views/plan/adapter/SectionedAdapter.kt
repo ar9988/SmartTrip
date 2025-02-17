@@ -272,8 +272,10 @@ class SectionedAdapter(
                     handleMarker(item.data,false)
                     if(position-1 in listItems.indices && listItems[position-1] is ListItem.Item){
                         onDeletePath((listItems[position-1] as ListItem.Item).data.scheduleId)
+                        pathItems.remove((listItems[position-1] as ListItem.Item).data.scheduleId)
                     }
                     onDeletePath(event.operation.scheduleId)
+                    pathItems.remove(event.operation.scheduleId)
                     if (!isUserDragging) notifyItemRemoved(position)
                 }
             }
@@ -281,6 +283,17 @@ class SectionedAdapter(
             listItems.forEachIndexed { position, item ->
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
                     item.data.positionPath = event.operation.positionPath
+                    // 경로 삭제
+                    if(position-1 in listItems.indices && listItems[position-1] is ListItem.Item){
+                        onDeletePath((listItems[position-1] as ListItem.Item).data.scheduleId)
+                        pathItems.remove((listItems[position-1] as ListItem.Item).data.scheduleId)
+                    }
+                    onDeletePath(item.data.scheduleId)
+                    pathItems.remove(item.data.scheduleId)
+                    if(position+1 in listItems.indices && listItems[position+1] is ListItem.Item){
+                        onDeletePath((listItems[position+1] as ListItem.Item).data.scheduleId)
+                        pathItems.remove((listItems[position+1] as ListItem.Item).data.scheduleId)
+                    }
                 }
             }
         }
@@ -296,6 +309,16 @@ class SectionedAdapter(
             (listItems[position] as ListItem.Item).sectionIndex
         )
         //내가 수정할때 호출됨
+        if(position-1 in listItems.indices && listItems[position-1] is ListItem.Item){
+            onDeletePath((listItems[position-1] as ListItem.Item).data.scheduleId)
+            pathItems.remove((listItems[position-1] as ListItem.Item).data.scheduleId)
+        }
+        onDeletePath((listItems[position] as ListItem.Item).data.scheduleId)
+        pathItems.remove((listItems[position] as ListItem.Item).data.scheduleId)
+        if(position+1 in listItems.indices && listItems[position+1] is ListItem.Item){
+            onDeletePath((listItems[position+1] as ListItem.Item).data.scheduleId)
+            pathItems.remove((listItems[position+1] as ListItem.Item).data.scheduleId)
+        }
     }
 
     fun uiUpdate(position: Int) {
@@ -346,8 +369,10 @@ class SectionedAdapter(
                 handleMarker(it.data,false)
                 if(index-1 in listItems.indices && listItems[index-1] is ListItem.Item){
                     onDeletePath((listItems[index-1] as ListItem.Item).data.scheduleId)
+                    pathItems.remove((listItems[index-1] as ListItem.Item).data.scheduleId)
                 }
                 onDeletePath(scheduleId)
+                pathItems.remove(scheduleId)
                 rebuildSections()
                 return
             }
