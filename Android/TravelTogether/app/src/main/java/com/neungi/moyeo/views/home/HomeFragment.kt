@@ -181,7 +181,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             binding.loginInfo = userInfo
                             binding.ivProfile.load(
                                 userInfo?.userProfileImg
-                                    ?: "https://i.namu.wiki/i/d1A_wD4kuLHmOOFqJdVlOXVt1TWA9NfNt_HA0CS0Y_N0zayUAX8olMuv7odG2FiDLDQZIRBqbPQwBSArXfEJlQ.webp"
                             ) {
                                 crossfade(true)
                                 transformations(CircleCropTransformation())
@@ -193,13 +192,37 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
 
                 launch {
                     viewModel.recommendFestivals.collect { festivals ->
-                        homeFestivalAdapter.submitList(festivals)
+                        if(festivals.isNotEmpty()) {
+                            homeFestivalAdapter.submitList(festivals)
+                            binding?.let{binding->
+                                binding.tvFestival.visibility = View.VISIBLE
+                                binding.rvFestival.visibility = View.VISIBLE
+                            }
+                        }else{
+                            binding?.let{binding->
+                                binding.tvFestival.visibility = View.GONE
+                                binding.rvFestival.visibility = View.GONE
+                            }
+
+                        }
                     }
                 }
 
                 launch {
                     viewModel.recommendPlace.collect { places ->
-                        homePlaceAdapter.submitList(places)
+                        if(places.isNotEmpty()) {
+                            homePlaceAdapter.submitList(places)
+                            binding?.let{binding->
+                                binding.tvRecommendPlaceHome.visibility = View.VISIBLE
+                                binding.rvRecommendPlaceHome.visibility = View.VISIBLE
+                            }
+                        }else{
+                            binding?.let{binding->
+                                binding.tvRecommendPlaceHome.visibility = View.GONE
+                                binding.rvRecommendPlaceHome.visibility = View.GONE
+                            }
+
+                        }
                     }
                 }
 
