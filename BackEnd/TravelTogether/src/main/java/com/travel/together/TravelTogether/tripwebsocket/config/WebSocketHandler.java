@@ -1,10 +1,11 @@
 package com.travel.together.TravelTogether.tripwebsocket.config;
 
-import org.springframework.web.socket.*;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
 import org.springframework.stereotype.Component;
-import java.io.IOException;
-import java.util.*;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component

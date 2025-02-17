@@ -1,12 +1,8 @@
 package com.travel.together.TravelTogether.tripwebsocket.dto;
 
-import com.travel.together.TravelTogether.trip.dto.ScheduleDto;
-import com.travel.together.TravelTogether.trip.entity.Schedule;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter

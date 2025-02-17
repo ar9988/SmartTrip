@@ -7,13 +7,13 @@ import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
 import com.travel.together.TravelTogether.tripwebsocket.config.TripScheduleWebSocketHandler;
 import com.travel.together.TravelTogether.tripwebsocket.dto.RouteResponse;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
