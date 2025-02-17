@@ -25,6 +25,7 @@ public interface DayRepository extends JpaRepository<Day, Integer> {
     @Query("SELECT d.id FROM Day d WHERE d.trip.id = :tripId ORDER BY d.id ASC")
     List<Integer> findIdByTripId(@Param("tripId") Integer tripId);
 
+    void deleteByTripId(Integer tripId);
 }
 
 
