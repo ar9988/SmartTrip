@@ -50,7 +50,9 @@ public class TripViewService {
     // 전체 여행 조회
     @Transactional
     public TripResponse getAllTrip(Integer userId) {
-        List<Trip> trips = tripRepository.findTripsByUserId(userId);
+        // endDate가 현재시각 이후인 여행만 조회
+        List<Trip> trips = tripRepository.findActiveTripsByUserId(userId);
+
 
         // 각 여행별 멤버 수 계산
         List<Object[]> countResults = tripMemberRepository.countMembersByTripId();
@@ -122,11 +124,52 @@ public class TripViewService {
         TripMember tripMember = TripMember.builder()
                 .trip(savedTrip)
                 .user(creator)
+                .isOwner(true)
                 .build();
         tripMemberRepository.save(tripMember);
 
+        // 연관 데이터 생성 (별도 메소드로 분리)
+        createTripRelatedData(savedTrip);
+
+
         // DTO 변환 후 반환
         return TripCreateDto.from(savedTrip);
+
+    }
+
+    private void createTripRelatedData(Trip trip) {
+        LocalDateTime currentDate = trip.getStartDate();
+        int dayOrder = 1;
+
+        while (!currentDate.isAfter(trip.getEndDate())) {
+            // Day 생성
+            Day day = Day.builder()
+                    .trip(trip)
+                    .startTime(currentDate)
+                    .orderNum(dayOrder)
+                    .build();
+
+            Day savedDay = dayRepository.save(day);
+
+            // Schedule 생성 (positionPath는 Day ID 기반으로 설정)
+            int positionPath = (dayOrder * 10000) + 1000;
+            Schedule schedule = Schedule.builder()
+                    .day(savedDay)
+                    .trip(trip)
+                    .placeName("시작 지점")
+                    .orderNum(1)
+                    .lat(0.0)
+                    .lng(0.0)
+                    .type(1)
+                    .positionPath(positionPath)
+                    .duration(0)
+                    .build();
+
+            scheduleRepository.save(schedule);
+
+            currentDate = currentDate.plusDays(1);
+            dayOrder++;
+        }
     }
 
     @Transactional
