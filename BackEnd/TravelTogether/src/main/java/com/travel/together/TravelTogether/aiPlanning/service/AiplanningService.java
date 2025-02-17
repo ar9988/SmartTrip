@@ -15,6 +15,7 @@ import com.travel.together.TravelTogether.trip.repository.TripMemberRepository;
 import com.travel.together.TravelTogether.trip.repository.TripRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AiplanningService {
@@ -126,34 +128,46 @@ public class AiplanningService {
     }
 
     // Response 데이터를 카카오에 조회, Schedule 테이블에 저장.
+    // activity: openai 응답받은 키워드, place: Kakaoapi 키워드 검색 응답
     private void processActivity(OpenaiResponseDto.Activity activity, Day day) {
         try {
-            KakaoRequestDto kakaoRequestDto = new KakaoRequestDto(activity.getName());
+            // 관광지 키워드 생성
+            String promptResponse = activity.getName();
+            // 인덱스 찾기
+            int idx = promptResponse.indexOf("@");
+            // 지역
+            String keyword1 = promptResponse.substring(0,idx);
+            // 장소명
+            String keyword2 = promptResponse.substring(idx+1);
+            // 키워드 검색 조회
+            String keyword = keyword1 + " " + keyword2;
+
+            KakaoRequestDto kakaoRequestDto = new KakaoRequestDto(keyword);
             KakaoResponseDto kakaoResponse = kakaoService.searchByKeyword(kakaoRequestDto);
 
+            // 키워드 검색이 안되는 지역의 경우, DB에 저장하지 않는다.
             if (kakaoResponse == null || kakaoResponse.getPlaces().isEmpty()) {
-                System.out.println("Place not found: " + activity.getName());
+                log.info("Place not found: " + activity.getName());
                 return;
             }
 
             KakaoDto place = kakaoResponse.getPlaces().get(0);
 
-            // 식사 일정의 경우 0.0으로 좌표값 반환
-            if (activity.getName().equals("식사")) {
-                Double lat = 0.0;
-                Double lng = 0.0;
-            } else {
-                Double lat = place.getLatitude();
-                Double lng = place.getLongitude();
-            }
+            Double latitude = place.getLatitude();
+            Double longitude = place.getLongitude();
+            // 식사 일정일 경우 좌표를 0.0으로 처리
+//            if (activity.getName().equals("식사")) {
+//                latitude = 0.0;
+//                longitude = 0.0;
+//            }
 
             Schedule planningData = Schedule.builder()
                     .day(day)
                     .trip(day.getTrip())
-                    .placeName(place.getPlaceName())
+                    .placeName(keyword2)
                     .orderNum(1)
-                    .lat(place.getLatitude())
-                    .lng(place.getLongitude())
+                    .lat(latitude)
+                    .lng(longitude)
                     .type(activity.getType())
                     .positionPath(activity.getPositionPath())
                     .duration(activity.getDuration())
