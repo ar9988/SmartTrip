@@ -144,14 +144,18 @@ public class AiplanningService {
 
             KakaoRequestDto kakaoRequestDto = new KakaoRequestDto(keyword);
             KakaoResponseDto kakaoResponse = kakaoService.searchByKeyword(kakaoRequestDto);
+            KakaoDto place = null;
 
-            // 키워드 검색이 안되는 지역의 경우, DB에 저장하지 않는다.
+            // 키워드 검색이 안되는 지역의 경우, 지역을 기반으로 키워드 검색.
             if (kakaoResponse == null || kakaoResponse.getPlaces().isEmpty()) {
-                log.info("Place not found: " + activity.getName());
-                return;
+                KakaoRequestDto newKakaoRequestDto = new KakaoRequestDto(keyword1);
+                KakaoResponseDto newKakaoResponse = kakaoService.searchByKeyword(newKakaoRequestDto);
+                if (newKakaoResponse != null && !newKakaoResponse.getPlaces().isEmpty()) {
+                    place = newKakaoResponse.getPlaces().get(0);  // 지역으로 조회해도 안나오면 넣지 않는다.
+                }
+            } else {
+                place = kakaoResponse.getPlaces().get(0);
             }
-
-            KakaoDto place = kakaoResponse.getPlaces().get(0);
 
             Double latitude = place.getLatitude();
             Double longitude = place.getLongitude();
