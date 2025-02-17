@@ -261,12 +261,12 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             handleMarker = { scheduleData, flag -> handleMarker(scheduleData, flag) },
             recyclerView = binding.rvPlanDetail
         )
-
         binding.rvPlanDetail.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = sectionedAdapter
             setHasFixedSize(true)
             itemTouchHelper.attachToRecyclerView(this)
+            itemAnimator= null
         }
 
 //        binding.rvPersonIconPlanDetail.apply {
@@ -428,11 +428,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun handleMarker(scheduleData: ScheduleData, flag: Boolean) {
+        Timber.d(scheduleData.placeName)
         if (!flag) {
             markerMap[scheduleData.scheduleId]?.map = null
             markerMap.remove(scheduleData.scheduleId)
-        } else if (markerMap.containsKey(scheduleData.scheduleId)) {
-            return
         } else {
             val info = sectionedAdapter.pathInfo[scheduleData.scheduleId]
             val marker = Marker().apply {

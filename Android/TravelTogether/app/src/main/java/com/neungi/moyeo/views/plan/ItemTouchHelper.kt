@@ -2,6 +2,7 @@ package com.neungi.moyeo.views.plan
 
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.moyeo.R
 import com.neungi.moyeo.util.ListItem

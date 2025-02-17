@@ -166,8 +166,14 @@ class SectionedAdapter(
     override fun getItemCount(): Int = listItems.size
 
     fun moveItem(fromPosition: Int, toPosition: Int) {
+        if (fromPosition < 0 || fromPosition >= listItems.size || toPosition < 0 || toPosition >= listItems.size) {
+            // 유효한 범위의 인덱스가 아닐 경우 예외 처리 또는 리턴
+            return
+        }
+
         val item = listItems.removeAt(fromPosition) as ListItem.Item
         listItems.add(toPosition, item)
+        // notifyItemMoved 호출 전에, 변경된 인덱스가 정확한지 확인
         notifyItemMoved(fromPosition, toPosition)
     }
 
