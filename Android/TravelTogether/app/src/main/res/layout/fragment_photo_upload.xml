@@ -33,34 +33,38 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="@dimen/dp_medium" />
-
-        <Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_photo_upload"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_constraintBottom_toTopOf="@id/rv_photo_upload"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/baseline_chevron_left_24"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:title="@string/title_photo_upload"/>
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_back_photo_upload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/dp_small"
-                android:onClick="@{() -> vm.onClickBackToAlbumDetail()}"
-                android:src="@drawable/baseline_chevron_left_24" />
+<!--            <androidx.appcompat.widget.AppCompatImageView-->
+<!--                android:id="@+id/iv_back_photo_upload"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginEnd="@dimen/dp_small"-->
+<!--                android:onClick="@{() -> vm.onClickBackToAlbumDetail()}"-->
+<!--                android:src="@drawable/baseline_chevron_left_24" />-->
 
-            <TextView
-                android:id="@+id/tv_title_photo_upload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendardbold"
-                android:text="@string/title_photo_upload"
-                android:textColor="@color/neutral_100"
-                android:textSize="@dimen/font_size_title" />
+<!--            <TextView-->
+<!--                android:id="@+id/tv_title_photo_upload"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:fontFamily="@font/pretendardbold"-->
+<!--                android:text="@string/title_photo_upload"-->
+<!--                android:textColor="@color/neutral_100"-->
+<!--                android:textSize="@dimen/font_size_title" />-->
 
-        </Toolbar>
+<!--        </com.google.android.material.appbar.MaterialToolbar>-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_photo_upload"

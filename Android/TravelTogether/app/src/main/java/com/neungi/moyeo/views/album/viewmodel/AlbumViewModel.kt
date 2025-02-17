@@ -7,8 +7,11 @@ import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
+import androidx.core.database.getDoubleOrNull
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -506,7 +509,11 @@ class AlbumViewModel @Inject constructor(
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
-                val uri = ContentUris.withAppendedId(queryUri, id)
+                val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    MediaStore.setRequireOriginal(ContentUris.withAppendedId(queryUri, id))
+                } else {
+                    ContentUris.withAppendedId(queryUri, id)
+                }
                 val (latitude, longitude) = getLatLngFromExif(uri)
                 val dateTaken = cursor.getLong(dateTakenColumn)
                 val path = absolutelyPath(uri)
@@ -530,11 +537,119 @@ class AlbumViewModel @Inject constructor(
         return imageList
     }
 
+
+
+    fun getLatLngFromMediaStore(pickerUri: Uri): Pair<Double, Double> {
+        try {
+            val projection = arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.LATITUDE,
+                MediaStore.Images.Media.LONGITUDE,
+                MediaStore.Images.Media.DATE_TAKEN,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.SIZE
+            )
+
+            application.contentResolver.query(
+                pickerUri,
+                projection,
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    cursor.columnNames.forEach { columnName ->
+                        val index = cursor.getColumnIndex(columnName)
+                        if (index != -1) {
+                            val value = cursor.getString(index)
+                            Log.d("MediaStore", "Column $columnName: $value")
+                        }
+                    }
+
+                    val latIndex = cursor.getColumnIndex(MediaStore.Images.Media.LATITUDE)
+                    val longIndex = cursor.getColumnIndex(MediaStore.Images.Media.LONGITUDE)
+
+                    if (latIndex != -1 && longIndex != -1) {
+                        val latitude = cursor.getDouble(latIndex)
+                        val longitude = cursor.getDouble(longIndex)
+                        Log.d("MediaStore", "Found lat: $latitude, lng: $longitude")
+                        return if (latitude != 0.0 || longitude != 0.0) {
+                            Pair(latitude, longitude)
+                        } else {
+                            Pair(0.0, 0.0)
+                        }
+                    }
+                    else{
+                        Pair(0.0,0.0)
+                    }
+                } else {
+                    Log.d("MediaStore", "Cursor is empty")
+                }
+            }
+
+            // 파일 스트림으로 시도
+            application.contentResolver.openInputStream(pickerUri)?.use { inputStream ->
+                val exif = ExifInterface(inputStream)
+                Log.d("MediaStore", "EXIF tags: ${exif.latLong}")
+                val latLong = exif.latLong
+                if (latLong != null) {
+                    Log.d("MediaStore", "EXIF latLong: ${latLong.contentToString()}")
+                    return Pair(latLong[0], latLong[1])
+                }
+            }
+
+        } catch (e: Exception) {
+            Log.e("MediaStore", "Error reading location: ${e.message}")
+            e.printStackTrace()
+        }
+        return Pair(0.0, 0.0)
+    }
+
     /*** EXIF에서 위도, 경도 정보를 가져오는 메소드 ***/
     private fun getLatLngFromExif(uri: Uri?): Pair<Double, Double> {
+//        try {
+//            uri?.let {
+//                val inputStream: InputStream? = application.contentResolver.openInputStream(uri)
+//                inputStream?.use {
+//                    val exif = ExifInterface(it)
+//                    dumpExifTags(exif)
+//
+//
+//                    val lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)?.let { latitude ->
+//                        convertToDegree(latitude)
+//                    }
+//                    val lng = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)?.let { longitude ->
+//                        convertToDegree(longitude)
+//                    }
+//
+//                    if (lat != null && lng != null) {
+//                        val latRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
+//                        val lonRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+//
+//                        val adjustedLat = if (latRef == "S") -lat else lat
+//                        val adjustedLon = if (lonRef == "W") -lng else lng
+//
+//                        return Pair(adjustedLat, adjustedLon)
+//                    }
+//                }
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//
+//        return Pair(0.0, 0.0)
+        // Photo Picker URI인 경우 MediaStore에서 위치 정보 가져오기 시도
+        if (uri?.toString()?.contains("com.android.providers.media.photopicker") == true) {
+            val mediaStoreResult = getLatLngFromMediaStore(uri)
+            if (mediaStoreResult != Pair(0.0, 0.0)) {
+                return mediaStoreResult
+            }
+        }
+
+        // 기존 EXIF 읽기 로직
         try {
             uri?.let {
-                val inputStream: InputStream? = application.contentResolver.openInputStream(uri)
+                val inputStream = application.contentResolver.openInputStream(uri)
                 inputStream?.use {
                     val exif = ExifInterface(it)
 
@@ -763,6 +878,7 @@ class AlbumViewModel @Inject constructor(
         viewModelScope.launch {
             _uploadPhotos.value = listOf(PhotoUploadUiState.PhotoUploadButton())
             val newPhotos = fetchGalleryImages()
+            Timber.d("initUploadPhotos : ${newPhotos}")
             _uploadPhotos.value += newPhotos
             initTempMarkers()
             getLatLngFromPhotos()
@@ -783,10 +899,54 @@ class AlbumViewModel @Inject constructor(
                     return@launch
                 }
             }
-            val (latitude, longitude) = getLatLngFromExif(uri)
+            val isPickerUri = uri.toString().contains("com.android.providers.media.photopicker")
+            val originalUri = if (!isPickerUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    MediaStore.setRequireOriginal(uri)
+                } catch (e: Exception) {
+                    uri
+                }
+            } else {
+                uri
+            }
+            val (latitude, longitude) = getLatLngFromExif(originalUri)
             newPhotos.add(
                 1,
-                PhotoUploadUiState.UploadedPhoto(uri, body, latitude, longitude, takenAt)
+                PhotoUploadUiState.UploadedPhoto(originalUri, body, latitude, longitude, takenAt)
+            )
+            _uploadPhotos.value = newPhotos
+            initTempMarkers()
+            getLatLngFromPhotos()
+            validUploadPhotos()
+        }
+    }
+
+    fun addUploadPhoto(uri: Uri?, takenAt: Long, body: MultipartBody.Part, latitude:Double, longitude:Double) {
+        if (uri == null) return
+        viewModelScope.launch {
+            val idFromUi = getImageIdFromUri(uri)
+            val newPhotos = _uploadPhotos.value.toMutableList()
+            for (i in 1 until (newPhotos.size)) {
+                val photoUploadUiState = (newPhotos[i] as PhotoUploadUiState.UploadedPhoto)
+                val nowIDFromUi = getImageIdFromUri(photoUploadUiState.photoUri)
+                if (nowIDFromUi == idFromUi) {
+                    _albumUiEvent.emit(AlbumUiEvent.PhotoDuplicated)
+                    return@launch
+                }
+            }
+            val isPickerUri = uri.toString().contains("com.android.providers.media.photopicker")
+            val originalUri = if (!isPickerUri && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    MediaStore.setRequireOriginal(uri)
+                } catch (e: Exception) {
+                    uri
+                }
+            } else {
+                uri
+            }
+            newPhotos.add(
+                1,
+                PhotoUploadUiState.UploadedPhoto(originalUri, body, latitude, longitude, takenAt)
             )
             _uploadPhotos.value = newPhotos
             initTempMarkers()

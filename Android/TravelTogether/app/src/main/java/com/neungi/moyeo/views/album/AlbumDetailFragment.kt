@@ -262,17 +262,20 @@ class AlbumDetailFragment :
                 val isCollapsed = abs(verticalOffset) >= appBarLayout.totalScrollRange
 
                 if (isCollapsed) {
-                    ivBackAlbumDetail.visibility = View.GONE
-                    ivBackToolbarAlbumDetail.visibility = View.VISIBLE
+                    toolbarAlbumDetail.visibility = View.GONE
+                    toolbarAlbumDetailBottom.navigationIcon = resources.getDrawable(R.drawable.baseline_chevron_left_24)
                 } else {
-                    ivBackAlbumDetail.visibility = View.VISIBLE
-                    ivBackToolbarAlbumDetail.visibility = View.GONE
+                    toolbarAlbumDetail.visibility = View.VISIBLE
+                    toolbarAlbumDetailBottom.navigationIcon = null
                 }
             }
-            ivBackAlbumDetail.bringToFront()
-            ivBackAlbumDetail.setOnClickListener {
+            toolbarAlbumDetail.bringToFront()
+            toolbarAlbumDetail.setNavigationOnClickListener {
                 Timber.d("터치")
                 requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+            toolbarAlbumDetailBottom.setNavigationOnClickListener {
+                viewModel.onClickBackToAlbum()
             }
             ivRefreshAlbumDetail.setOnClickListener {
                 initNaverMap()

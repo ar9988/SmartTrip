@@ -33,13 +33,13 @@ class TouchableWrapper @JvmOverloads constructor(
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         // ✅ 특정 뷰(뒤로 가기 버튼)로 터치 이벤트 강제 전달
-        findViewById<View>(R.id.iv_back_album_detail)?.let { backButton ->
-            if (backButton.isShown) {
-                if (ev != null && isTouchInsideView(ev, backButton)) {
-                    return backButton.dispatchTouchEvent(ev)
-                }
-            }
-        }
+//        findViewById<View>(R.id.iv_back_album_detail)?.let { backButton ->
+//            if (backButton.isShown) {
+//                if (ev != null && isTouchInsideView(ev, backButton)) {
+//                    return backButton.dispatchTouchEvent(ev)
+//                }
+//            }
+//        }
         return super.dispatchTouchEvent(ev)
     }
 

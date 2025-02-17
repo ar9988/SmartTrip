@@ -34,30 +34,19 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="@dimen/dp_medium" />
-
-        <Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_photo_classification"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:contentInsetStartWithNavigation="0dp"
+            app:title="@string/title_photo_place_classify"
+            app:navigationIcon="@drawable/baseline_chevron_left_24">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_back_photo_classification"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/dp_small"
-                android:src="@drawable/baseline_chevron_left_24" />
-
-            <TextView
-                android:id="@+id/tv_title_photo_classification"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendardbold"
-                android:text="@string/title_photo_place_classify"
-                android:textColor="@color/neutral_100"
-                android:textSize="@dimen/font_size_title" />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/iv_photo_classification"
@@ -68,8 +57,7 @@
                 android:onClick="@{() -> vm.onClickFinishPhotoUpload()}"
                 android:src="@drawable/ic_check" />
 
-        </Toolbar>
-
+        </com.google.android.material.appbar.MaterialToolbar>
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map_photo_classification"
             android:name="com.naver.maps.map.MapFragment"

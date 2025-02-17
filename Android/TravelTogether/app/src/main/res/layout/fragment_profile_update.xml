@@ -31,30 +31,20 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
-        <androidx.appcompat.widget.Toolbar
+
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar_profile_update"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_back_profile_update"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/baseline_chevron_left_24" />
-
-            <TextView
-                android:id="@+id/tv_title_profile_update"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendardbold"
-                android:text="@string/text_update_profile"
-                android:textColor="@color/neutral_100"
-                android:textSize="@dimen/font_size_larger" />
-
-        </androidx.appcompat.widget.Toolbar>
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/baseline_chevron_left_24"
+            app:title="@string/text_update_profile" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_profile_update"
