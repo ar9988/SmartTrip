@@ -51,6 +51,13 @@ public class Trip {
     @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TripMember> tripMembers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Schedule> schedules = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Day> days = new ArrayList<>();  // Day 엔티티와의 관계도 추가
+
+
     public void updateTrip(String title, LocalDateTime startDate, LocalDateTime endDate) {
         this.title = title;
         this.startDate = startDate;

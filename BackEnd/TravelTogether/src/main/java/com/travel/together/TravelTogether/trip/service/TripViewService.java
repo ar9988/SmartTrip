@@ -1,5 +1,6 @@
 package com.travel.together.TravelTogether.trip.service;
 
+import com.travel.together.TravelTogether.album.repository.PhotoAlbumRepository;
 import com.travel.together.TravelTogether.auth.entity.User;
 import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import com.travel.together.TravelTogether.trip.dto.*;
@@ -23,13 +24,14 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class TripViewService {
-    public TripViewService(TripRepository tripRepository, ScheduleRepository scheduleRepository, TripMemberRepository tripMemberRepository, DayRepository dayRepository, RouteRepository routeRepository, UserRepository userRepository) {
+    public TripViewService(TripRepository tripRepository, ScheduleRepository scheduleRepository, TripMemberRepository tripMemberRepository, DayRepository dayRepository, RouteRepository routeRepository, UserRepository userRepository, PhotoAlbumRepository photoAlbumRepository) {
         this.tripRepository = tripRepository;
         this.scheduleRepository = scheduleRepository;
         this.tripMemberRepository = tripMemberRepository;
         this.dayRepository = dayRepository;
         this.routeRepository = routeRepository;
         this.userRepository = userRepository;
+        this.photoAlbumRepository = photoAlbumRepository;
     }
 
     @Autowired
@@ -44,7 +46,8 @@ public class TripViewService {
     private final RouteRepository routeRepository;
     @Autowired
     private final UserRepository userRepository;
-
+    @Autowired
+    private final PhotoAlbumRepository photoAlbumRepository;
 
 
     // 전체 여행 조회
@@ -174,7 +177,25 @@ public class TripViewService {
 
     @Transactional
     public void deleteTrip(Integer tripId) {
-        tripRepository.deleteById(tripId);
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new EntityNotFoundException("Trip not found with id: " + tripId));
+
+        // 1. 먼저 Schedule 삭제
+        scheduleRepository.deleteByTripId(tripId);
+
+        // 2. Day 삭제
+        dayRepository.deleteByTripId(tripId);
+
+        // 3. TripMember 삭제
+        tripMemberRepository.deleteByTripId(tripId);
+
+        // 4. PhotoAlbum 삭제
+        if (trip.getPhotoAlbum() != null) {
+            photoAlbumRepository.delete(trip.getPhotoAlbum());
+        }
+
+        // 5. 마지막으로 Trip 삭제
+        tripRepository.delete(trip);
         log.info("Trip deletion completed for ID: {}", tripId);
 
     }
