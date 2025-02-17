@@ -11,8 +11,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -225,10 +225,11 @@ public class TripStateManager {
 
 
 
+    private static final int BATCH_SIZE = 2; // 한번에 전달할 경로 개수
+
     @Async
     public void generateAllPaths(Integer tripId, PathGenerationCallback callback) {
         log.info("=== START generateAllPaths for tripId: {} ===", tripId);
-
 
         Map<Integer, Integer> positions = tripSchedulePositions.get(tripId);
         if (positions == null || positions.isEmpty()) {
@@ -237,6 +238,7 @@ public class TripStateManager {
         }
 
         try {
+            // {1=10001,2=20001}에서 value만 가져와서 정렬후 모아놓기
             List<Integer> orderedScheduleIds = positions.entrySet().stream()
                     .sorted(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
@@ -247,7 +249,12 @@ public class TripStateManager {
             Map<Integer, Schedule> scheduleMap = schedules.stream()
                     .collect(Collectors.toMap(Schedule::getId, schedule -> schedule));
 
-            List<PathInfo> paths = new ArrayList<>();
+            // 결과를 저장할 Queue
+            BlockingQueue<PathInfo> pathQueue = new LinkedBlockingQueue<>();
+
+            // CompletableFuture를 사용하여 비동기적으로 경로 생성
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+            AtomicInteger expectedPathCount = new AtomicInteger(0); // 경로 개수 카운트
 
             // 연속된 일정 간의 모든 경로 생성
             for (int i = 0; i < orderedScheduleIds.size() - 1; i++) {
@@ -261,28 +268,36 @@ public class TripStateManager {
                     continue;
                 }
 
-
                 int currentPosition = positions.get(orderedScheduleIds.get(i));
                 int nextPosition = positions.get(orderedScheduleIds.get(i + 1));
 
                 if (currentPosition / 10000 == nextPosition / 10000) {
-                    Schedule source = scheduleMap.get(orderedScheduleIds.get(i));
-                    Schedule target = scheduleMap.get(orderedScheduleIds.get(i + 1));
-
-                    PathInfo pathInfo = generatePath(source, target);
-                    if (pathInfo != null) {
-                        paths.add(pathInfo);
-                        log.info("Successfully added path between {} and {}", source.getId(), target.getId());
-
-                    }
+                    expectedPathCount.incrementAndGet();
+                    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                        PathInfo pathInfo = generatePath(currentSchedule, nextSchedule);
+                        if (pathInfo != null) {
+                            pathQueue.offer(pathInfo);
+                            processBatchIfReady(pathQueue, callback, expectedPathCount.get());
+                        }
+                    });
+                    futures.add(future);
                 }
-
-
             }
 
-            log.info("Generated paths count: {}", paths.size());
-
-            callback.onPathGenerated(paths);
+            // 모든 경로 생성 완료 대기
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                    .thenRun(() -> {
+                        // 남은 경로들 처리
+                        List<PathInfo> remainingPaths = new ArrayList<>();
+                        pathQueue.drainTo(remainingPaths);
+                        if (!remainingPaths.isEmpty()) {
+                            callback.onPathGenerated(remainingPaths);
+                        }
+                    })
+                    .exceptionally(throwable -> {
+                        log.error("Error in path generation", throwable);
+                        return null;
+                    });
 
         } catch (Exception e) {
             log.error("Error in generateAllPaths for tripId {}", tripId, e);
@@ -290,8 +305,21 @@ public class TripStateManager {
         }
     }
 
+    private synchronized void processBatchIfReady(BlockingQueue<PathInfo> queue,
+                                                  PathGenerationCallback callback,
+                                                  int totalExpectedPaths) {
+        List<PathInfo> batch = new ArrayList<>();
+        if (queue.size() >= BATCH_SIZE || queue.size() == totalExpectedPaths) {
+            queue.drainTo(batch, BATCH_SIZE);
+            if (!batch.isEmpty()) {
+                callback.onPathGenerated(batch);
+                log.info("Sent batch of {} paths", batch.size());
+            }
+        }
+    }
 
-    // 특정 스케줄 이동에 대한 경로 생성 (MOVE 액션용)
+
+        // 특정 스케줄 이동에 대한 경로 생성 (MOVE 액션용)
     @Async
     public void generatePathsForSchedule(Integer tripId, Integer movedScheduleId, PathGenerationCallback callback) {
         log.info("=== START generatePathsForSchedule for tripId: {}, scheduleId: {} ===",

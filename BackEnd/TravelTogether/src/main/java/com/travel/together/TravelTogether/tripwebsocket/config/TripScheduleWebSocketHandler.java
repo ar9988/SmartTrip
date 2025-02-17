@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.travel.together.TravelTogether.trip.dto.ScheduleDto;
 import com.travel.together.TravelTogether.trip.entity.Day;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.entity.Trip;
@@ -17,14 +16,12 @@ import com.travel.together.TravelTogether.tripwebsocket.dto.*;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.event.TripEditFinishEvent;
 import com.travel.together.TravelTogether.tripwebsocket.service.ScheduleService;
-import com.travel.together.TravelTogether.tripwebsocket.service.TripStateManager;
 import io.jsonwebtoken.io.IOException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -32,12 +29,9 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
