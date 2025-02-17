@@ -1,6 +1,8 @@
 package com.travel.together.TravelTogether.tripwebsocket.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
 
 import java.util.List;
 

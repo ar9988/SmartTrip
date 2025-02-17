@@ -1,6 +1,5 @@
 package com.travel.together.TravelTogether.tripwebsocket.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
