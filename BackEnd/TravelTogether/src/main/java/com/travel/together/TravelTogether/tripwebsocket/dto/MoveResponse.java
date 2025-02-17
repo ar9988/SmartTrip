@@ -1,7 +1,6 @@
 package com.travel.together.TravelTogether.tripwebsocket.dto;
 
 
-import com.travel.together.TravelTogether.tripwebsocket.service.TripStateManager;
 import lombok.Getter;
 import lombok.Setter;
 

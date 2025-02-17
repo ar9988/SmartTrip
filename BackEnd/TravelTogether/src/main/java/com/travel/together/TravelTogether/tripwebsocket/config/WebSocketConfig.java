@@ -8,7 +8,6 @@ import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripScheduleCache;
 import com.travel.together.TravelTogether.tripwebsocket.service.ScheduleService;
-import com.travel.together.TravelTogether.tripwebsocket.service.TripStateManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +17,6 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Configuration
 @EnableWebSocket

@@ -10,7 +10,6 @@ import com.travel.together.TravelTogether.tripwebsocket.config.TripScheduleWebSo
 import com.travel.together.TravelTogether.tripwebsocket.dto.AddRequest;
 import com.travel.together.TravelTogether.tripwebsocket.dto.EditRequest;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
-import com.travel.together.TravelTogether.tripwebsocket.service.TripStateManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ import lombok.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
