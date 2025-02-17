@@ -87,6 +87,14 @@ public class TripStateManager {
         return tripDetailMap.get(tripId);
     }
 
+
+    // positionPath 경계값 체크 및 보정
+    private Integer validateAndCorrectPosition(Integer position) {
+        // 경계값이면 무조건 +1
+        return position % 10000 == 0 ? position + 1 : position;
+
+    }
+
     public void initializeFromTripDetail(Integer tripId, TripDetailDTO tripDetail) {
 
         // tripDetail 저장
@@ -99,8 +107,17 @@ public class TripStateManager {
         // DayDto에서 모든 schedule 추출하여 Map으로 저장 (scheduleId를 key로)
         for (DayDto dayDto : tripDetail.getDayDtos()) {
             for (ScheduleDTO schedule : dayDto.getSchedules()) {
+                log.info("valiadte position");
+
+                // position 경계값 체크 및 보정
+                Integer correctedPosition = validateAndCorrectPosition(schedule.getPositionPath());
+                schedule.setPositionPath(correctedPosition);
+
+
                 scheduleMap.put(schedule.getId(), schedule);
                 positionMap.put(schedule.getId(), schedule.getPositionPath()); // position 저장
+
+
 
             }
         }
@@ -220,6 +237,9 @@ public class TripStateManager {
                 .findFirst()
                 .orElse(null);
     }
+
+
+
 
 
 
