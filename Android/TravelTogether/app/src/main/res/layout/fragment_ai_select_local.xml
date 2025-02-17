@@ -82,7 +82,7 @@
             android:layout_height="0dp"
             android:layout_marginStart="@dimen/dp_smaller"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@id/chipgroup_selected_locations"
+            app:layout_constraintBottom_toTopOf="@id/horizontal_scroll_select_local"
             app:layout_constraintEnd_toEndOf="@id/gl_end_destination"
             app:layout_constraintStart_toEndOf="@id/toggle_buttongroup_category"
             app:layout_constraintTop_toBottomOf="@id/toolbar_ai_local_select" />
@@ -160,14 +160,14 @@
         <!--            app:layout_constraintStart_toStartOf="parent"-->
         <!--            app:layout_constraintEnd_toEndOf="parent" />-->
 
-        <View
-            android:id="@+id/divider_ai_local_bottom"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/dp_line_size"
-            android:background="@color/colorPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rv_detail_select_local" />
+<!--        <View-->
+<!--            android:id="@+id/divider_ai_local_bottom"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="@dimen/dp_line_size"-->
+<!--            android:background="@color/neutral_50"-->
+<!--            app:layout_constraintEnd_toEndOf="@id/gl_end_destination"-->
+<!--            app:layout_constraintStart_toStartOf="@id/gl_start_destination"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/rv_detail_select_local" />-->
 
 
         <!--        <androidx.constraintlayout.motion.widget.MotionLayout-->
@@ -194,15 +194,21 @@
         <!--            app:layout_constraintStart_toStartOf="parent"-->
         <!--            app:layout_constraintEnd_toEndOf="parent"-->
         <!--            />-->
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipgroup_selected_locations"
+
+        <HorizontalScrollView
+            android:id="@+id/horizontal_scroll_select_local"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/dp_medium"
-            app:chipSpacingHorizontal="@dimen/dp_small"
-            app:layout_constraintBottom_toTopOf="@id/btn_ai_select_local_next"
-            app:layout_constraintTop_toBottomOf="@id/divider_ai_local_bottom"
-            app:singleLine="false" />
+            android:scrollbars="none"
+            app:layout_constraintBottom_toTopOf="@id/btn_ai_select_local_next">
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipgroup_selected_locations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="@dimen/dp_medium"
+                app:chipSpacingHorizontal="@dimen/dp_small"
+                app:singleLine="false" />
+        </HorizontalScrollView>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_ai_select_local_next"

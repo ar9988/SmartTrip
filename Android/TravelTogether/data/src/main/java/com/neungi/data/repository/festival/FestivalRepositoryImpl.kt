@@ -43,7 +43,7 @@ class FestivalRepositoryImpl@Inject constructor(
         try {
             val response = withContext(CoroutineScope(Dispatchers.IO).coroutineContext) {
                 Log.d("regionCode", regionNumber.toString())
-                festivalRemoteDataSource.getFestivals(startDate, endDate, regionNumber)
+                festivalRemoteDataSource.getFestivals(startDate.replace("-", ""), endDate.replace("-", ""), regionNumber)
             }
 
             val body = response.body()

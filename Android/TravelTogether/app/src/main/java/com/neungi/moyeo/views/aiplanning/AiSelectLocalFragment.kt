@@ -108,7 +108,8 @@ class AiSelectLocalFragment : BaseFragment<FragmentAiSelectLocalBinding>(R.layou
                 binding.chipgroupSelectedLocations,
                 false
             )
-            chipBinding.text = location
+            val parseName  = location.split(" ")
+            chipBinding.text = parseName.last()
 
             val chip = chipBinding.root
 

@@ -54,6 +54,7 @@ class AIPlanningViewModel @Inject constructor(
         "전북" to R.array.local_jeonbuk,
         "전남" to R.array.local_jeonnam,
         "충북" to R.array.local_chungbuk,
+        "충남" to R.array.local_chungnam,
     )
 
 
@@ -254,7 +255,7 @@ class AIPlanningViewModel @Inject constructor(
 
     //축제 api통신 연결
     fun updateFestivalsByLocation(firstLocation: String) {
-        Timber.d("updateFestival!!"+regionMapper.getRegionCode(firstLocation))
+        Timber.d("updateFestival!! ${firstLocation} "+regionMapper.getRegionCode(firstLocation))
         viewModelScope.launch {
             val resultFlow = getRecommendFestivalUseCase(CommonUtils.convertToYYYYMMDDwithHyphen(startDate.value), CommonUtils.convertToYYYYMMDDwithHyphen(endDate.value), regionMapper.getRegionCode(firstLocation))
 

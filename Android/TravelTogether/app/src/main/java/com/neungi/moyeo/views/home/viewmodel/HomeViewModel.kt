@@ -115,7 +115,6 @@ class HomeViewModel @Inject constructor(
     init{
         getRecommendPlace()
         getFestivalList()
-        getLatestTrip()
         getNotification()
     }
 

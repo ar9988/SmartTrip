@@ -50,7 +50,8 @@ class SelectedLocationAdapter(
         ) {
             when (model) {
                 is LocationUiModel.Location -> {
-                    binding.text = model.name
+                    val parseString = model.name.split(" ")
+                    binding.text =parseString.last()
                     binding.isAddButton = false
                     binding.chipSelectedLocal.setOnClickListener { onDeleteClick() }
                 }

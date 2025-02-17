@@ -11,15 +11,15 @@ class RegionMapper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val specialCityMap = mapOf(
-        "서울" to "1",
-        "인천" to "2",
-        "대전" to "3",
-        "대구" to "4",
-        "광주" to "5",
-        "부산" to "6",
-        "울산" to "7",
-        "세종" to "8",
-        "제주" to "39"
+        "서울특별시" to "1",
+        "인천광역시" to "2",
+        "대전광역시" to "3",
+        "대구광역시" to "4",
+        "광주광역시" to "5",
+        "부산광역시" to "6",
+        "울산광역시" to "7",
+        "세종특별자치시" to "8",
+        "제주특별자치도" to "39"
     )
 
     private val provinceMap = mapOf(
@@ -32,6 +32,7 @@ class RegionMapper @Inject constructor(
         "전북" to "37",
         "전남" to "38"
     )
+
 
     fun getRegionCode(regionName: String): String {
         // 1. 특별시/광역시 확인

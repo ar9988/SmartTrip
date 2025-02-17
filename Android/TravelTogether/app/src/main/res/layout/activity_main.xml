@@ -71,7 +71,7 @@
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:contentDescription="@string/description_fab_planner"
-                android:src="@drawable/ic_planner"
+                android:src="@drawable/ic_ai_circular"
                 android:visibility="@{(vm.bnvState == true) ? View.VISIBLE : View.GONE}"
                 app:elevation="6dp"
                 app:fabCustomSize="72dp"

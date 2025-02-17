@@ -207,58 +207,12 @@
 
                 </androidx.cardview.widget.CardView>
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cardview_schedule_add_home"
-                    android:layout_width="0dp"
-                    android:layout_height="160dp"
-                    android:background="@android:color/transparent"
-                    app:cardBackgroundColor="@android:color/transparent"
-                    android:visibility="@{loginInfo != null &amp;&amp; vm.homeScheduleCardTrip ==null ? View.VISIBLE : View.GONE}"
-                    app:layout_constraintTop_toBottomOf="@id/gl_top_home"
-                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
-                    app:layout_constraintEnd_toEndOf="@id/gl_end_home"
-                    app:cardElevation="0dp">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_dashed_card"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:id="@+id/imageViewPlus"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:src="@drawable/baseline_add_24"
-                            app:tint="@color/neutral_60"
-                            app:layout_constraintBottom_toTopOf="@id/textViewAdd"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintVertical_chainStyle="packed" />
-
-                        <TextView
-                            android:id="@+id/textViewAdd"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/font_size_medium"
-                            android:text="여행 일정 추가하기"
-                            android:textColor="@color/neutral_60"
-                            android:textSize="@dimen/font_size_large"
-                            android:textStyle="bold"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/imageViewPlus" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.cardview.widget.CardView>
                 <androidx.constraintlayout.widget.Barrier
                     android:id="@+id/barrier_card_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="bottom"
-                    app:constraint_referenced_ids="cardview_schedule_home,cardview_schedule_add_home" />
+                    app:constraint_referenced_ids="cardview_schedule_home" />
 
 
 
@@ -289,7 +243,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/festival_title_home"
-                    android:textSize="@dimen/dp_larger"
+                    android:textSize="@dimen/font_size_title"
                     android:textStyle="bold"
                     android:layout_marginVertical="@dimen/dp_small"
                     app:layout_constraintTop_toBottomOf="@id/rv_recommend_place_home"

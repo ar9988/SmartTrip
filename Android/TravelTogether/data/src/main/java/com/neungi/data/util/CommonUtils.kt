@@ -22,7 +22,7 @@ object CommonUtils {
         if (input == "") return "1970.01.01 00:00"
         Log.d("CommonUtils", "formatDateTimeHourMinuteSecond: $input")
         val inputFormatter =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]").withZone(ZoneId.of("Asia/Seoul"))
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm[:ss]")
         val outputFormatter =
             DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm").withZone(ZoneId.of("Asia/Seoul"))
 

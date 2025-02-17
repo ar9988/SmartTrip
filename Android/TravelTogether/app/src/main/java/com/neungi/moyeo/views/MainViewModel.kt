@@ -17,6 +17,7 @@ import com.neungi.domain.usecase.PlaceFollowUseCase
 import com.neungi.domain.usecase.SaveNotificationUseCase
 import com.neungi.domain.usecase.SetFCMUseCase
 import com.neungi.domain.usecase.SetUserInfoUseCase
+import com.neungi.moyeo.service.NotificationEventBus
 import com.neungi.moyeo.util.EmptyState
 import com.neungi.moyeo.views.aiplanning.viewmodel.AiPlanningUiEvent
 import com.neungi.moyeo.views.aiplanning.viewmodel.SearchUiState
@@ -56,6 +57,11 @@ class MainViewModel @Inject constructor(
         getDeviceId()
         getFCMToken()
         login()
+        viewModelScope.launch {
+            NotificationEventBus.notificationReceived.collect {
+                planTriggerRefresh()
+            }
+        }
     }
 
     private val _settingUiEvent = MutableSharedFlow<SettingUiEvent>()
@@ -98,6 +104,10 @@ class MainViewModel @Inject constructor(
 
     private val _refreshTrigger = MutableStateFlow(false)
     val refreshTrigger = _refreshTrigger.asStateFlow()
+
+    private val _refreshPlanTrigger = MutableStateFlow(false)
+    val refreshPlanTrigger = _refreshTrigger.asStateFlow()
+
 
 
 
@@ -266,4 +276,13 @@ class MainViewModel @Inject constructor(
     fun offRefreshTrigger() {
         _refreshTrigger.value = false
     }
+
+    fun planTriggerRefresh() {
+        _refreshPlanTrigger.value = true
+    }
+
+    fun offRefreshPlanTrigger() {
+        _refreshPlanTrigger.value = false
+    }
 }
+

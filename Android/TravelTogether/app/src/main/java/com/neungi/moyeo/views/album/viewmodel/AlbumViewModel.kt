@@ -990,11 +990,20 @@ class AlbumViewModel @Inject constructor(
     fun downloadImage() {
         viewModelScope.launch {
             _albumUiEvent.emit(AlbumUiEvent.PhotoDownload)
+
+            // filePath에서 확장자 추출
+            val fileExtension = _selectedPhoto.value?.filePath?.let { path ->
+                path.substringAfterLast(".", "")
+            } ?: "jpg"  // 기본값으로 jpg 설정
+
+            // 저장할 파일명에 확장자 추가
+            val fileName = "${_selectedPhoto.value?.photoPlace}.${fileExtension}"
+
             val request = DownloadManager.Request(Uri.parse(_selectedPhoto.value?.filePath)).apply {
                 setTitle("이미지 다운로드")
                 setDescription("이미지를 다운로드하는 중...")
                 setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, _selectedPhoto.value?.photoPlace)
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, fileName)
                 setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
             }
 

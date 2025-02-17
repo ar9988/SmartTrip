@@ -103,11 +103,19 @@ class PhotoUploadFragment :
     }
 
     private fun getMediaStoreUri(documentUri: Uri): Uri {
-        val idString = documentUri.lastPathSegment?.split(":")?.last() ?: return documentUri
+        // content://com.android.externalstorage.documents/document/primary:DCIM/Camera/20190805_220837.jpg
+        // 형식에서 실제 경로 추출
+        val path = documentUri.path?.let {
+            it.substringAfter("primary:") // "DCIM/Camera/20190805_220837.jpg" 추출
+        } ?: return documentUri
 
-        val projection = arrayOf(MediaStore.Images.Media._ID)
-        val selection = MediaStore.Images.Media._ID + "=?"
-        val selectionArgs = arrayOf(idString)
+        // 파일명 추출
+        val fileName = path.substringAfterLast("/") // "20190805_220837.jpg"
+
+        // MediaStore에서 해당 파일 검색
+        var projection = arrayOf(MediaStore.Images.Media._ID)
+        var selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
+        var selectionArgs = arrayOf(fileName)
 
         requireContext().contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -125,7 +133,29 @@ class PhotoUploadFragment :
             }
         }
 
-        return documentUri  // 변환 실패시 원본 URI 반환
+        val idString = documentUri.lastPathSegment?.split(":")?.last() ?: return documentUri
+
+        projection = arrayOf(MediaStore.Images.Media._ID)
+        selection = MediaStore.Images.Media._ID + "=?"
+        selectionArgs = arrayOf(idString)
+
+        requireContext().contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID))
+                return ContentUris.withAppendedId(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    id
+                )
+            }
+        }
+
+        return documentUri
     }
 
     private fun getLatLngFromExif(uri: Uri): Pair<Double, Double> {

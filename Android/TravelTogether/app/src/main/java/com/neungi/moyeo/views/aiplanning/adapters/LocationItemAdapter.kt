@@ -28,7 +28,8 @@ class LocationItemAdapter(
 //            }
 //        }
         fun bind(location: String){
-            binding.tvLocalDetail.text = location
+            val parseName = location.split(" ")
+            binding.tvLocalDetail.text = parseName.last()
 
 
         }

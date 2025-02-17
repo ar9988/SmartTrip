@@ -83,6 +83,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="16dp"
+            android:layout_marginBottom="@dimen/dp_medium"
             app:layout_constraintEnd_toEndOf="@id/tv_festival_dialog_title"
             app:layout_constraintStart_toStartOf="@id/tv_festival_dialog_title"
             app:layout_constraintBottom_toBottomOf="parent"

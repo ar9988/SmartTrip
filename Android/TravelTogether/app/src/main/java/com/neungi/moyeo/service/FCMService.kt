@@ -15,6 +15,8 @@ import com.neungi.moyeo.MoyeoApplication
 import com.neungi.moyeo.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.UUID
@@ -89,11 +91,21 @@ class FCMService: FirebaseMessagingService (){
                     saveNotificationUseCase.saveNotifiacation(
                         Notification.create(title = nonNullTitle, body = nonNullBody)
                     )
+                    NotificationEventBus.emitNotificationReceived()
                 }
             }
         }
     }
 
     private fun sendTokenToServer(token: String) {
+    }
+}
+
+object NotificationEventBus {
+    private val _notificationReceived = MutableSharedFlow<Unit>()
+    val notificationReceived = _notificationReceived.asSharedFlow()
+
+    suspend fun emitNotificationReceived() {
+        _notificationReceived.emit(Unit)
     }
 }

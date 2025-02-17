@@ -69,6 +69,15 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
                 }
             }
         }
+        lifecycleScope.launch {
+            mainViewModel.refreshPlanTrigger.collect { shouldRefresh ->
+                if (shouldRefresh) {
+                    tripViewModel.getTrips(mainViewModel.userLoginInfo.value!!.userId)
+
+                    mainViewModel.offRefreshPlanTrigger()
+                }
+            }
+        }
 
         lifecycleScope.launch {
             tripViewModel.selectedTrip.collectLatest { trip ->
