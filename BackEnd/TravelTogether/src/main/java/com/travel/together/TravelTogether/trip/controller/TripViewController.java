@@ -87,10 +87,5 @@ public class TripViewController {
                 : ResponseEntity.notFound().build();
     }
 
-    // 빈 Trip일 경우 빈 day 튜플을 만들어서 보내주기
-//    @GetMapping("/makeday")
-//    public ResponseEntity<TripResponse> makeTempDay() {
-//
-//
-//    }
+
 }
