@@ -72,10 +72,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
-        Glide.with(requireContext())
-            .asGif()
-            .load(R.drawable.ic_movingmoyeo)
-            .into(binding.ivLogoHome)
         viewModel.getLatestTrip()
         setAdapter()
         observeStates()

@@ -86,7 +86,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         }
 
         Timber.d("OnCreate Intent: $intent")
-        handleKakaoInvite(intent) // ✅ 초대 링크 감지
+        when {
+            isFcmTripIntent(intent) -> {
+                handleFcmTripIntent(intent)
+            }
+            else -> {
+                handleKakaoInvite(intent)
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -94,8 +101,43 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
         setIntent(intent) // ✅ 기존 Intent 업데이트
         viewModel.login()
-        handleKakaoInvite(intent) // ✅ 초대 링크 감지
+        // 인텐트 타입에 따라 다른 처리
+        Timber.d("@{intent}")
+        when {
+
+            isFcmTripIntent(intent) -> {
+                handleFcmTripIntent(intent)
+            }
+            else -> {
+                handleKakaoInvite(intent) // 카카오 초대 링크 감지
+            }
+        }
+
         Timber.d("New Intent: $intent")
+    }
+
+    private fun handleFcmTripIntent(intent: Intent?) {
+        val tripIdStr = intent?.getStringExtra("TRIP_ID")
+        Timber.d("FCM Trip Intent detected with tripId: $tripIdStr")
+
+        if (!tripIdStr.isNullOrEmpty()) {
+            try {
+                val tripId = tripIdStr.toInt()
+                // UI가 준비된 후 네비게이션 실행
+                lifecycleScope.launch {
+                    // 로그인 상태 확인 후 처리
+                    if (viewModel.userLoginInfo.value != null) {
+                        handleInviteEvent(tripId)
+                    } else {
+                        // 로그인 필요
+                        handleLoginEvent()
+                    }
+                }
+            } catch (e: NumberFormatException) {
+                Timber.e("Invalid tripId format: $tripIdStr")
+                showToast("잘못된 여행 ID 형식입니다")
+            }
+        }
     }
 
     private fun handleKakaoInvite(intent: Intent?) {
@@ -165,6 +207,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
             .replace(R.id.fcv_main, LoginFragment())
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun isFcmTripIntent(intent: Intent?): Boolean {
+        return intent?.action == "OPEN_TRIP_DETAIL" && intent.hasExtra("TRIP_ID")
     }
 
     private fun setBottomNavigationBar() {

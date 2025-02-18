@@ -292,9 +292,10 @@
                         android:id="@+id/loading_animation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/lottie_margin"
                         app:lottie_autoPlay="false"
                         app:lottie_loop="true"
-                        app:lottie_rawRes="@raw/loading_animation" />
+                        app:lottie_rawRes="@raw/loading_animation_new" />
 
                 </FrameLayout>
 
