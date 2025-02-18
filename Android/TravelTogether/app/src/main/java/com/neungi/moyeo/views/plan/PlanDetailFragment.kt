@@ -39,6 +39,7 @@ import com.neungi.domain.model.ScheduleData
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
+import com.neungi.moyeo.util.ScheduleHeader
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
@@ -77,6 +78,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
         initializeViewBinding()
         initializeMap()
+//        setupRecyclerView()
         setupObservers()
         setupRecyclerView()
         setupListeners()
@@ -87,6 +89,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         super.onResume()
         mainViewModel.setBnvState(false)
         scheduleViewModel.startConnect()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        scheduleViewModel.closeWebSocket()
     }
 
     private fun initializeViewBinding() {
@@ -233,14 +240,16 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun createColorParts(): List<MultipartPathOverlay.ColorPart> {
         val list = mutableListOf<MultipartPathOverlay.ColorPart>()
         paths.keys.forEach {
-            list.add(
-                MultipartPathOverlay.ColorPart(
-                    colors[sectionedAdapter.pathInfo[it]!!.first % colors.size],
-                    Color.WHITE,
-                    Color.DKGRAY,
-                    Color.LTGRAY
+            if(sectionedAdapter.pathInfo[it]!=null){
+                list.add(
+                    MultipartPathOverlay.ColorPart(
+                        colors[sectionedAdapter.pathInfo[it]!!.first % colors.size],
+                        Color.WHITE,
+                        Color.DKGRAY,
+                        Color.LTGRAY
+                    )
                 )
-            )
+            }
         }
         return list
     }
@@ -270,7 +279,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             itemTouchHelper.attachToRecyclerView(this)
             itemAnimator = null
         }
-
     }
 
     private fun createItemTouchHelper(): ItemTouchHelper {
@@ -321,7 +329,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun createScheduleEntity(data: ScheduleData): ScheduleEntity {
-
         return ScheduleEntity(
             id = data.scheduleId,
             placeName = data.placeName,
@@ -431,7 +438,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             markerMap.remove(scheduleData.scheduleId)
         } else {
             val info = sectionedAdapter.pathInfo[scheduleData.scheduleId]
-            if(scheduleData.lat<0) return
+            if (scheduleData.lat < 0) return
             val marker = Marker().apply {
                 iconTintColor = colors[info!!.first % colors.size]
                 subCaptionText = info.first.toString() + " 일차 " + info.second.toString() + "번째 일정"
@@ -456,16 +463,18 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         if (iconWidth * members.size < binding.iconContainer.width) {
             overlapMargin = 0
         } else {
-            overlapMargin = ((members.size * iconWidth - binding.iconContainer.width) / (members.size))
+            overlapMargin =
+                ((members.size * iconWidth - binding.iconContainer.width) / (members.size))
         }
 
         for (i in members.indices) {
             val imageView = ImageView(requireContext())
-            Timber.d(members[i].profileImage)
+            Timber.d("URL " + members[i].profileImage)
             // Glide로 이미지를 로드
             Glide.with(requireContext())
                 .load(members[i].profileImage)  // 각 Member의 이미지 URL
                 .placeholder(R.drawable.baseline_account_circle_24)  // URL 로딩 전 기본 아이콘 표시
+                .circleCrop()
                 .into(imageView)
 
             // 아이콘의 레이아웃 파라미터 설정
@@ -473,7 +482,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             params.gravity = Gravity.CENTER_VERTICAL
             // 각 아이콘의 leftMargin을 겹치도록 설정
             val margin = if (i > 0) ((iconWidth - overlapMargin) * i) else 0
-            imageView.z = (members.size-i).toFloat()
+            imageView.z = (members.size - i).toFloat()
 
             // 아이콘을 컨테이너에 추가
             binding.iconContainer.addView(imageView, params)

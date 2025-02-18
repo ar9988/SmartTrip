@@ -41,6 +41,7 @@ class SectionedAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(data: ScheduleHeader) {
+            Timber.d("$data")
             binding.dayInfo = data
             binding.onClick = View.OnClickListener {
                 onAddClick(data.dayId)
@@ -130,6 +131,7 @@ class SectionedAdapter(
                 notifyDataSetChanged()
             }
         }
+
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -140,9 +142,11 @@ class SectionedAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_SECTION_HEADER) {
+        Timber.d("onCreate called")
+        if (viewType == VIEW_TYPE_SECTION_HEADER) {
             val binding =
                 ItemSectionHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            Timber.d("onCreate header ${binding}")
             return SectionHeaderViewHolder(binding)
         } else {
             val binding =
@@ -153,7 +157,10 @@ class SectionedAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = listItems[position]) {
-            is ListItem.SectionHeader -> (holder as SectionHeaderViewHolder).bind(item.data)
+            is ListItem.SectionHeader -> {
+                Timber.d("Binding Header at position: $position ${item.data}")
+                (holder as SectionHeaderViewHolder).bind(item.data)
+            }
             is ListItem.Item -> {
                 (holder as ItemViewHolder).bind(
                     item.data,
@@ -180,6 +187,7 @@ class SectionedAdapter(
     fun rebuildSections() {
         val newSections = mutableListOf<Section>()
         var currentSection: MutableList<ScheduleData>? = null
+        Timber.d("rebuild 1 ${listItems}")
         val sortedItems = listItems.sortedWith(
             compareBy<ListItem> {
                 when (it) {
@@ -194,6 +202,7 @@ class SectionedAdapter(
             }
         )
 
+        Timber.d("rebuild 2 ${sortedItems}")
         // 섹션별로 아이템 재구성
         sortedItems.forEach { item ->
             when (item) {
@@ -210,10 +219,11 @@ class SectionedAdapter(
                 }
             }
         }
-
-        // 2. sections 업데이트
+        // 섹션 업데이트 전후 로그
+        Timber.d("Before update - sections size: ${sections.size}")
         sections.clear()
         sections.addAll(newSections)
+        Timber.d("After update - sections size: ${sections.size}")
 
         // 3. listItems 재구성
         val oldList = listItems.toList() // 이전 리스트 복사
@@ -223,7 +233,6 @@ class SectionedAdapter(
         val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun getOldListSize() = oldList.size
             override fun getNewListSize() = listItems.size
-
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 val oldItem = oldList[oldItemPosition]
                 val newItem = listItems[newItemPosition]
@@ -243,6 +252,7 @@ class SectionedAdapter(
             }
         })
         // RecyclerView가 레이아웃을 계산 중인지 확인하고 안전하게 업데이트
+
         buildTimeInfo()
         if (!recyclerView.isComputingLayout) {
             diffResult.dispatchUpdatesTo(this)

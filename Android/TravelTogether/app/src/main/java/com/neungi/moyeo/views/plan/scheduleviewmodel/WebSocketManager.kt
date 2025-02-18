@@ -111,6 +111,7 @@ class WebSocketManager @Inject constructor() {
     }
 
     private fun sendStart() {
+
         sendMessage(
             ServerEvent(
                 operationId = "123",

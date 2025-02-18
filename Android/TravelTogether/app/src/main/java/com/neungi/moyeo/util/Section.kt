@@ -14,9 +14,10 @@ data class Section(
 )
 
 fun convertToSections(scheduleReceive: ScheduleReceive, trip: Trip): MutableList<Section> {
+
     val sections = mutableListOf<Section>()
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    Timber.d("${scheduleReceive.day.size}")
+    Timber.d("${scheduleReceive.day}")
     // dayId는 0부터 시작하고, day의 순서대로 반복
     scheduleReceive.day.forEachIndexed { index, day ->
         val sectionHeader = ScheduleHeader(
