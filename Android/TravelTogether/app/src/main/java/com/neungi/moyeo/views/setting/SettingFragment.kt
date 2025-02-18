@@ -3,6 +3,7 @@ package com.neungi.moyeo.views.setting
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
@@ -23,6 +24,8 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
 
         binding.vm = viewModel
 
+        initView()
+
         collectLatestFlow(viewModel.settingUiEvent) { handleUiEvent(it) }
         collectLatestFlow(mainViewModel.userLoginInfo) {
             viewModel.getUserInfo()
@@ -34,6 +37,56 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>(R.layout.fragment_s
 
         viewModel.getUserInfo()
         mainViewModel.setBnvState(true)
+    }
+
+    private fun initView() {
+        with(binding) {
+            ivProfileSetting.setOnClickListener {
+                findNavController().navigateSafely(R.id.action_setting_to_profile_update)
+            }
+            tvNameSetting.setOnClickListener {
+                findNavController().navigateSafely(R.id.action_setting_to_profile_update)
+            }
+            tvProfileMessageSetting.setOnClickListener {
+                findNavController().navigateSafely(R.id.action_setting_to_profile_update)
+            }
+            ivTravelSetting.setOnClickListener {
+                findNavController().navigate(
+                    R.id.fragment_plan, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.fragment_setting, true)
+                        .setLaunchSingleTop(true)
+                        .setRestoreState(true)
+                        .build()
+                )
+            }
+            tvTravelSetting.setOnClickListener {
+                findNavController().navigate(
+                    R.id.fragment_plan, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.fragment_setting, true)
+                        .setLaunchSingleTop(true)
+                        .setRestoreState(true)
+                        .build()
+                )
+            }
+            ivAlbumSetting.setOnClickListener {
+                findNavController().navigate(
+                    R.id.fragment_album, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.fragment_setting, true)
+                        .setLaunchSingleTop(true)
+                        .setRestoreState(true)
+                        .build()
+                )
+            }
+            tvAlbumSetting.setOnClickListener {
+                findNavController().navigate(
+                    R.id.fragment_album, null, NavOptions.Builder()
+                        .setPopUpTo(R.id.fragment_setting, true)
+                        .setLaunchSingleTop(true)
+                        .setRestoreState(true)
+                        .build()
+                )
+            }
+        }
     }
 
     private fun handleUiEvent(event: SettingUiEvent) {

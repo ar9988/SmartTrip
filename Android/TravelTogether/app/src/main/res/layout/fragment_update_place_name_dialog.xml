@@ -20,7 +20,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_button"
+            android:background="@drawable/shape_dialog"
             tools:context=".views.album.UpdatePlaceNameDialogFragment">
 
             <androidx.constraintlayout.widget.Guideline
@@ -85,7 +85,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_large"
-                android:background="@drawable/selector_button_red"
+                android:background="@drawable/selector_button"
                 android:enabled="@{vm.albumUiState.isUpdatePlaceNameBtnEnable}"
                 android:fontFamily="@font/pretendardsemibold"
                 android:onClick="@{() -> vm.onClickUpdatePlaceName()}"

@@ -203,6 +203,15 @@
         tools:layout="@layout/fragment_setting">
 
         <action
+            android:id="@+id/action_setting_to_plan"
+            app:destination="@id/fragment_plan" />
+
+        <action
+            android:id="@+id/action_setting_to_album"
+            app:destination="@id/fragment_album"
+            app:popUpToInclusive="true" />
+
+        <action
             android:id="@+id/action_setting_to_login"
             app:destination="@id/fragment_login" />
 

@@ -87,11 +87,6 @@ class PhotoClassificationFragment :
                         showLoading(true)
                     }
 
-                    ApiStatus.ERROR -> {
-                        showLoading(false)
-                        showToastMessage(resources.getString(R.string.message_fail_to_upload_photo))
-                    }
-
                     else -> { showLoading(false) }
                 }
             }
@@ -340,12 +335,15 @@ class PhotoClassificationFragment :
             }
 
             is AlbumUiEvent.FinishPhotoUpload -> {
+                Timber.d("성공")
                 showToastMessage(resources.getString(R.string.message_photo_upload))
                 findNavController().popBackStack(R.id.fragment_album_detail, false)
             }
 
             is AlbumUiEvent.PhotoUploadFail -> {
+                Timber.d("실패")
                 showToastMessage(resources.getString(R.string.message_fail_to_upload_photo))
+                findNavController().popBackStack(R.id.fragment_album, true)
             }
 
             else -> {}

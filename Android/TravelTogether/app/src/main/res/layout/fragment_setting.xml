@@ -20,6 +20,13 @@
         tools:context=".views.setting.SettingFragment">
 
         <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/gl_vertical_center_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <androidx.constraintlayout.widget.Guideline
             android:id="@+id/gl_start_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -112,15 +119,16 @@
 
         <TextView
             android:id="@+id/tv_travel_setting"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_medium"
             android:fontFamily="@font/pretendardsemibold"
-            android:text="@string/text_my_travel"
+            android:text="@string/title_my_travel_schedule"
             android:textColor="@color/neutral_100"
             android:textSize="@dimen/font_size_large"
             android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="@id/iv_travel_setting"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_setting"
             app:layout_constraintStart_toEndOf="@id/iv_travel_setting"
             app:layout_constraintTop_toTopOf="@id/iv_travel_setting" />
 
@@ -128,198 +136,41 @@
             android:id="@+id/iv_album_setting"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:src="@drawable/ic_album"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/tv_travel_setting"
-            app:layout_constraintStart_toStartOf="@id/iv_search_setting"
-            app:layout_constraintTop_toTopOf="@id/tv_travel_setting" />
-
-        <TextView
-            android:id="@+id/tv_album_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dp_medium"
-            android:fontFamily="@font/pretendardsemibold"
-            android:text="@string/text_my_album"
-            android:textColor="@color/neutral_100"
-            android:textSize="@dimen/font_size_large"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/iv_album_setting"
-            app:layout_constraintStart_toEndOf="@id/iv_album_setting"
-            app:layout_constraintTop_toTopOf="@id/iv_album_setting" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_tour_setting"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
             android:layout_marginTop="@dimen/dp_medium"
-            android:src="@drawable/ic_tour"
+            android:src="@drawable/ic_album"
             android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toEndOf="@id/gl_start_setting"
             app:layout_constraintTop_toBottomOf="@id/iv_travel_setting" />
 
         <TextView
-            android:id="@+id/tv_tour_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dp_medium"
-            android:fontFamily="@font/pretendardsemibold"
-            android:text="@string/text_my_tour"
-            android:textColor="@color/neutral_100"
-            android:textSize="@dimen/font_size_large"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/iv_tour_setting"
-            app:layout_constraintStart_toEndOf="@id/iv_tour_setting"
-            app:layout_constraintTop_toTopOf="@id/iv_tour_setting" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_search_setting"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginStart="@dimen/dp_largest"
-            android:src="@drawable/ic_tour_search"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/tv_tour_setting"
-            app:layout_constraintStart_toEndOf="@id/tv_tour_setting"
-            app:layout_constraintTop_toTopOf="@id/tv_tour_setting" />
-
-        <TextView
-            android:id="@+id/tv_search_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dp_medium"
-            android:fontFamily="@font/pretendardsemibold"
-            android:text="@string/text_tour_search"
-            android:textColor="@color/neutral_100"
-            android:textSize="@dimen/font_size_large"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/iv_search_setting"
-            app:layout_constraintStart_toEndOf="@id/iv_search_setting"
-            app:layout_constraintTop_toTopOf="@id/iv_search_setting" />
-
-        <View
-            android:id="@+id/line_second_setting"
+            android:id="@+id/tv_album_setting"
             android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="@dimen/dp_larger"
-            android:background="@color/neutral_60"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_tour_setting" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_setting"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="@dimen/dp_medium"
-            android:src="@drawable/ic_settings"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
-            app:layout_constraintTop_toBottomOf="@id/line_second_setting" />
-
-        <TextView
-            android:id="@+id/tv_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dp_medium"
-            android:fontFamily="@font/pretendardbold"
-            android:text="@string/text_settings"
-            android:textColor="@color/neutral_100"
-            android:textSize="@dimen/font_size_larger"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/iv_setting"
-            app:layout_constraintStart_toEndOf="@id/iv_setting"
-            app:layout_constraintTop_toTopOf="@id/iv_setting" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_profile_update_setting"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginTop="@dimen/dp_larger"
-            android:onClick="@{() -> vm.onClickUpdateProfile()}"
-            android:src="@drawable/ic_profile_update"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
-            app:layout_constraintTop_toBottomOf="@id/tv_setting" />
-
-        <TextView
-            android:id="@+id/tv_profile_update_setting"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_medium"
             android:fontFamily="@font/pretendardsemibold"
-            android:onClick="@{() -> vm.onClickUpdateProfile()}"
-            android:text="@string/text_update_profile"
+            android:text="@string/title_album"
             android:textColor="@color/neutral_100"
             android:textSize="@dimen/font_size_large"
             android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/iv_profile_update_setting"
-            app:layout_constraintStart_toEndOf="@id/iv_profile_update_setting"
-            app:layout_constraintTop_toTopOf="@id/iv_profile_update_setting" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_permission_setting"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_album"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/tv_profile_update_setting"
-            app:layout_constraintStart_toStartOf="@id/iv_search_setting"
-            app:layout_constraintTop_toTopOf="@id/tv_profile_update_setting" />
-
-        <TextView
-            android:id="@+id/tv_permission_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dp_medium"
-            android:fontFamily="@font/pretendardsemibold"
-            android:text="@string/text_permission_setting"
-            android:textColor="@color/neutral_100"
-            android:textSize="@dimen/font_size_large"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/iv_permission_setting"
-            app:layout_constraintStart_toEndOf="@id/iv_permission_setting"
-            app:layout_constraintTop_toTopOf="@id/iv_permission_setting" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_notification_setting"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginTop="@dimen/dp_medium"
-            android:src="@drawable/ic_tour"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
-            app:layout_constraintTop_toBottomOf="@id/iv_profile_update_setting" />
-
-        <TextView
-            android:id="@+id/tv_notification_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dp_medium"
-            android:fontFamily="@font/pretendardsemibold"
-            android:text="@string/text_notification_setting"
-            android:textColor="@color/neutral_100"
-            android:textSize="@dimen/font_size_large"
-            android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/iv_notification_setting"
-            app:layout_constraintStart_toEndOf="@id/iv_notification_setting"
-            app:layout_constraintTop_toTopOf="@id/iv_notification_setting" />
+            app:layout_constraintBottom_toBottomOf="@id/iv_album_setting"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_setting"
+            app:layout_constraintStart_toEndOf="@id/iv_album_setting"
+            app:layout_constraintTop_toTopOf="@id/iv_album_setting" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_logout_setting"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_marginTop="@dimen/dp_medium"
             android:onClick="@{() -> vm.onClickLogout()}"
             android:src="@drawable/ic_logout"
             android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
-            app:layout_constraintBottom_toBottomOf="@id/tv_notification_setting"
-            app:layout_constraintStart_toStartOf="@id/iv_search_setting"
-            app:layout_constraintTop_toTopOf="@id/tv_notification_setting" />
+            app:layout_constraintStart_toEndOf="@id/gl_start_setting"
+            app:layout_constraintTop_toBottomOf="@id/iv_album_setting" />
 
         <TextView
             android:id="@+id/tv_logout_setting"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/dp_medium"
             android:fontFamily="@font/pretendardsemibold"
@@ -329,6 +180,7 @@
             android:textSize="@dimen/font_size_large"
             android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="@id/iv_logout_setting"
+            app:layout_constraintEnd_toStartOf="@id/gl_end_setting"
             app:layout_constraintStart_toEndOf="@id/iv_logout_setting"
             app:layout_constraintTop_toTopOf="@id/iv_logout_setting" />
 
@@ -341,7 +193,7 @@
             android:visibility="@{(vm.userId == null) ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_notification_setting" />
+            app:layout_constraintTop_toBottomOf="@id/iv_logout_setting" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_information_setting"

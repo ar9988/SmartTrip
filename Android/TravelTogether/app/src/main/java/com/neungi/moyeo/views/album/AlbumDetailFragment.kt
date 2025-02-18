@@ -181,6 +181,7 @@ class AlbumDetailFragment :
     private fun initClusterer() {
         lifecycleScope.launch {
             viewModel.markers.collectLatest { markers ->
+                Timber.d("Markers: $markers")
                 clusteredMarkers.forEach { marker ->
                     marker.map = null
                 }
@@ -202,10 +203,10 @@ class AlbumDetailFragment :
     @SuppressLint("InflateParams")
     private fun addClusterMarkers(clusterGroups: List<Pair<String, List<MarkerData>>>) {
         clusterGroups.forEachIndexed { index, cluster ->
+            Timber.d("Index: $index")
             val representativeCoordinate = calculateRepresentativeCoordinate(cluster.second)
 
             val marker = Marker()
-            clusteredMarkers.add(marker)
             marker.position = representativeCoordinate
             val customView = LayoutInflater.from(requireContext()).inflate(
                 R.layout.marker_cluster_icon, null
@@ -235,19 +236,19 @@ class AlbumDetailFragment :
                         transition: Transition<in Bitmap>?
                     ) {
                         imageView.setImageBitmap(resource)
-                        clusteredMarkers[index].icon = OverlayImage.fromView(customView)
+                        marker.icon = OverlayImage.fromView(customView)
                     }
 
                     override fun onLoadFailed(errorDrawable: Drawable?) {
                         imageView.setImageBitmap(errorDrawable?.let { drawableToBitmap(it) })
-                        clusteredMarkers[index].icon = OverlayImage.fromView(customView)
+                        marker.icon = OverlayImage.fromView(customView)
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) {
                         imageView.setImageDrawable(placeholder)
                     }
                 })
-            clusteredMarkers[index].onClickListener = Overlay.OnClickListener {
+            marker.onClickListener = Overlay.OnClickListener {
                 var placeIndex = 0
                 viewModel.photoPlaces.value.forEachIndexed { index2, place ->
                     if (place.name == viewModel.photoPlaces.value[index + 1].name) {
@@ -259,9 +260,9 @@ class AlbumDetailFragment :
                 binding.vpAlbumDetail.setCurrentItem(placeIndex, true)
                 true
             }
-            clusteredMarkers[index].map = naverMap
+            marker.map = naverMap
+            clusteredMarkers.add(marker)
         }
-        Timber.d("Marker Size: ${clusteredMarkers.size}")
     }
 
     private fun initViews() {
