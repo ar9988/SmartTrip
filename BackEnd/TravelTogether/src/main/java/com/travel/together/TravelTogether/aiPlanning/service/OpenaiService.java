@@ -218,8 +218,8 @@ public class OpenaiService {
             // 전체 DTO에 schedule 설정
             openaiResponseDto.setSchedule(schedule);
 
-            aiplanningService.savePlanningData(openaiResponseDto);
-            fcmTokenService.sendNotificationToUser(requestDTO.getUserId(),"일정 생성 완료", "일정 생성이 완료되었습니다.");
+            Integer tripId = aiplanningService.savePlanningData(openaiResponseDto);
+            fcmTokenService.sendNotificationToUser(requestDTO.getUserId(),"일정 생성 완료", "일정 생성이 완료되었습니다.", tripId);
             return openaiResponseDto; // API 응답을 반환
 
 

@@ -61,7 +61,7 @@ public class FCMTokenService {
         fcmTokenRepository.delete(fcmToken);
     }
 
-    public void sendNotificationToUser(Long userId, String title, String body) {
+    public void sendNotificationToUser(Long userId, String title, String body, Integer tripId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -79,6 +79,7 @@ public class FCMTokenService {
                                 .setTitle(title)
                                 .setBody(body)
                                 .build())
+                        .putData("tripId", tripId.toString())
                         .build();
 
                 String response = FirebaseMessaging.getInstance().send(message);
