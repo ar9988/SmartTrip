@@ -16,7 +16,6 @@ import com.neungi.domain.usecase.GetInviteUseCase
 import com.neungi.domain.usecase.GetScheduleUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.moyeo.util.Section
-import com.neungi.moyeo.util.convertToMember
 import com.neungi.moyeo.util.convertToSections
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -64,14 +63,17 @@ class ScheduleViewModel @Inject constructor(
     private val _editEvent = MutableLiveData<ManipulationEvent>()
     val editEvent : LiveData<ManipulationEvent> get() = _editEvent
 
+
+    private val _memberList = MutableLiveData<List<Member>>()
+    val memberList: LiveData<List<Member>> get() = _memberList
+
+
     init {
         viewModelScope.launch {
             _userName.value = fetchUserName().first()
         }
     }
 
-    private val _memberList = MutableLiveData<List<Member>>()
-    val memberList: LiveData<List<Member>> get() = _memberList
 
     override fun onClickGoToInvite() {
         viewModelScope.launch {
@@ -115,10 +117,12 @@ class ScheduleViewModel @Inject constructor(
             trip?.let {
                 Timber.d("Receive: $scheduleReceive")
                 val sections = convertToSections(scheduleReceive, trip)
-                val member = convertToMember(scheduleReceive)
                 _scheduleSections.postValue(sections)
-                _memberList.postValue(member)
             }
+        }
+
+        webSocketManager.onMemberEventReceived = { memberList: List<Member> ->
+            _memberList.postValue(memberList)
         }
 
         webSocketManager.onAddEventReceived = { addEvent: ScheduleData ->

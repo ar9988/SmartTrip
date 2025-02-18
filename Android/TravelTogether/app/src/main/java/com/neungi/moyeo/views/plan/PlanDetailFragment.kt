@@ -51,6 +51,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalDateTime
 
 @AndroidEntryPoint
 class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.fragment_plan_detail),
@@ -147,6 +148,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             this.sections = sections.toMutableList()
             buildListItems()
             rebuildSections()
+//            notifyDataSetChanged()
         }
     }
 
@@ -272,6 +274,16 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             },
             recyclerView = binding.rvPlanDetail
         )
+        val sections = mutableListOf<Section>(
+            Section(
+                head=ScheduleHeader(dayId=1, title="1일차 (2025.02.19)", positionPath=9999, startTime= LocalDateTime.now()),
+                items= mutableListOf()),
+            Section(head=ScheduleHeader(dayId=2, title="2일차 (2025.02.20)", positionPath=19999, startTime=LocalDateTime.now()),
+                items= mutableListOf()
+            )
+        )
+        handleScheduleSections(sections)
+
         binding.rvPlanDetail.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = sectionedAdapter
@@ -459,12 +471,10 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleMemberList(members: List<Member>) {
         val iconWidth = 40.dpToPx()
-        var overlapMargin = 0
-        if (iconWidth * members.size < binding.iconContainer.width) {
-            overlapMargin = 0
+        val overlapMargin: Int = if (iconWidth * members.size < binding.iconContainer.width) {
+            0
         } else {
-            overlapMargin =
-                ((members.size * iconWidth - binding.iconContainer.width) / (members.size))
+            ((members.size * iconWidth - binding.iconContainer.width) / (members.size))
         }
 
         for (i in members.indices) {

@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ServerReceive
-import com.neungi.domain.model.Path
 import com.neungi.domain.model.ScheduleData
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemSectionHeaderBinding
@@ -92,7 +91,8 @@ class SectionedAdapter(
             Timber.d("Items: $item")
             if (item is ListItem.Item) {
                 if (listItems[position - 1] is ListItem.SectionHeader) {
-                    val from = LocalTime.of(9, 0)
+                    (listItems[position - 1] as ListItem.SectionHeader).data.startTime
+                    val from = LocalTime.of(10, 0)
                     item.data.fromTime = from
                     item.data.toTime = from.plusMinutes(item.data.duration.toLong())
                 } else {
@@ -119,6 +119,7 @@ class SectionedAdapter(
         listItems.clear()
         sections.forEachIndexed { sectionIndex, section ->
             listItems.add(ListItem.SectionHeader(section.head))
+            Timber.d(section.head.toString())
             section.items.forEach { item: ScheduleData ->
                 listItems.add(ListItem.Item(item, sectionIndex))
             }

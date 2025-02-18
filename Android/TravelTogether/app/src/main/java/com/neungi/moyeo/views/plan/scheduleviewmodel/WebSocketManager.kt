@@ -4,8 +4,10 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
+import com.neungi.data.entity.Member
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
 import com.neungi.data.entity.ScheduleReceive
@@ -32,6 +34,7 @@ class WebSocketManager @Inject constructor() {
     var onScheduleEventReceived: ((ScheduleReceive) -> Unit)? = null
     var onAddEventReceived: ((ScheduleData) -> Unit)? = null
     var onEditEventReceived: ((ManipulationEvent) -> Unit)? = null
+    var onMemberEventReceived: ((List<Member>) -> Unit)? = null
 
     private val client = OkHttpClient()
     private val webSocketListener = object : WebSocketListener() {
@@ -61,7 +64,7 @@ class WebSocketManager @Inject constructor() {
                 }
 
                 val jsonObject = JsonParser.parseString(text).asJsonObject
-                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
+                if(!jsonObject.has("paths")) Timber.d("received "+text)
                 when {
 
                     jsonObject.has("status") -> {
@@ -84,12 +87,16 @@ class WebSocketManager @Inject constructor() {
 
                     jsonObject.has("placeName") -> {
                         val add = gson.fromJson(text, ScheduleData::class.java)
-                        Timber.d(add.toString())
+//                        Timber.d(add.toString())
                         onAddEventReceived?.invoke(add)
                     }
                     jsonObject.has("dayOrder") -> {
                         val editedItem = gson.fromJson(text,ManipulationEvent::class.java)
                         onEditEventReceived?.invoke(editedItem)
+                    }
+                    jsonObject.has("profileImage") ->{
+                        val members = gson.fromJson<List<Member>>(text, object : TypeToken<List<Member>>() {}.type)
+                        onMemberEventReceived?.invoke(members)
                     }
                 }
             } catch (e: Exception) {
@@ -111,14 +118,14 @@ class WebSocketManager @Inject constructor() {
     }
 
     private fun sendStart() {
-
+        Timber.d(tripId.toString())
         sendMessage(
             ServerEvent(
                 operationId = "123",
                 tripId = tripId,
                 operation = Operation(
                     action = "START",
-                    scheduleId = -1,
+                    scheduleId = -1, //userId
                     positionPath = -1
                 ),
                 timestamp = 1
