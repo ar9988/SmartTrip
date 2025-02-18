@@ -12,7 +12,7 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     private static final String SECRET_KEY = "YourSecretKeyYourSecretKeyYourSecretKey";
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24시간
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; // 7일
 
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     private Key getSigningKey() {
