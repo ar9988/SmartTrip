@@ -89,6 +89,7 @@ class SectionedAdapter(
 
     private fun buildTimeInfo() { // 활동 시간, 이동 시간 계산해서 표시
         listItems.forEachIndexed { position, item ->
+            Timber.d("Items: $item")
             if (item is ListItem.Item) {
                 if (listItems[position - 1] is ListItem.SectionHeader) {
                     val from = LocalTime.of(9, 0)

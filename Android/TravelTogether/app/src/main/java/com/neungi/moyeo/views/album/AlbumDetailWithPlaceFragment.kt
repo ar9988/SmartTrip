@@ -13,6 +13,7 @@ import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class AlbumDetailWithPlaceFragment :
@@ -38,6 +39,7 @@ class AlbumDetailWithPlaceFragment :
     private fun initRecyclerView() {
         arguments?.let { argument ->
             val placeTagIndex = argument.getInt("placeId")
+            Timber.d("Index: $placeTagIndex")
             lifecycleScope.launch {
                 with(binding.rvPhotoAlbumDetail) {
                     viewModel.photoPlaces.collectLatest { places ->

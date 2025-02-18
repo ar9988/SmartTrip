@@ -11,8 +11,6 @@ interface OnAlbumClickListener {
 
     fun onClickBackToAlbum()
 
-    fun onClickPhotoPlace(photoPlace: PhotoPlace)
-
     fun onClickPhoto(photo: Photo)
 
     fun onClickBackToAlbumDetail()

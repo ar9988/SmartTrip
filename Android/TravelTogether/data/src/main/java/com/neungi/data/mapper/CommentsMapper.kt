@@ -1,7 +1,7 @@
 package com.neungi.data.mapper
 
 import com.neungi.data.entity.CommentEntity
-import com.neungi.data.util.CommonUtils.formatDateTimeHourMinuteSecond
+import com.neungi.data.util.CommonUtils.formatDateTimeHourMinute
 import com.neungi.domain.model.Comment
 
 object CommentsMapper {
@@ -19,7 +19,7 @@ object CommentsMapper {
                     author = commentEntity.userName,
                     profileImage = commentEntity.profileImage ?: "",
                     content = commentEntity.content,
-                    createdAt = formatDateTimeHourMinuteSecond(commentEntity.createdAt)
+                    createdAt = formatDateTimeHourMinute(commentEntity.createdAt)
                 )
             )
         }
