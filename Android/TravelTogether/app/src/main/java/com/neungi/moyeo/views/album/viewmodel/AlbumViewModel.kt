@@ -178,55 +178,6 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    override fun onClickPhotoPlace(photoPlace: PhotoPlace) {
-        viewModelScope.launch {
-            val newPhotoPlaces = mutableListOf<PhotoPlace>()
-            when (photoPlace.name == "전체") {
-                true -> _selectedPhotoPlace.value = null
-
-                else -> _selectedPhotoPlace.value = photoPlace
-            }
-
-            val place = _selectedPhotoPlace.value
-            when (place == null) {
-                true -> {
-                    Timber.d("전체 이미지")
-                    _selectedPhotos.value = _photos.value
-                    _photoPlaces.value.forEach {
-                        when (it.name == "전체") {
-                            true -> {
-                                newPhotoPlaces.add(PhotoPlace(it.id, it.albumId, it.name, true))
-                            }
-
-                            else -> {
-                                newPhotoPlaces.add(PhotoPlace(it.id, it.albumId, it.name, false))
-                            }
-                        }
-                    }
-                }
-
-                false -> {
-                    val placesIndices = place.name.split(",")
-                    _selectedPhotos.value = _photos.value.filter { placesIndices.contains(it.id) }
-                    _photoPlaces.value.forEach {
-                        when (it.name == place.name) {
-                            true -> {
-                                newPhotoPlaces.add(PhotoPlace(it.id, it.albumId, it.name, true))
-                            }
-
-                            else -> {
-                                newPhotoPlaces.add(PhotoPlace(it.id, it.albumId, it.name, false))
-                            }
-                        }
-                    }
-                }
-            }
-
-            _photoPlaces.value = newPhotoPlaces.toList()
-            _albumUiEvent.emit(AlbumUiEvent.SelectPlace)
-        }
-    }
-
     override fun onClickPhoto(photo: Photo) {
         viewModelScope.launch {
             _selectedPhoto.value = photo
@@ -317,6 +268,7 @@ class AlbumViewModel @Inject constructor(
             }
 
             val chunked = photos.chunked(10)
+            var flag = true
             for (chunk in chunked) {
                 val photoParts = chunk.mapNotNull { photo ->
                     photo.body
@@ -327,11 +279,16 @@ class AlbumViewModel @Inject constructor(
                 val response = getPhotosUseCase.submitPhoto(albumId, photoParts, metadataPart)
                 response.collectLatest { result ->
                     _photoUploadState.value = result
+                    if (result.status == ApiStatus.ERROR || result.status == ApiStatus.FAIL) {
+                        flag = false
+                    }
                 }
             }
-            _albumUiEvent.emit(AlbumUiEvent.FinishPhotoUpload)
-            initPhotos()
-            initMarkers()
+            if (flag) {
+                _albumUiEvent.emit(AlbumUiEvent.FinishPhotoUpload)
+                initPhotos()
+                initMarkers()
+            }
         }
     }
 
@@ -344,7 +301,6 @@ class AlbumViewModel @Inject constructor(
                 true -> {
                     _albumUiEvent.emit(AlbumUiEvent.DeletePhotoSuccess)
                     initPhotos()
-                    initMarkers()
                 }
 
                 false -> {
@@ -425,7 +381,7 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    private fun initPhotos() {
+    fun initPhotos() {
         viewModelScope.launch {
             _photos.value = emptyList()
             val albumId = _selectedPhotoAlbum.value?.id ?: "-1"
@@ -538,8 +494,7 @@ class AlbumViewModel @Inject constructor(
     }
 
 
-
-    fun getLatLngFromMediaStore(pickerUri: Uri): Pair<Double, Double> {
+    private fun getLatLngFromMediaStore(pickerUri: Uri): Pair<Double, Double> {
         try {
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
@@ -560,10 +515,6 @@ class AlbumViewModel @Inject constructor(
                 if (cursor.moveToFirst()) {
                     cursor.columnNames.forEach { columnName ->
                         val index = cursor.getColumnIndex(columnName)
-                        if (index != -1) {
-                            val value = cursor.getString(index)
-                            Log.d("MediaStore", "Column $columnName: $value")
-                        }
                     }
 
                     val latIndex = cursor.getColumnIndex(MediaStore.Images.Media.LATITUDE)
@@ -572,34 +523,26 @@ class AlbumViewModel @Inject constructor(
                     if (latIndex != -1 && longIndex != -1) {
                         val latitude = cursor.getDouble(latIndex)
                         val longitude = cursor.getDouble(longIndex)
-                        Log.d("MediaStore", "Found lat: $latitude, lng: $longitude")
                         return if (latitude != 0.0 || longitude != 0.0) {
                             Pair(latitude, longitude)
                         } else {
                             Pair(0.0, 0.0)
                         }
+                    } else {
+                        Pair(0.0, 0.0)
                     }
-                    else{
-                        Pair(0.0,0.0)
-                    }
-                } else {
-                    Log.d("MediaStore", "Cursor is empty")
                 }
             }
 
-            // 파일 스트림으로 시도
             application.contentResolver.openInputStream(pickerUri)?.use { inputStream ->
                 val exif = ExifInterface(inputStream)
-                Log.d("MediaStore", "EXIF tags: ${exif.latLong}")
                 val latLong = exif.latLong
                 if (latLong != null) {
-                    Log.d("MediaStore", "EXIF latLong: ${latLong.contentToString()}")
                     return Pair(latLong[0], latLong[1])
                 }
             }
 
         } catch (e: Exception) {
-            Log.e("MediaStore", "Error reading location: ${e.message}")
             e.printStackTrace()
         }
         return Pair(0.0, 0.0)
@@ -607,38 +550,6 @@ class AlbumViewModel @Inject constructor(
 
     /*** EXIF에서 위도, 경도 정보를 가져오는 메소드 ***/
     private fun getLatLngFromExif(uri: Uri?): Pair<Double, Double> {
-//        try {
-//            uri?.let {
-//                val inputStream: InputStream? = application.contentResolver.openInputStream(uri)
-//                inputStream?.use {
-//                    val exif = ExifInterface(it)
-//                    dumpExifTags(exif)
-//
-//
-//                    val lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)?.let { latitude ->
-//                        convertToDegree(latitude)
-//                    }
-//                    val lng = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)?.let { longitude ->
-//                        convertToDegree(longitude)
-//                    }
-//
-//                    if (lat != null && lng != null) {
-//                        val latRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
-//                        val lonRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
-//
-//                        val adjustedLat = if (latRef == "S") -lat else lat
-//                        val adjustedLon = if (lonRef == "W") -lng else lng
-//
-//                        return Pair(adjustedLat, adjustedLon)
-//                    }
-//                }
-//            }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-//
-//        return Pair(0.0, 0.0)
-        // Photo Picker URI인 경우 MediaStore에서 위치 정보 가져오기 시도
         if (uri?.toString()?.contains("com.android.providers.media.photopicker") == true) {
             val mediaStoreResult = getLatLngFromMediaStore(uri)
             if (mediaStoreResult != Pair(0.0, 0.0)) {
@@ -646,7 +557,6 @@ class AlbumViewModel @Inject constructor(
             }
         }
 
-        // 기존 EXIF 읽기 로직
         try {
             uri?.let {
                 val inputStream = application.contentResolver.openInputStream(uri)
@@ -921,7 +831,13 @@ class AlbumViewModel @Inject constructor(
         }
     }
 
-    fun addUploadPhoto(uri: Uri?, takenAt: Long, body: MultipartBody.Part, latitude:Double, longitude:Double) {
+    fun addUploadPhoto(
+        uri: Uri?,
+        takenAt: Long,
+        body: MultipartBody.Part,
+        latitude: Double,
+        longitude: Double
+    ) {
         if (uri == null) return
         viewModelScope.launch {
             val idFromUi = getImageIdFromUri(uri)
@@ -992,9 +908,8 @@ class AlbumViewModel @Inject constructor(
             _albumUiEvent.emit(AlbumUiEvent.PhotoDownload)
 
             // filePath에서 확장자 추출
-            val fileExtension = _selectedPhoto.value?.filePath?.let { path ->
-                path.substringAfterLast(".", "")
-            } ?: "jpg"  // 기본값으로 jpg 설정
+            val fileExtension = _selectedPhoto.value?.filePath?.substringAfterLast(".", "")
+                ?: "jpg"  // 기본값으로 jpg 설정
 
             // 저장할 파일명에 확장자 추가
             val fileName = "${_selectedPhoto.value?.photoPlace}.${fileExtension}"
@@ -1007,7 +922,8 @@ class AlbumViewModel @Inject constructor(
                 setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
             }
 
-            val downloadManager = application.applicationContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val downloadManager =
+                application.applicationContext.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             downloadManager.enqueue(request)
         }
     }

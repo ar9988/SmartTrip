@@ -45,6 +45,8 @@ class PhotoCommentAdapter(
                 }
             }
 
+            binding.tvNicknamePhotoComment.isSelected = true
+
             // 수정
             binding.ivModifyPhotoComment.setOnClickListener {
                 with(binding) {

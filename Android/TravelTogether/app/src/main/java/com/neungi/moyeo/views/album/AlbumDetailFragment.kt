@@ -69,6 +69,7 @@ class AlbumDetailFragment :
                 showToastMessage(resources.getString(R.string.message_location_permission))
             }
         }
+    private val clusteredMarkers = mutableListOf<Marker>()
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationSource: FusedLocationSource
@@ -127,6 +128,7 @@ class AlbumDetailFragment :
     }
 
     private fun initFusedLocationClient() {
+        binding.vpAlbumDetail.adapter = null
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         if (!hasPermission()) {
             requestLocationPermission()
@@ -179,6 +181,10 @@ class AlbumDetailFragment :
     private fun initClusterer() {
         lifecycleScope.launch {
             viewModel.markers.collectLatest { markers ->
+                clusteredMarkers.forEach { marker ->
+                    marker.map = null
+                }
+                clusteredMarkers.clear()
                 addClusterMarkers(markers)
                 viewModel.initPhotoPlaces()
                 initTabLayout()
@@ -199,6 +205,7 @@ class AlbumDetailFragment :
             val representativeCoordinate = calculateRepresentativeCoordinate(cluster.second)
 
             val marker = Marker()
+            clusteredMarkers.add(marker)
             marker.position = representativeCoordinate
             val customView = LayoutInflater.from(requireContext()).inflate(
                 R.layout.marker_cluster_icon, null
@@ -228,19 +235,19 @@ class AlbumDetailFragment :
                         transition: Transition<in Bitmap>?
                     ) {
                         imageView.setImageBitmap(resource)
-                        marker.icon = OverlayImage.fromView(customView)
+                        clusteredMarkers[index].icon = OverlayImage.fromView(customView)
                     }
 
                     override fun onLoadFailed(errorDrawable: Drawable?) {
                         imageView.setImageBitmap(errorDrawable?.let { drawableToBitmap(it) })
-                        marker.icon = OverlayImage.fromView(customView)
+                        clusteredMarkers[index].icon = OverlayImage.fromView(customView)
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) {
                         imageView.setImageDrawable(placeholder)
                     }
                 })
-            marker.onClickListener = Overlay.OnClickListener {
+            clusteredMarkers[index].onClickListener = Overlay.OnClickListener {
                 var placeIndex = 0
                 viewModel.photoPlaces.value.forEachIndexed { index2, place ->
                     if (place.name == viewModel.photoPlaces.value[index + 1].name) {
@@ -252,8 +259,9 @@ class AlbumDetailFragment :
                 binding.vpAlbumDetail.setCurrentItem(placeIndex, true)
                 true
             }
-            marker.map = naverMap
+            clusteredMarkers[index].map = naverMap
         }
+        Timber.d("Marker Size: ${clusteredMarkers.size}")
     }
 
     private fun initViews() {
@@ -263,7 +271,8 @@ class AlbumDetailFragment :
 
                 if (isCollapsed) {
                     toolbarAlbumDetail.visibility = View.GONE
-                    toolbarAlbumDetailBottom.navigationIcon = resources.getDrawable(R.drawable.baseline_chevron_left_24)
+                    toolbarAlbumDetailBottom.navigationIcon =
+                        resources.getDrawable(R.drawable.baseline_chevron_left_24, context?.theme)
                 } else {
                     toolbarAlbumDetail.visibility = View.VISIBLE
                     toolbarAlbumDetailBottom.navigationIcon = null
@@ -278,28 +287,30 @@ class AlbumDetailFragment :
                 viewModel.onClickBackToAlbum()
             }
             ivRefreshAlbumDetail.setOnClickListener {
-                initNaverMap()
+                viewModel.initPhotos()
             }
         }
     }
 
     private fun initTabLayout() {
-        binding.photoPlaceAdapter =
-            PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
-        with(binding.vpAlbumDetail) {
-            adapter = PhotoPlaceAdapter(requireActivity(), viewModel.photoPlaces.value.size)
-            setCurrentItem(START_POSITION, true)
-        }
-        TabLayoutMediator(binding.tlAlbumDetail, binding.vpAlbumDetail) { tab, position ->
-            tab.text = viewModel.photoPlaces.value[position].name
-        }.attach()
-        for (i in 0 until resources.getStringArray(R.array.local_big).size) {
-            val tabs = binding.tlAlbumDetail.getChildAt(0) as ViewGroup
-            for (tab in tabs.children) {
-                val lp = tab.layoutParams as LinearLayout.LayoutParams
-                lp.marginEnd = 16
-                tab.layoutParams = lp
-                binding.tlAlbumDetail.requestLayout()
+        lifecycleScope.launch {
+            viewModel.photoPlaces.collectLatest { places ->
+                with(binding.vpAlbumDetail) {
+                    adapter = PhotoPlaceAdapter(requireActivity(), places.size)
+                    setCurrentItem(START_POSITION, true)
+                }
+                TabLayoutMediator(binding.tlAlbumDetail, binding.vpAlbumDetail) { tab, position ->
+                    tab.text = places[position].name
+                }.attach()
+                for (i in 0 until resources.getStringArray(R.array.local_big).size) {
+                    val tabs = binding.tlAlbumDetail.getChildAt(0) as ViewGroup
+                    for (tab in tabs.children) {
+                        val lp = tab.layoutParams as LinearLayout.LayoutParams
+                        lp.marginEnd = 16
+                        tab.layoutParams = lp
+                        binding.tlAlbumDetail.requestLayout()
+                    }
+                }
             }
         }
     }
@@ -315,6 +326,8 @@ class AlbumDetailFragment :
             }
 
             is AlbumUiEvent.SelectPhoto -> {
+                binding.tlAlbumDetail.removeAllTabs()
+                binding.vpAlbumDetail.adapter = null
                 findNavController().navigateSafely(R.id.action_album_detail_to_photo_detail)
             }
 
