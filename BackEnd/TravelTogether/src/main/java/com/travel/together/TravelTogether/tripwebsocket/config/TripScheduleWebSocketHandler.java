@@ -433,7 +433,11 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
                     // 유저 ID 추출 및 멤버 리스트 브로드캐스트
                     String currentUserId = String.valueOf(operation.getScheduleId());
-                    broadcastMemberList(tripId, currentUserId);
+                    try {
+                        broadcastMemberList(tripId, currentUserId);
+                    } catch (Exception e) {
+                        log.error("Failed to broadcast member list: {}", e.getMessage(), e);
+                    }
 
 
 
