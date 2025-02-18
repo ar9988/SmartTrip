@@ -20,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import coil.load
 import coil.transform.CircleCropTransformation
 import coil.transform.RoundedCornersTransformation
+import com.bumptech.glide.Glide
 import com.kakao.sdk.common.util.KakaoCustomTabsClient
 import com.kakao.sdk.share.ShareClient
 import com.kakao.sdk.share.WebSharerClient
@@ -71,6 +72,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.vm = viewModel
+        Glide.with(requireContext())
+            .asGif()
+            .load(R.drawable.ic_movingmoyeo)
+            .into(binding.ivLogoHome)
         viewModel.getLatestTrip()
         setAdapter()
         observeStates()
@@ -250,7 +255,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                             if(trip!=null){
                                 val titles = trip.title.split(" ")
                                 val image = regionMapper.getRegionDrawable(titles.firstOrNull() ?: "")
-                                binding.tvDateRange.text = "${formatZonedDateTimeWithZone(trip.startDate)} ~ ${formatZonedDateTimeWithZone(trip.endDate)}"
+                                binding.tvDateRange.text = "${formatZonedDateTimeWithZone(trip.startDate,"yy.MM.dd")} ~ ${formatZonedDateTimeWithZone(trip.endDate,"yy.MM.dd")}"
                                 binding.tvTodayLabel.text = CommonUtils.getDdayText(trip.startDate,trip.endDate)
                                 binding.ivThumbnail.load(image){
                                     transformations(RoundedCornersTransformation(radius = 16f))

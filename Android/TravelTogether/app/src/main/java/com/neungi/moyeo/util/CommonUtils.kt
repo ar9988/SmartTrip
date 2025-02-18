@@ -96,8 +96,8 @@ object CommonUtils {
         return formatter.format(Instant.ofEpochMilli(timestamp))
     }
 
-    fun formatZonedDateTimeWithZone(zonedDateTime: ZonedDateTime): String {
-        val formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+    fun formatZonedDateTimeWithZone(zonedDateTime: ZonedDateTime,pattern:String ="yyyy.MM.dd"): String {
+        val formatter = DateTimeFormatter.ofPattern(pattern)
         return zonedDateTime.withZoneSameInstant(ZoneId.of("Asia/Seoul")).format(formatter)
     }
 

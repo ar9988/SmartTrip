@@ -11,6 +11,7 @@ import coil.transform.RoundedCornersTransformation
 import com.neungi.domain.model.Trip
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemTripBinding
+import com.neungi.moyeo.util.CommonUtils
 import com.neungi.moyeo.util.CommonUtils.formatZonedDateTimeWithZone
 import com.neungi.moyeo.util.RegionMapper
 import timber.log.Timber
@@ -37,8 +38,8 @@ class TripAdapter(
             val titles = trip.title.split(" ")
             binding.apply {
                 this.trip = trip
-                textviewDate.text = formatZonedDateTimeWithZone(trip.startDate)
-                tvEndDateTrip.text = formatZonedDateTimeWithZone(trip.endDate)
+                tvDateRange.text = "${formatZonedDateTimeWithZone(trip.startDate,"yy.MM.dd")} ~ ${formatZonedDateTimeWithZone(trip.endDate,"yy.MM.dd")}"
+                tvTodayLabel.text = CommonUtils.getDdayText(trip.startDate,trip.endDate)
                 val image = regionMapper.getRegionDrawable(titles.firstOrNull() ?: "")
                 ivPlan.load(image){
                     transformations(RoundedCornersTransformation(radius = 16f))

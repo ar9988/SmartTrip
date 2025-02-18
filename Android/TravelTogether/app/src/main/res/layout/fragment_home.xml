@@ -31,7 +31,7 @@
             app:contentInsetLeft="0dp"
             app:contentInsetStartWithNavigation="0dp"
             app:titleMarginStart="@dimen/dp_large"
-            app:title="홈"
+            app:title="모두의 여행"
             >
 
             <ImageView

@@ -26,123 +26,132 @@
     <!-- MaterialCardView로 카드 모양으로 감싸기 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        android:paddingVertical="@dimen/font_size_smaller">
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardview_trip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/dp_medium"
             app:cardCornerRadius="20dp"
-            app:cardElevation="4dp">  <!-- 카드 배경색 -->
+            app:cardElevation="2dp"
+            android:onClick="@{onItemClick}"
+            android:layout_margin="4dp"
+            app:cardPreventCornerOverlap="true"
+            tools:visibility="visible">
 
-            <!-- ConstraintLayout을 여전히 사용하여 요소 배치 -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="@{onItemClick}"
-                android:paddingBottom="@dimen/dp_medium">
+                android:layout_height="match_parent"
+                android:background="#F0F8FF"
+                android:paddingVertical="16dp">
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/gl_start_trip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_begin="@dimen/dp_small" />
-
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/gl_top_trip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintGuide_begin="@dimen/dp_medium" />
-
-                <!-- 이미지 부분 -->
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/iv_plan"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintDimensionRatio="h,1:1"
-                    android:contentDescription="@string/description_plan_image"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toBottomOf="@id/iv_mate_trip"
-                    app:layout_constraintStart_toEndOf="@id/gl_start_trip"
-                    app:layout_constraintTop_toTopOf="@id/textview_title" />
-
-                <!-- 제목 텍스트 -->
                 <TextView
                     android:id="@+id/textview_title"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_medium"
-                    android:fontFamily="@font/pretendardsemibold"
-                    android:maxLines="1"
+                    android:layout_marginStart="16dp"
+                    android:textColor="#000000"
+                    android:textSize="@dimen/font_size_title"
+                    android:textStyle="bold"
                     android:text="@{trip.title}"
-                    android:textColor="@color/neutral_100"
-                    android:textSize="@dimen/font_size_large"
-                    app:layout_constraintEnd_toStartOf="@id/gl_end_trip"
-                    app:layout_constraintStart_toEndOf="@id/iv_plan"
-                    app:layout_constraintTop_toTopOf="@id/gl_top_trip" />
+                    android:maxWidth="160dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:freezesText="true"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="18제주팟" />
 
-                <!-- 날짜 텍스트 -->
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/iv_date_trip"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginTop="@dimen/dp_large"
+                <TextView
+                    android:id="@+id/tv_today_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="TODAY"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/font_size_larger"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/textview_title"
+                    app:layout_constraintStart_toEndOf="@id/textview_title"
+                    app:layout_constraintTop_toTopOf="@id/textview_title" />
+
+                <ImageView
+                    android:id="@+id/iv_calendar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_small"
+                    android:layout_marginTop="8dp"
                     android:src="@drawable/ic_calendar"
-                    app:layout_constraintBottom_toBottomOf="@id/textview_date"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintStart_toStartOf="@id/textview_title"
-                    app:layout_constraintTop_toBottomOf="@+id/textview_title" />
+                    app:tint="#666666"
+                    app:layout_constraintStart_toEndOf="@id/iv_plan"
+                    app:layout_constraintTop_toBottomOf="@id/textview_title" />
+
 
                 <TextView
-                    android:id="@+id/textview_date"
+                    android:id="@+id/tv_date_range"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_smaller"
+                    android:textColor="#666666"
+                    android:textSize="@dimen/font_size_small"
+                    app:layout_constraintBottom_toBottomOf="@id/iv_calendar"
+                    app:layout_constraintStart_toEndOf="@id/iv_calendar"
+                    app:layout_constraintTop_toTopOf="@id/iv_calendar"
+                    tools:text="25.01.17 - 25.01.19" />
+
+                <ImageView
+                    android:id="@+id/iv_head_count_home"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/dp_small"
-                    android:fontFamily="@font/pretendardregular"
-                    android:textSize="@dimen/font_size_smaller"
-                    app:layout_constraintStart_toEndOf="@id/iv_date_trip"
-                    app:layout_constraintBottom_toTopOf="@id/tv_end_date_trip"
-                    app:layout_constraintTop_toTopOf="@id/iv_date_trip" />
-
-
-                <TextView
-                    android:id="@+id/tv_end_date_trip"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/pretendardregular"
-                    android:textSize="@dimen/font_size_smaller"
-                    app:layout_constraintEnd_toStartOf="@id/gl_end_trip"
-                    app:layout_constraintStart_toStartOf="@id/textview_date"
-                    app:layout_constraintTop_toBottomOf="@id/textview_date"
-                    app:layout_constraintBottom_toBottomOf="@id/iv_date_trip"/>
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/iv_mate_trip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:src="@drawable/ic_person"
-                    app:layout_constraintBottom_toBottomOf="@id/textview_number_of_participants"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintStart_toStartOf="@id/iv_date_trip"
-                    app:layout_constraintTop_toTopOf="@id/textview_number_of_participants" />
+                    app:tint="#666666"
+                    app:layout_constraintStart_toEndOf="@id/iv_plan"
+                    app:layout_constraintTop_toBottomOf="@id/iv_calendar" />
 
-                <!-- 참여자 수 -->
+
                 <TextView
-                    android:id="@+id/textview_number_of_participants"
-                    android:layout_width="0dp"
+                    android:id="@+id/tv_head_count_home"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dp_small"
-                    android:layout_marginTop="@dimen/dp_small"
-                    android:fontFamily="@font/pretendardregular"
+                    android:layout_marginStart="@dimen/dp_smaller"
+                    android:textColor="#666666"
+                    android:textSize="@dimen/font_size_small"
                     android:text="@{trip.tripParticipants}"
-                    android:textSize="@dimen/font_size_smaller"
-                    app:layout_constraintEnd_toStartOf="@id/gl_end_trip"
-                    app:layout_constraintStart_toEndOf="@id/iv_mate_trip"
-                    app:layout_constraintTop_toBottomOf="@id/tv_end_date_trip" />
+                    app:layout_constraintBottom_toBottomOf="@id/iv_head_count_home"
+                    app:layout_constraintStart_toEndOf="@id/iv_head_count_home"
+                    app:layout_constraintTop_toTopOf="@id/iv_head_count_home"
+                    tools:text="6명" />
 
-                <!-- 삭제 버튼 -->
+                <TextView
+                    android:id="@+id/tv_edit_schedule_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="일정 편집하기"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/font_size_medium"
+                    android:textStyle="bold"
+                    android:layout_marginTop="@dimen/dp_smaller"
+                    app:layout_constraintStart_toStartOf="@id/iv_calendar"
+                    app:layout_constraintTop_toBottomOf="@id/iv_head_count_home" />
+
+
+                <!-- 썸네일 이미지 -->
+                <ImageView
+                    android:id="@+id/iv_plan"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginStart="16dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintTop_toTopOf="@id/iv_calendar"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:background="@drawable/image_beach" />
                 <ImageButton
                     android:id="@+id/button_delete"
                     android:layout_width="28dp"
@@ -151,41 +160,18 @@
                     android:contentDescription="@string/description_plan_delete_button"
                     android:onClick="@{onDeleteClick}"
                     android:scaleType="fitXY"
+                    app:tint="#666666"
+                    android:layout_marginEnd="@dimen/dp_medium"
                     android:src="@drawable/baseline_delete_24"
-                    app:layout_constraintBottom_toBottomOf="@id/textview_number_of_participants"
-                    app:layout_constraintEnd_toStartOf="@id/gl_end_trip" />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/gl_end_trip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    app:layout_constraintGuide_end="@dimen/dp_small" />
+                    />
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/gl_bottom_trip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintGuide_end="@dimen/dp_small" />
-
-                <!-- 편집 버튼 -->
-                <!-- 편집 버튼이 주석 처리된 부분 -->
-                <!-- <ImageButton-->
-                <!--     android:id="@+id/button_edit"-->
-                <!--     android:onClick="@{onEditClick}"-->
-                <!--     android:contentDescription="@string/description_plan_edit_button"-->
-                <!--     android:src="@drawable/baseline_mode_edit_24"-->
-                <!--     android:layout_margin="15dp"-->
-                <!--     app:layout_constraintBottom_toBottomOf="parent"-->
-                <!--     app:layout_constraintEnd_toStartOf="@id/button_delete"-->
-                <!--     android:layout_width="48dp"-->
-                <!--     android:layout_height="48dp"-->
-                <!--     android:background="@android:color/transparent"-->
-                <!--     android:scaleType="fitXY"/>-->
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </com.google.android.material.card.MaterialCardView>
+
 
     </LinearLayout>
 
