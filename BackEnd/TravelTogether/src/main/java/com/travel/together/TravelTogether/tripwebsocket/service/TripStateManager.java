@@ -245,7 +245,7 @@ public class TripStateManager {
 
 
 
-    private static final int BATCH_SIZE = 2; // 한번에 전달할 경로 개수
+    private static final int BATCH_SIZE = 4; // 한번에 전달할 경로 개수
 
     @Async
     public void generateAllPaths(Integer tripId, PathGenerationCallback callback) {
