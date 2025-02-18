@@ -15,6 +15,7 @@ import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.DialogAddTripBinding
 import com.neungi.moyeo.databinding.FragmentPlanBinding
+import com.neungi.moyeo.util.RegionMapper
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel
 import com.neungi.moyeo.views.plan.adapter.TripAdapter
@@ -24,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
@@ -34,6 +36,9 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
     private lateinit var tripAdapter: TripAdapter
     private lateinit var user: LoginInfo
     private var flag = false
+
+    @Inject
+    lateinit var regionMapper: RegionMapper
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -73,7 +78,6 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             mainViewModel.refreshPlanTrigger.collect { shouldRefresh ->
                 if (shouldRefresh) {
                     tripViewModel.getTrips(mainViewModel.userLoginInfo.value!!.userId)
-
                     mainViewModel.offRefreshPlanTrigger()
                 }
             }
@@ -115,7 +119,8 @@ class PlanFragment : BaseFragment<FragmentPlanBinding>(R.layout.fragment_plan) {
             onDeleteClick = { trip ->
                 // 삭제 처리 로직
                 showDeleteConfirmationDialog(trip)
-            }
+            },
+            regionMapper
         )
         binding.recyclerViewTrips.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewTrips.adapter = tripAdapter

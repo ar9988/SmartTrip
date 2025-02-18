@@ -22,6 +22,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 object CommonUtils {
 
@@ -161,5 +162,31 @@ object CommonUtils {
         Timber.d("$averageLatitude, $averageLongitude")
 
         return LatLng(averageLatitude, averageLongitude)
+    }
+
+    fun getDdayText(startDate: ZonedDateTime, endDate: ZonedDateTime): String {
+        val today = ZonedDateTime.now()
+
+        // 시간 정보를 제외하고 날짜만 비교하기 위해 날짜 부분만 추출
+        val todayDate = today.toLocalDate()
+        val startLocalDate = startDate.toLocalDate()
+        val endLocalDate = endDate.toLocalDate()
+
+        return when {
+            // 시작일이 오늘보다 미래인 경우: D-N 형식
+            todayDate.isBefore(startLocalDate) -> {
+                val daysUntilStart = ChronoUnit.DAYS.between(todayDate, startLocalDate)
+                "D-$daysUntilStart"
+            }
+            // 오늘이 여행 기간 내인 경우: Today
+            todayDate.isEqual(startLocalDate) || (todayDate.isAfter(startLocalDate) && todayDate.isBefore(endLocalDate) || todayDate.isEqual(endLocalDate)) -> {
+                "Today"
+            }
+            // 이미 종료된 여행인 경우: 종료된 날짜 표시
+            else -> {
+                val daysSinceEnd = ChronoUnit.DAYS.between(endLocalDate, todayDate)
+                "종료된 여행"
+            }
+        }
     }
 }

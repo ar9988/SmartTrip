@@ -6,15 +6,21 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.RoundedCornersTransformation
 import com.neungi.domain.model.Trip
+import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemTripBinding
 import com.neungi.moyeo.util.CommonUtils.formatZonedDateTimeWithZone
+import com.neungi.moyeo.util.RegionMapper
 import timber.log.Timber
 
 class TripAdapter(
     private val onItemClick: (Trip) -> Unit,
-    private val onDeleteClick: (Trip) -> Unit
+    private val onDeleteClick: (Trip) -> Unit,
+    private val regionMapper: RegionMapper
 ) : ListAdapter<Trip, TripAdapter.TripViewHolder>(TripDiffCallback()) {
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TripViewHolder {
         val binding = ItemTripBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -28,10 +34,17 @@ class TripAdapter(
 
     inner class TripViewHolder(private val binding: ItemTripBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(trip: Trip) {
+            val titles = trip.title.split(" ")
             binding.apply {
                 this.trip = trip
-                binding.textviewDate.text = formatZonedDateTimeWithZone(trip.startDate)
-                binding.tvEndDateTrip.text = formatZonedDateTimeWithZone(trip.endDate)
+                textviewDate.text = formatZonedDateTimeWithZone(trip.startDate)
+                tvEndDateTrip.text = formatZonedDateTimeWithZone(trip.endDate)
+                val image = regionMapper.getRegionDrawable(titles.firstOrNull() ?: "")
+                ivPlan.load(image){
+                    transformations(RoundedCornersTransformation(radius = 16f))
+                    error(R.drawable.image_noimg)
+                }
+
                 Timber.d(trip.title)
                 onDeleteClick = View.OnClickListener {
                     onDeleteClick(trip)

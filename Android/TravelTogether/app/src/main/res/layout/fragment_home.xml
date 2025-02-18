@@ -113,6 +113,14 @@
                             android:textSize="@dimen/font_size_title"
                             android:textStyle="bold"
                             android:text="@{vm.homeScheduleCardTrip.title}"
+                            android:maxWidth="160dp"
+                            android:singleLine="true"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:scrollHorizontally="true"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:freezesText="true"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             tools:text="18제주팟" />
@@ -132,8 +140,8 @@
 
                         <ImageView
                             android:id="@+id/iv_calendar"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_small"
                             android:layout_marginTop="8dp"
                             android:src="@drawable/ic_calendar"
@@ -148,7 +156,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_smaller"
                             android:textColor="#666666"
-                            android:textSize="12sp"
+                            android:textSize="@dimen/font_size_small"
                             app:layout_constraintBottom_toBottomOf="@id/iv_calendar"
                             app:layout_constraintStart_toEndOf="@id/iv_calendar"
                             app:layout_constraintTop_toTopOf="@id/iv_calendar"
@@ -156,11 +164,11 @@
 
                         <ImageView
                             android:id="@+id/iv_head_count_home"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_small"
                             android:layout_marginTop="8dp"
-                            android:src="@drawable/ic_profile"
+                            android:src="@drawable/ic_person"
                             app:tint="#666666"
                             app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
                             app:layout_constraintTop_toBottomOf="@id/iv_calendar" />
@@ -172,7 +180,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/dp_smaller"
                             android:textColor="#666666"
-                            android:textSize="12sp"
+                            android:textSize="@dimen/font_size_small"
                             android:text="@{vm.homeScheduleCardTrip.tripParticipants}"
                             app:layout_constraintBottom_toBottomOf="@id/iv_head_count_home"
                             app:layout_constraintStart_toEndOf="@id/iv_head_count_home"
