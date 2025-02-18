@@ -6,10 +6,8 @@ import com.neungi.domain.model.AiPlanningRequest
 import com.neungi.domain.model.ApiStatus
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.LocationCategory
-import com.neungi.domain.model.Place
 import com.neungi.domain.model.Preferences
 import com.neungi.domain.model.ThemeItem
-import com.neungi.domain.usecase.GetFollowedPlacesUseCase
 import com.neungi.domain.usecase.GetOverviewUseCase
 import com.neungi.domain.usecase.GetRecommendFestivalUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
@@ -17,6 +15,7 @@ import com.neungi.domain.usecase.RqeuestAiPlanningUseCase
 import com.neungi.moyeo.R
 import com.neungi.moyeo.util.CommonUtils
 import com.neungi.moyeo.util.EmptyState
+import com.neungi.moyeo.util.RegionMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

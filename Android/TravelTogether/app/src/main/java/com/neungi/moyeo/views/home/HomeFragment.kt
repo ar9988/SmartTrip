@@ -19,6 +19,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import coil.load
 import coil.transform.CircleCropTransformation
+import coil.transform.RoundedCornersTransformation
 import com.kakao.sdk.common.util.KakaoCustomTabsClient
 import com.kakao.sdk.share.ShareClient
 import com.kakao.sdk.share.WebSharerClient
@@ -33,6 +34,9 @@ import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.DialogFestivalInfoBinding
 import com.neungi.moyeo.databinding.DialogPlaceInfoBinding
 import com.neungi.moyeo.databinding.FragmentHomeBinding
+import com.neungi.moyeo.util.CommonUtils
+import com.neungi.moyeo.util.CommonUtils.formatZonedDateTimeWithZone
+import com.neungi.moyeo.util.RegionMapper
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.home.adapter.HomeFestivalAdapter
 import com.neungi.moyeo.views.home.adapter.HomePlaceAdapter
@@ -48,6 +52,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
@@ -59,6 +64,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
     lateinit var homePlaceAdapter: HomePlaceAdapter
     lateinit var quoteAdapter: QuoteAdapter
     private var backPressedTime: Long = 0
+
+    @Inject
+    lateinit var regionMapper: RegionMapper
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -113,6 +121,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
         super.onResume()
         Timber.d("HomeUiState festivals size: ${viewModel.homeUiState.value}")
         mainViewModel.setBnvState(true)
+        binding.tvTitlePlan.isSelected = true
     }
 
     private fun handleUiEvent(event: HomeUiEvent) {
@@ -239,7 +248,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                     viewModel.homeScheduleCardTrip.collect{ trip->
                         binding.let { binding ->
                             if(trip!=null){
-                                binding.ivThumbnail.load(R.drawable.icon_carrier)
+                                val titles = trip.title.split(" ")
+                                val image = regionMapper.getRegionDrawable(titles.firstOrNull() ?: "")
+                                binding.tvDateRange.text = "${formatZonedDateTimeWithZone(trip.startDate)} ~ ${formatZonedDateTimeWithZone(trip.endDate)}"
+                                binding.tvTodayLabel.text = CommonUtils.getDdayText(trip.startDate,trip.endDate)
+                                binding.ivThumbnail.load(image){
+                                    transformations(RoundedCornersTransformation(radius = 16f))
+                                    error(R.drawable.image_noimg)
+                                }
                             }
                         }
                     }

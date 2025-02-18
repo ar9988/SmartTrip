@@ -77,36 +77,10 @@ class JoinFragment : BaseFragment<FragmentJoinBinding>(R.layout.fragment_join) {
     private fun setEditTextFocus() {
         with(binding) {
             showKeyboard(etEmailJoin)
-            tilPasswordJoin.setEndIconOnClickListener {
-                etPasswordJoin.requestFocus()
-            }
-            tilPasswordAgainJoin.setEndIconOnClickListener {
-                etPasswordAgainJoin.requestFocus()
-            }
             etEmailJoin.setOnEditorActionListener { _, actionId, _ ->
                 when (actionId == EditorInfo.IME_ACTION_NEXT) {
                     true -> {
                         etNameJoin.requestFocus()
-                        true
-                    }
-
-                    else -> false
-                }
-            }
-            etNameJoin.setOnEditorActionListener { _, actionId, _ ->
-                when (actionId == EditorInfo.IME_ACTION_NEXT) {
-                    true -> {
-                        etPhoneNumberJoin.requestFocus()
-                        true
-                    }
-
-                    else -> false
-                }
-            }
-            etPhoneNumberJoin.setOnEditorActionListener { _, actionId, _ ->
-                when (actionId == EditorInfo.IME_ACTION_NEXT) {
-                    true -> {
-                        etPasswordJoin.requestFocus()
                         true
                     }
 

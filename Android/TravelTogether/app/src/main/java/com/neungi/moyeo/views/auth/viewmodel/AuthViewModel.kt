@@ -60,8 +60,6 @@ class AuthViewModel @Inject constructor(
     private val _joinName = MutableStateFlow<String>("")
     val joinName = _joinName
 
-    private val _joinPhoneNumber = MutableStateFlow<String>("")
-    val joinPhoneNumber = _joinPhoneNumber
 
     private val _joinPassword = MutableStateFlow<String>("")
     val joinPassword = _joinPassword
@@ -166,7 +164,6 @@ class AuthViewModel @Inject constructor(
         _joinPassword.value = ""
         _joinPasswordAgain.value = ""
         _joinName.value = ""
-        _joinPhoneNumber.value = ""
     }
 
     private fun getUserName(): Flow<String?> = flow {
@@ -224,19 +221,6 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun validJoinPhoneNumber(phoneNumber: CharSequence) {
-        when (phoneNumber.isBlank()) {
-            true -> _authUiState.update { it.copy(joinPhoneNumberValidState = InputValidState.BLANK) }
-
-            else -> {
-                when (validatePhoneNumber(phoneNumber)) {
-                    true -> _authUiState.update { it.copy(joinPhoneNumberValidState = InputValidState.VALID) }
-
-                    else -> _authUiState.update { it.copy(joinPhoneNumberValidState = InputValidState.NONE) }
-                }
-            }
-        }
-    }
 
     fun validJoinPassword(password: CharSequence) {
         when (password.isBlank()) {

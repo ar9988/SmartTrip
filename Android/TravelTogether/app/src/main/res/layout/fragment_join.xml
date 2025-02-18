@@ -116,7 +116,7 @@
                 app:errorEnabled="true"
                 app:errorIconDrawable="@null"
                 app:hintEnabled="false"
-                app:layout_constraintBottom_toTopOf="@id/til_phone_number_join"
+                app:layout_constraintBottom_toTopOf="@id/til_password_join"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_join"
                 app:layout_constraintStart_toEndOf="@id/gl_start_join"
                 app:layout_constraintTop_toBottomOf="@id/til_email_join"
@@ -138,35 +138,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_phone_number_join"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_medium"
-                app:errorEnabled="true"
-                app:errorIconDrawable="@null"
-                app:hintEnabled="false"
-                app:layout_constraintBottom_toTopOf="@id/til_password_join"
-                app:layout_constraintEnd_toStartOf="@id/gl_end_join"
-                app:layout_constraintStart_toEndOf="@id/gl_start_join"
-                app:layout_constraintTop_toBottomOf="@id/til_name_join"
-                app:validateJoinPhoneNumber="@{vm.authUiState}">
-
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/et_phone_number_join"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/shape_edit_text"
-                    android:hint="@string/text_hint_join_phone_number"
-                    android:imeOptions="actionNext"
-                    android:inputType="phone"
-                    android:onTextChanged="@{(phoneNumber, s, b, c) -> vm.validJoinPhoneNumber(phoneNumber)}"
-                    android:text="@={vm.joinPhoneNumber}"
-                    android:textColor="@color/neutral_70"
-                    app:normalEditText="@{``}" />
-
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_password_join"
@@ -180,9 +151,8 @@
                 app:layout_constraintBottom_toTopOf="@id/til_password_again_join"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_join"
                 app:layout_constraintStart_toEndOf="@id/gl_start_join"
-                app:layout_constraintTop_toBottomOf="@id/til_phone_number_join"
+                app:layout_constraintTop_toBottomOf="@id/til_name_join"
                 app:passwordToggleEnabled="true"
-                app:endIconMode="password_toggle"
                 app:validateJoinPassword="@{vm.authUiState}">
 
                 <com.google.android.material.textfield.TextInputEditText

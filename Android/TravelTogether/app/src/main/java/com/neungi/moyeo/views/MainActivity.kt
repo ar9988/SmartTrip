@@ -181,6 +181,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
                 navController.navigate(R.id.fragment_login)
             }else {
                 navController.navigate(R.id.fragment_select_period)
+                aiPlanningViewModel.clearState()
                 binding.bnvMain.selectedItemId = 0
             }
         }

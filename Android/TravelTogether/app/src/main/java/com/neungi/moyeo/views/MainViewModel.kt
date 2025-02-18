@@ -60,6 +60,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             NotificationEventBus.notificationReceived.collect {
                 planTriggerRefresh()
+                triggerRefresh()
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.neungi.moyeo.views.aiplanning.viewmodel
+package com.neungi.moyeo.util
 
 
 import android.content.Context
@@ -32,7 +32,55 @@ class RegionMapper @Inject constructor(
         "전북" to "37",
         "전남" to "38"
     )
+    private val provinceFullMap = mapOf(
+        "경기도" to "31",
+        "강원특별자치도" to "32",
+        "충청북도" to "33",
+        "충청남도" to "34",
+        "경상북도" to "35",
+        "경상남도" to "36",
+        "전북특별자치도" to "37",
+        "전라남도" to "38"
+    )
 
+    private val regionDrawableMap = mapOf(
+        "1" to R.drawable.img_region_seoul,
+        "2" to R.drawable.img_region_incheon,
+        "3" to R.drawable.img_region_daejeon,
+        "4" to R.drawable.img_region_daegu,
+        "5" to R.drawable.img_region_gwangju,
+        "6" to R.drawable.img_region_busan,
+        "7" to R.drawable.img_region_ulsan,
+        "8" to R.drawable.img_region_sejong,
+        "31" to R.drawable.img_region_gyeonggi,
+        "32" to R.drawable.img_region_gangwon,
+        "33" to R.drawable.img_region_chungbuk,
+        "34" to R.drawable.img_region_chungnam,
+        "35" to R.drawable.img_region_gyeongbuk,
+        "36" to R.drawable.img_region_gyeongnam,
+        "37" to R.drawable.img_region_jeonbuk,
+        "38" to R.drawable.img_region_jeonnam,
+        "39" to R.drawable.img_region_jeju
+    )
+
+
+    private val allRegionDrawables = regionDrawableMap.values.toList()
+
+    fun getRegionDrawable(regionName: String): Int {
+        // 지역 이름으로 코드를 찾음
+        val regionCode = provinceFullMap[regionName] ?: specialCityMap[regionName]
+
+        return when {
+            // 매핑된 이미지가 있으면 해당 이미지 반환
+            regionCode != null -> regionDrawableMap[regionCode] ?: getRandomDrawable()
+            // 매핑된 이미지가 없으면 랜덤 이미지 반환
+            else -> getRandomDrawable()
+        }
+    }
+
+    private fun getRandomDrawable(): Int {
+        return allRegionDrawables.random()
+    }
 
     fun getRegionCode(regionName: String): String {
         // 1. 특별시/광역시 확인

@@ -103,7 +103,6 @@
                 android:layout_marginTop="@dimen/dp_small"
                 app:errorEnabled="true"
                 app:errorIconDrawable="@null"
-                app:hintEnabled="false"
                 app:layout_constraintBottom_toTopOf="@id/btn_join_login"
                 app:layout_constraintEnd_toStartOf="@id/gl_end_login"
                 app:layout_constraintStart_toEndOf="@id/gl_start_login"

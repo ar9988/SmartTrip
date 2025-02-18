@@ -230,30 +230,6 @@ fun TextInputLayout.bindValidateJoinName(authUiState: AuthUiState) {
     }
 }
 
-@BindingAdapter("app:validateJoinPhoneNumber")
-fun TextInputLayout.bindValidateJoinPhoneNumber(authUiState: AuthUiState) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return
-    val color = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorPrimary))
-    cursorColor = color
-    when (authUiState.joinPhoneNumberValidState) {
-        InputValidState.VALID -> {
-            helperText = "올바른 전화번호 형식입니다."
-            error = ""
-            defaultHintTextColor = color
-            setHelperTextColor(color)
-        }
-
-        InputValidState.BLANK -> {
-            error = "전화번호를 입력해주세요."
-        }
-
-        InputValidState.NONE -> {
-            error = "올바른 전화번호 형식이 아닙니다."
-        }
-
-        else -> {}
-    }
-}
 
 @BindingAdapter("app:validateJoinPassword")
 fun TextInputLayout.bindValidateJoinPassword(authUiState: AuthUiState) {
