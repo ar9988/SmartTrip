@@ -42,6 +42,9 @@ class ScheduleViewModel @Inject constructor(
     private val _userName = MutableStateFlow<String?>(null)
     val userName = _userName.asStateFlow()
 
+    private val _userId = MutableStateFlow<String?>(null)
+    val userId = _userId.asStateFlow()
+
     private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
 
     private val _selectedTrip = MutableStateFlow<Trip?>(null)
@@ -103,6 +106,11 @@ class ScheduleViewModel @Inject constructor(
         emit(name)
     }
 
+    private fun fetchUserId(): Flow<String?> = flow {
+        val id = getUserInfoUseCase.getUserId().first()
+        emit(id)
+    }
+
     private fun initWebSocket() {
         webSocketManager.onServerEventReceived = { event: ServerReceive ->
             _serverEvents.postValue(event)
@@ -132,8 +140,10 @@ class ScheduleViewModel @Inject constructor(
         webSocketManager.onEditEventReceived = {
             _editEvent.postValue(it)
         }
-
-        Timber.d("Web Socket Start")
+        viewModelScope.launch {
+            _userId.value = fetchUserId().first()
+            webSocketManager.id = _userId.value ?: ""
+        }
     }
 
     fun initTrip(trip: Trip) {
@@ -205,9 +215,7 @@ class ScheduleViewModel @Inject constructor(
             webSocketManager.connect(serverUrl + trip.id)
             webSocketManager.tripId = trip.id
         }
+
     }
 
-    fun closeWebSocket() {
-        webSocketManager.close()
-    }
 }

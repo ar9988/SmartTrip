@@ -92,10 +92,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
         scheduleViewModel.startConnect()
     }
 
-    override fun onStop() {
-        super.onStop()
-        scheduleViewModel.closeWebSocket()
-    }
 
     private fun initializeViewBinding() {
         lifecycleScope.launch {
@@ -116,7 +112,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun setupObservers() {
         with(scheduleViewModel) {
             serverEvents.observe(viewLifecycleOwner) { event ->
-                Timber.d(event.toString())
                 handleServerEvent(event)
             }
             scheduleSections.observe(viewLifecycleOwner) { sections ->
@@ -155,7 +150,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun handlePathEvent(receive: PathReceive) {
         receive.paths.forEach { pathData ->
 
-            Timber.d(pathData.sourceScheduleId.toString())
             paths[pathData.sourceScheduleId] = convertToLatLngList(pathData.path)
         }
         sectionedAdapter.updatePathInfo(receive, isUserDragging)
@@ -165,7 +159,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun handleManipulationEvent(event: ScheduleData) {
-        Timber.d("Add event ${event.toString()}")
         sectionedAdapter.addSchedule(event, isUserDragging)
     }
 
@@ -404,7 +397,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun moveCameraToShowAllMarker() {
         val bounds = calculateMarkersBounds()
-        Timber.d(bounds.toString())
         val cameraUpdate = CameraUpdate.fitBounds(bounds, 100)
         naverMap.moveCamera(cameraUpdate)
     }
@@ -492,6 +484,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             params.gravity = Gravity.CENTER_VERTICAL
             // 각 아이콘의 leftMargin을 겹치도록 설정
             val margin = if (i > 0) ((iconWidth - overlapMargin) * i) else 0
+            params.leftMargin = margin
+            imageView.left = margin
             imageView.z = (members.size - i).toFloat()
 
             // 아이콘을 컨테이너에 추가

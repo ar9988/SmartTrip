@@ -113,6 +113,7 @@
                     android:id="@+id/rv_plan_detail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="500dp"
                     android:nestedScrollingEnabled="true"
                     tools:listitem="@layout/item_schedule" />
 
