@@ -4,8 +4,10 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import com.neungi.data.entity.AddReceive
 import com.neungi.data.entity.ManipulationEvent
+import com.neungi.data.entity.Member
 import com.neungi.data.entity.PathReceive
 import com.neungi.data.entity.ScheduleEntity
 import com.neungi.data.entity.ScheduleReceive
@@ -22,6 +24,7 @@ import javax.inject.Inject
 
 class WebSocketManager @Inject constructor() {
 
+    var id: String = ""
     var tripId: Int = 0
     private var webSocket: WebSocket? = null
     var isConnected = false
@@ -32,6 +35,7 @@ class WebSocketManager @Inject constructor() {
     var onScheduleEventReceived: ((ScheduleReceive) -> Unit)? = null
     var onAddEventReceived: ((ScheduleData) -> Unit)? = null
     var onEditEventReceived: ((ManipulationEvent) -> Unit)? = null
+    var onMemberEventReceived: ((List<Member>) -> Unit)? = null
 
     private val client = OkHttpClient()
     private val webSocketListener = object : WebSocketListener() {
@@ -60,37 +64,47 @@ class WebSocketManager @Inject constructor() {
                     return
                 }
 
-                val jsonObject = JsonParser.parseString(text).asJsonObject
-                if(!jsonObject.has("paths")) Timber.d(jsonObject.toString())
-                when {
+                val jsonElement = JsonParser.parseString(text)
 
-                    jsonObject.has("status") -> {
-                        val serverReceive = gson.fromJson(text, ServerReceive::class.java)
-//                        Timber.d(serverReceive.toString())
-                        onServerEventReceived?.invoke(serverReceive)
-                    }
-
-                    jsonObject.has("title") -> {
-                        val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
-//                        Timber.d(scheduleReceive.toString())
-                        onScheduleEventReceived?.invoke(scheduleReceive)
+                // Handle JSON Object
+                if (jsonElement.isJsonObject) {
+                    val jsonObject = jsonElement.asJsonObject
+                    if (!jsonObject.has("paths")) {
+                        Timber.d("received $text")
                     }
 
-                    jsonObject.has("paths") -> {
-                        val routeReceive = gson.fromJson(text, PathReceive::class.java)
-//                        Timber.d(routeReceive.toString())
-                        onRouteEventReceived?.invoke(routeReceive)
-                    }
+                    when {
+                        jsonObject.has("status") -> {
+                            val serverReceive = gson.fromJson(text, ServerReceive::class.java)
+                            onServerEventReceived?.invoke(serverReceive)
+                        }
 
-                    jsonObject.has("placeName") -> {
-                        val add = gson.fromJson(text, ScheduleData::class.java)
-                        Timber.d(add.toString())
-                        onAddEventReceived?.invoke(add)
+                        jsonObject.has("title") -> {
+                            val scheduleReceive = gson.fromJson(text, ScheduleReceive::class.java)
+                            onScheduleEventReceived?.invoke(scheduleReceive)
+                        }
+
+                        jsonObject.has("paths") -> {
+                            val routeReceive = gson.fromJson(text, PathReceive::class.java)
+                            onRouteEventReceived?.invoke(routeReceive)
+                        }
+
+                        jsonObject.has("placeName") -> {
+                            val add = gson.fromJson(text, ScheduleData::class.java)
+                            onAddEventReceived?.invoke(add)
+                        }
+
+                        jsonObject.has("dayOrder") -> {
+                            val editedItem = gson.fromJson(text, ManipulationEvent::class.java)
+                            onEditEventReceived?.invoke(editedItem)
+                        }
+
                     }
-                    jsonObject.has("dayOrder") -> {
-                        val editedItem = gson.fromJson(text,ManipulationEvent::class.java)
-                        onEditEventReceived?.invoke(editedItem)
-                    }
+                }
+                else if (jsonElement.isJsonArray) {
+                    val members = gson.fromJson<List<Member>>(text, object : TypeToken<List<Member>>() {}.type)
+                    Timber.d("members "+members.toString())
+                    onMemberEventReceived?.invoke(members)
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Failed to parse message: $text")
@@ -111,14 +125,14 @@ class WebSocketManager @Inject constructor() {
     }
 
     private fun sendStart() {
-
+        Timber.d(tripId.toString())
         sendMessage(
             ServerEvent(
                 operationId = "123",
                 tripId = tripId,
                 operation = Operation(
                     action = "START",
-                    scheduleId = -1,
+                    scheduleId = id.toInt(), //userId
                     positionPath = -1
                 ),
                 timestamp = 1
@@ -143,8 +157,4 @@ class WebSocketManager @Inject constructor() {
         }
     }
 
-    fun close() {
-        Timber.tag("WebSocket").d("close")
-        webSocket?.close(1000, "Closing WebSocket")
-    }
 }
