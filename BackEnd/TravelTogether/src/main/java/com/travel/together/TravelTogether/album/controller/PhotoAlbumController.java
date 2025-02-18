@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -51,6 +52,7 @@ public class PhotoAlbumController {
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         List<PhotoAlbumResponseDto> albumList = photoAlbumService.getUserAlbums(user.getUserId());
+        albumList.sort(Comparator.comparing(PhotoAlbumResponseDto::getStartDate));
         return ResponseEntity.ok(albumList);
     }
 
