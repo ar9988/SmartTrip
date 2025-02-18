@@ -40,10 +40,10 @@ public class AiplanningService {
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     @Transactional
-    public void savePlanningData(OpenaiResponseDto responseDto) {
+    public Integer savePlanningData(OpenaiResponseDto responseDto) {
         if (responseDto == null || responseDto.getSchedule() == null) {
             System.out.println("ResponseDto or schedule is null. Skipping processing.");
-            return;
+            return -1;
         }
 
         // 현재 사용자 정보 가져오기
@@ -69,7 +69,7 @@ public class AiplanningService {
         List<OpenaiResponseDto.DateActivities> days = responseDto.getSchedule().getDays();
         if (days == null || days.isEmpty()) {
             System.out.println("No days found in schedule. Skipping processing.");
-            return;
+            return -1;
         }
 
         try {
@@ -97,6 +97,7 @@ public class AiplanningService {
             e.printStackTrace();
             throw new RuntimeException("Failed to save planning data", e);
         }
+        return trip.getId();
     }
 
     // Trip 테이블 DB 입력 코드
