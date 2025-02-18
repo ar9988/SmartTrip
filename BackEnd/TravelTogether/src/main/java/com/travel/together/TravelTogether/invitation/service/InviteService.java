@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -55,6 +56,15 @@ public class InviteService {
         Integer tripId = Integer.parseInt(tripIdStr);
 
         // 여행 및 사용자 조회
+        Optional<Trip> tripOptional = tripRepository.findById(tripId);
+
+        if (!tripOptional.isPresent()) {
+            return InviteAcceptResponseDto.builder()
+                    .message("여행 일정이 존재하지 않습니다.")
+                    .tripId(tripId)
+                    .build();
+        }
+
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new EntityNotFoundException("여행 일정이 존재하지 않습니다."));
         User user = userRepository.findById(userId)
