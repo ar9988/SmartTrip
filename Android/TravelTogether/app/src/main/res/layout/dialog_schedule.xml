@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="400dp"
     android:layout_height="200dp"
-    android:background="@drawable/round_border"
+    android:background="@drawable/shape_dialog"
     android:padding="16dp">
 
     <EditText

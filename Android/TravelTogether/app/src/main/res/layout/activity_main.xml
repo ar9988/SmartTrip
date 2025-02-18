@@ -50,6 +50,7 @@
                 app:fabCradleRoundedCornerRadius="16dp">
 
                 <com.google.android.material.bottomnavigation.BottomNavigationView
+                    app:restoreState="true"
                     android:id="@+id/bnv_main"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

@@ -280,15 +280,18 @@ class AlbumViewModel @Inject constructor(
                 response.collectLatest { result ->
                     _photoUploadState.value = result
                     if (result.status == ApiStatus.ERROR || result.status == ApiStatus.FAIL) {
+                        Timber.d("업로드 실패")
                         flag = false
                     }
                 }
             }
-            if (flag) {
-                _albumUiEvent.emit(AlbumUiEvent.FinishPhotoUpload)
-                initPhotos()
-                initMarkers()
+            when (flag) {
+                true -> _albumUiEvent.emit(AlbumUiEvent.FinishPhotoUpload)
+
+                else -> _albumUiEvent.emit(AlbumUiEvent.PhotoUploadFail)
             }
+            initPhotos()
+            initMarkers()
         }
     }
 
