@@ -34,9 +34,6 @@ class ScheduleAddFragment : AiSearchPlaceFragment() {
         binding.rvFollowedPlaceSearch.visibility= View.GONE
         binding.tvAiSearchEmpty.visibility = View.VISIBLE
     }
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-    }
     override fun observeState(){
         lifecycleScope.launch {
             mainViewModel.placeSearchResult.collect { places ->
