@@ -9,6 +9,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
@@ -22,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
@@ -37,7 +39,6 @@ import com.neungi.domain.model.ScheduleData
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentPlanDetailBinding
-import com.neungi.moyeo.util.NonScrollableHorizontalLayoutManager
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.views.MainViewModel
 import com.neungi.moyeo.views.plan.adapter.SectionedAdapter
@@ -450,31 +451,29 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun handleMemberList(members: List<Member>) {
-        val userIcons = listOf(
-            R.drawable.baseline_account_circle_24,
-            R.drawable.baseline_insert_emoticon_24,
-            R.drawable.baseline_directions_bus_24,
-            R.drawable.baseline_directions_car_24
-        )
-
-        // 아이콘 크기
         val iconWidth = 40.dpToPx()
-        val overlapMargin = if(userIcons.size>1){
-            (iconWidth*userIcons.size-binding.iconContainer.width)/(userIcons.size-1)
+        var overlapMargin = 0
+        if (iconWidth * members.size < binding.iconContainer.width) {
+            overlapMargin = 0
         } else {
-            0
+            overlapMargin = ((members.size * iconWidth - binding.iconContainer.width) / (members.size))
         }
 
-        for (i in userIcons.indices) {
+        for (i in members.indices) {
             val imageView = ImageView(requireContext())
-            imageView.setImageResource(userIcons[i])
+            Timber.d(members[i].profileImage)
+            // Glide로 이미지를 로드
+            Glide.with(requireContext())
+                .load(members[i].profileImage)  // 각 Member의 이미지 URL
+                .placeholder(R.drawable.baseline_account_circle_24)  // URL 로딩 전 기본 아이콘 표시
+                .into(imageView)
 
             // 아이콘의 레이아웃 파라미터 설정
             val params = FrameLayout.LayoutParams(iconWidth, iconWidth)
-
+            params.gravity = Gravity.CENTER_VERTICAL
             // 각 아이콘의 leftMargin을 겹치도록 설정
-            val margin = if (i > 0) (overlapMargin.dpToPx() * i) else 0
-            params.leftMargin = margin
+            val margin = if (i > 0) ((iconWidth - overlapMargin) * i) else 0
+            imageView.z = (members.size-i).toFloat()
 
             // 아이콘을 컨테이너에 추가
             binding.iconContainer.addView(imageView, params)
@@ -488,8 +487,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     companion object {
         val colors = listOf(
-            Color.RED, Color.GREEN, Color.CYAN,
-            Color.BLUE, Color.MAGENTA, Color.BLACK, Color.DKGRAY
+            Color.BLUE, Color.GREEN, Color.CYAN,
+            Color.RED, Color.BLACK, Color.MAGENTA, Color.DKGRAY
         )
 
         fun newInstance(tripId: Int) = PlanDetailFragment().apply {
