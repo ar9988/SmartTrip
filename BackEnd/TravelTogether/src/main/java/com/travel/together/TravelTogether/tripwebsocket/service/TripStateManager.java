@@ -173,10 +173,13 @@ public class TripStateManager {
 
     // 특정 trip의 schedule positions 조회
     public Map<Integer, Integer> getSchedulePositions(Integer tripId) {
-
-//        return new HashMap<>(tripSchedulePositions.getOrDefault(tripId, new HashMap<>()));
-        return tripSchedulePositions.get(tripId);
-
+        Map<Integer, Integer> positions = tripSchedulePositions.get(tripId);
+        if (positions == null) {
+            log.info("No positions found for tripId: {}. Creating new map.", tripId);
+            positions = new ConcurrentHashMap<>();
+            tripSchedulePositions.put(tripId, positions);
+        }
+        return positions;
     }
 
 
@@ -208,6 +211,13 @@ public class TripStateManager {
         Map<Integer, Integer> schedulePositions = tripSchedulePositions.get(tripId);
         if (schedulePositions != null) {
             schedulePositions.remove(scheduleId);
+        }
+
+        // 실제 스케줄 객체도 제거 (tripScheduleMap에서)
+        Map<Integer, ScheduleDTO> schedules = tripScheduleMap.get(tripId);
+        if (schedules != null) {
+            schedules.remove(scheduleId);
+            log.debug("완전히 삭제됨: tripId: {}, scheduleId: {}", tripId, scheduleId);
         }
 
 
@@ -472,7 +482,7 @@ public class TripStateManager {
 
 
     // ADD용 path생성
-    @Async
+//    @Async
     public void generatePathWithCallback(Schedule source, Schedule target, PathGenerationCallback callback) {
         log.info("Starting path generation with callback for schedules {} -> {}",
                 source.getId(), target.getId());
@@ -525,6 +535,9 @@ public class TripStateManager {
         if (edits == null || edits.isEmpty()) {
             return tripDetail;
         }
+
+
+
 
         // tripDetail 자체는 수정하지 않고, schedule의 필드만 업데이트
         for (DayDto day : tripDetail.getDayDtos()) {
