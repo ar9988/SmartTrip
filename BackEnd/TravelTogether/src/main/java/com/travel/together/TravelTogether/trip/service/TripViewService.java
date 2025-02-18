@@ -143,7 +143,7 @@ public class TripViewService {
     private void createTripRelatedData(Trip trip) {
         LocalDateTime currentDate = trip.getStartDate();
         int dayOrder = 1;
-
+        log.info("currentDate={}",currentDate);
         while (!currentDate.isAfter(trip.getEndDate())) {
             // Day 생성
             Day day = Day.builder()
@@ -152,23 +152,22 @@ public class TripViewService {
                     .orderNum(dayOrder)
                     .build();
 
+            log.info("day startTime = {}", day.getStartTime());
             Day savedDay = dayRepository.save(day);
 
-            // Schedule 생성 (positionPath는 Day ID 기반으로 설정)
-//            int positionPath = (dayOrder * 10000) + 1000;
-//            Schedule schedule = Schedule.builder()
-//                    .day(savedDay)
-//                    .trip(trip)
-//                    .placeName("시작 지점")
-//                    .orderNum(1)
-//                    .lat(0.0)
-//                    .lng(0.0)
-//                    .type(1)
-//                    .positionPath(positionPath)
-//                    .duration(0)
-//                    .build();
-
-//            scheduleRepository.save(schedule);
+            // Schedule 생성
+            Schedule schedule = Schedule.builder()
+                    .day(savedDay)
+                    .trip(trip)
+                    .placeName("")
+                    .orderNum(1)         // orderNum은 순서상 필요할 것 같아서 1로 설정
+                    .lat((double) -1)
+                    .lng((double) -1)
+                    .type(2)
+                    .positionPath(-1)
+                    .duration(-1)
+                    .build();
+            scheduleRepository.save(schedule);
 
             currentDate = currentDate.plusDays(1);
             dayOrder++;

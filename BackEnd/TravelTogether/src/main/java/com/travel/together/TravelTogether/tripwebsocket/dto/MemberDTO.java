@@ -12,3 +12,4 @@ public class MemberDTO {
     private boolean owner;
     private String profileImage;
 }
+// 초기 유저 말고 새로 초대된 유저 감지될때마다 전체 유저목록 보내주기

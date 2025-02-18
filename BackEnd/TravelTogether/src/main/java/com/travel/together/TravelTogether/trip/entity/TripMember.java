@@ -34,7 +34,5 @@ public class TripMember {
         this.isOwner = false;
     }
 
-
-
 }
 

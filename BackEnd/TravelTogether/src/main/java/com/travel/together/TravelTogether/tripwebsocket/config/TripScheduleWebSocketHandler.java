@@ -137,6 +137,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             if (currentTripDetail != null) {
                 // 초기화 후 바로 이 tripDetail 사용
                 stateManager.initializeFromTripDetail(tripId, currentTripDetail);
+
+
                 // DB에서 가져온 후에도 혹시 있을 수 있는 편집 내역 반영
                 currentTripDetail = stateManager.getTripDetailWithEdits(tripId);
 
@@ -154,12 +156,14 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         Map<Integer, Integer> currentPositions = stateManager.getSchedulePositions(tripId);
         log.info("Retrieved positions. Size: {}", currentPositions != null ? currentPositions.size() : 0);
         Set<Integer> deletedIds = stateManager.getDeletedSchedules(tripId);
+        log.info("DeletedSchedules before filtering: {}", deletedIds);
 
         if (currentPositions != null) {
             for (DayDto day : currentTripDetail.getDayDtos()) {
                 // 삭제된 schedule 필터링하여 새 리스트 생성
                 List<ScheduleDTO> filteredSchedules = new ArrayList<>();
 
+                log.info("Day startTime from DB: {}", day.getStartTime());
 
                 for (ScheduleDTO schedule : day.getSchedules()) {
 
@@ -182,6 +186,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             }
         }
 
+
+
         // 3. 초기 응답 전송
         TripDetailResponse initialResponse = new TripDetailResponse(
                 tripId,
@@ -191,8 +197,16 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 currentTripDetail.getCreatedAt(),
                 currentTripDetail.getUpdatedAt()
         );
+
+        // 응답 객체의 시간 확인
+        log.info("After creating response - Day startTime values:");
+        for (DayDto day : initialResponse.getDay()) {
+            log.info("Response Day startTime: {}", day.getStartTime());
+        }
+
         String jsonResponse = objectMapper.writeValueAsString(initialResponse);
         session.sendMessage(new TextMessage(jsonResponse));
+        log.info("initilaResponse======={}",initialResponse.getDay());
         log.info("Sent initial trip detail for tripId: {}", tripId);
 
         // 4. 경로 정보 전송 (있는 경우)
@@ -200,6 +214,11 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             log.info("hasPositions returned true for tripId: {}", tripId);
             sendPathInformation(session, tripId);
         }
+        // 현재 사용 중인 ObjectMapper 설정 확인 로깅
+        log.info("ObjectMapper dateFormat: {}",
+                objectMapper.getDateFormat() != null ?
+                        objectMapper.getDateFormat().getClass().getName() : "null");
+
 
         log.info("=== END Initial Sync for tripId: {} ===", tripId);
     }
@@ -260,22 +279,23 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     tripId, session.getId());
 
 
-            try {
-                Integer tripIdInt = Integer.valueOf(tripId);
-                log.info("About to call handleInitialSync for tripId: {}", tripIdInt);
-
-
-                handleInitialSync(session, tripIdInt);
-                log.info("handleInitialSync completed for tripId: {}", tripIdInt);
-
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            } catch (java.io.IOException e) {
-                throw new RuntimeException(e);
-            } catch (Exception e) {
-                log.error("Error in afterConnectionEstablished for tripId: " + tripId, e);
-
-            }
+            // 연결 감지됐을때 초기화데이터주기
+//            try {
+//                Integer tripIdInt = Integer.valueOf(tripId);
+//                log.info("About to call handleInitialSync for tripId: {}", tripIdInt);
+//
+//
+//                handleInitialSync(session, tripIdInt);
+//                log.info("handleInitialSync completed for tripId: {}", tripIdInt);
+//
+//            } catch (JsonProcessingException e) {
+//                throw new RuntimeException(e);
+//            } catch (java.io.IOException e) {
+//                throw new RuntimeException(e);
+//            } catch (Exception e) {
+//                log.error("Error in afterConnectionEstablished for tripId: " + tripId, e);
+//
+//            }
 
         }
     }
@@ -303,6 +323,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
                 EditRequest.Operation operation = new EditRequest.Operation();
                 if ("ADD".equals(action)) {
+                    // positions가 없으면 초기화
+
                     handleAddOperation(tripId, addRequest);
                     operation.setAction("ADD");
                     operation.setScheduleId(scheduleIdCounter.get());
@@ -394,6 +416,14 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
             switch (operation.getAction()) {
                 case "START":
+                    // 먼저 positions가 초기화되었는지 확인
+                    if (!stateManager.hasPositions(tripId)) {
+                        List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
+                        stateManager.initializeSchedulePositions(tripId, schedules);
+                        log.info("Initialized positions for tripId: {}", tripId);
+                    }
+
+
                     // 다른 클라이언트들에게 START 신호를 브로드캐스트
                     String tripIdStr = String.valueOf(tripId);
                     Set<WebSocketSession> tripSessionSet = tripSessions.get(tripIdStr);
@@ -425,7 +455,15 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                             tripId,
                             operation.getScheduleId()
                     );
+                    // 제거 후 상태 로깅
+                    Set<Integer> afterDelete = stateManager.getDeletedSchedules(tripId);
+                    log.info("🔴 After removeState, deletedSchedules: {}", afterDelete);
+
                     log.info("DELETE SUCCESS");
+                    log.info("DELETE SUCCESS");
+
+                    log.info("Received operation: {}, scheduleId: {}", operation.getAction(), operation.getScheduleId());
+
                     break;
 
             }
@@ -674,8 +712,6 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         try {
             log.info("Handling ADD operation for tripId: {}", tripId);
 
-//            Integer dayId = addRequest.getDayId();
-//            AddRequest.ScheduleDto receivedSchedule = addRequest.getSchedule();
             Integer dayOrder = addRequest.getDayOrder();  // 직접 몇 일차인지 받음
             AddRequest.ScheduleDto receivedSchedule = addRequest.getSchedule();
 
@@ -688,17 +724,37 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             // stateManager에서 현재 trip의 스케줄 positions 가져오기
             Map<Integer, Integer> currentPositions = stateManager.getSchedulePositions(tripId);
 
-            // 현재 day의 마지막 positionPath 찾기
-            Optional<Integer> maxPosition = currentPositions.values().stream()
-                    .filter(pos -> pos >= dayStart && pos <= dayEnd)
-                    .max(Integer::compareTo);
+            if (currentPositions == null) {
+                log.warn("Positions map not initialized for tripId: {}. Creating new map.", tripId);
+                currentPositions = new HashMap<>();
+                stateManager.initializeSchedulePositions(tripId, new ArrayList<>());
+                currentPositions = stateManager.getSchedulePositions(tripId);
+            }
 
-            // 새로운 positionPath 계산
+            // 해당 day의 마지막 positionPath 값 찾기
             int newPosition;
-            if (!maxPosition.isPresent()) {
-                newPosition = (dayStart + dayEnd) / 2;
+            if (currentPositions.isEmpty()) {
+                // positions 맵이 비어있으면 day의 중간값 사용
+                newPosition = (dayStart + dayEnd) / 2;  // 예: day 1 -> 15000
+                log.info("No existing schedules. Using middle position {} for day {}", newPosition, dayOrder);
             } else {
-                newPosition = maxPosition.get() + 10;  // 기존 마지막 일정보다 10 큰 값
+                // 현재 day의 마지막 positionPath 찾기
+                Optional<Integer> maxPositionOpt = currentPositions.values().stream()
+                        .filter(pos -> pos >= dayStart && pos <= dayEnd)
+                        .max(Integer::compareTo);
+
+                if (maxPositionOpt.isPresent()) {
+                    // 해당 day에 기존 일정이 있으면 마지막 positionPath + 10
+                    int maxPosition = maxPositionOpt.get();
+                    newPosition = maxPosition + 10;
+                    log.info("Found max position {} for day {}. New position: {}",
+                            maxPosition, dayOrder, newPosition);
+                } else {
+                    // 해당 day에 일정이 없으면 day의 중간값 사용
+                    newPosition = (dayStart + dayEnd) / 2;
+                    log.info("No schedules found for day {}. Using middle position: {}",
+                            dayOrder, newPosition);
+                }
             }
 
             // 해당 trip의 모든 dayId 조회
