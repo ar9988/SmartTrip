@@ -4,11 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import com.travel.together.TravelTogether.trip.entity.Day;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.entity.Trip;
+import com.travel.together.TravelTogether.trip.entity.TripMember;
 import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
+import com.travel.together.TravelTogether.trip.repository.TripMemberRepository;
 import com.travel.together.TravelTogether.trip.repository.TripRepository;
 import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
@@ -33,6 +37,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -49,7 +54,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     private final ExecutorService executorService;
     private final DayRepository dayRepository;
     private final TripRepository tripRepository;
-
+    private final TripMemberRepository tripMemberRepository;
+    private final UserRepository userRepository;
 
     // tripId를 키로 하고, 해당 여행의 접속자들의 세션을 값으로 가지는 Map
     private final Map<String, Set<WebSocketSession>> tripSessions = new ConcurrentHashMap<>();
@@ -423,6 +429,14 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                         log.info("Initialized positions for tripId: {}", tripId);
                     }
 
+                    // scheduleId를 userId로 받아서 MemberDTO만들
+
+                    // 유저 ID 추출 및 멤버 리스트 브로드캐스트
+                    String currentUserId = String.valueOf(operation.getScheduleId());
+                    broadcastMemberList(tripId, currentUserId);
+
+
+
 
                     // 다른 클라이언트들에게 START 신호를 브로드캐스트
                     String tripIdStr = String.valueOf(tripId);
@@ -435,6 +449,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                             }
                         }
                     }//                    handleStartOperation(session, tripId);
+
                     break;
                 case "MOVE":
                     handleMoveOperation(tripId, operation);
@@ -576,6 +591,59 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             throw new RuntimeException(e);
         }
     }
+
+
+
+
+    private void broadcastMemberList(Integer tripId, String currentUserId) throws IOException, java.io.IOException {
+        // 1. 현재 유저 정보 조회
+        User currentUser = userRepository.findById((long) Integer.parseInt(currentUserId))
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 2. 현재 유저를 TripMember에 추가 (없는 경우)
+        Trip currentTrip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+
+        boolean userExists = tripMemberRepository.existsByTripIdAndUserId(tripId, Integer.parseInt(currentUserId));
+        if (!userExists) {
+            TripMember newMember = new TripMember();
+            newMember.setTrip(currentTrip);
+            newMember.setUser(currentUser);
+            newMember.setIsOwner(false);
+            tripMemberRepository.save(newMember);
+            log.info("Added new member to trip: userId={}, tripId={}", currentUserId, tripId);
+        }
+
+        // 3. 업데이트된 멤버 목록 조회
+        List<TripMember> tripMembers = tripMemberRepository.findAllByTripId(tripId);
+
+        // 4. MemberDTO 리스트로 변환
+        List<MemberDTO> memberDTOs = tripMembers.stream()
+                .map(tm -> new MemberDTO(
+                        tm.getUser().getId().toString(),
+                        tm.getUser().getName(),
+                        tm.getIsOwner(),
+                        tm.getUser().getProfile_image()))
+                .collect(Collectors.toList());
+
+        // 5. 멤버 리스트 브로드캐스트
+        String memberListJson = objectMapper.writeValueAsString(memberDTOs);
+        String tripIdStr = String.valueOf(tripId);
+        Set<WebSocketSession> tripSessionSet = tripSessions.get(tripIdStr);
+
+        if (tripSessionSet != null) {
+            for (WebSocketSession tripSession : tripSessionSet) {
+                if (tripSession.isOpen()) {
+                    tripSession.sendMessage(new TextMessage(memberListJson));
+                }
+            }
+        }
+    }
+
+
+
+
+
 
     @Transactional
     private void handleEditOperation(Integer tripId, EditOnlyRequest request) {

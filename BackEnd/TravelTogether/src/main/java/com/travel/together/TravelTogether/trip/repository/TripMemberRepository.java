@@ -23,4 +23,6 @@ public interface TripMemberRepository extends JpaRepository<TripMember, Integer>
     Integer countByTripId(Integer id);
 
     void deleteByTripId(Integer tripId);
+
+    List<TripMember> findAllByTripId(Integer tripId);
 }
