@@ -463,33 +463,39 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleMemberList(members: List<Member>) {
         val iconWidth = 40.dpToPx()
-        val overlapMargin: Int = if (iconWidth * members.size < binding.iconContainer.width) {
-            0
-        } else {
-            ((members.size * iconWidth - binding.iconContainer.width) / (members.size))
-        }
+        val overlapRatio = 0.3f
 
-        for (i in members.indices) {
-            val imageView = ImageView(requireContext())
-            Timber.d("URL " + members[i].profileImage)
-            // Glide로 이미지를 로드
-            Glide.with(requireContext())
-                .load(members[i].profileImage)  // 각 Member의 이미지 URL
-                .placeholder(R.drawable.baseline_account_circle_24)  // URL 로딩 전 기본 아이콘 표시
-                .circleCrop()
-                .into(imageView)
+        binding.iconContainer.post {
+            binding.iconContainer.removeAllViews()
 
-            // 아이콘의 레이아웃 파라미터 설정
-            val params = FrameLayout.LayoutParams(iconWidth, iconWidth)
-            params.gravity = Gravity.CENTER_VERTICAL
-            // 각 아이콘의 leftMargin을 겹치도록 설정
-            val margin = if (i > 0) ((iconWidth - overlapMargin) * i) else 0
-            params.leftMargin = margin
-            imageView.left = margin
-            imageView.z = (members.size - i).toFloat()
+            // 오른쪽부터 이미지를 배치하기 위해 역순으로 처리
+            for (i in members.indices.reversed()) {
+                val imageView = ImageView(requireContext())
 
-            // 아이콘을 컨테이너에 추가
-            binding.iconContainer.addView(imageView, params)
+                // Glide로 이미지 로드
+                Glide.with(requireContext())
+                    .load(members[i].profileImage)
+                    .placeholder(R.drawable.baseline_account_circle_24)
+                    .circleCrop()
+                    .into(imageView)
+
+                // 레이아웃 파라미터 설정
+                val params = FrameLayout.LayoutParams(iconWidth, iconWidth)
+                params.gravity = Gravity.CENTER_VERTICAL or Gravity.END
+
+                // 각 이미지의 위치 계산
+                val reverseIndex = members.size - 1 - i
+                val overlapWidth = (iconWidth * overlapRatio).toInt()
+                val rightMargin = reverseIndex * (iconWidth - overlapWidth)
+
+                params.rightMargin = rightMargin
+
+                // z-index 설정 - 가장 오른쪽 아이콘(reverseIndex가 0)이 가장 아래에 오도록 설정
+                // reverseIndex를 그대로 z-index로 사용 (값이 클수록 위에 표시됨)
+                imageView.z = reverseIndex.toFloat()
+
+                binding.iconContainer.addView(imageView, params)
+            }
         }
     }
 
