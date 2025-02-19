@@ -43,7 +43,7 @@ class AlbumDetailWithPlaceFragment :
             lifecycleScope.launch {
                 with(binding.rvPhotoAlbumDetail) {
                     viewModel.photoPlaces.collectLatest { places ->
-                        if (places.isNotEmpty()) {
+                        if (placeTagIndex < places.size) {
                             recyclerViewState =
                                 binding.rvPhotoAlbumDetail.layoutManager?.onSaveInstanceState()
                             val photos = when (places[placeTagIndex].name == "전체") {

@@ -31,7 +31,7 @@ class PhotoClassifiedFragment :
             lifecycleScope.launch {
                 with(binding.rvPhotoClassificationContent) {
                     viewModel.newMarkers.collectLatest { places ->
-                        if (places.isNotEmpty()) {
+                        if (index < places.size) {
                             recyclerViewState =
                                 binding.rvPhotoClassificationContent.layoutManager?.onSaveInstanceState()
                             adapter = PhotoClassifiedAdapter(index, viewModel).apply {

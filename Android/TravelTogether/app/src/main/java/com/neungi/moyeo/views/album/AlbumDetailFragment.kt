@@ -16,9 +16,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.core.view.size
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
@@ -181,14 +183,15 @@ class AlbumDetailFragment :
     private fun initClusterer() {
         lifecycleScope.launch {
             viewModel.markers.collectLatest { markers ->
-                Timber.d("Markers: $markers")
+                binding.vpAlbumDetail.adapter = PhotoPlaceAdapter(requireActivity(), 99)
+                Timber.d("Size: ${binding.vpAlbumDetail.adapter?.itemCount}")
                 clusteredMarkers.forEach { marker ->
                     marker.map = null
                 }
                 clusteredMarkers.clear()
                 addClusterMarkers(markers)
                 viewModel.initPhotoPlaces()
-                initTabLayout()
+                initTabLayout(markers)
             }
         }
     }
@@ -225,7 +228,7 @@ class AlbumDetailFragment :
                 .asBitmap()
                 .apply(RequestOptions.circleCropTransform())
                 .circleCrop()
-                .override(144, 144)
+                .override(192, 192)
                 .placeholder(R.drawable.ic_theme_white)
                 .error(R.drawable.ic_theme_white)
                 .load(firstPhotoUrl)
@@ -293,10 +296,13 @@ class AlbumDetailFragment :
         }
     }
 
-    private fun initTabLayout() {
+    private fun initTabLayout(markers: List<Pair<String, List<MarkerData>>>) {
         lifecycleScope.launch {
             viewModel.photoPlaces.collectLatest { places ->
+                Timber.d("Markers: ${markers.size}, Places: ${places.size}")
+                if (markers.size + 1 != places.size) return@collectLatest
                 with(binding.vpAlbumDetail) {
+                    binding.vpAlbumDetail.adapter = PhotoPlaceAdapter(requireActivity(), 99)
                     adapter = PhotoPlaceAdapter(requireActivity(), places.size)
                     setCurrentItem(START_POSITION, true)
                 }

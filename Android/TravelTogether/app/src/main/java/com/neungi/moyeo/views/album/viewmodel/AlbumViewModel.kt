@@ -167,6 +167,8 @@ class AlbumViewModel @Inject constructor(
 
     override fun onClickAlbum(photoAlbum: PhotoAlbum) {
         viewModelScope.launch {
+            _updatePlaceIndex.value = -1
+            _tempClassifiedPhotoIndex.value = Pair(-1, -1)
             _selectedPhotoAlbum.value = photoAlbum
             initPhotos()
         }
