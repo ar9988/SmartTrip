@@ -76,6 +76,7 @@ class ScheduleAddFragment : AiSearchPlaceFragment() {
             .setView(dialogView)
             .setCancelable(true)
             .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent) // ✅ 배경을 투명하게 설정
 
         // 확인 버튼 클릭 시 동작
         closeBtn.setOnClickListener {
