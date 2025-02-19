@@ -57,11 +57,14 @@
 ### ⚙️ 백엔드
 | Category  | TechStack                                                                |
 |-----------|--------------------------------------------------------------------------|
-| Framework |                                                 |
-| DB        |                                                 |
-| API       |                                                 |
-| CI/CD     |                                                 |
-| Logging   |                                                 |
+| Framework | Spring Boot                                     |
+| DataBase & Storage | MySQL, AWS S3                          |
+| API       | Spring Boot REST                                |
+| Authentication & Security| JWT                              |
+| Caching & Performance | Caching & Performance               |
+| Infrastructure & Deployment| AWS EC2                        |
+| CI/CD     | GitLab Actions / Jenkins                        |
+| Logging   | AWS CloudWatch                                  |
 
 &nbsp;
 
