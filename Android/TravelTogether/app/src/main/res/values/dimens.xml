@@ -24,6 +24,6 @@
     <!-- Elevation -->
     <dimen name="card_view_elevation">4dp</dimen>
     <dimen name="toolbar_elevation">16dp</dimen>
-    <dimen name="lottie_margin">100dp</dimen>
+    <dimen name="lottie_margin">260dp</dimen>
 
 </resources>

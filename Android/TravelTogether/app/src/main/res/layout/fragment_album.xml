@@ -139,7 +139,7 @@
                     android:layout_marginTop="@dimen/lottie_margin"
                     app:lottie_autoPlay="false"
                     app:lottie_loop="true"
-                    app:lottie_rawRes="@raw/loading_animation_new" />
+                    app:lottie_rawRes="@raw/loading_animation" />
 
             </FrameLayout>
 

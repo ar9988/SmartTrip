@@ -12,5 +12,7 @@ sealed class HomeUiEvent {
 
     data object GoToPlanDetail:HomeUiEvent()
 
+    data object OnClickProfileIcon:HomeUiEvent()
+
 
 }

@@ -22,6 +22,14 @@
             android:id="@+id/action_home_to_planDetail"
             app:destination="@id/fragment_plan_detail" />
 
+        <action
+            android:id="@+id/action_home_to_login"
+            app:destination="@id/fragment_login" />
+
+        <action
+            android:id="@+id/action_home_to_profile_update"
+            app:destination="@id/fragment_profile_update" />
+
     </fragment>
 
     <fragment

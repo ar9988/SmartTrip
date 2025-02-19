@@ -345,11 +345,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
-
-
-
-
+    override fun onClickProfileIcon() {
+        viewModelScope.launch {
+            _homeUiEvent.emit(HomeUiEvent.OnClickProfileIcon)
+        }
+    }
 
 
 }

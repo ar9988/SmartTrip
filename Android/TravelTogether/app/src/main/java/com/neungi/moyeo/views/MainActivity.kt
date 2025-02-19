@@ -102,7 +102,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
         setIntent(intent) // ✅ 기존 Intent 업데이트
         viewModel.login()
         // 인텐트 타입에 따라 다른 처리
-        Timber.d("@{intent}")
+        Timber.d("On new Intent: ${intent}")
         when {
 
             isFcmTripIntent(intent) -> {
@@ -210,7 +210,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     }
 
     private fun isFcmTripIntent(intent: Intent?): Boolean {
-        return intent?.action == "OPEN_TRIP_DETAIL" && intent.hasExtra("TRIP_ID")
+        return  intent?.hasExtra("TRIP_ID")?:false
     }
 
     private fun setBottomNavigationBar() {

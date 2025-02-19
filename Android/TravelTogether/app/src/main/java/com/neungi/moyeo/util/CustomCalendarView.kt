@@ -66,7 +66,7 @@ class CustomCalendarView (context: Context, attrs: AttributeSet) : CalendarView(
 
             init {
                 view.setOnClickListener {
-                    if (day.date < LocalDate.now() || day.position != DayPosition.MonthDate) {
+                    if (day.date < LocalDate.now()) {
                         return@setOnClickListener
                     }
                     if (selectedStartDate == null) {
@@ -104,16 +104,43 @@ class CustomCalendarView (context: Context, attrs: AttributeSet) : CalendarView(
                 container.day = day
                 container.binding.tvDay.text = day.date.dayOfMonth.toString()
 
+                // maxDateRange 내에 있는지 확인 (다른 달의 날짜도 포함)
                 val isInSelectableRange = if (selectedStartDate != null && selectedEndDate == null) {
+                    // 달에 상관없이 날짜 간의 차이만 계산
                     val daysBetween = Math.abs(ChronoUnit.DAYS.between(selectedStartDate, day.date))
+                    // maxDateRange 이내라면 선택 가능 (다른 달이어도 상관없음)
                     daysBetween < maxDateRange
-                } else true
+                } else {
+                    // 선택된 날짜가 없으면 현재 달의 날짜만 선택 가능하도록 설정
+                    if (selectedStartDate == null && day.position != DayPosition.MonthDate) {
+                        false // 다른 달의 날짜는 기본적으로 선택 불가능하게 표시하기 위함
+                    } else {
+                        true
+                    }
+                }
 
+                // 과거 날짜이거나 선택 가능 범위를 벗어난 경우 비활성화
                 if (day.date < LocalDate.now() || !isInSelectableRange) {
                     container.binding.tvDay.setTextColor(Color.argb(128, 128, 128, 128))
                     container.binding.tvDay.background = null
                     return
                 }
+
+                // 다른 달의 날짜인 경우 하늘색으로 표시하여 선택 가능함을 나타냄
+                if (day.position != DayPosition.MonthDate &&
+                    day.date != selectedStartDate &&
+                    day.date != selectedEndDate &&
+                    !(selectedStartDate != null && selectedEndDate != null &&
+                            day.date > selectedStartDate!! && day.date < selectedEndDate!!)) {
+                    // 선택 가능한 날짜는 하늘색으로 표시
+                    container.binding.tvDay.setTextColor(ContextCompat.getColor(
+                        container.binding.tvDay.context,
+                        R.color.colorPrimary // 하늘색(colorPrimary 색상 사용)
+                    ))
+                    container.binding.tvDay.background = null
+                    return
+                }
+
 
                 when {
                     day.date == selectedStartDate && selectedEndDate == null -> {

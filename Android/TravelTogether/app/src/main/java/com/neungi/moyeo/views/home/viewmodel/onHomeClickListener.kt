@@ -5,4 +5,5 @@ interface onHomeClickListener {
     fun onClickNotificationClear()
     fun onClickFollow(contentId:String)
     fun onClickTripCard()
+    fun onClickProfileIcon()
 }
