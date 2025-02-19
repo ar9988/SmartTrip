@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.size.Precision
 import com.neungi.domain.model.Festival
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemFestivalAiDestinationBinding
@@ -23,6 +24,9 @@ class AiRecommendFestivalAdapter(private val viewModel: AIPlanningViewModel) : L
         fun bind(item: FestivalSelectUiState) {
             binding.uiState = item
             binding.ivFestivalImage.load(item.festival.imageUrl) {
+                size(300, 300)
+                precision(Precision.EXACT)
+                allowHardware(true)
                 error(R.drawable.image_noimg)
                 placeholder(R.drawable.ic_placeholder)
             }

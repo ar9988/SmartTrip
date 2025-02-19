@@ -6,6 +6,9 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.widget.CalendarView
 import android.widget.EditText
 import android.widget.ImageButton
@@ -111,6 +114,25 @@ fun ConstraintLayout.bindBackgroundAlbumImage(url: String) {
 fun TextView.bindChangeTextColor(uri: String) {
     adjustTextColorFromBackgroundUri(context, uri.toUri(), this)
 }
+
+@BindingAdapter("regionHighlightText")
+fun TextView.setRegionHighlightText(region: String?) {
+    if (region == null) return
+
+    val fullText = "${region}에서 인기 있는 관광지에요!"
+    val spannableString = SpannableString(fullText)
+
+    spannableString.setSpan(
+        ForegroundColorSpan(ContextCompat.getColor(context, R.color.blue)),
+        0,
+        region.length,
+        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+    )
+
+    text = spannableString
+}
+
+
 
 /*** EditText ***/
 @BindingAdapter("app:normalEditText")

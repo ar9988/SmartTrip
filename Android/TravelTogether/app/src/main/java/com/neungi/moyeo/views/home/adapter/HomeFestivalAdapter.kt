@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.size.Precision
+import coil.size.Scale
+import coil.size.ViewSizeResolver
 import com.neungi.domain.model.Festival
 import com.neungi.moyeo.R
 import com.neungi.moyeo.databinding.ItemFestivalHomeBinding
@@ -17,6 +20,9 @@ class HomeFestivalAdapter(private val viewModel: HomeViewModel) : ListAdapter<Fe
         fun bind(item: Festival) {
             binding.data = item
             binding.ivFestivalImage.load(item.imageUrl) {
+                size(300, 300)
+                precision(Precision.EXACT)
+                allowHardware(true)
                 error(R.drawable.image_noimg)
                 placeholder(R.drawable.ic_placeholder)
             }

@@ -233,6 +233,7 @@
                     android:textSize="@dimen/font_size_title"
                     android:textStyle="bold"
                     android:layout_marginVertical="@dimen/dp_small"
+                    app:regionHighlightText="@{vm.randomSelectedRegion.first}"
                     app:layout_constraintTop_toBottomOf="@id/barrier_card_home"
                     app:layout_constraintStart_toStartOf="@id/gl_start_home"
                     />

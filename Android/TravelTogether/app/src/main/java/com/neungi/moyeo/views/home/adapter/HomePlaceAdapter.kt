@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.size.Precision
+import coil.size.Scale
 import com.neungi.domain.model.Festival
 import com.neungi.domain.model.Place
 import com.neungi.moyeo.R
@@ -19,6 +21,9 @@ class HomePlaceAdapter(private val viewModel: HomeViewModel) : ListAdapter<Place
         fun bind(item: Place) {
             binding.data = item
             binding.ivPlaceImage.load(item.imageUrl) {
+                size(300, 300)
+                precision(Precision.EXACT)
+                allowHardware(true)
                 error(R.drawable.image_noimg)
                 placeholder(R.drawable.ic_placeholder)
             }
