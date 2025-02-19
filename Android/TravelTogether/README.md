@@ -3,24 +3,32 @@
 >
 
 ### 그런 P들을 위한 여행 플래너, 모여
- - 여행 일정도 모여에게 맡기세요!
- - 여행을 떠나는 사람들끼리 일정을 편집해요!
- - 여행이 끝나면 사진첩에서 추억을 공유해요!
----
+- 여행 일정도 모여에게 맡기세요!
+- 여행을 떠나는 사람들끼리 일정을 편집해요!
+- 여행이 끝나면 사진첩에서 추억을 공유해요!
 
 ## 🚀 주요 기능
 ### AI 플래너
 > 직접 추가는 그만! 일정 생성의 자동화를 통해 간편하게 일정을 작성하자!
- - (대충 사진 넣기)
+  <p>
+     <img src="/uploads/22a98bf832be4e5d1c73bbdb82110275/기능1_1.gif" width="200" style="margin: 8px" />
+     <img src="/uploads/27b61b4b6660d3f8d78c431242fe59aa/기능1_3.gif" width="200" style="margin: 8px" />
+     <img src="/uploads/7b1e8e8620de4579004e4ce67adca930/기능1_2.gif" width="200" style="margin: 8px" />
+  </p>
 
 ### 여행 일정 편집기
 > 함께 만드는 일정! 실시간 동시 편집으로 여행 계획을 더 효율적으로 관리하자!
- - (대충 사진 넣기)
+  <p>
+     <img src="/uploads/75688011ac38387d03371afa1b7f0685/기능2_1.gif" width="200" style="margin: 8px" />
+  </p>
 
 ### 추억 남기기
 > 소중한 순간을 하나로! 여행의 모든 순간을 사진첩에 남기고 함께 공유하자!
- - (대충 사진 넣기)
----
+  <p>
+     <img src="/uploads/2eb10bb7341faa487428b0db0c0dfdee/기능3_1.gif" width="200" style="margin: 8px" />
+     <img src="/uploads/146201fbff0ce987e80e3f8a59e1808f/기능3_2.gif" width="200" style="margin: 8px" />
+     <img src="/uploads/5ee1a4c0ab92705ae4efec1c45e540dc/기능3_3.gif" width="200" style="margin: 8px" />
+  </p>
 
 ## 🛠️ 기술 스택
 
@@ -58,7 +66,6 @@
 ### 📚 ERD
 
 
----
 
 ## ⚙️ 설치 및 실행 방법
 
@@ -76,3 +83,6 @@
 ---
 
 ## 📌 기타 정보
+<a href="https://www.notion.so/AI-17a106f1a13a80a3bc90efb51faa6fa6">
+  <img alt="Static Badge" src="https://img.shields.io/badge/Notion-%252523000000.svg?style=flat&logo=notion&logoColor=white&labelColor=black&color=black&link=https%3A%2F%2Fwww.notion.so%2FAI-17a106f1a13a80a3bc90efb51faa6fa6">
+</a>
