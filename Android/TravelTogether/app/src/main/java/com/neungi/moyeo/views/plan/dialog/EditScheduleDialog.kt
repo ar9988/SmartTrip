@@ -26,6 +26,8 @@ class EditScheduleDialog(
         createAndShowDialog(dialogView)
     }
 
+
+
     private fun setupDialogViews(dialogView: View) {
         with(dialogView) {
             val titleTextView = findViewById<EditText>(R.id.et_dialog_title)
@@ -68,6 +70,8 @@ class EditScheduleDialog(
             .setView(dialogView)
             .setCancelable(true)
             .create()
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent) // ✅ 배경을 투명하게 설정
 
         dialog.show()
     }
