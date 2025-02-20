@@ -321,6 +321,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun handleScheduleDelete(scheduleId: Int1) {
         scheduleViewModel.sendDeleteEvent(scheduleId)
         sectionedAdapter.delete(scheduleId)
+
     }
 
     private fun handleScheduleEdit(scheduleData: ScheduleData) {
@@ -438,18 +439,20 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleMarker(scheduleData: ScheduleData, flag: Boolean) {
         if (!flag) {
-            markerMap[scheduleData.scheduleId]?.map = null
+            val marker = markerMap[scheduleData.scheduleId]
+            marker?.map = null
+            Timber.d("delete "+marker?.captionText)
             markerMap.remove(scheduleData.scheduleId)
+            removePathOverlay(scheduleData.scheduleId)
         } else {
             val info = sectionedAdapter.pathInfo[scheduleData.scheduleId]
             if (scheduleData.lat < 0) return
-            val marker = Marker().apply {
+            var marker = Marker().apply {
                 iconTintColor = colors[info!!.first % colors.size]
                 subCaptionText = info.first.toString() + " 일차 " + info.second.toString() + "번째 일정"
                 width = 100
                 height = 100
                 position = LatLng(scheduleData.lat, scheduleData.lng)
-                map = naverMap
                 captionText = scheduleData.placeName
                 isHideCollidedSymbols = true
                 onClickListener = Overlay.OnClickListener { _ ->
@@ -457,7 +460,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                     true
                 }
             }
-            markerMap[scheduleData.scheduleId] = marker
+            if(!markerMap.containsKey(scheduleData.scheduleId)){
+                Timber.d("create "+marker.subCaptionText)
+                marker.map = naverMap
+                markerMap[scheduleData.scheduleId] = marker
+            }
         }
     }
 
