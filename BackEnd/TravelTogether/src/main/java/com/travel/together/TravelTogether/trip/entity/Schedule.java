@@ -39,7 +39,7 @@ public class Schedule {
     @JoinColumn(name = "trip_id", nullable = false)
     private Trip trip;
 
-    @Column(name = "place_name", nullable = false, length = 20)
+    @Column(name = "place_name", nullable = false, length = 50)
     private String placeName;
 
     @Column(name = "orderNum", nullable = false)
