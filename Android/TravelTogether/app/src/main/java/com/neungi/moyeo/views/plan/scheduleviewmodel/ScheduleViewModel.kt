@@ -142,7 +142,6 @@ class ScheduleViewModel @Inject constructor(
         }
         viewModelScope.launch {
             _userId.value = fetchUserId().first()
-            webSocketManager.id = _userId.value ?: ""
         }
     }
 
@@ -211,9 +210,16 @@ class ScheduleViewModel @Inject constructor(
 
     fun startConnect() {
         val trip = _selectedTrip.value
-        trip?.let {
-            webSocketManager.connect(serverUrl + trip.id)
-            webSocketManager.tripId = trip.id
+        viewModelScope.launch {
+            getUserInfoUseCase.getUserId().collect{
+                if (it != null) {
+                    webSocketManager.id = it
+                    trip?.let {
+                        webSocketManager.connect(serverUrl + trip.id)
+                        webSocketManager.tripId = trip.id
+                    }
+                }
+            }
         }
 
     }
