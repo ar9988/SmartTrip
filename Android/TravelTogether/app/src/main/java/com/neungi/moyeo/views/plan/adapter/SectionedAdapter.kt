@@ -106,7 +106,7 @@ class SectionedAdapter(
                 }
                 if (position + 1 < listItems.size && listItems[position + 1] is ListItem.SectionHeader || position + 1 == listItems.size) {
                     pathItems.remove((listItems[position] as ListItem.Item).data.scheduleId)
-                    notifyItemChanged(position)
+//                    notifyItemChanged(position)
                     onDeletePath((listItems[position] as ListItem.Item).data.scheduleId)
                 }
             }
