@@ -104,10 +104,17 @@ class SectionedAdapter(
                         item.data.toTime = adjustedFrom.plusMinutes(item.data.duration.toLong())
                     }
                 }
-                if (position + 1 < listItems.size && listItems[position + 1] is ListItem.SectionHeader || position + 1 == listItems.size) {
+                if (position + 1 < listItems.size && (listItems[position + 1] is ListItem.SectionHeader || position + 1 == listItems.size || listItems[position + 1] is ListItem.Item && (listItems[position + 1] as ListItem.Item).data.type==2)) {
                     pathItems.remove((listItems[position] as ListItem.Item).data.scheduleId)
-//                    notifyItemChanged(position)
                     onDeletePath((listItems[position] as ListItem.Item).data.scheduleId)
+                }
+
+                handleMarker(item.data,true)
+            }
+            else{
+                if (position - 1 >= 0 && listItems[position - 1] is ListItem.Item) {
+                    pathItems.remove((listItems[position-1] as ListItem.Item).data.scheduleId)
+                    onDeletePath((listItems[position-1] as ListItem.Item).data.scheduleId)
                 }
             }
         }
@@ -172,10 +179,14 @@ class SectionedAdapter(
             // 유효한 범위의 인덱스가 아닐 경우 예외 처리 또는 리턴
             return
         }
-
+        if(toPosition-1 in listItems.indices && listItems[toPosition-1] is ListItem.Item){
+            onDeletePath((listItems[toPosition-1] as ListItem.Item).data.scheduleId)
+            pathItems.remove((listItems[toPosition-1] as ListItem.Item).data.scheduleId)
+        }
         val item = listItems.removeAt(fromPosition) as ListItem.Item
         listItems.add(toPosition, item)
         pathItems.remove(item.data.scheduleId)
+        onDeletePath(item.data.scheduleId)
         // notifyItemMoved 호출 전에, 변경된 인덱스가 정확한지 확인
         notifyItemMoved(fromPosition, toPosition)
     }
@@ -209,7 +220,6 @@ class SectionedAdapter(
                     currentSection?.add(item.data)
                     val idx = currentSection?.size ?: 0
                     pathInfo[item.data.scheduleId] = Pair(item.data.positionPath/10000,idx)
-                    handleMarker(item.data,true)
                 }
             }
         }
@@ -284,11 +294,6 @@ class SectionedAdapter(
             listItems.forEachIndexed { position, item ->
                 if (item is ListItem.Item && item.data.scheduleId == event.operation.scheduleId && item.data.timeStamp < event.timestamp) {
                     item.data.positionPath = event.operation.positionPath
-                    // 경로 삭제
-                    if(position-1 in listItems.indices && listItems[position-1] is ListItem.Item){
-                        onDeletePath((listItems[position-1] as ListItem.Item).data.scheduleId)
-                        pathItems.remove((listItems[position-1] as ListItem.Item).data.scheduleId)
-                    }
                     onDeletePath(item.data.scheduleId)
                     pathItems.remove(item.data.scheduleId)
                 }
