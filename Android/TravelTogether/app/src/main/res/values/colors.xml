@@ -9,6 +9,10 @@
     <color name="neutral_70">#FF666666</color>
     <color name="neutral_60">#FFB3B3B3</color>
     <color name="neutral_50">#FFCCCCCC</color>
+    <color name="neutral_10">#F8F9FA</color> <!-- 가장 밝은 회색 (거의 흰색) -->
+    <color name="neutral_20">#E9ECEF</color>
+    <color name="neutral_30">#DEE2E6</color>
+    <color name="neutral_40">#CED4DA</color>
 
     <!-- ETC -->
     <color name="red">#FFFF0000</color>

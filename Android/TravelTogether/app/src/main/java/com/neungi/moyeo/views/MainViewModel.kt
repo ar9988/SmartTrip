@@ -60,7 +60,6 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             NotificationEventBus.notificationReceived.collect {
                 planTriggerRefresh()
-                triggerRefresh()
             }
         }
     }
@@ -107,7 +106,7 @@ class MainViewModel @Inject constructor(
     val refreshTrigger = _refreshTrigger.asStateFlow()
 
     private val _refreshPlanTrigger = MutableStateFlow(false)
-    val refreshPlanTrigger = _refreshTrigger.asStateFlow()
+    val refreshPlanTrigger = _refreshPlanTrigger.asStateFlow()
 
 
 

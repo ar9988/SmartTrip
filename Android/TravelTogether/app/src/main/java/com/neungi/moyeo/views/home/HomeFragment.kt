@@ -265,6 +265,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(R.layout.fragment_home) {
                                     transformations(RoundedCornersTransformation(radius = 16f))
                                     error(R.drawable.image_noimg)
                                 }
+                                binding.cardviewScheduleHome.visibility = View.VISIBLE
                             }
                         }
                     }
