@@ -705,10 +705,14 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
                 stateManager.initializeSchedulePositions(tripId, schedules);
             }
+            // 2. 이동할 스케줄의 타입 확인 (DB 접근 없이 메모리에서 확인)
+            Integer scheduleType = stateManager.getScheduleType(tripId, operation.getScheduleId());
+            log.info("스케줄 타입 확인 - scheduleId: {}, type: {}", operation.getScheduleId(), scheduleType);
 
-            // 2. position 상태 업데이트
+
+
+            // 3. position 상태 업데이트
             log.info("Updating state for tripId: {}, scheduleId: {}", tripId, operation.getScheduleId());
-
             stateManager.updateState(
                     tripId,
                     operation.getScheduleId(),
@@ -728,26 +732,54 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             EditResponse response = EditResponse.createSuccess(newEditRequest, 1);
             broadcastToTripSessions(tripId, objectMapper.writeValueAsString(response));
 
-            // 4. path 생성은 콜백으로 비동기 처리
-            stateManager.generatePathsForSchedule(tripId, operation.getScheduleId(), paths -> {
-                if (paths != null) {
-                    try {
-                        MoveResponse pathResponse = new MoveResponse(
-                                tripId,
-                                operation.getScheduleId(),
-                                operation.getPositionPath(),
-                                paths
-                        );
-                        String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
-                        broadcastToTripSessions(tripId, pathJsonResponse);
-                    } catch (Exception e) {
-                        log.error("Error broadcasting path for tripId: {}", tripId, e);
+            // 5. 타입 2인 경우 전체 경로 계산, 아닌 경우 해당 스케줄 경로만 계산 (비동기)
+            if (scheduleType != null && scheduleType == 2) {
+                log.info("타입 2 스케줄 이동 - 전체 경로 재계산 시작, tripId: {}, scheduleId: {}",
+                        tripId, operation.getScheduleId());
+
+                stateManager.generateAllPaths(tripId, allPaths -> {
+                    if (allPaths != null) {
+                        try {
+                            MoveResponse pathResponse = new MoveResponse(
+                                    tripId,
+                                    operation.getScheduleId(),
+                                    operation.getPositionPath(),
+                                    allPaths
+                            );
+                            String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
+                            broadcastToTripSessions(tripId, pathJsonResponse);
+                            log.info("전체 경로 계산 완료 및 브로드캐스팅 - tripId: {}, 경로 수: {}",
+                                    tripId, allPaths.size());
+                        } catch (Exception e) {
+                            log.error("전체 경로 브로드캐스팅 중 오류 발생, tripId: {}", tripId, e);
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                log.info("일반 스케줄 이동 - 해당 스케줄 경로만 계산, tripId: {}, scheduleId: {}",
+                        tripId, operation.getScheduleId());
+
+                stateManager.generatePathsForSchedule(tripId, operation.getScheduleId(), paths -> {
+                    if (paths != null) {
+                        try {
+                            MoveResponse pathResponse = new MoveResponse(
+                                    tripId,
+                                    operation.getScheduleId(),
+                                    operation.getPositionPath(),
+                                    paths
+                            );
+                            String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
+                            broadcastToTripSessions(tripId, pathJsonResponse);
+                            log.info("스케줄 경로 계산 완료 및 브로드캐스팅 - tripId: {}, scheduleId: {}, 경로 수: {}",
+                                    tripId, operation.getScheduleId(), paths.size());
+                        } catch (Exception e) {
+                            log.error("스케줄 경로 브로드캐스팅 중 오류 발생, tripId: {}", tripId, e);
+                        }
+                    }
+                });
+            }
 
             log.info("=== END handleMoveOperation for tripId: {} ===", tripId);
-
         } catch (Exception e) {
             log.error("Error in handleMoveOperation for tripId: {}", tripId, e);
             // 에러 로깅에 더 자세한 정보 추가

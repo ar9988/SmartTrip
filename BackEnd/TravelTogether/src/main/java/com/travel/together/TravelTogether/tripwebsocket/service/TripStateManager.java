@@ -258,6 +258,22 @@ public class TripStateManager {
         log.info("Initialized positions for tripId {}: {}", tripId, schedulePositions);
     }
 
+    public Integer getScheduleType(Integer tripId, Integer scheduleId) {
+        // tripScheduleMap에서 스케줄 정보 조회
+        Map<Integer, ScheduleDTO> scheduleMap = tripScheduleMap.get(tripId);
+        if (scheduleMap != null && scheduleMap.containsKey(scheduleId)) {
+            return scheduleMap.get(scheduleId).getType();
+        }
+
+        // 편집 중인 스케줄인 경우 tripEdits에서 조회
+        Map<Integer, AddRequest.ScheduleDto> editMap = tripEdits.get(tripId);
+        if (editMap != null && editMap.containsKey(scheduleId)) {
+            return editMap.get(scheduleId).getType();
+        }
+
+        return null;  // 찾을 수 없는 경우
+    }
+
 
 
     private Schedule findScheduleById(List<Schedule> schedules, Integer scheduleId) {
