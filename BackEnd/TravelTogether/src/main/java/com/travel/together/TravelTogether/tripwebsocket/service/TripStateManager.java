@@ -591,6 +591,84 @@ public class TripStateManager {
 
     }
 
+    //DELETE 후 PATH생성
+    @Async
+    public void generatePathsAfterDelete(Integer tripId, Integer deletedPosition, PathGenerationCallback callback) {
+        log.info("=== START generatePathsAfterDelete for tripId: {}, deletedPosition: {} ===", tripId, deletedPosition);
+
+        Map<Integer, Integer> positions = tripSchedulePositions.get(tripId);
+        if (positions == null || positions.isEmpty()) {
+            callback.onPathGenerated(new ArrayList<>());
+            return;
+        }
+
+        try {
+            // 삭제된 스케줄과 같은 날짜의 스케줄들만 고려
+            int deletedDay = deletedPosition / 10000;
+
+            // 이전/다음 스케줄 찾기
+            Integer prevScheduleId = null;
+            Integer nextScheduleId = null;
+            Integer prevPosition = Integer.MIN_VALUE;
+            Integer nextPosition = Integer.MAX_VALUE;
+
+            for (Map.Entry<Integer, Integer> entry : positions.entrySet()) {
+                int scheduleId = entry.getKey();
+                int position = entry.getValue();
+                int day = position / 10000;
+
+                // 같은 날짜인 경우만 처리
+                if (day == deletedDay) {
+                    // 이전 스케줄 찾기
+                    if (position < deletedPosition && position > prevPosition) {
+                        prevPosition = position;
+                        prevScheduleId = scheduleId;
+                    }
+
+                    // 다음 스케줄 찾기
+                    if (position > deletedPosition && position < nextPosition) {
+                        nextPosition = position;
+                        nextScheduleId = scheduleId;
+                    }
+                }
+            }
+
+            log.info("삭제 후 주변 스케줄 - 이전: {}, 다음: {}", prevScheduleId, nextScheduleId);
+
+            // 이전과 다음 스케줄이 모두 존재하는 경우만 처리
+            if (prevScheduleId != null && nextScheduleId != null) {
+                // 필요한 스케줄들 조회
+                List<Schedule> schedules = scheduleRepository.findAllById(Arrays.asList(prevScheduleId, nextScheduleId));
+                Map<Integer, Schedule> scheduleMap = schedules.stream()
+                        .collect(Collectors.toMap(Schedule::getId, schedule -> schedule));
+
+                // 두 스케줄 모두 조회되었고, 둘 다 type=2(휴식)가 아닌 경우에만 경로 생성
+                if (scheduleMap.size() == 2 &&
+                        scheduleMap.get(prevScheduleId).getType() != 2 &&
+                        scheduleMap.get(nextScheduleId).getType() != 2) {
+
+                    PathInfo pathInfo = generatePath(scheduleMap.get(prevScheduleId), scheduleMap.get(nextScheduleId));
+                    if (pathInfo != null) {
+                        callback.onPathGenerated(Collections.singletonList(pathInfo));
+                        return;
+                    }
+                } else {
+                    log.info("휴식 타입 스케줄이 있어 경로 생성 생략 - prevType: {}, nextType: {}",
+                            scheduleMap.containsKey(prevScheduleId) ? scheduleMap.get(prevScheduleId).getType() : "없음",
+                            scheduleMap.containsKey(nextScheduleId) ? scheduleMap.get(nextScheduleId).getType() : "없음");
+                }
+            }
+
+            // 경로를 생성할 수 없는 경우
+            callback.onPathGenerated(new ArrayList<>());
+
+        } catch (Exception e) {
+            log.error("Error in generatePathsAfterDelete for tripId {}, deletedPosition {}",
+                    tripId, deletedPosition, e);
+            callback.onPathGenerated(new ArrayList<>());
+        }
+    }
+
 
 
 // 웹소켓 연결이 끊기면 모든 작업내역 삭제

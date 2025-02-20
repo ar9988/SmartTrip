@@ -463,6 +463,12 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     handleAddOperation(tripId, objectMapper.convertValue(message.getPayload(), AddRequest.class));
                     break;
                 case "DELETE":
+                    // 삭제 전에 scheduleId의 positionPath 저장
+                    Integer deletedScheduleId = operation.getScheduleId();
+                    Map<Integer, Integer> positions = stateManager.getSchedulePositions(tripId);
+                    Integer deletedPosition = positions.get(deletedScheduleId);
+                    log.info("DELETE - 삭제할 스케줄 정보: scheduleId={}, position={}", deletedScheduleId, deletedPosition);
+
 
                     scheduleCache.removePosition(
                             tripId.toString(),
@@ -474,6 +480,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                             tripId,
                             operation.getScheduleId()
                     );
+
+
                     // 제거 후 상태 로깅
                     Set<Integer> afterDelete = stateManager.getDeletedSchedules(tripId);
                     log.info("🔴 After removeState, deletedSchedules: {}", afterDelete);
@@ -483,6 +491,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
 
                     log.info("Received operation: {}, scheduleId: {}", operation.getAction(), operation.getScheduleId());
 
+                    // 삭제 후 따로 경로 처리
+                    handleDeleteOperation(tripId, deletedScheduleId, deletedPosition);
                     break;
 
             }
@@ -691,6 +701,52 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             throw new RuntimeException("Failed to process EDIT operation", e);
         }
 
+    }
+
+
+
+    // DELETE 비동기 처리
+    private void handleDeleteOperation(Integer tripId, Integer deletedScheduleId, Integer deletedPosition) {
+        log.info("=== START handleDeleteOperation for tripId: {}, deletedScheduleId: {}, deletedPosition: {} ===",
+                tripId, deletedScheduleId, deletedPosition);
+
+        if (deletedPosition == null) {
+            log.warn("삭제된 스케줄의 위치 정보가 없습니다: tripId={}, scheduleId={}", tripId, deletedScheduleId);
+            return;
+        }
+
+        try {
+            // 삭제된 스케줄 앞뒤 경로 재생성 (비동기)
+            stateManager.generatePathsAfterDelete(tripId, deletedPosition, paths -> {
+                if (paths != null && !paths.isEmpty()) {
+                    try {
+                        log.info("DELETE 후 재생성된 경로 개수: {}", paths.size());
+
+                        // MoveResponse와 동일한 구조로 응답 생성
+                        MoveResponse pathResponse = new MoveResponse(
+                                tripId,
+                                deletedScheduleId,
+                                deletedPosition,
+                                paths
+                        );
+                        String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
+                        broadcastToTripSessions(tripId, pathJsonResponse);
+
+                        log.info("삭제 후 경로 계산 완료 및 브로드캐스팅 - tripId: {}, 경로 수: {}",
+                                tripId, paths.size());
+                    } catch (Exception e) {
+                        log.error("경로 재생성 후 브로드캐스트 중 오류 발생: tripId={}", tripId, e);
+                    }
+                } else {
+                    log.info("삭제 후 재생성할 경로가 없습니다: tripId={}, deletedPosition={}",
+                            tripId, deletedPosition);
+                }
+            });
+
+        } catch (Exception e) {
+            log.error("handleDeleteOperation 처리 중 오류 발생: tripId={}, deletedScheduleId={}",
+                    tripId, deletedScheduleId, e);
+        }
     }
 
 
