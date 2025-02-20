@@ -463,11 +463,11 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                     true
                 }
             }
-            if(!markerMap.containsKey(scheduleData.scheduleId)){
-                Timber.d("create "+marker.subCaptionText)
-                marker.map = naverMap
-                markerMap[scheduleData.scheduleId] = marker
-            }
+            markerMap[scheduleData.scheduleId]?.map = null
+            markerMap.remove(scheduleData.scheduleId)
+            Timber.d("create "+marker.subCaptionText)
+            marker.map = naverMap
+            markerMap[scheduleData.scheduleId] = marker
         }
     }
 
