@@ -1,8 +1,10 @@
 package com.travel.together.TravelTogether.tripwebsocket.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
+import com.travel.together.TravelTogether.trip.repository.TripMemberRepository;
 import com.travel.together.TravelTogether.trip.repository.TripRepository;
 import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
@@ -34,6 +36,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final ExecutorService executorService;
     private final DayRepository dayRepository;
     private final TripRepository tripRepository;
+    private final TripMemberRepository tripMemberRepository;
+    private final UserRepository userRepository;
     @Autowired
     public WebSocketConfig(
             ApplicationEventPublisher applicationEventPublisher,
@@ -44,7 +48,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
             TripStateManager tripStateManager,
             TripService tripService,
             ScheduleRepository scheduleRepository,
-            ExecutorService executorService, DayRepository dayRepository, TripRepository tripRepository) {
+            ExecutorService executorService, DayRepository dayRepository, TripRepository tripRepository, TripMemberRepository tripMemberRepository, UserRepository userRepository) {
         this.applicationEventPublisher = applicationEventPublisher;
         this.tripEditCache = tripEditCache;
         this.objectMapper = objectMapper;
@@ -56,6 +60,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
         this.executorService = executorService;
         this.dayRepository = dayRepository;
         this.tripRepository = tripRepository;
+        this.tripMemberRepository = tripMemberRepository;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -71,7 +77,9 @@ public class WebSocketConfig implements WebSocketConfigurer {
                 scheduleRepository,
                 executorService,
                 dayRepository,
-                tripRepository
+                tripRepository,
+                tripMemberRepository,
+                userRepository
 
         );  // 직접 생성
     }

@@ -4,11 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.travel.together.TravelTogether.auth.entity.User;
+import com.travel.together.TravelTogether.auth.repository.UserRepository;
 import com.travel.together.TravelTogether.trip.entity.Day;
 import com.travel.together.TravelTogether.trip.entity.Schedule;
 import com.travel.together.TravelTogether.trip.entity.Trip;
+import com.travel.together.TravelTogether.trip.entity.TripMember;
 import com.travel.together.TravelTogether.trip.repository.DayRepository;
 import com.travel.together.TravelTogether.trip.repository.ScheduleRepository;
+import com.travel.together.TravelTogether.trip.repository.TripMemberRepository;
 import com.travel.together.TravelTogether.trip.repository.TripRepository;
 import com.travel.together.TravelTogether.trip.service.TripService;
 import com.travel.together.TravelTogether.tripwebsocket.cache.TripEditCache;
@@ -33,6 +37,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -49,7 +54,8 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
     private final ExecutorService executorService;
     private final DayRepository dayRepository;
     private final TripRepository tripRepository;
-
+    private final TripMemberRepository tripMemberRepository;
+    private final UserRepository userRepository;
 
     // tripId를 키로 하고, 해당 여행의 접속자들의 세션을 값으로 가지는 Map
     private final Map<String, Set<WebSocketSession>> tripSessions = new ConcurrentHashMap<>();
@@ -423,6 +429,18 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                         log.info("Initialized positions for tripId: {}", tripId);
                     }
 
+                    // scheduleId를 userId로 받아서 MemberDTO만들
+
+                    // 유저 ID 추출 및 멤버 리스트 브로드캐스트
+                    String currentUserId = String.valueOf(operation.getScheduleId());
+                    try {
+                        broadcastMemberList(tripId, currentUserId);
+                    } catch (Exception e) {
+                        log.error("Failed to broadcast member list: {}", e.getMessage(), e);
+                    }
+
+
+
 
                     // 다른 클라이언트들에게 START 신호를 브로드캐스트
                     String tripIdStr = String.valueOf(tripId);
@@ -435,6 +453,7 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                             }
                         }
                     }//                    handleStartOperation(session, tripId);
+
                     break;
                 case "MOVE":
                     handleMoveOperation(tripId, operation);
@@ -577,6 +596,59 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+
+
+
+    private void broadcastMemberList(Integer tripId, String currentUserId) throws IOException, java.io.IOException {
+        // 1. 현재 유저 정보 조회
+        User currentUser = userRepository.findById((long) Integer.parseInt(currentUserId))
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 2. 현재 유저를 TripMember에 추가 (없는 경우)
+        Trip currentTrip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+
+        boolean userExists = tripMemberRepository.existsByTripIdAndUserId(tripId, Integer.parseInt(currentUserId));
+        if (!userExists) {
+            TripMember newMember = new TripMember();
+            newMember.setTrip(currentTrip);
+            newMember.setUser(currentUser);
+            newMember.setIsOwner(false);
+            tripMemberRepository.save(newMember);
+            log.info("Added new member to trip: userId={}, tripId={}", currentUserId, tripId);
+        }
+
+        // 3. 업데이트된 멤버 목록 조회
+        List<TripMember> tripMembers = tripMemberRepository.findAllByTripId(tripId);
+
+        // 4. MemberDTO 리스트로 변환
+        List<MemberDTO> memberDTOs = tripMembers.stream()
+                .map(tm -> new MemberDTO(
+                        tm.getUser().getId().toString(),
+                        tm.getUser().getName(),
+                        tm.getIsOwner(),
+                        tm.getUser().getProfile_image()))
+                .collect(Collectors.toList());
+
+        // 5. 멤버 리스트 브로드캐스트
+        String memberListJson = objectMapper.writeValueAsString(memberDTOs);
+        String tripIdStr = String.valueOf(tripId);
+        Set<WebSocketSession> tripSessionSet = tripSessions.get(tripIdStr);
+
+        if (tripSessionSet != null) {
+            for (WebSocketSession tripSession : tripSessionSet) {
+                if (tripSession.isOpen()) {
+                    tripSession.sendMessage(new TextMessage(memberListJson));
+                }
+            }
+        }
+    }
+
+
+
+
+
+
     @Transactional
     private void handleEditOperation(Integer tripId, EditOnlyRequest request) {
         try {
@@ -633,10 +705,14 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                 List<Schedule> schedules = scheduleRepository.findAllByTripId(tripId);
                 stateManager.initializeSchedulePositions(tripId, schedules);
             }
+            // 2. 이동할 스케줄의 타입 확인 (DB 접근 없이 메모리에서 확인)
+            Integer scheduleType = stateManager.getScheduleType(tripId, operation.getScheduleId());
+            log.info("스케줄 타입 확인 - scheduleId: {}, type: {}", operation.getScheduleId(), scheduleType);
 
-            // 2. position 상태 업데이트
+
+
+            // 3. position 상태 업데이트
             log.info("Updating state for tripId: {}, scheduleId: {}", tripId, operation.getScheduleId());
-
             stateManager.updateState(
                     tripId,
                     operation.getScheduleId(),
@@ -656,26 +732,54 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             EditResponse response = EditResponse.createSuccess(newEditRequest, 1);
             broadcastToTripSessions(tripId, objectMapper.writeValueAsString(response));
 
-            // 4. path 생성은 콜백으로 비동기 처리
-            stateManager.generatePathsForSchedule(tripId, operation.getScheduleId(), paths -> {
-                if (paths != null) {
-                    try {
-                        MoveResponse pathResponse = new MoveResponse(
-                                tripId,
-                                operation.getScheduleId(),
-                                operation.getPositionPath(),
-                                paths
-                        );
-                        String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
-                        broadcastToTripSessions(tripId, pathJsonResponse);
-                    } catch (Exception e) {
-                        log.error("Error broadcasting path for tripId: {}", tripId, e);
+            // 5. 타입 2인 경우 전체 경로 계산, 아닌 경우 해당 스케줄 경로만 계산 (비동기)
+            if (scheduleType != null && scheduleType == 2) {
+                log.info("타입 2 스케줄 이동 - 전체 경로 재계산 시작, tripId: {}, scheduleId: {}",
+                        tripId, operation.getScheduleId());
+
+                stateManager.generateAllPaths(tripId, allPaths -> {
+                    if (allPaths != null) {
+                        try {
+                            MoveResponse pathResponse = new MoveResponse(
+                                    tripId,
+                                    operation.getScheduleId(),
+                                    operation.getPositionPath(),
+                                    allPaths
+                            );
+                            String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
+                            broadcastToTripSessions(tripId, pathJsonResponse);
+                            log.info("전체 경로 계산 완료 및 브로드캐스팅 - tripId: {}, 경로 수: {}",
+                                    tripId, allPaths.size());
+                        } catch (Exception e) {
+                            log.error("전체 경로 브로드캐스팅 중 오류 발생, tripId: {}", tripId, e);
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                log.info("일반 스케줄 이동 - 해당 스케줄 경로만 계산, tripId: {}, scheduleId: {}",
+                        tripId, operation.getScheduleId());
+
+                stateManager.generatePathsForSchedule(tripId, operation.getScheduleId(), paths -> {
+                    if (paths != null) {
+                        try {
+                            MoveResponse pathResponse = new MoveResponse(
+                                    tripId,
+                                    operation.getScheduleId(),
+                                    operation.getPositionPath(),
+                                    paths
+                            );
+                            String pathJsonResponse = objectMapper.writeValueAsString(pathResponse);
+                            broadcastToTripSessions(tripId, pathJsonResponse);
+                            log.info("스케줄 경로 계산 완료 및 브로드캐스팅 - tripId: {}, scheduleId: {}, 경로 수: {}",
+                                    tripId, operation.getScheduleId(), paths.size());
+                        } catch (Exception e) {
+                            log.error("스케줄 경로 브로드캐스팅 중 오류 발생, tripId: {}", tripId, e);
+                        }
+                    }
+                });
+            }
 
             log.info("=== END handleMoveOperation for tripId: {} ===", tripId);
-
         } catch (Exception e) {
             log.error("Error in handleMoveOperation for tripId: {}", tripId, e);
             // 에러 로깅에 더 자세한 정보 추가
@@ -791,6 +895,10 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             Schedule savedSchedule = scheduleRepository.save(schedule);
             Integer newScheduleId = savedSchedule.getId();
 
+            // statemanager에도 현재상태 업데이트
+            stateManager.updateState(tripId, newScheduleId, newPosition);
+
+
             log.info("Saved new schedule to DB: scheduleId={}, position={}", newScheduleId, newPosition);
 
             // 현재 tripDetail 가져오기
@@ -869,25 +977,10 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     }
 
 
-
                     }
 
 
                 }
-//                // scheduleDTO를 responseMap에서 제거하고 따로 전송
-//                ScheduleDTO scheduleToSend = (ScheduleDTO) responseMap.remove("scheduleDTO");
-
-//                // paths와 position 정보 먼저 전송
-//                String responseMessage = objectMapper.writeValueAsString(responseMap);
-//                broadcastToTripSessions(tripId, responseMessage);
-//
-//                // scheduleDTO 따로 전송
-//                String scheduleMessage = objectMapper.writeValueAsString(scheduleToSend);
-//                broadcastToTripSessions(tripId, scheduleMessage);
-//
-//                // 업데이트된 TripDetailDTO 브로드캐스트
-//                String tripDetailMessage = objectMapper.writeValueAsString(currentTripDetail);
-//                broadcastToTripSessions(tripId, tripDetailMessage);
 
                 log.info("Updated TripDetail sent for tripId: {}, dayId: {}, scheduleId: {}",
                         tripId, dayOrder, newScheduleId);
