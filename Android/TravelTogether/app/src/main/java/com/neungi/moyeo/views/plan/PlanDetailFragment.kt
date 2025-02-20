@@ -443,6 +443,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
             marker?.map = null
             Timber.d("delete "+marker?.captionText)
             markerMap.remove(scheduleData.scheduleId)
+            removePathOverlay(scheduleData.scheduleId)
         } else {
             val info = sectionedAdapter.pathInfo[scheduleData.scheduleId]
             if (scheduleData.lat < 0) return
@@ -459,8 +460,9 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
                     true
                 }
             }
-            if(markerMap.containsKey(scheduleData.scheduleId)){
+            if(!markerMap.containsKey(scheduleData.scheduleId)){
                 Timber.d("create "+marker.subCaptionText)
+                marker.map = naverMap
                 markerMap[scheduleData.scheduleId] = marker
             }
         }
