@@ -291,10 +291,6 @@ class SectionedAdapter(
                     }
                     onDeletePath(item.data.scheduleId)
                     pathItems.remove(item.data.scheduleId)
-                    if(position+1 in listItems.indices && listItems[position+1] is ListItem.Item){
-                        onDeletePath((listItems[position+1] as ListItem.Item).data.scheduleId)
-                        pathItems.remove((listItems[position+1] as ListItem.Item).data.scheduleId)
-                    }
                 }
             }
         }
@@ -316,10 +312,6 @@ class SectionedAdapter(
         }
         onDeletePath((listItems[position] as ListItem.Item).data.scheduleId)
         pathItems.remove((listItems[position] as ListItem.Item).data.scheduleId)
-        if(position+1 in listItems.indices && listItems[position+1] is ListItem.Item){
-            onDeletePath((listItems[position+1] as ListItem.Item).data.scheduleId)
-            pathItems.remove((listItems[position+1] as ListItem.Item).data.scheduleId)
-        }
     }
 
     fun uiUpdate(position: Int) {
