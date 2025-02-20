@@ -895,6 +895,10 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
             Schedule savedSchedule = scheduleRepository.save(schedule);
             Integer newScheduleId = savedSchedule.getId();
 
+            // statemanager에도 현재상태 업데이트
+            stateManager.updateState(tripId, newScheduleId, newPosition);
+
+
             log.info("Saved new schedule to DB: scheduleId={}, position={}", newScheduleId, newPosition);
 
             // 현재 tripDetail 가져오기
@@ -973,25 +977,10 @@ public class TripScheduleWebSocketHandler extends TextWebSocketHandler {
                     }
 
 
-
                     }
 
 
                 }
-//                // scheduleDTO를 responseMap에서 제거하고 따로 전송
-//                ScheduleDTO scheduleToSend = (ScheduleDTO) responseMap.remove("scheduleDTO");
-
-//                // paths와 position 정보 먼저 전송
-//                String responseMessage = objectMapper.writeValueAsString(responseMap);
-//                broadcastToTripSessions(tripId, responseMessage);
-//
-//                // scheduleDTO 따로 전송
-//                String scheduleMessage = objectMapper.writeValueAsString(scheduleToSend);
-//                broadcastToTripSessions(tripId, scheduleMessage);
-//
-//                // 업데이트된 TripDetailDTO 브로드캐스트
-//                String tripDetailMessage = objectMapper.writeValueAsString(currentTripDetail);
-//                broadcastToTripSessions(tripId, tripDetailMessage);
 
                 log.info("Updated TripDetail sent for tripId: {}, dayId: {}, scheduleId: {}",
                         tripId, dayOrder, newScheduleId);
