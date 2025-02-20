@@ -97,6 +97,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     override fun onResume() {
         super.onResume()
         mainViewModel.setBnvState(false)
+        markerMap.clear()
+        paths.clear()
         scheduleViewModel.startConnect()
         binding.toolbarTitle.isSelected = true
     }
@@ -157,6 +159,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     }
 
     private fun handlePathEvent(receive: PathReceive) {
+        Timber.d("Path event received: $receive")
         receive.paths.forEach { pathData ->
 
             paths[pathData.sourceScheduleId] = convertToLatLngList(pathData.path)
@@ -229,7 +232,6 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun paintPathToMap() {
         if (paths.isEmpty()) return
-
         setupMultipartPathOverlay()
         multipartPathOverlay.map = naverMap
     }
@@ -320,6 +322,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleScheduleDelete(scheduleId: Int1) {
         scheduleViewModel.sendDeleteEvent(scheduleId)
+        removePathOverlay(scheduleId)
         sectionedAdapter.delete(scheduleId)
 
     }
