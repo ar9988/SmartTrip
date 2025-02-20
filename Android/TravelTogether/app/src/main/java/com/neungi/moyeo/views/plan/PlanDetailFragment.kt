@@ -312,6 +312,7 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
     private fun handleScheduleDelete(scheduleId: Int) {
         scheduleViewModel.sendDeleteEvent(scheduleId)
         sectionedAdapter.delete(scheduleId)
+
     }
 
     private fun handleScheduleEdit(scheduleData: ScheduleData) {
@@ -429,7 +430,8 @@ class PlanDetailFragment : BaseFragment<FragmentPlanDetailBinding>(R.layout.frag
 
     private fun handleMarker(scheduleData: ScheduleData, flag: Boolean) {
         if (!flag) {
-            markerMap[scheduleData.scheduleId]?.map = null
+            val marker = markerMap[scheduleData.scheduleId]
+            marker?.map = null
             markerMap.remove(scheduleData.scheduleId)
         } else {
             val info = sectionedAdapter.pathInfo[scheduleData.scheduleId]
