@@ -2,6 +2,7 @@ package com.neungi.moyeo.util
 
 import android.content.ContentResolver
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
 import android.graphics.Canvas
@@ -37,6 +38,10 @@ object CommonUtils {
         val b = Color.blue(color) / 255.0
 
         return 0.299 * r + 0.587 * g + 0.114 * b
+    }
+
+    fun Int.dpToPx(): Int {
+        return (this * Resources.getSystem().displayMetrics.density).toInt()
     }
 
     private fun uriToBitmap(contentResolver: ContentResolver, uri: Uri): Bitmap? {
