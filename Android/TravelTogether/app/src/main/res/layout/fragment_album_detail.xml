@@ -154,14 +154,15 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <com.google.android.material.appbar.MaterialToolbar
-                    android:id="@+id/toolbar_album_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:contentInsetLeft="0dp"
-                    app:contentInsetStart="0dp"
-                    app:contentInsetStartWithNavigation="0dp"
-                    app:navigationIcon="@drawable/baseline_chevron_left_24"/>
+<!--                <com.google.android.material.appbar.MaterialToolbar-->
+<!--                    android:id="@+id/toolbar_album_detail"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="?attr/actionBarSize"-->
+<!--                    app:contentInsetLeft="0dp"-->
+<!--                    app:contentInsetStart="0dp"-->
+<!--                    app:contentInsetStartWithNavigation="0dp"-->
+<!--                    app:navigationIcon="@drawable/baseline_chevron_left_24"-->
+<!--                    android:visibility="gone"/>-->
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
         </com.google.android.material.appbar.AppBarLayout>

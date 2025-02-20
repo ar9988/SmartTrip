@@ -274,19 +274,19 @@ class AlbumDetailFragment :
                 val isCollapsed = abs(verticalOffset) >= appBarLayout.totalScrollRange
 
                 if (isCollapsed) {
-                    toolbarAlbumDetail.visibility = View.GONE
+//                    toolbarAlbumDetail.visibility = View.GONE
                     toolbarAlbumDetailBottom.navigationIcon =
                         resources.getDrawable(R.drawable.baseline_chevron_left_24, context?.theme)
                 } else {
-                    toolbarAlbumDetail.visibility = View.VISIBLE
+//                    toolbarAlbumDetail.visibility = View.VISIBLE
                     toolbarAlbumDetailBottom.navigationIcon = null
                 }
             }
-            toolbarAlbumDetail.bringToFront()
-            toolbarAlbumDetail.setNavigationOnClickListener {
-                Timber.d("터치")
-                requireActivity().onBackPressedDispatcher.onBackPressed()
-            }
+//            toolbarAlbumDetail.bringToFront()
+//            toolbarAlbumDetail.setNavigationOnClickListener {
+//                Timber.d("터치")
+//                requireActivity().onBackPressedDispatcher.onBackPressed()
+//            }
             toolbarAlbumDetailBottom.setNavigationOnClickListener {
                 viewModel.onClickBackToAlbum()
             }

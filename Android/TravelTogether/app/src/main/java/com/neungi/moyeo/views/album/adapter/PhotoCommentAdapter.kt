@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -32,7 +33,7 @@ class PhotoCommentAdapter(
                 transformations(CircleCropTransformation())
             }
 
-            CoroutineScope(Dispatchers.IO).launch {
+            viewModel.viewModelScope.launch {
                 viewModel.fetchUserId().collectLatest { id ->
                     if (comment.userId != id) {
                         with(binding) {
