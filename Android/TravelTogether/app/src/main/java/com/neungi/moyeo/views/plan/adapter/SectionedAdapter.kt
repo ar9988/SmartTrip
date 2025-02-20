@@ -175,6 +175,7 @@ class SectionedAdapter(
 
         val item = listItems.removeAt(fromPosition) as ListItem.Item
         listItems.add(toPosition, item)
+        pathItems.remove(item.data.scheduleId)
         // notifyItemMoved 호출 전에, 변경된 인덱스가 정확한지 확인
         notifyItemMoved(fromPosition, toPosition)
     }
