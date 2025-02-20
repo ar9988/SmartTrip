@@ -13,7 +13,6 @@ import com.neungi.data.entity.ServerEvent
 import com.neungi.data.entity.ServerReceive
 import com.neungi.domain.model.*
 import com.neungi.domain.usecase.GetInviteUseCase
-import com.neungi.domain.usecase.GetScheduleUseCase
 import com.neungi.domain.usecase.GetUserInfoUseCase
 import com.neungi.moyeo.util.Section
 import com.neungi.moyeo.util.convertToSections
@@ -41,9 +40,6 @@ class ScheduleViewModel @Inject constructor(
 
     private val _userName = MutableStateFlow<String?>(null)
     val userName = _userName.asStateFlow()
-
-    private val _userId = MutableStateFlow<String?>(null)
-    val userId = _userId.asStateFlow()
 
     private val serverUrl = "ws://43.202.51.112:8080/ws?tripId="
 
@@ -106,11 +102,6 @@ class ScheduleViewModel @Inject constructor(
         emit(name)
     }
 
-    private fun fetchUserId(): Flow<String?> = flow {
-        val id = getUserInfoUseCase.getUserId().first()
-        emit(id)
-    }
-
     private fun initWebSocket() {
         webSocketManager.onServerEventReceived = { event: ServerReceive ->
             _serverEvents.postValue(event)
@@ -140,21 +131,12 @@ class ScheduleViewModel @Inject constructor(
         webSocketManager.onEditEventReceived = {
             _editEvent.postValue(it)
         }
-        viewModelScope.launch {
-            _userId.value = fetchUserId().first()
-        }
     }
 
     fun initTrip(trip: Trip) {
         _selectedTrip.value = trip
         Timber.d("Selected: ${_selectedTrip.value}")
         initWebSocket()
-    }
-
-    fun fetchTrip(tripId: String) {
-        viewModelScope.launch {
-            // val response = getScheduleUseCase.
-        }
     }
 
     // WebSocket을 통한 메시지 전송
