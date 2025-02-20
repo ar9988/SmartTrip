@@ -91,7 +91,7 @@ public class TripStateManager {
     // positionPath 경계값 체크 및 보정
     private Integer validateAndCorrectPosition(Integer position) {
         // 경계값이면 무조건 +1
-        return position % 10000 == 0 ? position + 1 : position;
+        return position % 10000 == 0 ? position + 500 : position;
 
     }
 
@@ -152,6 +152,13 @@ public class TripStateManager {
     public synchronized void updateState(Integer tripId, Integer scheduleId, Integer positionPath) {
         log.info("Updating state - tripId: {}, scheduleId: {}, positionPath: {}",
                 tripId, scheduleId, positionPath);
+
+        // 경계값 체크 및 보정
+        Integer correctedPosition = validateAndCorrectPosition(positionPath);
+        if (!correctedPosition.equals(positionPath)) {
+            log.info("Position corrected from {} to {}", positionPath, correctedPosition);
+            positionPath = correctedPosition;
+        }
 
         Map<Integer, Integer> schedulePositions = tripSchedulePositions.computeIfAbsent(tripId,
                 k -> new ConcurrentHashMap<>());
@@ -234,8 +241,20 @@ public class TripStateManager {
                 k -> new ConcurrentHashMap<>());
 
         for (Schedule schedule : schedules) {
-            schedulePositions.put(schedule.getId(), schedule.getPositionPath());
+            // 경계값 체크 및 보정
+            Integer positionPath = schedule.getPositionPath();
+            Integer correctedPosition = validateAndCorrectPosition(positionPath);
+
+            if (!correctedPosition.equals(positionPath)) {
+                log.info("Position corrected from {} to {} during initialization",
+                        positionPath, correctedPosition);
+            }
+
+            // 보정된 position 저장
+            schedulePositions.put(schedule.getId(), correctedPosition);
         }
+
+
         log.info("Initialized positions for tripId {}: {}", tripId, schedulePositions);
     }
 
