@@ -69,18 +69,9 @@
 &nbsp;
 
 ## 📂 프로젝트 구조
-
-### 📦 안드로이드
-
-
-### 🖥️ 백엔드
-
-
-### 🏗️ 아키텍처
-
-
-### 📚 ERD
-
+<p>
+   <img src="/uploads/3d872f3814a57739a9d8c5582f90869e/능이버섯_Architecture.png" width="500" style="margin: 8px" />
+</p>
 &nbsp;
 
 ## ⚙️ 설치 및 실행 방법
