@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.album.viewmodel.AlbumViewModel" />
+
+    </data>
+
+    <LinearLayout
+        android:id="@+id/fragment_photo_classification_update_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_dialog"
+            tools:context=".views.album.PhotoClassificationUpdateDialogFragment">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_start_photo_classification_update_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_top_photo_classification_update_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+            <TextView
+                android:id="@+id/tv_title_photo_classification_update_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendardbold"
+                android:text="@string/text_place_classification_update"
+                android:textAlignment="viewStart"
+                android:textColor="@color/neutral_100"
+                android:textSize="@dimen/font_size_title"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_classification_update_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_classification_update_dialog"
+                app:layout_constraintTop_toBottomOf="@id/gl_top_photo_classification_update_dialog" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/spinner_photo_classification_update_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_large"
+                android:background="@drawable/selector_spinner_background"
+                android:dropDownWidth="match_parent"
+                android:overlapAnchor="false"
+                android:spinnerMode="dropdown"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_classification_update_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_classification_update_dialog"
+                app:layout_constraintTop_toBottomOf="@id/tv_title_photo_classification_update_dialog" />
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/et_photo_classification_update_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_large"
+                android:background="@drawable/shape_edit_text"
+                android:fontFamily="@font/pretendardsemibold"
+                android:hint="@string/text_hint_place_classification_input"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+                android:onTextChanged="@{(placeName, s, b, c) -> vm.validNewPlaceName(placeName)}"
+                android:text="@={vm.tempNewPlaceName}"
+                android:textSize="@dimen/font_size_medium"
+                android:visibility="@{(vm.albumUiState.isPlaceNameEtEnable == true) ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_classification_update_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_classification_update_dialog"
+                app:layout_constraintTop_toBottomOf="@id/spinner_photo_classification_update_dialog"
+                app:normalEditText="@{``}" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_photo_classification_update_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_large"
+                android:background="@drawable/selector_button"
+                android:enabled="@{vm.albumUiState.isPhotoPlaceUpdateBtnEnable}"
+                android:onClick="@{() -> vm.onClickFinishUpdatePhotoClassification()}"
+                android:text="@string/text_place_classification_change"
+                android:textAlignment="center"
+                android:textColor="@{(vm.albumUiState.isPhotoPlaceUpdateBtnEnable == true) ? @color/neutral_white : @color/neutral_90}"
+                android:textSize="@dimen/font_size_medium"
+                app:layout_constraintBottom_toTopOf="@id/gl_bottom_photo_classification_update_dialog"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_classification_update_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_photo_classification_update_dialog"
+                app:layout_constraintTop_toBottomOf="@id/et_photo_classification_update_dialog" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_photo_classification_update_dialog"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:src="@drawable/ic_close"
+                app:layout_constraintBottom_toBottomOf="@id/tv_title_photo_classification_update_dialog"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_photo_classification_update_dialog"
+                app:layout_constraintTop_toTopOf="@id/tv_title_photo_classification_update_dialog" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_end_photo_classification_update_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_bottom_photo_classification_update_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+</layout>

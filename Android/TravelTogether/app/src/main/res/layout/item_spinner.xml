@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_title_plan"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fontFamily="@font/pretendardsemibold"
+    android:lineSpacingExtra="6sp"
+    android:paddingHorizontal="@dimen/dp_small"
+    android:paddingVertical="@dimen/dp_medium"
+    android:textColor="@color/neutral_90"
+    android:textSize="@dimen/font_size_medium"
+    android:textStyle="normal" />

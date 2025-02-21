@@ -4,7 +4,8 @@ import com.neungi.data.entity.AlbumEntity
 import com.neungi.data.entity.CommentEntity
 import com.neungi.data.entity.PhotoEntity
 import com.neungi.domain.model.Comment
-import com.neungi.domain.model.Photo
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 
 interface AlbumsRemoteDataSource {
@@ -13,9 +14,9 @@ interface AlbumsRemoteDataSource {
 
     suspend fun getAlbumPhotos(albumId: String): Response<List<PhotoEntity>>
 
-    suspend fun postPhoto(body: Photo): Response<Boolean>
+    suspend fun postPhoto(albumId: String, photos: List<MultipartBody.Part>, body: RequestBody): Response<List<PhotoEntity>>
 
-    suspend fun deletePhoto(albumId: String, photoId: String): Response<Void>
+    suspend fun deletePhoto(albumId: String, photoId: String): Response<Boolean>
 
     suspend fun putLocationName(albumId: String, photoId: String): Response<Void>
 
@@ -24,20 +25,19 @@ interface AlbumsRemoteDataSource {
     suspend fun postPhotoComments(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): Response<CommentEntity>
+        body: RequestBody
+    ): Response<Boolean>
 
     suspend fun putPhotoComments(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): Response<CommentEntity>
+        body: RequestBody
+    ): Response<Boolean>
 
     suspend fun deletePhotoComments(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): Response<Void>
+        commentID: String
+    ): Response<Boolean>
 }

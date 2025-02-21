@@ -1,0 +1,5 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/transparent"/> <!-- 배경을 투명하게 설정 -->
+    <size android:height="2dp"/> <!-- 밑줄의 두께 설정 -->
+    <stroke android:color="@color/black" android:width="1dp"/> <!-- 밑줄의 색상과 두께 설정 -->
+</shape>

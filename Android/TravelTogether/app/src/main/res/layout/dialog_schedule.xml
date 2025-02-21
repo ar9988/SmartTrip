@@ -1,0 +1,94 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="400dp"
+    android:layout_height="200dp"
+    android:background="@drawable/shape_dialog"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/et_dialog_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:autofillHints="input schedule title"
+        android:labelFor="@+id/title"
+        android:inputType="text"
+        android:textStyle="bold"
+        android:textSize="@dimen/font_size_large"
+        app:layout_constraintEnd_toStartOf="@+id/button_dialog_edit_close"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ImageButton
+        android:id="@+id/button_dialog_edit_close"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/description_dialog_close"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_close"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- ✅ 체류 시간 입력 영역 -->
+    <TextView
+        android:id="@+id/text_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_duration"
+        android:textSize="@dimen/font_size_medium"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/et_dialog_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/et_duration"
+        android:layout_marginTop="16dp"/>
+
+
+    <EditText
+        android:id="@+id/et_duration"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:textSize="@dimen/font_size_medium"
+        android:gravity="center"
+        app:layout_constraintStart_toEndOf="@id/text_duration"
+        app:layout_constraintEnd_toStartOf="@id/tv_minute_label"
+        app:layout_constraintTop_toTopOf="@id/text_duration"
+        app:layout_constraintBottom_toBottomOf="@id/text_duration"
+        android:background="@drawable/underline"/>
+    <TextView
+        android:id="@+id/tv_minute_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_minute"
+        app:layout_constraintTop_toTopOf="@id/text_duration"
+        app:layout_constraintBottom_toBottomOf="@id/text_duration"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/et_duration"
+        android:textSize="@dimen/font_size_medium"/>
+
+    <!-- ✅ 확인 버튼: 오른쪽 아래 정렬 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_dialog_ok"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/et_duration"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_delete"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_dialog_delete"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_confirm"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,13 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_main"
-    app:startDestination="@id/fragment_album_detail">
+    app:startDestination="@id/fragment_home">
+
+    <action
+        android:id="@+id/action_global_plan"
+        app:destination="@id/fragment_plan" />
 
     <fragment
         android:id="@+id/fragment_home"
         android:name="com.neungi.moyeo.views.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_Notification"
+            app:destination="@id/fragment_notification" />
+
+        <action
+            android:id="@+id/action_home_to_planDetail"
+            app:destination="@id/fragment_plan_detail" />
+
+        <action
+            android:id="@+id/action_home_to_login"
+            app:destination="@id/fragment_login" />
+
+        <action
+            android:id="@+id/action_home_to_profile_update"
+            app:destination="@id/fragment_profile_update" />
 
     </fragment>
 
@@ -19,36 +38,257 @@
         android:label="Plan"
         tools:layout="@layout/fragment_plan">
 
+        <argument
+            android:name="tripId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+
+        <action
+            android:id="@+id/action_plan_to_planDetail"
+            app:destination="@id/fragment_plan_detail" />
+
+        <action
+            android:id="@+id/action_plan_to_planDetail_pop_up_to"
+            app:destination="@id/fragment_plan_detail"
+            app:popUpTo="@id/fragment_plan"
+            app:popUpToInclusive="true" />
+
     </fragment>
 
     <fragment
         android:id="@+id/fragment_plan_detail"
         android:name="com.neungi.moyeo.views.plan.PlanDetailFragment"
         android:label="Plan Detail"
-        tools:layout="@layout/fragment_plan_detail" />
+        tools:layout="@layout/fragment_plan_detail">
+
+        <argument
+            android:name="tripId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+
+        <action
+            android:id="@+id/action_schedule_add"
+            app:destination="@id/fragment_schedule_add" />
+
+        <action
+            android:id="@+id/action_plan_detail_to_invite"
+            app:destination="@id/fragment_invite_dialog" />
+
+    </fragment>
 
     <fragment
-        android:id="@+id/selectPeriodFragment"
-        android:name="com.neungi.moyeo.views.aiplanning.selectduration.SelectPeriodFragment"
-        android:label="SelectPeriodFragment"
-        tools:layout="@layout/fragment_select_period">
+        android:id="@+id/fragment_schedule_add"
+        android:name="com.neungi.moyeo.views.plan.ScheduleAddFragment"
+        android:label="Schedule Add"
+        tools:layout="@layout/fragment_ai_search_place">
+        <argument
+            android:name="tripId"
+            app:argType="integer" />
+        <argument
+            android:name="dayId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_select_period"
+        android:name="com.neungi.moyeo.views.aiplanning.AiSelectPeriodFragment"
+        android:label="fragment_select_period"
+        tools:layout="@layout/fragment_ai_select_period">
+
+        <action
+            android:id="@+id/action_fragment_select_period_to_fragment_ai_select_local"
+            app:destination="@id/fragment_ai_select_local" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_album"
+        android:name="com.neungi.moyeo.views.album.AlbumFragment"
+        android:label="@string/label_album"
+        tools:layout="@layout/fragment_album">
+
+        <action
+            android:id="@+id/action_album_to_album_Detail"
+            app:destination="@id/fragment_album_detail" />
 
     </fragment>
 
     <fragment
         android:id="@+id/fragment_album_detail"
         android:name="com.neungi.moyeo.views.album.AlbumDetailFragment"
-        android:label="Album Detail"
+        android:label="@string/label_album_detail"
         tools:layout="@layout/fragment_album_detail">
+
+        <action
+            android:id="@+id/action_album_detail_to_photo_detail"
+            app:destination="@id/fragment_photo_detail" />
+
+        <action
+            android:id="@+id/action_album_detail_to_photo_upload"
+            app:destination="@id/fragment_photo_upload" />
 
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_setting"
-        android:name="com.neungi.moyeo.views.setting.SettingFragment"
-        android:label="Setting"
-        tools:layout="@layout/fragment_setting">
+        android:id="@+id/fragment_photo_detail"
+        android:name="com.neungi.moyeo.views.album.PhotoDetailFragment"
+        android:label="@string/label_photo_detail"
+        tools:layout="@layout/fragment_photo_detail">
+
+        <action
+            android:id="@+id/action_photo_detail_to_photo_comment_delete"
+            app:destination="@id/fragment_photo_comment_delete_dialog" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/fragment_photo_upload"
+        android:name="com.neungi.moyeo.views.album.PhotoUploadFragment"
+        android:label="@string/label_photo_upload"
+        tools:layout="@layout/fragment_photo_upload">
+
+        <action
+            android:id="@+id/action_photo_upload_to_photo_classification"
+            app:destination="@id/fragment_photo_classification" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_photo_classification"
+        android:name="com.neungi.moyeo.views.album.PhotoClassificationFragment"
+        android:label="Photo Classification"
+        tools:layout="@layout/fragment_photo_classification">
+
+        <action
+            android:id="@+id/action_photo_classification_to_update_place_name"
+            app:destination="@id/fragment_update_place_name_dialog" />
+
+        <action
+            android:id="@+id/action_photo_classification_to_photo_classification_update"
+            app:destination="@id/fragment_photo_classification_update_dialog" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_ai_select_local"
+        android:name="com.neungi.moyeo.views.aiplanning.AiSelectLocalFragment"
+        android:label="AiSelectLocal"
+        tools:layout="@layout/fragment_ai_select_local">
+
+        <action
+            android:id="@+id/action_ai_select_local_to_ai_destinaation"
+            app:destination="@id/fragment_ai_destination" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_ai_destination"
+        android:name="com.neungi.moyeo.views.aiplanning.AiDestinationFragment"
+        android:label="AiDestination"
+        tools:layout="@layout/fragment_ai_destination">
+
+        <action
+            android:id="@+id/action_ai_destination_to_ai_select_local"
+            app:destination="@id/fragment_ai_select_local" />
+
+        <action
+            android:id="@+id/action_ai_destination_to_ai_search_place"
+            app:destination="@id/fragment_ai_search_place" />
+        <action
+            android:id="@+id/action_ai_destination_to_ai_select_theme"
+            app:destination="@id/fragment_ai_theme" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_ai_search_place"
+        android:name="com.neungi.moyeo.views.aiplanning.AiSearchPlaceFragment"
+        android:label="AiSearchPlaceFragment"
+        tools:layout="@layout/fragment_ai_search_place" />
+
+    <fragment
+        android:id="@+id/fragment_setting"
+        android:name="com.neungi.moyeo.views.setting.SettingFragment"
+        android:label="@string/label_setting"
+        tools:layout="@layout/fragment_setting">
+
+        <action
+            android:id="@+id/action_setting_to_plan"
+            app:destination="@id/fragment_plan" />
+
+        <action
+            android:id="@+id/action_setting_to_album"
+            app:destination="@id/fragment_album"
+            app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/action_setting_to_login"
+            app:destination="@id/fragment_login" />
+
+        <action
+            android:id="@+id/action_setting_to_profile_update"
+            app:destination="@id/fragment_profile_update" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_login"
+        android:name="com.neungi.moyeo.views.auth.LoginFragment"
+        android:label="@string/label_login"
+        tools:layout="@layout/fragment_login">
+
+        <action
+            android:id="@+id/action_login_to_join"
+            app:destination="@id/fragment_join" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_join"
+        android:name="com.neungi.moyeo.views.auth.JoinFragment"
+        android:label="@string/label_join"
+        tools:layout="@layout/fragment_join">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_profile_update"
+        android:name="com.neungi.moyeo.views.setting.ProfileUpdateFragment"
+        android:label="Profile Update"
+        tools:layout="@layout/fragment_profile_update">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_ai_theme"
+        android:name="com.neungi.moyeo.views.aiplanning.AiSelectThemeFragment"
+        android:label="AiSelectThemeFragment" />
+
+    <fragment
+        android:id="@+id/fragment_notification"
+        android:name="com.neungi.moyeo.views.home.NotificationFragment"
+        android:label="NotificationFragment" />
+
+    <dialog
+        android:id="@+id/fragment_photo_comment_delete_dialog"
+        android:name="com.neungi.moyeo.views.album.PhotoCommentDeleteDialogFragment"
+        android:label="Photo Comment Delete"
+        tools:layout="@layout/fragment_photo_comment_delete_dialog" />
+
+    <dialog
+        android:id="@+id/fragment_photo_classification_update_dialog"
+        android:name="com.neungi.moyeo.views.album.PhotoClassificationUpdateDialogFragment"
+        android:label="Photo Classification Update"
+        tools:layout="@layout/fragment_photo_classification_update_dialog" />
+
+    <dialog
+        android:id="@+id/fragment_update_place_name_dialog"
+        android:name="com.neungi.moyeo.views.album.UpdatePlaceNameDialogFragment"
+        android:label="Update Place Name"
+        tools:layout="@layout/fragment_update_place_name_dialog" />
+
+    <dialog
+        android:id="@+id/fragment_invite_dialog"
+        android:name="com.neungi.moyeo.views.plan.InviteDialogFragment"
+        android:label="Invite"
+        tools:layout="@layout/fragment_invite_dialog" />
 
 </navigation>

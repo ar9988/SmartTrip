@@ -5,7 +5,8 @@ import com.neungi.data.entity.AlbumEntity
 import com.neungi.data.entity.CommentEntity
 import com.neungi.data.entity.PhotoEntity
 import com.neungi.domain.model.Comment
-import com.neungi.domain.model.Photo
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -19,10 +20,10 @@ class AlbumsRemoteDataSourceImpl @Inject constructor(
     override suspend fun getAlbumPhotos(albumId: String): Response<List<PhotoEntity>> =
         albumsApi.getAlbumPhotos(albumId)
 
-    override suspend fun postPhoto(body: Photo): Response<Boolean> =
-        albumsApi.postPhoto(body)
+    override suspend fun postPhoto(albumId: String, photos: List<MultipartBody.Part>, body: RequestBody): Response<List<PhotoEntity>> =
+        albumsApi.postPhoto(albumId, photos, body)
 
-    override suspend fun deletePhoto(albumId: String, photoId: String): Response<Void> =
+    override suspend fun deletePhoto(albumId: String, photoId: String): Response<Boolean> =
         albumsApi.deletePhoto(albumId, photoId)
 
     override suspend fun putLocationName(albumId: String, photoId: String): Response<Void> =
@@ -37,23 +38,22 @@ class AlbumsRemoteDataSourceImpl @Inject constructor(
     override suspend fun postPhotoComments(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): Response<CommentEntity> =
+        body: RequestBody
+    ): Response<Boolean> =
         albumsApi.postPhotoComments(albumId, photoId, body)
 
     override suspend fun putPhotoComments(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): Response<CommentEntity> =
+        body: RequestBody
+    ): Response<Boolean> =
         albumsApi.putPhotoComments(albumId, photoId, commentID, body)
 
     override suspend fun deletePhotoComments(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): Response<Void> =
-        albumsApi.deletePhotoComments(albumId, photoId, commentID, body)
+        commentID: String
+    ): Response<Boolean> =
+        albumsApi.deletePhotoComments(albumId, photoId, commentID)
 }

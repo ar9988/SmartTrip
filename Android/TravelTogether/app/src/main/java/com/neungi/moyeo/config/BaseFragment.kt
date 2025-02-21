@@ -1,7 +1,11 @@
 package com.neungi.moyeo.config
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +34,7 @@ abstract class BaseFragment<T : ViewDataBinding>(private val layoutId: Int) : Fr
     protected val binding
         get() = requireNotNull(_binding)
 
-    private lateinit var onBackPressedCallback: OnBackPressedCallback
+    open lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -79,7 +83,27 @@ abstract class BaseFragment<T : ViewDataBinding>(private val layoutId: Int) : Fr
         imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
     }
 
-    private fun setBackPressedCallback() {
+    protected fun hideKeyboard(editText: EditText) {
+        val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(editText.windowToken, 0)
+    }
+
+    protected fun showToastMessage(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    @SuppressLint("Recycle")
+    protected fun absolutelyPath(uri: Uri?): String? {
+        val proj: Array<String> = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor: Cursor? =
+            uri?.let { requireActivity().contentResolver.query(uri, proj, null, null, null) }
+        cursor?.moveToNext()
+        val index = cursor?.getColumnIndex(MediaStore.MediaColumns.DATA)
+
+        return index?.let { cursor.getString(index) }
+    }
+
+    open fun setBackPressedCallback() {
         onBackPressedCallback = object : OnBackPressedCallback(true) {
 
             override fun handleOnBackPressed() {
@@ -88,10 +112,6 @@ abstract class BaseFragment<T : ViewDataBinding>(private val layoutId: Int) : Fr
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-    }
-
-    protected fun showToastMessage(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     fun NavController.navigateSafely(

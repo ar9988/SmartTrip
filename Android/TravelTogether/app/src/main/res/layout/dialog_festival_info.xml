@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.home.viewmodel.HomeViewModel" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_search_view">
+
+        <ImageView
+            android:id="@+id/iv_festival_dialog_image"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            app:layout_constraintWidth_percent="0.7"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/backgrounds/scenic" />
+
+        <ImageButton
+            android:id="@+id/btn_festival_dialog_close"
+            android:layout_width="@dimen/dp_larger"
+            android:layout_height="@dimen/dp_larger"
+            android:layout_margin="@dimen/dp_small"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_festival_dialog_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/font_size_larger"
+            android:textStyle="bold"
+            android:text="@{vm.dialogFestival.title}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_festival_dialog_image"
+            tools:text="다리온 은(溫) 축제" />
+
+        <TextView
+            android:id="@+id/tv_festival_dialog_address"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_small"
+            android:drawablePadding="@dimen/dp_smaller"
+            android:gravity="center_vertical"
+            android:text="@{vm.dialogFestival.address}"
+            app:drawableStartCompat="@drawable/ic_location"
+            app:layout_constraintEnd_toEndOf="@id/tv_festival_dialog_title"
+            app:layout_constraintStart_toStartOf="@id/tv_festival_dialog_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_festival_dialog_title"
+            tools:text="충청북도 단양군 단양읍 소백산등산길 12" />
+
+        <TextView
+            android:id="@+id/tv_festival_dialog_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_smaller"
+            android:drawablePadding="@dimen/dp_smaller"
+            android:gravity="center_vertical"
+            android:text="@{vm.dialogFestival.startDate+` ~ `+vm.dialogFestival.endDate}"
+            app:drawableStartCompat="@drawable/ic_calendar"
+            app:layout_constraintEnd_toEndOf="@id/tv_festival_dialog_title"
+            app:layout_constraintStart_toStartOf="@id/tv_festival_dialog_title"
+            app:layout_constraintTop_toBottomOf="@id/tv_festival_dialog_address"
+            tools:text="2025.02.12 ~ 2025.02.26" />
+
+        <ScrollView
+            android:id="@+id/sv_festival_dialog_overview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="@dimen/dp_medium"
+            app:layout_constraintEnd_toEndOf="@id/tv_festival_dialog_title"
+            app:layout_constraintStart_toStartOf="@id/tv_festival_dialog_title"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_festival_dialog_date">
+
+            <TextView
+                android:id="@+id/tv_festival_dialog_overview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{vm.dialogFestival.overView}"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/neutral_70"
+                tools:text="2025 말 다리언컬쳐이선훼밀이 완금 에징 중 에서 외계인서 오텔 홈보와 다리언관광지를 알리기위한 축제이다." />
+        </ScrollView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

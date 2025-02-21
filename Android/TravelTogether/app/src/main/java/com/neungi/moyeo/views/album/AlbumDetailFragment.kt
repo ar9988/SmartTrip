@@ -9,18 +9,25 @@ import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
+import android.widget.LinearLayout
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
+import androidx.core.view.size
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.tabs.TabLayoutMediator
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.CameraUpdate
@@ -28,35 +35,46 @@ import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.clustering.ClusterMarkerInfo
-import com.naver.maps.map.clustering.Clusterer
-import com.naver.maps.map.clustering.DefaultClusterMarkerUpdater
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import com.neungi.domain.model.Photo
 import com.neungi.moyeo.R
 import com.neungi.moyeo.config.BaseFragment
 import com.neungi.moyeo.databinding.FragmentAlbumDetailBinding
+import com.neungi.moyeo.util.CommonUtils.drawableToBitmap
 import com.neungi.moyeo.util.MarkerData
 import com.neungi.moyeo.util.Permissions
+import com.neungi.moyeo.views.MainViewModel
+import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter
+import com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter.Companion.START_POSITION
 import com.neungi.moyeo.views.album.viewmodel.AlbumUiEvent
 import com.neungi.moyeo.views.album.viewmodel.AlbumViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import timber.log.Timber
+import kotlin.math.abs
 
 @AndroidEntryPoint
 class AlbumDetailFragment :
     BaseFragment<FragmentAlbumDetailBinding>(R.layout.fragment_album_detail), OnMapReadyCallback {
 
     private val viewModel: AlbumViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                initNaverMap()
+            } else {
+                showToastMessage(resources.getString(R.string.message_location_permission))
+            }
+        }
+    private val clusteredMarkers = mutableListOf<Marker>()
     private lateinit var naverMap: NaverMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationSource: FusedLocationSource
-    private lateinit var clusterer: Clusterer<MarkerData>
-    private lateinit var markerBuilder: Clusterer.ComplexBuilder<MarkerData>
-    private val tags = mutableListOf<String>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,24 +82,15 @@ class AlbumDetailFragment :
         binding.vm = viewModel
 
         initFusedLocationClient()
+        initViews()
 
         collectLatestFlow(viewModel.albumUiEvent) { handleUiEvent(it) }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                initNaverMap()
-            } else {
-                Toast.makeText(requireContext(), "Permission denied!", Toast.LENGTH_SHORT).show()
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+
+        mainViewModel.setBnvState(false)
     }
 
     override fun onMapReady(naverMap: NaverMap) {
@@ -110,13 +119,18 @@ class AlbumDetailFragment :
 
                     val cameraUpdate = CameraUpdate.scrollTo(LatLng(it.latitude, it.longitude))
                     naverMap.moveCamera(cameraUpdate)
-                    setMapToFitAllMarkers(viewModel.locations.value)
-                    initClusterer()
+                    if (!this::naverMap.isInitialized) {
+                        initNaverMap()
+                    } else {
+                        setMapToFitAllMarkers(viewModel.photos.value)
+                        initClusterer()
+                    }
                 }
             }
     }
 
     private fun initFusedLocationClient() {
+        binding.vpAlbumDetail.adapter = null
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         if (!hasPermission()) {
             requestLocationPermission()
@@ -137,14 +151,15 @@ class AlbumDetailFragment :
     }
 
     private fun requestLocationPermission() {
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-            LOCATION_PERMISSION_REQUEST_CODE
-        )
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     private fun initNaverMap() {
+        if (!hasPermission()) {
+            requestLocationPermission()
+            return
+        }
+
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as MapFragment?
@@ -154,11 +169,11 @@ class AlbumDetailFragment :
         mapFragment.getMapAsync(this)
     }
 
-    private fun setMapToFitAllMarkers(markers: List<LatLng>) {
+    private fun setMapToFitAllMarkers(markers: List<Photo>) {
         if (markers.isEmpty()) return
 
         val boundsBuilder = LatLngBounds.Builder()
-        markers.forEach { boundsBuilder.include(it) }
+        markers.forEach { boundsBuilder.include(LatLng(it.latitude, it.longitude)) }
         val bounds = boundsBuilder.build()
 
         val cameraUpdate = CameraUpdate.fitBounds(bounds, 100)
@@ -166,96 +181,69 @@ class AlbumDetailFragment :
     }
 
     private fun initClusterer() {
-        markerBuilder = Clusterer.ComplexBuilder<MarkerData>()
         lifecycleScope.launch {
-            val newClusterer = makeMarker(
-                viewModel.markers.value,
-                markerBuilder
-            ) {
-                val newMarkers = mutableListOf<List<MarkerData>>()
-                tags.forEachIndexed { index, tag ->
-                    val newLocations = mutableListOf<MarkerData>()
-                    tag.split(",").forEach { id ->
-                        newLocations.add(viewModel.markers.value[id.toInt() - 1])
-                    }
-                    calculateRepresentativeCoordinate(newLocations)
-                    newMarkers.add(newLocations)
+            viewModel.markers.collectLatest { markers ->
+                binding.vpAlbumDetail.adapter = PhotoPlaceAdapter(requireActivity(), 99)
+                Timber.d("Size: ${binding.vpAlbumDetail.adapter?.itemCount}")
+                clusteredMarkers.forEach { marker ->
+                    marker.map = null
                 }
-                addClusterMarkers(newMarkers)
-                clusterer.map = null
-            }
-
-            clusterer = newClusterer
-            clusterer.map = naverMap
-        }
-    }
-
-    private suspend fun makeMarker(
-        markers: List<MarkerData>,
-        builder: Clusterer.ComplexBuilder<MarkerData>,
-        onClusterComplete: () -> Unit
-    ): Clusterer<MarkerData> {
-        val totalMarkers = markers.size
-        var processedMarkers = 0
-
-        val cluster: Clusterer<MarkerData> = builder.tagMergeStrategy { cluster ->
-            cluster.children.map { it.tag }.joinToString(",")
-        }
-            .apply {
-                clusterMarkerUpdater(object : DefaultClusterMarkerUpdater() {
-
-                    override fun updateClusterMarker(info: ClusterMarkerInfo, marker: Marker) {
-
-                        tags.add(info.tag.toString())
-                        markerManager.releaseMarker(info, marker)
-
-                        processedMarkers += info.size
-
-                        if (processedMarkers == totalMarkers) {
-                            onClusterComplete()
-                        }
-                    }
-                })
-            }
-            .build()
-
-        withContext(Dispatchers.Default) {
-            markers.forEach { item ->
-                cluster.add(item, "${item.id}")
+                clusteredMarkers.clear()
+                addClusterMarkers(markers)
+                viewModel.initPhotoPlaces()
+                initTabLayout(markers)
             }
         }
-
-        return cluster
     }
 
     private fun calculateRepresentativeCoordinate(cluster: List<MarkerData>): LatLng {
-        val averageLatitude = cluster.map { it.latitude }.average()
-        val averageLongitude = cluster.map { it.longitude }.average()
+        val averageLatitude = cluster.map { it.photo.latitude }.average()
+        val averageLongitude = cluster.map { it.photo.longitude }.average()
+
         return LatLng(averageLatitude, averageLongitude)
     }
 
     @SuppressLint("InflateParams")
-    private fun addClusterMarkers(clusterGroups: List<List<MarkerData>>) {
-        clusterGroups.forEach { cluster ->
-            val representativeCoordinate = calculateRepresentativeCoordinate(cluster)
+    private fun addClusterMarkers(clusterGroups: List<Pair<String, List<MarkerData>>>) {
+        clusterGroups.forEachIndexed { index, cluster ->
+            Timber.d("Index: $index")
+            val representativeCoordinate = calculateRepresentativeCoordinate(cluster.second)
 
             val marker = Marker()
             marker.position = representativeCoordinate
             val customView = LayoutInflater.from(requireContext()).inflate(
                 R.layout.marker_cluster_icon, null
-            )
+            ).apply {
+                when (index % 3) {
+                    0 -> setBackgroundResource(R.drawable.ic_marker_red)
+
+                    1 -> setBackgroundResource(R.drawable.ic_marker_blue)
+
+                    2 -> setBackgroundResource(R.drawable.ic_marker_green)
+                }
+            }
             val imageView = customView.findViewById<ImageView>(R.id.image_cluster)
-            val firstPhotoIndex = cluster.first().id - 1
-            val firstPhotoUrl = viewModel.markers.value[firstPhotoIndex].profile
+            val firstPhotoUrl = cluster.second.first().photo.filePath
             Glide.with(requireContext())
                 .asBitmap()
                 .apply(RequestOptions.circleCropTransform())
                 .circleCrop()
-                .override(144, 144)
+                .override(192, 192)
+                .placeholder(R.drawable.ic_theme_white)
+                .error(R.drawable.ic_theme_white)
                 .load(firstPhotoUrl)
                 .into(object : CustomTarget<Bitmap>() {
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
                         imageView.setImageBitmap(resource)
+                        marker.icon = OverlayImage.fromView(customView)
+                    }
+
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                        imageView.setImageBitmap(errorDrawable?.let { drawableToBitmap(it) })
                         marker.icon = OverlayImage.fromView(customView)
                     }
 
@@ -263,15 +251,94 @@ class AlbumDetailFragment :
                         imageView.setImageDrawable(placeholder)
                     }
                 })
+            marker.onClickListener = Overlay.OnClickListener {
+                var placeIndex = 0
+                viewModel.photoPlaces.value.forEachIndexed { index2, place ->
+                    if (place.name == viewModel.photoPlaces.value[index + 1].name) {
+                        viewModel.setPhotoPlace(index2)
+                        placeIndex = index2
+                    }
+                }
+                // setMapToFitAllMarkers(viewModel.markers.value[placeIndex - 1].second.map { it.photo })
+                binding.vpAlbumDetail.setCurrentItem(placeIndex, true)
+                true
+            }
             marker.map = naverMap
+            clusteredMarkers.add(marker)
+        }
+    }
+
+    private fun initViews() {
+        with(binding) {
+            ablAlbumDetail.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+                val isCollapsed = abs(verticalOffset) >= appBarLayout.totalScrollRange
+
+                if (isCollapsed) {
+//                    toolbarAlbumDetail.visibility = View.GONE
+                    toolbarAlbumDetailBottom.navigationIcon =
+                        resources.getDrawable(R.drawable.baseline_chevron_left_24, context?.theme)
+                } else {
+//                    toolbarAlbumDetail.visibility = View.VISIBLE
+                    toolbarAlbumDetailBottom.navigationIcon = null
+                }
+            }
+//            toolbarAlbumDetail.bringToFront()
+//            toolbarAlbumDetail.setNavigationOnClickListener {
+//                Timber.d("터치")
+//                requireActivity().onBackPressedDispatcher.onBackPressed()
+//            }
+            toolbarAlbumDetailBottom.setNavigationOnClickListener {
+                viewModel.onClickBackToAlbum()
+            }
+            ivRefreshAlbumDetail.setOnClickListener {
+                viewModel.initPhotos()
+            }
+        }
+    }
+
+    private fun initTabLayout(markers: List<Pair<String, List<MarkerData>>>) {
+        lifecycleScope.launch {
+            viewModel.photoPlaces.collectLatest { places ->
+                Timber.d("Markers: ${markers.size}, Places: ${places.size}")
+                if (markers.size + 1 != places.size) return@collectLatest
+                with(binding.vpAlbumDetail) {
+                    binding.vpAlbumDetail.adapter = PhotoPlaceAdapter(requireActivity(), 99)
+                    adapter = PhotoPlaceAdapter(requireActivity(), places.size)
+                    setCurrentItem(START_POSITION, true)
+                }
+                TabLayoutMediator(binding.tlAlbumDetail, binding.vpAlbumDetail) { tab, position ->
+                    tab.text = places[position].name
+                }.attach()
+                for (i in 0 until resources.getStringArray(R.array.local_big).size) {
+                    val tabs = binding.tlAlbumDetail.getChildAt(0) as ViewGroup
+                    for (tab in tabs.children) {
+                        val lp = tab.layoutParams as LinearLayout.LayoutParams
+                        lp.marginEnd = 16
+                        tab.layoutParams = lp
+                        binding.tlAlbumDetail.requestLayout()
+                    }
+                }
+            }
         }
     }
 
     private fun handleUiEvent(event: AlbumUiEvent) {
         when (event) {
-            is AlbumUiEvent.PhotoUpload -> {
-
+            is AlbumUiEvent.BackToAlbum -> {
+                requireActivity().supportFragmentManager.popBackStack()
             }
+
+            is AlbumUiEvent.PhotoUpload -> {
+                findNavController().navigateSafely(R.id.action_album_detail_to_photo_upload)
+            }
+
+            is AlbumUiEvent.SelectPhoto -> {
+                binding.tlAlbumDetail.removeAllTabs()
+                binding.vpAlbumDetail.adapter = null
+                findNavController().navigateSafely(R.id.action_album_detail_to_photo_detail)
+            }
+
+            else -> {}
         }
     }
 

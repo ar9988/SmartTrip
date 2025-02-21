@@ -1,21 +1,316 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
             name="vm"
             type="com.neungi.moyeo.views.home.viewmodel.HomeViewModel" />
 
+        <variable
+            name="loginInfo"
+            type="com.neungi.domain.model.LoginInfo" />
+        <import type="android.view.View" />
+        <import type="com.neungi.moyeo.views.home.viewmodel.LoginState"/>
+
     </data>
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fragment_home"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".views.home.HomeFragment">
+        >
 
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_home"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:titleMarginStart="@dimen/dp_large"
+            app:title="모두의 여행"
+            >
+
+            <ImageView
+                android:id="@+id/iv_profile"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_profile"
+                android:onClick="@{()->vm.onClickProfileIcon()}"/>
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="@dimen/dp_small">
+
+                <!-- 기존 알람 아이콘 -->
+                <ImageView
+                    android:id="@+id/iv_notification_home"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:onClick="@{()->vm.onClickToNotifcation()}"
+                    android:src="@drawable/ic_notification_outlined" />
+
+                <!-- 알림 표시 점 -->
+                <View
+                    android:id="@+id/view_notification_dot"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_gravity="end"
+                    android:background="@drawable/bg_notification_dot"
+                    android:visibility="@{vm.hasNotification ? View.VISIBLE : View.GONE}"
+                     />
+            </FrameLayout>
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nscrollview_home"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_home"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_home"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingHorizontal="@dimen/dp_smaller"
+                tools:context=".views.home.HomeFragment">
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardview_schedule_home"
+                    android:layout_width="0dp"
+                    android:layout_height="160dp"
+                    app:cardCornerRadius="12dp"
+                    android:visibility="@{loginInfo != null &amp;&amp; vm.homeScheduleCardTrip !=null ? View.VISIBLE : View.GONE}"
+                    android:onClick="@{()-> vm.onClickTripCard()}"
+                    app:cardElevation="0dp"
+                    app:layout_constraintTop_toBottomOf="@id/gl_top_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    app:layout_constraintEnd_toEndOf="@id/gl_end_home"
+                    tools:visibility="visible">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#F0F8FF"
+                        android:paddingVertical="16dp">
+
+                        <TextView
+                            android:id="@+id/tv_title_plan"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:textColor="#000000"
+                            android:textSize="@dimen/font_size_title"
+                            android:textStyle="bold"
+                            android:text="@{vm.homeScheduleCardTrip.title}"
+                            android:maxWidth="160dp"
+                            android:singleLine="true"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:scrollHorizontally="true"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:freezesText="true"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="18제주팟" />
+
+                        <TextView
+                            android:id="@+id/tv_today_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="TODAY"
+                            android:textColor="@color/blue"
+                            android:textSize="@dimen/font_size_larger"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="@id/tv_title_plan"
+                            app:layout_constraintStart_toEndOf="@id/tv_title_plan"
+                            app:layout_constraintTop_toTopOf="@id/tv_title_plan" />
+
+                        <ImageView
+                            android:id="@+id/iv_calendar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp_small"
+                            android:layout_marginTop="8dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="#666666"
+                            app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
+                            app:layout_constraintTop_toBottomOf="@id/tv_title_plan" />
+
+
+                        <TextView
+                            android:id="@+id/tv_date_range"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp_smaller"
+                            android:textColor="#666666"
+                            android:textSize="@dimen/font_size_small"
+                            app:layout_constraintBottom_toBottomOf="@id/iv_calendar"
+                            app:layout_constraintStart_toEndOf="@id/iv_calendar"
+                            app:layout_constraintTop_toTopOf="@id/iv_calendar"
+                            tools:text="25.01.17 - 25.01.19" />
+
+                        <ImageView
+                            android:id="@+id/iv_head_count_home"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp_small"
+                            android:layout_marginTop="8dp"
+                            android:src="@drawable/ic_person"
+                            app:tint="#666666"
+                            app:layout_constraintStart_toEndOf="@id/iv_thumbnail"
+                            app:layout_constraintTop_toBottomOf="@id/iv_calendar" />
+
+
+                        <TextView
+                            android:id="@+id/tv_head_count_home"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/dp_smaller"
+                            android:textColor="#666666"
+                            android:textSize="@dimen/font_size_small"
+                            android:text="@{vm.homeScheduleCardTrip.tripParticipants}"
+                            app:layout_constraintBottom_toBottomOf="@id/iv_head_count_home"
+                            app:layout_constraintStart_toEndOf="@id/iv_head_count_home"
+                            app:layout_constraintTop_toTopOf="@id/iv_head_count_home"
+                            tools:text="6명" />
+
+                        <TextView
+                            android:id="@+id/tv_edit_schedule_home"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="일정 편집하기"
+                            android:textColor="@color/blue"
+                            android:textSize="@dimen/font_size_medium"
+                            android:textStyle="bold"
+                            android:layout_marginTop="@dimen/dp_smaller"
+                            app:layout_constraintStart_toStartOf="@id/iv_calendar"
+                            app:layout_constraintTop_toBottomOf="@id/iv_head_count_home" />
+
+
+                        <!-- 썸네일 이미지 -->
+                        <ImageView
+                            android:id="@+id/iv_thumbnail"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_marginStart="16dp"
+                            android:scaleType="centerCrop"
+                            app:layout_constraintTop_toTopOf="@id/iv_calendar"
+                            app:layout_constraintStart_toStartOf="parent"
+                            tools:background="@drawable/image_beach" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/barrier_card_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:constraint_referenced_ids="cardview_schedule_home" />
+
+
+
+                <TextView
+                    android:id="@+id/tv_recommend_place_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{vm.randomSelectedRegion.first + `에서 인기 있는 관광지에요!`}"
+                    android:textSize="@dimen/font_size_title"
+                    android:textStyle="bold"
+                    android:layout_marginVertical="@dimen/dp_small"
+                    app:regionHighlightText="@{vm.randomSelectedRegion.first}"
+                    app:layout_constraintTop_toBottomOf="@id/barrier_card_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_recommend_place_home"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="@id/gl_end_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    app:layout_constraintTop_toBottomOf="@id/tv_recommend_place_home"
+                    />
+
+                <TextView
+                    android:id="@+id/tv_festival"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/festival_title_home"
+                    android:textSize="@dimen/font_size_title"
+                    android:textStyle="bold"
+                    android:layout_marginVertical="@dimen/dp_small"
+                    app:layout_constraintTop_toBottomOf="@id/rv_recommend_place_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_festival"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    submitData="@{vm.recommendFestivals}"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="@id/gl_end_home"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    app:layout_constraintTop_toBottomOf="@id/tv_festival"
+                    />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_end_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_bottom_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_start_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/gl_top_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_quote_home"
+                    android:layout_width="0dp"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="@dimen/dp_small"
+                    app:layout_constraintStart_toStartOf="@id/gl_start_home"
+                    app:layout_constraintEnd_toEndOf="@id/gl_end_home"
+                    app:layout_constraintTop_toBottomOf="@id/rv_festival"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

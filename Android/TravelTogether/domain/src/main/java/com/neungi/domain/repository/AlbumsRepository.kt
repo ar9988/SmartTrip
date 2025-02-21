@@ -4,16 +4,19 @@ import com.neungi.domain.model.ApiResult
 import com.neungi.domain.model.Comment
 import com.neungi.domain.model.Photo
 import com.neungi.domain.model.PhotoAlbum
+import kotlinx.coroutines.flow.Flow
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 interface AlbumsRepository {
 
-    suspend fun getAlbums(): ApiResult<List<PhotoAlbum>>
+    suspend fun getAlbums(): Flow<ApiResult<List<PhotoAlbum>>>
 
     suspend fun getAlbumPhotos(albumId: String): ApiResult<List<Photo>>
 
-    suspend fun postPhoto(body: Photo): ApiResult<Boolean>
+    suspend fun postPhoto(albumId: String, photos: List<MultipartBody.Part>, body: RequestBody): Flow<ApiResult<List<Photo>>>
 
-    suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Void>
+    suspend fun deletePhoto(albumId: String, photoId: String): ApiResult<Boolean>
 
     suspend fun putLocationName(albumId: String, photoId: String): ApiResult<Void>
 
@@ -22,20 +25,19 @@ interface AlbumsRepository {
     suspend fun postPhotoComments(
         albumId: String,
         photoId: String,
-        body: Comment
-    ): ApiResult<Comment>
+        body: RequestBody
+    ): Flow<ApiResult<Boolean>>
 
     suspend fun putPhotoComments(
         albumId: String,
         photoId: String,
         commentID: String,
-        body: Comment
-    ): ApiResult<Comment>
+        body: RequestBody
+    ): ApiResult<Boolean>
 
     suspend fun deletePhotoComments(
         albumId: String,
         photoId: String,
-        commentID: String,
-        body: Comment
-    ): ApiResult<Void>
+        commentID: String
+    ): ApiResult<Boolean>
 }

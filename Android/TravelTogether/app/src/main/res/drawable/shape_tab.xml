@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/listview_background_shape">
+
+    <padding android:left="20dp"
+        android:top="2dp"
+        android:right="20dp"
+        android:bottom="2dp" />
+
+    <corners android:radius="20dp" />
+
+    <solid android:color="@color/selector_tab" />
+
+</shape>

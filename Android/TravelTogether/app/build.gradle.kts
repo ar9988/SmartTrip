@@ -4,7 +4,9 @@ plugins {
     id("kotlin-kapt")
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
+
     kotlin("plugin.serialization") version "1.5.0"
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -22,8 +24,11 @@ android {
 
         val naverClientId = project.findProperty("naver.client.id") as String?
             ?: throw GradleException("naver.client.id is not defined in local.properties")
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"${project.properties["kakao.native.app.key"]}\"")
 
         buildConfigField("String", "NAVER_CLIENT_ID", "\"$naverClientId\"")
+        manifestPlaceholders["kakaoKey"] = "kakao${project.properties["kakao.native.app.key"]}"
+
     }
 
     buildTypes {
@@ -68,6 +73,12 @@ dependencies {
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
+    // Swipe Refresh Layout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    // Preferences DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     // Naver Map
     implementation("com.naver.maps:map-sdk:3.20.0")
 
@@ -89,6 +100,8 @@ dependencies {
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.palette.ktx)
     kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     // Coil
@@ -106,8 +119,20 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    //Calendar
+    // Calendar
     implementation("com.kizitonwose.calendar:view:2.4.1")
+
+    // Lottie
+    implementation("com.airbnb.android:lottie:6.1.0")
+
+    //Websocket
+
+    //firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
+    implementation ("com.google.firebase:firebase-messaging-ktx")
+
+    //kakaotalk
+    implementation(libs.kakao.share)
 
 }
 

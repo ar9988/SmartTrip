@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.plan.scheduleviewmodel.ScheduleViewModel" />
+
+    </data>
+
+    <LinearLayout
+        android:id="@+id/fragment_invite_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_dialog"
+            tools:context=".views.plan.InviteDialogFragment">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_start_invite_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_top_invite_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="@dimen/dp_medium" />
+
+            <TextView
+                android:id="@+id/tv_title_invite_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendardbold"
+                android:text="@string/title_invite"
+                android:textAlignment="viewStart"
+                android:textColor="@color/neutral_100"
+                android:textSize="@dimen/font_size_title"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_invite_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_invite_dialog"
+                app:layout_constraintTop_toBottomOf="@id/gl_top_invite_dialog" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_invite_dialog"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:src="@drawable/ic_close"
+                app:layout_constraintBottom_toBottomOf="@id/tv_title_invite_dialog"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_invite_dialog"
+                app:layout_constraintTop_toTopOf="@id/tv_title_invite_dialog" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_invite_dialog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_large"
+                android:background="@drawable/shape_button"
+                android:fontFamily="@font/pretendardsemibold"
+                android:text="@string/text_invite_link"
+                android:textAlignment="center"
+                android:textColor="@color/neutral_white"
+                android:textSize="@dimen/font_size_larger"
+                app:layout_constraintBottom_toTopOf="@id/gl_bottom_invite_dialog"
+                app:layout_constraintEnd_toStartOf="@id/gl_end_invite_dialog"
+                app:layout_constraintStart_toEndOf="@id/gl_start_invite_dialog"
+                app:layout_constraintTop_toBottomOf="@id/tv_title_invite_dialog" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_end_invite_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/gl_bottom_invite_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="@dimen/dp_medium" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+</layout>

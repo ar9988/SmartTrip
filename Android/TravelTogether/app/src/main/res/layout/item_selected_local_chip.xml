@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="text"
+            type="String" />
+
+    </data>
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_selected_local"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="10dp"
+        android:textSize="@dimen/font_size_medium"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:text="@{text}"
+        android:layout_marginEnd="@dimen/dp_smaller"
+        app:chipStrokeWidth="2dp"
+        app:chipStrokeColor="@color/colorPrimary"
+        app:chipBackgroundColor="@color/colorPrimary"
+        android:textColor="@color/neutral_white"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:paddingTop="@dimen/dp_smaller"
+        android:paddingBottom="@dimen/dp_smaller"
+        app:checkedIconVisible="false"
+        android:clickable="true"
+        android:checkable="false"
+        app:closeIcon="@drawable/baseline_cancel_24"
+        app:closeIconEnabled="true"
+        app:closeIconTint="@color/neutral_white"
+        />
+
+
+</layout>

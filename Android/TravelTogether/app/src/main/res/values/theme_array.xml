@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="theme_names">
+        <item>@string/theme_mountain</item>
+        <item>@string/theme_beach</item>
+        <item>@string/theme_camping</item>
+        <item>@string/theme_park</item>
+        <item>@string/theme_shopping</item>
+        <item>@string/theme_museum</item>
+        <item>@string/theme_zoo</item>
+        <item>@string/theme_botanic_garden</item>
+    </array>
+
+    <array name="theme_images">
+        <item>@drawable/image_mountain</item>
+        <item>@drawable/image_beach</item>
+        <item>@drawable/image_camping</item>
+        <item>@drawable/image_park</item>
+        <item>@drawable/image_shopping</item>
+        <item>@drawable/image_museum</item>
+        <item>@drawable/image_zoo</item>
+        <item>@drawable/image_botanic_garden</item>
+    </array>
+</resources>

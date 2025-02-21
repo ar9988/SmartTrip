@@ -9,13 +9,24 @@
     <color name="neutral_70">#FF666666</color>
     <color name="neutral_60">#FFB3B3B3</color>
     <color name="neutral_50">#FFCCCCCC</color>
+    <color name="neutral_10">#F8F9FA</color> <!-- 가장 밝은 회색 (거의 흰색) -->
+    <color name="neutral_20">#E9ECEF</color>
+    <color name="neutral_30">#DEE2E6</color>
+    <color name="neutral_40">#CED4DA</color>
 
     <!-- ETC -->
     <color name="red">#FFFF0000</color>
+    <color name="blue">#FF3B82F6</color>
 
     <!-- Main -->
     <color name="colorPrimary">#FF8CCCFF</color>
     <color name="colorSecondary">#FFDFF1FF</color>
-    <color name="blue">#FF90D0FE</color>
+    <color name="colorPrimary2">#FF90D0FE</color>
+    <color name="colorFAFFAF">#FAFFAF</color>
 
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="green">#4CAF50</color>
+    <color name="mint">#40E0D0</color>
 </resources>

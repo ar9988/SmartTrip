@@ -7,11 +7,11 @@
         android:layout_width="40dp"
         android:layout_height="32dp"
         android:layout_gravity="center"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginTop="@dimen/dp_smaller"
+        android:layout_marginBottom="@dimen/dp_smaller"
         android:gravity="center"
         android:textColor="@color/colorPrimary"
-        android:textSize="12sp" />
+        android:textSize="@dimen/font_size_smaller" />
 
 
 </layout>

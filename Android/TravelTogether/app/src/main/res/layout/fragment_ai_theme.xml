@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="vm"
+            type="com.neungi.moyeo.views.aiplanning.viewmodel.AIPlanningViewModel" />
+        <import type="android.view.View" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar_select_theme"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationIcon="@drawable/baseline_chevron_left_24"
+            app:contentInsetStart="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:title="@string/theme_planning"
+            />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_theme"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:padding="@dimen/dp_smaller"
+            android:paddingBottom="@dimen/dp_large"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
+            app:layout_constraintBottom_toTopOf="@id/btn_ai_select_local_next"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_select_theme"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ai_select_local_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{()->vm.requestAiPlanning()}"
+            android:text="@string/next"
+            android:backgroundTint="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

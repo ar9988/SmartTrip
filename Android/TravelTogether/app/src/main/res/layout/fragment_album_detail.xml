@@ -9,6 +9,14 @@
             name="vm"
             type="com.neungi.moyeo.views.album.viewmodel.AlbumViewModel" />
 
+        <variable
+            name="photoAdapter"
+            type="com.neungi.moyeo.views.album.adapter.PhotoAdapter" />
+
+        <variable
+            name="photoPlaceAdapter"
+            type="com.neungi.moyeo.views.album.adapter.PhotoPlaceAdapter" />
+
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -18,9 +26,12 @@
         tools:context=".views.album.AlbumDetailFragment">
 
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/abl_album_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent">
+            android:background="@android:color/transparent"
+            android:stateListAnimator="@null"
+            app:liftOnScroll="false">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:layout_width="match_parent"
@@ -29,6 +40,7 @@
                 app:collapsedTitleGravity="start"
                 app:collapsedTitleTextAppearance="@style/CollapsedToolbarTitle"
                 app:contentScrim="@android:color/transparent"
+                app:elevation="0dp"
                 app:expandedTitleGravity="center_vertical"
                 app:expandedTitleTextAppearance="@style/ExpandedToolbarTitle"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
@@ -37,123 +49,192 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <com.neungi.moyeo.util.TouchableWrapper
-                        android:id="@+id/touchable_wrapper"
+                    <FrameLayout
+                        android:id="@+id/fl_album_detail"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:nestedScrollingEnabled="false"
-                        app:layout_constraintBottom_toTopOf="@id/tv_title_album_detail"
+                        app:layout_constraintBottom_toTopOf="@id/toolbar_album_detail_bottom"
                         app:layout_constraintDimensionRatio="1:1.2"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
-                        <androidx.fragment.app.FragmentContainerView
-                            android:id="@+id/map_fragment"
-                            android:name="com.naver.maps.map.MapFragment"
+                        <com.neungi.moyeo.util.TouchableWrapper
+                            android:id="@+id/touchable_wrapper"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
+                            android:layout_height="match_parent"
+                            android:nestedScrollingEnabled="false">
 
-                    </com.neungi.moyeo.util.TouchableWrapper>
+                            <androidx.fragment.app.FragmentContainerView
+                                android:id="@+id/map_fragment"
+                                android:name="com.naver.maps.map.MapFragment"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                app:layout_collapseMode="parallax" />
 
-                    <TextView
-                        android:id="@+id/tv_title_album_detail"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="16dp"
-                        android:text="@string/title_album_detail"
-                        android:textAlignment="viewStart"
-                        android:textColor="@color/neutral_100"
-                        android:textSize="24sp"
+<!--                            <androidx.appcompat.widget.AppCompatImageView-->
+<!--                                android:id="@+id/iv_back_album_detail"-->
+<!--                                android:layout_width="48dp"-->
+<!--                                android:layout_height="48dp"-->
+<!--                                android:layout_marginStart="@dimen/dp_small"-->
+<!--                                android:layout_marginTop="@dimen/dp_small"-->
+<!--                                android:clickable="true"-->
+<!--                                android:contentDescription="@string/description_photo_upload"-->
+<!--                                android:focusable="true"-->
+<!--                                android:onClick="@{() -> vm.onClickBackToAlbum()}"-->
+<!--                                android:src="@drawable/baseline_chevron_left_24"-->
+<!--                                app:layout_collapseMode="pin" />-->
+
+                        </com.neungi.moyeo.util.TouchableWrapper>
+
+                    </FrameLayout>
+                    <com.google.android.material.appbar.MaterialToolbar
+                        android:id="@+id/toolbar_album_detail_bottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        app:title="@string/title_album"
+                        app:contentInsetLeft="0dp"
+                        app:contentInsetStart="0dp"
+                        app:contentInsetStartWithNavigation="0dp"
                         app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/fl_album_detail"
+                        />
+
+<!--                    <androidx.appcompat.widget.AppCompatImageView-->
+<!--                        android:id="@+id/iv_back_toolbar_album_detail"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_marginStart="@dimen/dp_small"-->
+<!--                        android:onClick="@{() -> vm.onClickBackToAlbum()}"-->
+<!--                        android:src="@drawable/baseline_chevron_left_24"-->
+<!--                        app:layout_collapseMode="pin"-->
+<!--                        app:layout_constraintBottom_toBottomOf="@id/tv_title_album_detail"-->
+<!--                        app:layout_constraintDimensionRatio="1:1"-->
+<!--                        app:layout_constraintStart_toEndOf="@id/tv_title_album_detail"-->
+<!--                        app:layout_constraintStart_toStartOf="parent"-->
+<!--                        app:layout_constraintTop_toTopOf="@id/tv_title_album_detail" />-->
+
+<!--                    <TextView-->
+<!--                        android:id="@+id/tv_title_album_detail"-->
+<!--                        android:layout_width="0dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_margin="16dp"-->
+<!--                        android:fontFamily="@font/pretendardbold"-->
+<!--                        android:text="@string/title_album"-->
+<!--                        android:textAlignment="viewStart"-->
+<!--                        android:textColor="@color/neutral_100"-->
+<!--                        android:textSize="24sp"-->
+<!--                        app:layout_collapseMode="pin"-->
+<!--                        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                        app:layout_constraintEnd_toStartOf="@id/iv_refresh_album_detail"-->
+<!--                        app:layout_constraintStart_toEndOf="@id/iv_back_toolbar_album_detail"-->
+<!--                        app:layout_constraintTop_toBottomOf="@id/fl_album_detail" />-->
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_refresh_album_detail"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_refresh"
+                        app:layout_constraintBottom_toBottomOf="@id/toolbar_album_detail_bottom"
                         app:layout_constraintEnd_toStartOf="@id/iv_upload_album_detail"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/touchable_wrapper" />
+                        app:layout_constraintTop_toTopOf="@id/toolbar_album_detail_bottom" />
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_upload_album_detail"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_temp_upload"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_title_album_detail"
-                        app:layout_constraintDimensionRatio="1:1"
+                        android:onClick="@{() -> vm.onClickPhotoUpload()}"
+                        android:src="@drawable/ic_upload"
+                        app:layout_collapseMode="pin"
+                        app:layout_constraintBottom_toBottomOf="@id/toolbar_album_detail_bottom"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/tv_title_album_detail" />
+                        app:layout_constraintTop_toTopOf="@id/toolbar_album_detail_bottom" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <Toolbar
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize" />
-
+<!--                <com.google.android.material.appbar.MaterialToolbar-->
+<!--                    android:id="@+id/toolbar_album_detail"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="?attr/actionBarSize"-->
+<!--                    app:contentInsetLeft="0dp"-->
+<!--                    app:contentInsetStart="0dp"-->
+<!--                    app:contentInsetStartWithNavigation="0dp"-->
+<!--                    app:navigationIcon="@drawable/baseline_chevron_left_24"-->
+<!--                    android:visibility="gone"/>-->
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:fillViewport="true"
+            android:overScrollMode="never"
+            android:scrollbars="none"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gl_start_album_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_begin="16dp" />
+                    app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gl_top_album_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_begin="16dp" />
+                    app:layout_constraintGuide_begin="@dimen/dp_medium" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_place_album_detail"
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tl_album_detail"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    app:layout_constraintBottom_toTopOf="@id/rv_photo_album_detail"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/description_photo_tab_layout"
+                    android:textSize="@dimen/font_size_small"
                     app:layout_constraintEnd_toStartOf="@id/gl_end_album_detail"
                     app:layout_constraintStart_toEndOf="@id/gl_start_album_detail"
                     app:layout_constraintTop_toBottomOf="@id/gl_top_album_detail"
-                    tools:listitem="@layout/list_place_album_detail" />
+                    app:tabBackground="@drawable/shape_tab"
+                    app:tabGravity="fill"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabMaxWidth="100dp"
+                    app:tabMode="scrollable"
+                    app:tabPaddingEnd="@dimen/dp_smaller"
+                    app:tabPaddingStart="@dimen/dp_smaller"
+                    app:tabRippleColor="@null"
+                    app:tabSelectedTextColor="@color/neutral_white"
+                    app:tabTextColor="@color/neutral_90" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_photo_album_detail"
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/vp_album_detail"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="vertical"
-                    android:paddingBottom="16dp"
-                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                     app:layout_constraintEnd_toStartOf="@id/gl_end_album_detail"
                     app:layout_constraintStart_toEndOf="@id/gl_start_album_detail"
-                    app:layout_constraintTop_toBottomOf="@id/rv_place_album_detail"
-                    app:spanCount="2"
-                    tools:listitem="@layout/list_photo_album_detail" />
+                    app:layout_constraintTop_toBottomOf="@id/tl_album_detail" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gl_end_album_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_end="16dp" />
+                    app:layout_constraintGuide_end="@dimen/dp_medium" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/gl_bottom_album_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    app:layout_constraintGuide_end="16dp" />
+                    app:layout_constraintGuide_end="72dp" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
