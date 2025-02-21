@@ -75,7 +75,7 @@
 &nbsp;
 
 ## ⚙️ 설치 및 실행 방법
-[설치하기](https://drive.google.com/file/d/1crXn2q_gc_qEISx41KkpQB5bBWDQKI7v/view?usp=drive_link)
+[설치하기](https://drive.google.com/file/d/1pwaC5GvA7D3yUQyj7aO5U54MtsPCQXXq/view?usp=drive_link)
 
 &nbsp;
 
