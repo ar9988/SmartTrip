@@ -1,6 +1,6 @@
 # :airplane: 모여(모두의 여행)
 <p>
-   <img src="/uploads/b07454345eae5955b88ef17a4ea1a863/image_app_main.png" width="400" style="margin: 8px" />
+   <img src="/images/image_app_main.png" width="400" style="margin: 8px" />
 </p>
 
 > "여행을 가고 싶은데, 여행 일정을 짜기가 힘들고 귀찮은데... 어떻게 하지?"
@@ -17,23 +17,23 @@
 ### AI 플래너
 > 직접 추가는 그만! 일정 생성의 자동화를 통해 간편하게 일정을 작성하자!
   <p>
-     <img src="/uploads/22a98bf832be4e5d1c73bbdb82110275/기능1_1.gif" width="200" style="margin: 8px" />
-     <img src="/uploads/27b61b4b6660d3f8d78c431242fe59aa/기능1_3.gif" width="200" style="margin: 8px" />
-     <img src="/uploads/7b1e8e8620de4579004e4ce67adca930/기능1_2.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능1_1.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능1_3.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능1_2.gif" width="200" style="margin: 8px" />
   </p>
 
 ### 여행 일정 편집기
 > 함께 만드는 일정! 실시간 동시 편집으로 여행 계획을 더 효율적으로 관리하자!
   <p>
-     <img src="/uploads/75688011ac38387d03371afa1b7f0685/기능2_1.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능2_1.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능2_2.gif" width="200" style="margin: 8px" />
   </p>
-
 ### 추억 남기기
 > 소중한 순간을 하나로! 여행의 모든 순간을 사진첩에 남기고 함께 공유하자!
   <p>
-     <img src="/uploads/2eb10bb7341faa487428b0db0c0dfdee/기능3_1.gif" width="200" style="margin: 8px" />
-     <img src="/uploads/146201fbff0ce987e80e3f8a59e1808f/기능3_2.gif" width="200" style="margin: 8px" />
-     <img src="/uploads/5ee1a4c0ab92705ae4efec1c45e540dc/기능3_3.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능3_1.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능3_2.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능3_3.gif" width="200" style="margin: 8px" />
   </p>
 
 &nbsp;
@@ -70,7 +70,7 @@
 
 ## 📂 프로젝트 구조
 <p>
-   <img src="/uploads/3d872f3814a57739a9d8c5582f90869e/능이버섯_Architecture.png" width="500" style="margin: 8px" />
+   <img src="/images/Architecture.png" width="500" style="margin: 8px" />
 </p>
 &nbsp;
 
@@ -84,7 +84,7 @@
 
 |                                                                      정지원                                                                      |                                                                    강대규                                                                     |                                                                       김아름                                                                       |                                                                         정준탁                                                                         |                                                                    최미연                                                                    |                                                                       황선혁                                                                       |
 |:---------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------:|
-| <a href="https://github.com/littlesam95/"> <img src="https://avatars.githubusercontent.com/u/55424662?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/KangDaeQ"> <img src="https://avatars.githubusercontent.com/u/183336058?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/ar9988"> <img src="https://https://avatars.githubusercontent.com/u/80316251?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/takjuntak"> <img src="https://https://avatars.githubusercontent.com/u/193384110?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/mu05041"> <img src="https://avatars.githubusercontent.com/u/189821312?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/HwangSeonHyeok"> <img src="https://avatars.githubusercontent.com/u/55142789?v=4" width="100px" height="100px"> </a> |
+| <a href="https://github.com/littlesam95/"> <img src="https://avatars.githubusercontent.com/u/55424662?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/KangDaeQ"> <img src="https://avatars.githubusercontent.com/u/183336058?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/ar9988"> <img src="https:avatars.githubusercontent.com/u/80316251?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/takjuntak"> <img src="https://https://avatars.githubusercontent.com/u/193384110?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/mu05041"> <img src="https://avatars.githubusercontent.com/u/189821312?v=4" width="100px" height="100px"> </a> | <a href="https://github.com/HwangSeonHyeok"> <img src="https://avatars.githubusercontent.com/u/55142789?v=4" width="100px" height="100px"> </a> |
 |                                                                   팀장, 안드로이드                                                                   |                                                                    백엔드                                                                     |                                                                      안드로이드                                                                      |                                                                         백엔드                                                                         |                                                                    백엔드                                                                    |                                                                      안드로이드                                                                      |
 |                                                               추억 남기기(사진첩) UI 구현                                                               |                                                        추억 남기기(사진첩) 로직 구현,<br>인프라 담당                                                        |                                                                여행 일정 동시 편집 UI 구현                                                                |                                                                 AI 플래너 로직, 프롬프트 구현                                                                  |                                                             여행 일정 동시 편집 로직 구현                                                             |                                                                  AI 플래너 UI 구현                                                                   |
 </div>
