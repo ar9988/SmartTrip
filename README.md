@@ -17,23 +17,24 @@
 ### AI 플래너
 > 직접 추가는 그만! 일정 생성의 자동화를 통해 간편하게 일정을 작성하자!
   <p>
-     <img src="/images/기능1_1.gif" width="200" style="margin: 8px" />
-     <img src="/images/기능1_3.gif" width="200" style="margin: 8px" />
-     <img src="/images/기능1_2.gif" width="200" style="margin: 8px" />
+     <img src="https://github.com/user-attachments/assets/c4b73d7b-8c34-49a4-b564-f352b10e7bdd" width="200" style="margin: 8px" />
+     <img src="https://github.com/user-attachments/assets/0bd38113-c1f9-4a57-be0e-00684e544631" width="200" style="margin: 8px" />
+     <img src="https://github.com/user-attachments/assets/513ad69f-b171-4952-a17c-19b3227070a3" width="200" style="margin: 8px" />
   </p>
 
 ### 여행 일정 편집기
 > 함께 만드는 일정! 실시간 동시 편집으로 여행 계획을 더 효율적으로 관리하자!
   <p>
-     <img src="/images/기능2_1.gif" width="200" style="margin: 8px" />
-     <img src="/images/기능2_2.gif" width="200" style="margin: 8px" />
+     <img src="https://github.com/user-attachments/assets/3a6687a7-6d2e-4371-a92b-8e91006814ee" width="200" style="margin: 8px" />
+     <img src="https://github.com/user-attachments/assets/53d99443-b713-4f75-9ee9-f7a051e66018" width="200" style="margin: 8px" />
   </p>
+  
 ### 추억 남기기
 > 소중한 순간을 하나로! 여행의 모든 순간을 사진첩에 남기고 함께 공유하자!
   <p>
-     <img src="/images/기능3_1.gif" width="200" style="margin: 8px" />
-     <img src="/images/기능3_2.gif" width="200" style="margin: 8px" />
-     <img src="/images/기능3_3.gif" width="200" style="margin: 8px" />
+     <img src="https://github.com/user-attachments/assets/5d938c9f-fcd4-4f5d-88e7-9172d0e59793" width="200" style="margin: 8px" />
+     <img src="https://github.com/user-attachments/assets/f4deb7d6-0337-4bba-9fab-6efcfafcea7d" width="200" style="margin: 8px" />
+     <img src="https://github.com/user-attachments/assets/ec07408f-36d6-4784-ae14-68d248810965" width="200" style="margin: 8px" />
   </p>
 
 &nbsp;
