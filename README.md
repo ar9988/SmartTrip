@@ -28,6 +28,10 @@
      <img src="https://github.com/user-attachments/assets/3a6687a7-6d2e-4371-a92b-8e91006814ee" width="200" style="margin: 8px" />
      <img src="https://github.com/user-attachments/assets/53d99443-b713-4f75-9ee9-f7a051e66018" width="200" style="margin: 8px" />
   </p>
+  <p>
+     <img src="/images/기능2_3.gif" width="200" style="margin: 8px" />
+     <img src="/images/기능2_4.gif" width="200" style="margin: 8px" />
+  </p>
   
 ### 추억 남기기
 > 소중한 순간을 하나로! 여행의 모든 순간을 사진첩에 남기고 함께 공유하자!
